@@ -161,3 +161,137 @@ ask();
 </div>
 
   <p>Box 1's answer is first, third, second, and it is the whole model in three lines. <code>0</code> does not mean now. It means "put this on the waiting list with no delay", and the waiting list cannot run until the thread has finished the current job, which includes the rest of your file. Box 2 adds a wrinkle: D beats C because settled promises get a faster lane than timers. Box 3 is the important one. It prints 1, 2, 3, 4, 5, so <code>run()</code> got halfway, handed the thread back at the <code>await</code>, let line 3 run, and only then finished itself.</p>
+
+  <h2>Now in Memento</h2>
+  <div class="lanes">
+    <div class="lane"><div class="h">ANY APP: show the wait before you wait</div>
+      <p>The order of the first four lines of any request-sending function is a user-experience decision, not a technical one. Mark the app busy. Clear the last error so a stale red message does not sit under a fresh spinner. Repaint. Only then reach for the network. Repaint before the await and the spinner appears instantly. Repaint after and the user sees nothing for two seconds and taps again.</p>
+    </div>
+    <div class="lane mem"><div class="h">MEMENTO: autoStartAiChat()</div>
+      <pre><code>async function autoStartAiChat() {
+  if (aiChatLoading) return;
+  aiChatLoading = true;
+  aiChatError = null;
+  refreshAiChatUI();
+
+  try {
+    const context = buildContextMessage();
+    const _luna = lunaActive();
+    const _opts = clarityDiscoveryOptions(ANTHROPIC_MODEL_CLARITY);</code></pre>
+      <div class="src">memento-app/js/03-ai-integration.js:4753-4762 (web pin ca8afc8)</div>
+      <p>Chapter 10's guard, chapter 11's <code>try</code>, and today's <code>async</code>, in nine lines. The guard is the double-submit stop from chapter 10, and it matters far more here: without it, an <code>await</code> parks the card and a second tap would sail straight past into a second paid API call.</p>
+    </div>
+  </div>
+
+  <div class="lanes">
+    <div class="lane"><div class="h">ANY APP: the await, and the net under it</div>
+      <p>The one line that actually crosses the network is small. What surrounds it is the interesting part: a deadline, so a request that never answers does not hang forever, and a catch that turns any failure into a value the rest of the app can handle instead of a crash.</p>
+    </div>
+    <div class="lane mem"><div class="h">MEMENTO NATIVE: transport.ts</div>
+      <pre><code>    try {
+      const response=await wait(ports.http.post(path,{headers:{'Content-Type':'application/json',Authorization:`Bearer ${paid?ports.token():ports.anonKey}`,apikey:ports.anonKey,'x-memento-device':ports.device},body:JSON.stringify(body),signal:controller.signal}));
+      check();if(response.status&lt;200 || response.status&gt;=300)return{status:'failure',code:codeForStatus(response.status)};</code></pre>
+      <div class="src">memento-native/src/ai/transport.ts:73-75 (native pin 93bfa796)</div>
+      <pre><code>    } catch(error) {
+      const safe=['session-changed','cancelled','timeout','invalid-response','response-too-large','stream-error','incomplete-stream'];
+      return {status:'failure',code:error instanceof Error &amp;&amp; safe.includes(error.message)?error.message:'invalid-or-unavailable-response'};
+    } finally {if(timer)clearTimeout(timer);if(stall)clearTimeout(stall);controller.abort();active.delete(controller);}</code></pre>
+      <div class="src">memento-native/src/ai/transport.ts:94-97 (native pin 93bfa796)</div>
+    </div>
+  </div>
+
+  <p><code>wait()</code> is worth a sentence. Line 71 defines it as <code>const wait=&lt;T&gt;(p:Promise&lt;T&gt;)=&gt;Promise.race([p,cancel]);</code>. Two receipts go in and <code>Promise.race</code> hands back whichever settles first: the network, or a timer that rejects. So the await finishes when the reply lands or when the deadline passes, and a dead server can never park that card forever.</p>
+  <p>The catch is the second half. Any throw from that block, a timeout, a torn stream, a reply too big to trust, arrives here and is not re-thrown. It becomes <code>{status:'failure', code:...}</code>, an ordinary value. <code>safe</code> is an allowlist: only those seven messages get out, anything else becomes one generic code, so a raw error can never leak server detail into the app. <code>finally</code> runs on both paths and clears the timers.</p>
+
+  <div class="lanes">
+    <div class="lane"><div class="h">ANY APP: await, then decide</div>
+      <p>Sending data to a database is a request like any other, and the answer matters. You await it, then read what came back and branch: accepted, rejected, or something broke. The awaited call is one line. The decision after it is the feature.</p>
+    </div>
+    <div class="lane mem"><div class="h">MEMENTO: pushNow()</div>
+      <pre><code>  async function pushNow(retryOnConflict) {
+    if (!client || !isLoggedIn() || demo() || adopting) return false;
+    if (firstSyncState !== FIRST_SYNC_READY) { pushQueued = true; return false; }
+    if (pushing) { pushQueued = true; return false; }
+    pushing = true;
+    clearTimeout(pushTimer);
+    try {
+      const snap = (typeof stripInlineMediaForSync === 'function') ? stripInlineMediaForSync(state) : state;
+      const r = await client.rpc('sync_user_state', {
+        p_state: snap,
+        p_device: deviceLabel(),
+        p_expected_revision: lastCloudRevision || 0
+      });</code></pre>
+      <div class="src">memento-app/js/12-cloud-sync.js:770-782 (web pin ca8afc8)</div>
+      <p>Three guards, then the await. The third one, <code>if (pushing)</code>, exists purely because of this chapter: while the card is parked at the <code>await</code>, the thread is free, so another push can start. That flag plus <code>pushQueued</code> is how one upload at a time is enforced when the thread is genuinely available in between.</p>
+    </div>
+  </div>
+
+  <div class="box memento"><div class="h">THE ALTERNATIVE, AND WHY MEMENTO CHOSE THIS</div><p>The alternative to <code>await</code> is <code>.then()</code> chains, the older spelling of the same machinery: <code>fetch(url).then(r =&gt; r.json()).then(data =&gt; ...).catch(...)</code>. It works identically and you will meet it in older code. Memento uses <code>await</code> because a function like <code>pushNow()</code> is a sequence of decisions, and decisions written as straight lines with ordinary <code>if</code> statements are readable by a human at 1am. The cost is that <code>await</code> makes concurrent work look sequential: <code>await a(); await b();</code> takes as long as both added together when the two were independent. That is the standard performance trap, and chapter 25 shows the fix.</p></div>
+
+  <h2>Do it</h2>
+  <div class="ex">
+    <div class="h">Exercise <span class="tag">phone or Mac</span></div>
+    <div class="meta">Where: the two boxes below. Expected: your first prediction is probably wrong, your second one is right, and you can say in one sentence what <code>await</code> handed back to the thread. Reset: the Reset button on each box. This cannot touch Memento.</div>
+    <ol>
+      <li>Read box 1. Write down the order of all five numbered lines. Do not skim it, actually write the five labels down in order.</li>
+      <li>Run it. If you were wrong, find the exact <code>await</code> that broke your prediction and say what happened to the thread at that line.</li>
+      <li><strong>Change one thing.</strong> In box 2, the same program has the <code>await</code> moved. Predict the new order before running. Then run.</li>
+      <li>Last move, and this is the one that proves you have it: in box 2, delete the word <code>await</code> on the line that has it. Predict. Run. Explain the result to yourself out loud in one sentence.</li>
+    </ol>
+  </div>
+
+  <div class="sb">
+// 1. Predict the order of the five numbered lines. Write them down first.
+function pause(ms) { return new Promise(done =&gt; setTimeout(done, ms)); }
+
+async function startInterview() {
+  console.log("2. marking loading, repainting the screen");
+  await pause(100);
+  console.log("4. reply arrived, repainting again");
+}
+
+console.log("1. finger tapped");
+startInterview();
+console.log("3. the thread is free, so this runs");
+setTimeout(() =&gt; console.log("5. and the timer still fires on time"), 150);
+</div>
+
+  <div class="sb">
+// 2. Same program, the await moved one line down. Predict. Then run.
+// Then delete the word "await" on the marked line, predict again, and run.
+function pause(ms) { return new Promise(done =&gt; setTimeout(done, ms)); }
+
+async function startInterview() {
+  console.log("2. marking loading, repainting the screen");
+  console.log("3. building the request");
+  await pause(100);              // &lt;-- delete the word await here on the last run
+  console.log("5. reply arrived, repainting again");
+}
+
+console.log("1. finger tapped");
+startInterview();
+console.log("4. the thread is free, so this runs");
+</div>
+
+  <div class="box why"><div class="h">ASK THE AGENT WHY (paste this into Codex or Fable)</div><pre><code>In memento-app/js/12-cloud-sync.js, read pushNow() starting at line 770. Explain what the app can do between the moment the await on line 778 parks that function and the moment the reply comes back, and what specifically would go wrong if the `pushing` flag on line 773 were deleted. Then, in memento-native/src/ai/transport.ts, explain what Promise.race is doing in the `wait` helper on line 71 and what state the app would be left in if the timeout promise were removed. Do not change anything.</code></pre></div>
+
+  <div class="box words"><div class="h">WORDS YOU NOW OWN</div><dl>
+    <dt>Main thread</dt><dd>The one finger that runs your JavaScript. There is no second one running your functions.</dd>
+    <dt>Queue</dt><dd>The line of jobs waiting for the thread. First in, first out. Nothing jumps it.</dd>
+    <dt>Event loop</dt><dd>One rule: when the thread is empty, take the next job from the queue and run it to completion.</dd>
+    <dt>Callback</dt><dd>A function you hand to something else so it can run it later. Every timer and every event listener is one.</dd>
+    <dt>Promise</dt><dd>A receipt for a value that arrives later. It ends up resolved (here it is) or rejected (here is why not). Never both.</dd>
+    <dt>async</dt><dd>A mark on a function that allows <code>await</code> inside it. An async function always hands back a promise.</dd>
+    <dt>await</dt><dd>Park this function, give the thread back, resume from this line when the receipt is paid. It pauses one function, not the app.</dd>
+    <dt>fetch</dt><dd>Send a request over the network. Hands you a receipt immediately, the reply lands on it later.</dd>
+    <dt>Blocking</dt><dd>Holding the thread so nothing else can run. A long loop blocks. An <code>await</code> does not.</dd>
+    <dt>Fire and forget</dt><dd>Calling an async function without awaiting it. The work starts, you move on, and nobody is watching whether it failed.</dd>
+  </dl></div>
+
+  <div class="box expiry"><div class="h">WHERE TODAY'S ANALOGY BREAKS</div><p><strong>Breaks when:</strong> you say the computer only has one cook. It does not. The browser runs many threads, and this book's own sandbox proves it: every Run button sends your code to a Web Worker, a separate thread, which is why a loop that never ends can be killed without taking the page down. The native side is worse for the analogy, because React Native runs its own JavaScript thread alongside a separate native UI thread and the two pass messages. <strong>Real model:</strong> "one thread" means one JavaScript main thread per page or per app. Your code is never interrupted mid-function and two of your functions never run at the same instant, but plenty is happening beside you. And the thread is genuinely blockable: chapter 1's sandbox 5 froze solid until the timeout killed it, because <code>await</code> buys you nothing against your own slow code. A second, smaller break: the ticket rail is really two rails. See the rabbit hole.</p></div>
+
+  <details class="hole"><summary>RABBIT HOLE: why the promise printed before the timer</summary><p>In sandbox 2, D printed before C even though the timer said 0. There are two queues. Settled promises go on the microtask queue; timers, clicks and network callbacks go on the task queue. After every single task, the thread drains the <em>entire</em> microtask queue before touching the next task. So promises always beat timers, and a promise that schedules another promise that schedules another can starve the timers completely and freeze the page while technically never blocking.</p></details>
+</main>
+<script src="../js/book.js"></script>
+</body>
+</html>

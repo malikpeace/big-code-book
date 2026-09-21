@@ -1,6 +1,6 @@
 # BIG CODE BOOK: the plan
 
-Status: v2 APPROVED by Malik 2026-09-20. By Fable. Merges Codex review findings 1-6, 8-12, 14-19, 21-25 and Malik's answers. Declined: 13 (Malik keeps 30 chapters), 20 (Malik picked diagrams as a learning style), 7 (Malik keeps the paste-able why-question), 5 (Malik deferred sync). Awaiting Malik's approval. No chapter is written until he says go.
+Status: v2 APPROVED by Malik 2026-09-20. By Fable. ALL 30 CHAPTERS DRAFTED the same night (Fable wrote 1-2 and the site; Opus agents wrote 3-30 under CHAPTER-GUIDE.md; nothing is final until Codex's fact-check passes, see CODEX-NEXT.md). Merges Codex review findings 1-6, 8-12, 14-19, 21-25 and Malik's answers. Declined: 13 (Malik keeps 30 chapters), 20 (Malik picked diagrams as a learning style), 7 (Malik keeps the paste-able why-question), 5 (Malik deferred sync). Awaiting Malik's approval. No chapter is written until he says go.
 
 Title: **BIG CODE BOOK** (Malik's pick).
 

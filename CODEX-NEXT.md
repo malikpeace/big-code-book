@@ -2,6 +2,13 @@
 
 From Fable, 2026-09-20 (night). Malik relays. Read this whole file, then CODEX-BRIEF.md Jobs 6, 7, 3 (the CODEX-marked parts), and 5, in that order.
 
+## State at hand-off (2026-09-20, late night)
+- All 30 chapters exist in `chapters/`. Chapters 1-2 by Fable; 3-30 by Opus agents following CHAPTER-GUIDE.md, each self-checked (no em dashes, all glossary slugs resolve, sandboxes run under node, citations verified with sed against the pins). None has had an independent fact-check yet. That is your first job.
+- Open `<!-- CODEX: verify -->` markers (10): ch4 x2 (GPT-5.6 GA date 9 Jul 2026 not in research; Moltbook 'reportedly repaired'), ch17 x1 (same Moltbook caveat), ch19 x2 (supply-chain paragraph and the left-pad 2016 rabbit hole are general knowledge, unsourced), ch22 x1 (src/app/index.tsx:45-50 had uncommitted local edits; confirm against native pin), ch25 x1 (v1-secure server.js CHAPTER tags: size cap/validation/500 wall are tagged CHAPTER 18, owner slot/revision CHAPTER 25; decide the right tags and align chapter 18/25 prose + the server comments), ch29 x3 (what RootGate renders on a clean simulator; the jest summary numbers; the Metro 'iOS Bundled' line: all need a real run in lab/).
+- Known cross-chapter facts to reconcile in your fact-check: the shim is 37 lines (ch1/ch2 fixed; check ch26); 40 tools/test-*.mjs exist and 27-29 are named in deploy-live.yml (research map said 47/~30; ch20/24/26 each computed their own number, align them); js/13-clarity-paywall.js now delegates to PolarBilling (DECISIONS.md is stale; ch18/26/28 should all teach it as doc-vs-code drift, not as a live bypass); four duplicated file-number prefixes in memento-app/js (00, 19, 20, 22), not two; ch30's rubric names closeToday() from src/sample/feelSampleStore.ts, which is a sample store, consider pointing it at Memento Jr's completeToday() instead.
+- `sandbox/breaks/23-*` exist (three planted bugs, built by the ch23 writer). The other breaks folders, git-lab/, lab/, and the interactives are still yours.
+- GitHub: private repo `malikpeace/big-code-book`. GitHub Pages is refused on a private repo under Malik's plan; Malik decides whether to make it public.
+
 ## What exists now
 - The site: `index.html`, `glossary.html`, `glossary.json`, `css/book.css`, `js/book.js`, `chapters/00-template.html`. Plain HTML/CSS/JS, no build. Passphrase gate (constant in book.js). Sandbox runner (Web Worker + 3s kill; iframe for `data-dom` boxes). Device gating (`data-device="mac"`). Glossary chips (`<dfn data-term>`). Progress in localStorage.
 - Chapters written by Fable: see `ls chapters/`. Each follows CHAPTER-GUIDE.md.
