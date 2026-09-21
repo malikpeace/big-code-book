@@ -11,9 +11,11 @@
 
 - Composition: passed. Compact header, chapter progress, live-text focus, scrubber, five playback controls, speed, bookmark, and memory copy follow the approved layout.
 - Typography: passed. Current text is dominant; previous/next text is subdued; chapter metadata remains secondary.
-- Color and effects: passed. Near-black canvas, restrained lime accent, subtle active-word glow, and low-contrast inactive copy match the approved direction.
+- Color and effects: passed. Near-black canvas, restrained lime accent, a clear active-passage marker, and low-contrast inactive copy match the approved direction.
 - Interaction: passed. The mini-player opens the immersive view; minimize returns to the same reading position; play/pause, ±15 seconds, speed, scrubber, chapter navigation, and keyboard controls work.
 - Memory: passed. Chapter, timestamp, speed, expanded/full-screen state, and timestamp bookmark persist on the device. The chapter drawer exposes the saved bookmark time.
+- Transcript sync: passed. The active passage changes only at the exact paragraph boundaries stored in the generated audio manifest; no estimated word-level animation remains.
+- Playback speed: passed. Native selectors in both player views expose 0.5× through 3× and stay synchronized.
 - Responsive behavior: passed at phone and desktop viewports. Controls remain readable and tappable without horizontal overflow.
 - Accessibility: passed. Controls have labels, visible keyboard focus, reduced-motion support, and text equivalents for icon-only actions.
 

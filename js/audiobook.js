@@ -16,6 +16,7 @@
   var immersiveBlock = null;
   var lastSave = 0;
   var returnScrollY = 0;
+  var playbackRates = [0.5, 0.75, 1, 1.25, 1.5, 1.75, 2, 2.5, 3];
   var state = readState();
   var bookmarks = readBookmarks();
   var ui = {};
@@ -26,7 +27,7 @@
       return {
         chapter: Number(parsed.chapter) || 1,
         time: Number(parsed.time) || 0,
-        rate: Number(parsed.rate) || 1,
+        rate: normalizeRate(parsed.rate),
         pendingPlay: !!parsed.pendingPlay,
         expanded: !!parsed.expanded,
         immersive: !!parsed.immersive
@@ -48,6 +49,10 @@
   function saveBookmarks() {
     try { localStorage.setItem('bcb_audio_bookmarks', JSON.stringify(bookmarks)); } catch (e) {}
   }
+  function normalizeRate(value) {
+    var rate = Number(value);
+    return playbackRates.indexOf(rate) === -1 ? 1 : rate;
+  }
   function pad(number) { return number < 10 ? '0' + number : String(number); }
   function chapterHref(number) {
     var chapter = chapters[number - 1];
@@ -62,6 +67,20 @@
     return hours ? hours + ':' + pad(minutes) + ':' + pad(secs) : minutes + ':' + pad(secs);
   }
   function iconSrc(name) { return root + 'img/icons/' + name + '.svg'; }
+  function rateSelect(className) {
+    var select = document.createElement('select');
+    select.className = className;
+    select.setAttribute('aria-label', 'Playback speed');
+    playbackRates.forEach(function (rate) {
+      var option = document.createElement('option');
+      option.value = String(rate);
+      option.textContent = rate + '×';
+      select.appendChild(option);
+    });
+    select.value = String(state.rate);
+    select.addEventListener('change', function () { setRate(select.value); });
+    return select;
+  }
   function iconButton(label, text, action, className) {
     var button = document.createElement('button');
     button.type = 'button';
@@ -187,13 +206,11 @@
     updateTime(true);
   }
   function skip(seconds) { seekTo(audio.currentTime + seconds); }
-  function changeRate() {
-    var rates = [0.75, 1, 1.25, 1.5, 1.75, 2];
-    var index = rates.indexOf(state.rate);
-    state.rate = rates[(index + 1) % rates.length];
+  function setRate(value) {
+    state.rate = normalizeRate(value);
     audio.playbackRate = state.rate;
-    ui.rate.textContent = state.rate + '×';
-    ui.immersiveRate.querySelector('strong').textContent = state.rate + '×';
+    if (ui.rate) ui.rate.value = String(state.rate);
+    if (ui.immersiveRate) ui.immersiveRate.value = String(state.rate);
     saveState(true);
   }
   function currentCueIndex(time) {
@@ -227,18 +244,6 @@
       }
     }
   }
-  function renderCurrentWords(text) {
-    ui.transcriptCurrent.innerHTML = '';
-    ui.transcriptCurrent.setAttribute('aria-label', text);
-    var words = text.split(/\s+/).filter(Boolean);
-    words.forEach(function (word, index) {
-      var span = document.createElement('span');
-      span.textContent = word + (index < words.length - 1 ? ' ' : '');
-      span.setAttribute('aria-hidden', 'true');
-      ui.transcriptCurrent.appendChild(span);
-    });
-    ui.currentWords = Array.prototype.slice.call(ui.transcriptCurrent.children);
-  }
   function updateImmersiveTranscript(time, force) {
     if (!state.immersive || !pageChapter || !track || !blocks.length) return;
     var cueIndex = currentCueIndex(time);
@@ -250,18 +255,10 @@
       var current = blockText(blockIndex);
       ui.transcriptPrevious.textContent = blockText(blockIndex - 1);
       ui.transcriptNext.textContent = blockText(blockIndex + 1);
-      renderCurrentWords(current);
+      ui.transcriptCurrent.textContent = current;
       ui.transcript.classList.toggle('is-long', current.length > 180);
       ui.transcript.classList.toggle('is-very-long', current.length > 300);
     }
-    var nextAt = track.cues[cueIndex + 1] ? track.cues[cueIndex + 1].at : track.duration;
-    var span = Math.max(0.25, nextAt - cue.at);
-    var ratio = Math.max(0, Math.min(0.999, (time - cue.at) / span));
-    var activeWord = Math.floor(ratio * Math.max(1, ui.currentWords.length));
-    ui.currentWords.forEach(function (word, index) {
-      word.classList.toggle('heard', index < activeWord);
-      word.classList.toggle('speaking', index === activeWord);
-    });
   }
   function updateBookmarkButton() {
     if (!ui.bookmark) return;
@@ -384,8 +381,8 @@
     blocks.forEach(function (node, index) { node.setAttribute('data-audio-block', String(index)); });
     audio.src = root + track.src;
     audio.playbackRate = state.rate;
-    ui.rate.textContent = state.rate + '×';
-    ui.immersiveRate.querySelector('strong').textContent = state.rate + '×';
+    ui.rate.value = String(state.rate);
+    ui.immersiveRate.value = String(state.rate);
     audio.addEventListener('loadedmetadata', function () {
       if (state.chapter === pageChapter && state.time > 0 && state.time < (track.duration - 2)) audio.currentTime = state.time;
       paintHighlight(audio.currentTime || 0);
@@ -423,7 +420,7 @@
       '    <div class="audio-immersive-progress"><input class="audio-immersive-range" type="range" min="0" max="1" step="0.1" value="0" aria-label="Audiobook position"><div><span class="audio-immersive-elapsed">0:00</span><span class="audio-immersive-remaining">-0:00</span></div></div>',
       '    <div class="audio-immersive-controls"></div>',
       '    <div class="audio-immersive-utilities">',
-      '      <button class="audio-immersive-rate" type="button" aria-label="Change playback speed"><strong>1×</strong><span>Speed</span></button>',
+      '      <label class="audio-immersive-rate"><select aria-label="Playback speed"></select><span>Speed</span></label>',
       '      <button class="audio-bookmark" type="button" aria-pressed="false"><img alt="" aria-hidden="true"><span class="audio-bookmark-label">Bookmark</span></button>',
       '    </div>',
       '    <p class="audio-memory-note">Progress saved automatically on this device.</p>',
@@ -441,7 +438,7 @@
     ui.immersiveElapsed = immersive.querySelector('.audio-immersive-elapsed');
     ui.immersiveRemaining = immersive.querySelector('.audio-immersive-remaining');
     ui.immersiveRange = immersive.querySelector('.audio-immersive-range');
-    ui.immersiveRate = immersive.querySelector('.audio-immersive-rate');
+    ui.immersiveRate = immersive.querySelector('.audio-immersive-rate select');
     ui.bookmark = immersive.querySelector('.audio-bookmark');
     ui.segments = immersive.querySelector('.audio-segments');
     ui.transcript = immersive.querySelector('.audio-transcript');
@@ -451,7 +448,13 @@
     ui.immersiveChapters = immersive.querySelector('.audio-immersive-chapters');
     ui.immersiveLibrary = immersive.querySelector('.audio-immersive-library');
     ui.immersiveList = immersive.querySelector('.audio-immersive-list');
-    ui.currentWords = [];
+    playbackRates.forEach(function (rate) {
+      var option = document.createElement('option');
+      option.value = String(rate);
+      option.textContent = rate + '×';
+      ui.immersiveRate.appendChild(option);
+    });
+    ui.immersiveRate.value = String(state.rate);
     immersive.querySelector('.audio-immersive-close img').src = iconSrc('caret-down');
     immersive.querySelector('.audio-immersive-chapters img').src = iconSrc('list');
     ui.bookmark.querySelector('img').src = iconSrc('bookmark-simple');
@@ -460,7 +463,7 @@
     immersive.querySelector('.audio-immersive-close').addEventListener('click', function () { setImmersive(false); });
     ui.immersiveChapters.addEventListener('click', function () { setImmersiveLibrary(!immersive.classList.contains('library-open')); });
     immersive.querySelector('.audio-immersive-library-head button').addEventListener('click', function () { setImmersiveLibrary(false); });
-    ui.immersiveRate.addEventListener('click', changeRate);
+    ui.immersiveRate.addEventListener('change', function () { setRate(ui.immersiveRate.value); });
     ui.bookmark.addEventListener('click', toggleBookmark);
     ui.immersiveRange.addEventListener('input', function () {
       ui.immersiveElapsed.textContent = formatTime(Number(ui.immersiveRange.value));
@@ -511,7 +514,7 @@
     controls.appendChild(ui.play);
     controls.appendChild(iconButton('Go forward 15 seconds', '+15', function () { skip(15); }, 'time-skip'));
     controls.appendChild(iconButton('Next chapter', '›', function () { navigate((pageChapter || state.chapter) + 1, true, 0); }, 'chapter-skip'));
-    ui.rate = iconButton('Change playback speed', state.rate + '×', changeRate, 'audio-rate');
+    ui.rate = rateSelect('audio-rate');
     controls.appendChild(ui.rate);
     ui.expand.addEventListener('click', function () { setExpanded(!state.expanded); });
     shell.querySelector('.audio-cover').addEventListener('click', function () { setImmersive(true); });
