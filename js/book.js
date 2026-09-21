@@ -106,7 +106,12 @@
     applyTheme();
   }
   var ICON_MENU = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>';
+  var ICON_FOCUS = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>';
   var ICON_SUN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>';
+
+  /* ---------- 5b. Focus mode: hide everything but the words ---------- */
+  function applyFocus() { document.documentElement.classList.toggle('focus', !!store('bcb_focus')); }
+  function toggleFocus() { store('bcb_focus', !store('bcb_focus')); applyFocus(); if (side) side.classList.remove('open'); document.body.classList.remove('drawer-open'); }
 
   /* ---------- 6. Sidebar + topbar ---------- */
   var side;
@@ -117,7 +122,10 @@
     side.innerHTML = '';
     side.appendChild(el('div', { class: 'brand' }, [
       el('a', { href: root + 'index.html' }, ['BIG CODE BOOK']),
-      el('button', { class: 'icon-btn', 'aria-label': 'Toggle light or dark', html: ICON_SUN, onclick: toggleTheme })
+      el('div', { class: 'btns' }, [
+        el('button', { class: 'icon-btn', 'aria-label': 'Focus mode', title: 'Focus: only the words', html: ICON_FOCUS, onclick: toggleFocus }),
+        el('button', { class: 'icon-btn', 'aria-label': 'Toggle light or dark', html: ICON_SUN, onclick: toggleTheme })
+      ])
     ]));
     side.appendChild(el('div', { class: 'prog' }, [el('i', { style: 'width:' + Math.round(doneCount / CHAPTERS.length * 100) + '%' })]));
     side.appendChild(el('div', { class: 'prog-t' }, [doneCount + ' of ' + CHAPTERS.length + ' done']));
@@ -138,16 +146,27 @@
     var main = $('main') || el('main');
     var col = el('div', { style: 'min-width:0' });
     var top = el('div', { class: 'topbar' }, [
-      el('button', { class: 'icon-btn', 'aria-label': 'Open contents', html: ICON_MENU, onclick: function () { side.classList.add('open'); } }),
+      el('button', { class: 'icon-btn', 'aria-label': 'Open contents', html: ICON_MENU, onclick: function () { side.classList.add('open'); document.body.classList.add('drawer-open'); } }),
       el('span', { class: 't' }, [chapterNo ? 'Chapter ' + chapterNo : 'BIG CODE BOOK']),
-      el('button', { class: 'icon-btn', 'aria-label': 'Toggle light or dark', html: ICON_SUN, onclick: toggleTheme })
+      el('div', { class: 'btns' }, [
+        el('button', { class: 'icon-btn', 'aria-label': 'Focus mode', title: 'Focus: only the words', html: ICON_FOCUS, onclick: toggleFocus }),
+        el('button', { class: 'icon-btn', 'aria-label': 'Toggle light or dark', html: ICON_SUN, onclick: toggleTheme })
+      ])
     ]);
+    document.body.appendChild(el('button', { class: 'btn focus-exit', onclick: toggleFocus }, ['Exit focus']));
     document.body.insertBefore(wrap, document.body.firstChild);
     wrap.appendChild(side); wrap.appendChild(col); col.appendChild(top); col.appendChild(main);
     renderSide();
     document.addEventListener('click', function (e) {
-      if (side.classList.contains('open') && !side.contains(e.target) && !top.contains(e.target)) side.classList.remove('open');
+      if (side.classList.contains('open') && !side.contains(e.target) && !top.contains(e.target)) { side.classList.remove('open'); document.body.classList.remove('drawer-open'); }
     });
+    // Swipe in from the left edge opens the contents, like a native drawer.
+    var sx = null, sy = null;
+    document.addEventListener('touchstart', function (e) { var t = e.touches[0]; sx = t.clientX < 24 ? t.clientX : null; sy = t.clientY; }, { passive: true });
+    document.addEventListener('touchmove', function (e) {
+      if (sx === null) return; var t = e.touches[0];
+      if (t.clientX - sx > 50 && Math.abs(t.clientY - sy) < 40) { side.classList.add('open'); document.body.classList.add('drawer-open'); sx = null; }
+    }, { passive: true });
   }
 
   /* ---------- 7. Chapter furniture: prev/next, done button, tags ---------- */
@@ -342,6 +361,7 @@
 
   /* ---------- 12. Boot ---------- */
   applyTheme();
+  applyFocus();
   function boot() {
     mountChrome();
     chapterFurniture();
