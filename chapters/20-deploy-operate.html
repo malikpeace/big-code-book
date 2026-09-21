@@ -1,0 +1,300 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>20. Deploy and operate. BIG CODE BOOK</title>
+<link rel="stylesheet" href="../css/book.css">
+<meta name="theme-color" content="#0b0b0d">
+</head>
+<body data-chapter="20">
+<main>
+  <div class="kicker">Chapter 20 <span class="tag need">NEED</span> <span class="tag">~55 min</span></div>
+  <h1>Deploy and operate</h1>
+  <p class="lede">Code on your Mac helps nobody. This chapter is the last hop of the journey: how a change becomes something on a stranger's phone, what stands between the two, and what the job turns into once it is live.</p>
+
+  <div class="box recap"><div class="h">LAST TIME</div><p>A dependency is borrowed code with a version number, package.json is what you asked for and the lockfile is what you got. Humans run <code>npm install</code>, robots run <code>npm ci</code>. A secret is a value the code needs and must never contain, so it arrives from the environment at run time, and a leaked key gets revoked, not deleted.</p></div>
+
+  <h2>Quick check</h2>
+  <details class="check"><summary>Why do robots run <code>npm ci</code> instead of <code>npm install</code>?</summary><div class="a">Because <code>ci</code> reproduces the lockfile exactly and fails if the lockfile and package.json disagree. <code>install</code> may resolve a range to something newer, so the robot could test a different app than the one you wrote.</div></details>
+  <details class="check"><summary>Chapter 17: what is a migration, and why are they forward-only?</summary><div class="a">A dated, numbered change to the database's shape, kept as a file. Forward-only because the database already holds real rows, so you add a new step rather than editing one that already ran.</div></details>
+  <details class="check"><summary>Chapter 15: what is a status code for?</summary><div class="a">It is the one-line verdict on a request. 200 worked, 4xx means you asked wrong, 5xx means the server broke. It is how a caller decides what to do next without reading the body.</div></details>
+
+  <h2>The idea</h2>
+  <p>There is more than one copy of your app, and the copies are not equal. An <dfn data-term="environment">environment</dfn> is one running copy, with its own data, its own settings, and its own audience. Three are normal.</p>
+  <table>
+    <tr><th>Environment</th><th>Who sees it</th><th>What breaking it costs</th></tr>
+    <tr><td>local</td><td>You, on your Mac</td><td>Nothing. Break it constantly.</td></tr>
+    <tr><td>staging or dev</td><td>You and your testers</td><td>An hour. Fake data only.</td></tr>
+    <tr><td><dfn data-term="production">production</dfn></td><td>Real users, real money</td><td>Trust, and sometimes data you cannot get back.</td></tr>
+  </table>
+  <p>The separation is the whole point. Production has real people's notes in it, so if the only copy is production, every experiment is an experiment on your customers. The day an agent decides to tidy the database is the day you find out you had no other copy. That is the Replit incident from chapter 4.</p>
+  <p>Now the two verbs people mix up. A <dfn data-term="build">build</dfn> turns source into the thing that actually runs: it bundles files, strips comments, shrinks names, and produces an output folder. Running happens afterwards. Not every app needs a build. Memento's web app has none, because a browser reads its files directly. The native app needs one, because a phone cannot read a folder of TypeScript.</p>
+  <p>Between "I finished" and "users have it" sits a robot. <dfn data-term="continuous-integration">Continuous integration</dfn>, CI, is a machine that wakes up on every push, checks out your code on a clean rented computer, and runs your checks. No opinions, no bad days. If a check exits non-zero, it refuses, which is chapter 6's exit code doing the most important job it will ever do.</p>
+  <p>If the checks pass, the robot can <dfn data-term="deploy">deploy</dfn>: copy this exact version to the place users reach. That place is <dfn data-term="hosting">hosting</dfn>, a computer somewhere that answers when someone knocks. The knocking works because of <dfn data-term="dns">DNS</dfn>, the internet's phone book, which turns a name like mementoapp.co into the number of a machine. You rent the name, point it at your host, and the phone book spreads the answer around the world over the next few hours.</p>
+
+  <div class="box analogy"><div class="h">ANALOGY (TEMPORARY)</div><p>A newspaper. Your laptop is the reporter's notebook: scribble anything, nobody cares. Staging is the proof copy, printed once, read by two people looking for typos. Production is the print run on the truck. The robot is the sub-editor who will not let a page through with a hole in it. Deploying is the truck leaving. And DNS is the phone book that tells a stranger which address the paper comes from. Once the truck is gone, you cannot un-print. You can only print a correction and send another truck.</p></div>
+
+  <figure class="fig-box">
+    <svg class="figure" viewBox="0 0 640 300" role="img" aria-label="Three environments in a row: local on your Mac at port 8090, CI on a clean rented computer, and production which is what the phone loads. Under CI sits the gate, a syntax check plus the test scripts, where one red exit code stops everything. At the bottom, the two-repo mirror: the private repo malikpeace slash memento is copied by rsync with delete into the public repo malikpeace slash memento-live, which GitHub Pages serves on the phone URL.">
+      <text class="st lo" x="20" y="18">three copies of the same app</text>
+      <rect class="bx" x="20" y="26" width="180" height="58" rx="8"/>
+      <text class="st b" x="110" y="49" text-anchor="middle">local</text>
+      <text class="st lo" x="110" y="70" text-anchor="middle">your Mac, port 8090</text>
+      <path class="ln" d="M200 55 H230"/>
+      <rect class="bx cy" x="230" y="26" width="180" height="58" rx="8"/>
+      <text class="st b" x="320" y="49" text-anchor="middle">CI</text>
+      <text class="st lo" x="320" y="70" text-anchor="middle">a clean rented computer</text>
+      <path class="ln" d="M410 55 H440"/>
+      <rect class="bx acc" x="440" y="26" width="180" height="58" rx="8"/>
+      <text class="st b" x="530" y="49" text-anchor="middle">production</text>
+      <text class="st lo" x="530" y="70" text-anchor="middle">what the phone loads</text>
+
+      <path class="ln cy" d="M320 84 V112"/>
+      <rect class="bx cy" x="190" y="112" width="260" height="52" rx="8"/>
+      <text class="st mono" x="320" y="134" text-anchor="middle">node --check + the tests</text>
+      <text class="st lo" x="320" y="153" text-anchor="middle">one non-zero exit and nothing moves</text>
+
+      <text class="st lo" x="20" y="196">the two-repo mirror</text>
+      <rect class="bx" x="20" y="204" width="230" height="62" rx="8"/>
+      <text class="st mono" x="135" y="228" text-anchor="middle">malikpeace/memento</text>
+      <text class="st lo" x="135" y="248" text-anchor="middle">private. everything.</text>
+      <text class="st mono" x="310" y="228" text-anchor="middle">rsync --delete</text>
+      <path class="ln acc" d="M250 240 H370"/>
+      <rect class="bx acc" x="370" y="204" width="250" height="62" rx="8"/>
+      <text class="st mono" x="495" y="228" text-anchor="middle">malikpeace/memento-live</text>
+      <text class="st lo" x="495" y="248" text-anchor="middle">public. memento-app/ only.</text>
+      <text class="st lo" x="320" y="290" text-anchor="middle">GitHub Pages serves the right-hand box on the phone URL</text>
+    </svg>
+    <figcaption>Local, checked, live. The public repo is a copy, not the original.</figcaption>
+  </figure>
+
+  <h3>Cache busting, and why it is the bug you will hit</h3>
+  <p>Browsers and phones keep copies of files so pages load fast. That is a feature until you ship a fix and the user keeps getting yesterday's file, because as far as the browser knows, <code>app.js</code> is <code>app.js</code>. The fix is to change the address: <code>app.js?v=1378</code> is a different URL, so nothing cached can answer it. That is <dfn data-term="cache-busting">cache busting</dfn>. A bundler does it for you with a hash of the file's contents in the filename. By hand it works exactly as well, right up until a human forgets.</p>
+
+  <h3>When it goes wrong</h3>
+  <p>Every version you ship is a commit, so undoing a bad deploy is undoing a commit. <dfn data-term="rollback">Rollback</dfn> is <code>git revert</code> of the offending commit and a push, and the robot deploys the corrected version the same way it deployed the broken one. Note what you do not do: edit production by hand, or force-push history away. A revert is a new commit saying "undo that", which keeps the record, and the record is how you stop it happening twice.</p>
+  <p>Then there is the day something is wrong and you do not know what. Three moves, in this order, and the order is the lesson.</p>
+  <ol>
+    <li><strong>Stop the bleeding.</strong> Roll back, or flip the feature off. Do not debug a live fire.</li>
+    <li><strong>Tell the users.</strong> Before they tell you. A short honest line beats silence every time.</li>
+    <li><strong>Then find the cause.</strong> Calmly, with the logs, once nobody is being hurt by it.</li>
+  </ol>
+  <p>Step three needs somewhere to look. A <dfn data-term="log">log</dfn> is the app writing down what it did, and every layer keeps its own: the browser console for the phone, the backend dashboard for the server, the CI run log for the deploy. Knowing which of the three to open is most of the skill.</p>
+  <p>Two more operator facts. A <dfn data-term="backup">backup</dfn> is a scheduled copy of the data, and restoring one puts the database back to a moment in time, throwing away everything after it. A backup you have never restored is a hope. And cost: some vendors bill per month, some per call, and the per-call ones are the ones that surprise you, because a loop with a bug spends money at machine speed.</p>
+
+  <h2>See it</h2>
+  <p>A CI pipeline, whole, in fifteen lines. Checks in order, stop at the first failure, hand back an exit code. Everything after this is the same idea with more YAML.</p>
+  <div class="sb">
+const CHECKS = [
+  { name: "syntax",    run: () =&gt; true },
+  { name: "typecheck", run: () =&gt; true },
+  { name: "tests",     run: () =&gt; false },   // flip this to true and run it again
+  { name: "deploy",    run: () =&gt; true }
+];
+
+let code = 0;
+for (const check of CHECKS) {
+  if (check.run()) { console.log("  pass   " + check.name); continue; }
+  console.log("  FAIL   " + check.name);
+  code = 1;
+  break;                                      // nothing after a failure runs
+}
+console.log(code === 0 ? "deployed." : "exit code " + code + ", live is unchanged.");
+</div>
+  <p>Notice the <code>break</code>. Deploy is the last item in the list, so a red test is a closed door, not a warning. Flip the tests to <code>true</code>, run it again, and watch it open.</p>
+
+  <h3>Same file, different address</h3>
+  <div class="sb">
+const cache = new Map();
+
+function load(url) {
+  if (cache.has(url)) { console.log("from cache:  " + url); return; }
+  cache.set(url, "fresh bytes");
+  console.log("downloaded:  " + url);
+}
+
+load("js/01-state.js?v=v1377");
+load("js/01-state.js?v=v1377");   // the phone already has this one
+load("js/01-state.js?v=v1378");   // one character changed. it is a new URL.
+load("js/01-state.js");           // and no tag at all is a fourth address
+console.log("addresses the phone thinks exist: " + cache.size);
+</div>
+  <p>Three downloads from three addresses, for one file. The browser is matching strings, nothing more. That is the entire mechanism behind every "it works on my machine but his phone shows the old version" conversation you will ever have.</p>
+
+  <h3>Which copy am I?</h3>
+  <div class="sb">
+function environmentOf(env) {
+  if (env.CI === "1") return "ci";
+  if (!env.APP_URL) return "local";
+  return env.APP_URL.includes("staging") ? "staging" : "production";
+}
+
+const CASES = [
+  { CI: "1" },
+  {},
+  { APP_URL: "https://staging.example.com" },
+  { APP_URL: "https://mementoapp.co" }
+];
+
+CASES.forEach(function (env) {
+  const where = environmentOf(env);
+  console.log(where + (where === "production" ? "   &lt;-- be careful here" : ""));
+});
+</div>
+  <p>Code that can ask where it is running can also refuse to do dangerous things there. That is the shape of a <dfn data-term="kill-switch">kill switch</dfn>, and Memento has a real one.</p>
+
+  <h2>Now in Memento</h2>
+  <div class="lanes">
+    <div class="lane"><div class="h">ANY APP</div>
+      <p>A deploy pipeline answers four questions, and you can read any project's by looking for them.</p>
+      <p><strong>When does it run?</strong> A trigger: which branch, which files.</p>
+      <p><strong>What must pass?</strong> The gate: the checks, and whether it stops at the first red.</p>
+      <p><strong>Where does it copy to?</strong> The target, and with what permission.</p>
+      <p><strong>How do I undo it?</strong> Revert and push, or nothing, which is not an answer.</p>
+    </div>
+    <div class="lane mem"><div class="h">MEMENTO</div>
+      <p>The trigger. One branch, one folder:</p>
+      <pre><code>on:
+  push:
+    branches: [main]
+    paths:
+      - 'memento-app/**'
+  workflow_dispatch: {}   # lets you trigger a manual redeploy from the Actions tab</code></pre>
+      <div class="src">.github/workflows/deploy-live.yml:14-19 (web pin ca8afc8)</div>
+      <p>A push to a branch is the deploy. Nobody uploads anything, and a change outside <code>memento-app/</code> triggers nothing at all.</p>
+      <p>The gate, first half. Every JavaScript file is parsed before anything moves:</p>
+      <pre><code>          for f in memento-app/js/*.js; do
+            node --check "$f" || { echo "SYNTAX ERROR in $f"; fail=1; }
+          done
+          if [ "$fail" != "0" ]; then
+            echo "::error::A JS file failed the syntax check. Deploy aborted; live is unchanged."
+            exit 1
+          fi</code></pre>
+      <div class="src">.github/workflows/deploy-live.yml:47-53 (web pin ca8afc8)</div>
+      <p><code>node --check</code> parses a file without running it. For an app with no build step and no compiler, it is the only thing standing between a stray bracket and a white screen on every customer's phone.</p>
+      <p>The gate, second half. Thirty-odd scripts, named one at a time:</p>
+      <pre><code>          node tools/test-cloud-sync.js
+          node tools/test-backup-security.mjs
+          node tools/test-service-worker-manifest.mjs
+          node tools/test-database-boundaries.mjs
+          node tools/test-function-auth-config.mjs</code></pre>
+      <div class="src">.github/workflows/deploy-live.yml:54-58 (web pin ca8afc8)</div>
+      <p>They run under <code>set -e</code>, so the first non-zero exit kills the job and live never changes. The cost of having no test runner: this list is hand-maintained, and a test file nobody adds to this block is a test that never runs.</p>
+      <p>The copy. Note the token, by name only:</p>
+      <pre><code>          rsync -a --delete --exclude='.git' --exclude='mockups' memento-app/ live/</code></pre>
+      <div class="src">.github/workflows/deploy-live.yml:108 (web pin ca8afc8)</div>
+      <p><code>--delete</code> means the destination ends up identical to the source, including files that were removed. The comment above says why that matters, and why one folder is exempt:</p>
+      <pre><code>          # Keep production identical to the reviewed app. This also removes
+          # deleted files so an obsolete private or vulnerable route cannot
+          # remain publicly reachable after it leaves memento-app/.
+          #
+          # mockups/ is EXCLUDED from that sweep. It is published straight to
+          # memento-live by the render chat and does not exist under
+          # memento-app/, so --delete wiped it on every single app deploy and
+          # Malik got a 404 each time he opened a render link.</code></pre>
+      <div class="src">.github/workflows/deploy-live.yml:97-104 (web pin ca8afc8)</div>
+      <p>An operations decision written down at the point of impact: a security property, the bug it caused, the exemption, the tradeoff. The secret that lets the robot push appears by name only, <code>LIVE_DEPLOY_TOKEN</code>, with its value in the repository's Actions secrets. Chapter 19's rule, applied to a robot.</p>
+      <p>The native side has its own robot, and it is the chapter-19 rules in a job:</p>
+      <pre><code>      - run: npm ci --no-audit --no-fund
+      - run: npm run check
+      - run: npx expo install --check
+      - run: npx expo export --platform ios --output-dir dist-ios
+      - run: npx expo export --platform android --output-dir dist-android</code></pre>
+      <div class="src">.github/workflows/native-ci.yml:40-44 (native pin 93bfa796; this workflow did not exist yet at the web pin)</div>
+      <p><code>npm ci</code> reproduces the lockfile. <code>npm run check</code> is the type checker and then the tests, joined by <code>&amp;&amp;</code> from chapter 6. The two <code>expo export</code> lines are the build, proving the app can be produced for both phones. This workflow checks and builds, it does not ship: getting a native app to users means the App Store, which is a later chapter.</p>
+      <p>Now the cache. The version stamp in the shell says v1378. Count the tags on the script URLs:</p>
+      <pre><code>  28  ?v=v1358
+   7  ?v=v1020
+   5  ?v=v1229
+   5  ?v=v1205
+   2  ?v=v1378
+   ... 9 more, one tag each</code></pre>
+      <div class="src">produced by: grep -o '?v=v[0-9]*' memento-app/index.html | sort | uniq -c (web pin ca8afc8)</div>
+      <p>Fifty-seven tags, fourteen different versions. That is not rot, it is a record: a tag is bumped by hand when that file changes, so the numbers show when each file was last touched. Two files changed in v1378:</p>
+      <pre><code>&lt;script src="js/01-state-foundation.js?v=v1378"&gt;&lt;/script&gt;
+&lt;script src="js/02-clarity-experience.js?v=v1358"&gt;&lt;/script&gt;</code></pre>
+      <div class="src">memento-app/index.html:818-819 (web pin ca8afc8)</div>
+      <p>A bundler would compute every one of those from the file's contents, so forgetting would be impossible. By hand, forgetting is a Tuesday. Hence a second net, bolted on after it happened:</p>
+      <pre><code>/* v980: the JS build stamp. The release sed bump rewrites the version in BOTH
+   index.html AND this line; js/11 compares them at boot and force-refreshes
+   ONCE on mismatch. Kills the "phone silently runs old cached js under a new
+   index" class (the SW's offline fallback can serve stale files on a bad
+   connection; Malik hit this three times in one day). */
+window.MEMENTO_JS_BUILD = 'v1378';</code></pre>
+      <div class="src">memento-app/js/01-state-foundation.js:5-10 (web pin ca8afc8)</div>
+      <p>The shell declares a version, the scripts declare a version, the boot code compares them. Mismatch means the phone is running a stale mix, so it repairs itself once. Three times in one day is why that code exists: an operations problem solved inside the app.</p>
+      <p>Where the app actually lives. The domain is real and the server knows it:</p>
+      <pre><code>const PRODUCTION_ORIGINS = new Set([
+  'https://malikpeace.github.io',
+  'https://mementoapp.co',
+  'https://www.mementoapp.co',
+]);</code></pre>
+      <div class="src">supabase/functions/_shared/request-security.ts:1-5 (web pin ca8afc8)</div>
+      <p>Two names for one app: the GitHub Pages address serving <code>memento-live</code>, and the bought domain pointed at it by DNS. Day to day, neither is used:</p>
+      <pre><code>- Local preview: served at `http://localhost:8090/index.html` by the `Open
+  Memento (new modular).command` launcher (serves `memento-app/`).
+- Netlify is only for the occasional public link (deploys cost credits)</code></pre>
+      <div class="src">CLAUDE.md:78 and the start of 80 (native pin 93bfa796). Line 78 is wrapped here to fit; line 80 continues past the quote.</div>
+      <p>Localhost is free and instant, Netlify costs credits, production is for finished work. Environments chosen by cost.</p>
+      <p>Last, the kill switch. Real billing does not turn on because code shipped, it turns on because an environment variable says so:</p>
+      <pre><code>export function productionBillingMode(): ProductionBillingMode {
+  const mode = String(Deno.env.get('POLAR_PRODUCTION_MODE') || 'disabled')
+    .trim()
+    .toLowerCase();
+  return mode === 'test' || mode === 'live' ? mode : 'disabled';
+}</code></pre>
+      <div class="src">supabase/functions/_shared/polar-production.ts:77-82 (web pin ca8afc8)</div>
+      <p>Read the default. Anything unset, misspelled or unrecognised lands on <code>disabled</code>. Turning real payments on is one setting in a dashboard, and turning them off in an incident is the same setting, with no deploy and no waiting. That is what an operations control looks like.</p>
+    </div>
+  </div>
+  <div class="box memento"><div class="h">THE ALTERNATIVE, AND WHY MEMENTO CHOSE THIS</div><p>The obvious alternative is one repo, made public, served straight from Pages. Simpler, and wrong here: the repo holds migrations, workflow files, internal handoff documents and the whole agent protocol, none of which is anyone's business. So the private repo stays private and a robot mirrors only <code>memento-app/</code> into a public one, which also means the public repo can never hold a file the app does not serve. The second alternative is a real host with a build step, giving automatic cache busting and proper environments, at the cost of a build, an install, and a pipeline that can break on its own. Memento bought the no-build simplicity and pays for it in hand-written <code>?v=</code> tags and a hand-listed test block, with the boot-time build stamp as the net for the one failure mode that trade creates.</p></div>
+
+  <h2>Do it</h2>
+  <div class="ex">
+    <div class="h">Exercise <span class="tag">READ</span></div>
+    <div class="meta">Where: github.com in any browser, phone or Mac. Sign in as yourself first. Expected: a list of workflow runs, each with a green tick or a red cross, and a step you can expand into a log. Reset: nothing to reset, you are only reading. This cannot touch Memento: do not press Re-run, and do not press Cancel on anything.</div>
+    <ol>
+      <li>Open <code>https://github.com/malikpeace/memento/actions</code> and sign in.</li>
+      <li>In the left sidebar, find the workflow named <strong>Deploy to live</strong>. Click it. You now see only its runs, newest first.</li>
+      <li>Read the list. Each row is one push: a commit message, a green tick or a red cross, who pushed it, and how long it took. Find the most recent green one and note the duration.</li>
+      <li>Click that run. You get the job, called <strong>deploy</strong>. Click the job name to open the steps.</li>
+      <li>Write down the three main steps in order, in your own words. They are the ones you read above: check out the code, run the safety gate, mirror the folder. Everything else is setup.</li>
+      <li>Expand <strong>Release safety gate</strong> and scroll to the bottom. The last line is <code>All release safety checks passed.</code> Above it, every test script that ran, in the order the file lists them.</li>
+      <li>Expand <strong>Mirror memento-app/ to the live repo</strong> and find the final line naming the short commit that was deployed. That string is the version of Memento the phone is running.</li>
+      <li>If there is a red run in the list, open it. The failed step carries a red cross and its log stops at the line that failed. Nothing after it ran: the <code>break</code> from the sandbox, in real life.</li>
+    </ol>
+  </div>
+  <div class="ex" data-device="mac">
+    <div class="h">Mac alternative, if you would rather not open a browser <span class="tag mac">MAC</span></div>
+    <div class="meta">Where: Terminal, anywhere. Expected: five commit lines. Reset: none, <code>git log</code> only reads. This cannot touch Memento.</div>
+    <ol>
+      <li><code>git -C ~/Downloads/MEMENTO log --oneline -5 -- memento-app</code></li>
+      <li>All five touched <code>memento-app/</code>, so each would have woken the robot and, if the gate passed, changed what the phone loads. The top line is v1378.</li>
+      <li>Now drop the <code>-- memento-app</code> and run it again. More commits, and the extra ones are the pushes that deployed nothing. That difference is the <code>paths:</code> filter, doing its job.</li>
+    </ol>
+  </div>
+
+  <div class="box why"><div class="h">ASK THE AGENT WHY (paste this into Codex or Fable)</div><pre><code>Walk me through .github/workflows/deploy-live.yml top to bottom and tell me exactly what a user would experience if each step failed: the syntax gate, one test script, and the rsync step. Then explain what I would type to roll back a bad deploy, and what would happen to a user whose phone had already cached the broken version. Do not change anything.</code></pre></div>
+
+  <div class="box words"><div class="h">WORDS YOU NOW OWN</div><dl>
+    <dt>Environment</dt><dd>One running copy of the app with its own data and settings. Local, staging, production. Keeping them apart is what stops an experiment becoming an incident.</dd>
+    <dt>Build</dt><dd>Turning source into the thing that runs. Memento's web app skips it entirely; the native app does it with <code>expo export</code>.</dd>
+    <dt>CI</dt><dd>A robot that checks out every push on a clean machine and runs your checks. A non-zero exit code means it refuses.</dd>
+    <dt>Deploy</dt><dd>Copying one exact version to where users reach it. In Memento it is an <code>rsync</code> from a private repo into a public one, triggered by a push.</dd>
+    <dt>Hosting</dt><dd>The computer that answers when someone knocks. Memento's web app is served by GitHub Pages out of the mirrored repo.</dd>
+    <dt>DNS</dt><dd>The phone book from a name to a machine. It is why mementoapp.co and a github.io address can be the same app.</dd>
+    <dt>Cache busting</dt><dd>Changing the address so a cached copy cannot answer. A bundler does it with a content hash; Memento does it by hand with <code>?v=v1378</code>.</dd>
+    <dt>Rollback</dt><dd>Revert the commit, push, let the robot deploy the corrected version. Never edit production by hand.</dd>
+    <dt>Log</dt><dd>The app writing down what it did. Browser console for the phone, Supabase dashboard for the edge functions, the Actions run log for the deploy.</dd>
+    <dt>Backup and restore</dt><dd>A scheduled copy of the data, and putting the database back to a moment in time, which discards everything after it. Untested backups do not count.</dd>
+    <dt>Kill switch</dt><dd>A setting that turns a dangerous capability off without a deploy. <code>POLAR_PRODUCTION_MODE</code> defaults to disabled, so unset means off.</dd>
+  </dl></div>
+
+  <div class="box expiry"><div class="h">WHERE TODAY'S ANALOGY BREAKS</div><p><strong>Breaks when:</strong> you think the truck delivers everything at once. A web deploy lands on the server instantly, but each phone picks it up only when that phone next asks, which is why caches and service workers can leave one user on last week's version while everyone else has today's. There is no single moment when everyone is on the new version, and pretending otherwise is how you ship a change that assumes old and new clients cannot coexist. The newspaper also has no database: a printed correction cannot un-write data, but a bad migration can, and no rollback of the code brings back a column you dropped. <strong>Real model:</strong> a deploy makes a new version available at an address. Clients converge on it at their own pace. Code can be reverted because it is versioned. Data cannot, which is why backups, not rollbacks, are the safety net that matters, and why the database and the code have to be able to survive each other being one step out of date.</p></div>
+
+  <details class="hole"><summary>RABBIT HOLE: why a DNS change "takes time"</summary><p>Nobody asks the authoritative server every time. Answers are cached, all the way down the chain: your phone, your router, your internet provider, and the resolvers in between. Every answer comes with a TTL, a time to live, which says how long it may be reused. So when you point a name at a new machine, the old answer keeps being handed out until the TTLs expire, and different people switch over at different times. That is the whole reason for the advice to lower the TTL a day before a move: you are asking the world to stop holding the old answer for so long. It is the same mechanism as the <code>?v=</code> tags, one layer down, and it fails the same way.</p></details>
+</main>
+<script src="../js/book.js"></script>
+</body>
+</html>

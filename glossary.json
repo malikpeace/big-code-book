@@ -2289,5 +2289,149 @@
         "def": "Changing the shape of code without changing what it does. This is how debt gets repaid, and why tests are what make repayment affordable."
       }
     ]
+  },
+  "debugging": {
+    "term": "Debugging",
+    "levels": [
+      {
+        "ch": 23,
+        "def": "A routine, not a talent: reproduce the bug on demand, isolate it by halving, log the thing you assume, fix it, confirm it."
+      }
+    ]
+  },
+  "syntax-error": {
+    "term": "Syntax error",
+    "levels": [
+      {
+        "ch": 23,
+        "def": "The machine could not read the file, so nothing in it exists and none of it runs. Caught before the first line. Usually one missing character, and node --check or the browser console points straight at it."
+      }
+    ]
+  },
+  "runtime-error": {
+    "term": "Runtime error",
+    "levels": [
+      {
+        "ch": 23,
+        "def": "The file read fine, ran, and hit something impossible, almost always treating a null or undefined like a real thing. Stops the code at that exact point and prints a stack trace."
+      }
+    ]
+  },
+  "logic-error": {
+    "term": "Logic error",
+    "levels": [
+      {
+        "ch": 23,
+        "def": "It ran perfectly and did the wrong thing. No red line, no trace, nothing thrown. The only detector is a human or a test checking the answer."
+      }
+    ]
+  },
+  "exception": {
+    "term": "Exception",
+    "levels": [
+      {
+        "ch": 23,
+        "def": "An error object thrown up through the call stack. Cards are discarded one by one until a catch is found, or until it reaches the top and the app dies."
+      }
+    ]
+  },
+  "console": {
+    "term": "Console",
+    "levels": [
+      {
+        "ch": 23,
+        "def": "The window where the app talks to you: logs, warnings and uncaught errors. Memento's rule is zero errors in it before any push, because a console you have learned to ignore hides the next real one."
+      }
+    ]
+  },
+  "reproduce": {
+    "term": "Reproduce",
+    "levels": [
+      {
+        "ch": 23,
+        "def": "The exact steps that trigger a bug every time, written down before any code is touched. Without it you cannot tell a fix from a coincidence."
+      }
+    ]
+  },
+  "bisect": {
+    "term": "Bisect",
+    "levels": [
+      {
+        "ch": 23,
+        "def": "Cut the search space in half, test, repeat. Works on lines in a function, files in a load order, and commits in a history. Ten halvings beat a thousand guesses."
+      }
+    ]
+  },
+  "arrange-act-assert": {
+    "term": "Arrange, act, assert",
+    "levels": [
+      {
+        "ch": 24,
+        "def": "The shape of every test: set up the situation, do the one thing, check the one answer. If you cannot see the three beats, the test is doing too much."
+      }
+    ]
+  },
+  "unit-test": {
+    "term": "Unit test",
+    "levels": [
+      {
+        "ch": 24,
+        "def": "A test of one function on its own. Fast and precise, so a red one already tells you the file."
+      }
+    ]
+  },
+  "integration-test": {
+    "term": "Integration test",
+    "levels": [
+      {
+        "ch": 24,
+        "def": "A test of several pieces working together. Slower and vaguer than a unit test, and it catches the bugs that only exist in the seams."
+      }
+    ]
+  },
+  "end-to-end-test": {
+    "term": "End to end test",
+    "levels": [
+      {
+        "ch": 24,
+        "def": "A test that drives the real app the way a person does. Slowest and most honest. Memento's is human: the four cell screenshot law."
+      }
+    ]
+  },
+  "test-runner": {
+    "term": "Test runner",
+    "levels": [
+      {
+        "ch": 24,
+        "def": "The program that finds your test files by name, runs them, prints a pass and fail summary, and sets an exit code. Memento's native app uses jest; the web app has none."
+      }
+    ]
+  },
+  "coverage": {
+    "term": "Coverage",
+    "levels": [
+      {
+        "ch": 24,
+        "def": "The share of your lines that ran while the tests ran. It shows you where you definitely have no tests. It never shows you that you are safe, because a test that asserts nothing still scores."
+      }
+    ]
+  },
+  "flaky-test": {
+    "term": "Flaky test",
+    "levels": [
+      {
+        "ch": 24,
+        "def": "A test that passes sometimes and fails sometimes with no code change. Usually time, randomness, network or ordering. Worse than no test, because it teaches a team to ignore red."
+      }
+    ]
+  },
+  "oracle": {
+    "term": "Oracle",
+    "levels": [
+      {
+        "ch": 24,
+        "def": "A known good implementation used as the answer key. During a rewrite the old code is the best oracle you will ever have, which is exactly what Memento's ai-transport test does."
+      }
+    ]
   }
 }
