@@ -201,6 +201,10 @@
       {
         "ch": 2,
         "def": "A middleman. Memento's phone never calls the AI directly; it calls Memento's own small server, which calls the AI with a secret key the phone never sees."
+      },
+      {
+        "ch": 16,
+        "def": "A server of your own standing between your app and someone else's API, so the secret key, the model choice and the spending cap all live on your side."
       }
     ]
   },
@@ -379,6 +383,10 @@
       {
         "ch": 6,
         "def": "A named value the operating system hands to a program when it starts. How secrets get in without being written in the code."
+      },
+      {
+        "ch": 19,
+        "def": "The delivery mechanism for a secret. The name lives in the code and in git; the value is set where the program runs, so a key can be rotated without touching a line of code."
       }
     ]
   },
@@ -1324,6 +1332,10 @@
       {
         "ch": 17,
         "def": "The line past which you stop believing what you are told. Everything arriving from a phone is a claim from a stranger, including the claim about who sent it."
+      },
+      {
+        "ch": 25,
+        "def": "The line between code you control and everything a stranger can edit: the phone, the browser, the network, the request. Anything arriving from the far side is a claim, not a fact, and every rule that matters is enforced on your side."
       }
     ]
   },
@@ -1621,6 +1633,10 @@
       {
         "ch": 14,
         "def": "Wait a beat, then do it once. Memento's persistState books a save 150ms out and cancels the previous one, so forty keystrokes cost one write."
+      },
+      {
+        "ch": 25,
+        "def": "Wait for a burst to stop, then act once. Memento saves state 150 milliseconds after the last change instead of on every change."
       }
     ]
   },
@@ -1666,6 +1682,611 @@
       {
         "ch": 14,
         "def": "Asking what happens at the edges of a value: empty, zero, negative, enormous. Where most real bugs live."
+      }
+    ]
+  },
+  "client": {
+    "term": "Client",
+    "levels": [
+      {
+        "ch": 15,
+        "def": "The computer doing the asking. Your phone, this page, the Memento app. A server can be a client too: Memento's proxy is Anthropic's client."
+      }
+    ]
+  },
+  "request": {
+    "term": "Request",
+    "levels": [
+      {
+        "ch": 15,
+        "def": "The parcel going out: a verb, a path, headers, and usually a body."
+      }
+    ]
+  },
+  "response": {
+    "term": "Response",
+    "levels": [
+      {
+        "ch": 15,
+        "def": "The parcel coming back: a status code, headers, and usually a body."
+      }
+    ]
+  },
+  "url": {
+    "term": "URL",
+    "levels": [
+      {
+        "ch": 15,
+        "def": "An address in named fields: scheme, host, path, and an optional query. Never a place for secrets, because it lands in logs and history."
+      }
+    ]
+  },
+  "port": {
+    "term": "Port",
+    "levels": [
+      {
+        "ch": 15,
+        "def": "A number that says which program on a computer a request is for. Memento Jr listens on 4321."
+      }
+    ]
+  },
+  "localhost": {
+    "term": "localhost",
+    "levels": [
+      {
+        "ch": 15,
+        "def": "This very computer. A request to localhost never leaves the machine."
+      }
+    ]
+  },
+  "http-method": {
+    "term": "Verb (HTTP method)",
+    "levels": [
+      {
+        "ch": 15,
+        "def": "The intent of a request. GET reads, POST sends, PUT replaces, DELETE removes. Verb plus path is what identifies a request."
+      }
+    ]
+  },
+  "header": {
+    "term": "Header",
+    "levels": [
+      {
+        "ch": 15,
+        "def": "A name and value label on the parcel. Content-Type says what is inside; Authorization says who is asking."
+      }
+    ]
+  },
+  "request-body": {
+    "term": "Body",
+    "levels": [
+      {
+        "ch": 15,
+        "def": "The contents of the parcel. On a POST it is where the real data goes, almost always as JSON."
+      }
+    ]
+  },
+  "status-code": {
+    "term": "Status code",
+    "levels": [
+      {
+        "ch": 15,
+        "def": "The outcome in three digits. 2xx worked, 4xx your request was wrong, 5xx the server was wrong. 429 means slow down and retry later."
+      }
+    ]
+  },
+  "latency": {
+    "term": "Latency",
+    "levels": [
+      {
+        "ch": 15,
+        "def": "The waiting. A network round trip is roughly a thousand times slower than anything else your code does, which is the reason async exists."
+      },
+      {
+        "ch": 25,
+        "def": "How long one thing takes, measured from the user's finger. Not the same as throughput, and the two trade against each other."
+      }
+    ]
+  },
+  "static-file": {
+    "term": "Static file",
+    "levels": [
+      {
+        "ch": 15,
+        "def": "A file read off disk and handed over unchanged, the same bytes for every caller. Memento's index.html, CSS and JavaScript."
+      }
+    ]
+  },
+  "dynamic-response": {
+    "term": "Dynamic answer",
+    "levels": [
+      {
+        "ch": 15,
+        "def": "A reply computed per request by running code, so it can differ for every caller. Memento's AI proxy reply."
+      }
+    ]
+  },
+  "listen": {
+    "term": "Listen",
+    "levels": [
+      {
+        "ch": 16,
+        "def": "Claiming a port and sitting awake on it. A server that is listening does not exit."
+      }
+    ]
+  },
+  "route": {
+    "term": "Route",
+    "levels": [
+      {
+        "ch": 16,
+        "def": "A pair: this verb plus this path goes to this function."
+      }
+    ]
+  },
+  "handler": {
+    "term": "Handler",
+    "levels": [
+      {
+        "ch": 16,
+        "def": "The function a route points at. It takes the request and returns a status code and a body."
+      }
+    ]
+  },
+  "router": {
+    "term": "Router (dispatcher)",
+    "levels": [
+      {
+        "ch": 16,
+        "def": "The code that reads a request's verb and path and picks the handler. It always ends with a fallback 404."
+      }
+    ]
+  },
+  "serverless": {
+    "term": "Serverless",
+    "levels": [
+      {
+        "ch": 16,
+        "def": "A marketing word for a server somebody else keeps warm. Started from one file, run on demand, billed per call."
+      }
+    ]
+  },
+  "edge-function": {
+    "term": "Edge function",
+    "levels": [
+      {
+        "ch": 16,
+        "def": "One file of code deployed to a platform that runs it near the caller. Memento's backend is a handful of Supabase edge functions."
+      }
+    ]
+  },
+  "environment": {
+    "term": "Environment",
+    "levels": [
+      {
+        "ch": 16,
+        "def": "The named values a platform hands a program at boot. Where secrets live, because they are not in the code and not in git."
+      },
+      {
+        "ch": 20,
+        "def": "One running copy of the app with its own data, settings and audience. Local, staging, production. Keeping them apart is what stops an experiment becoming an incident."
+      }
+    ]
+  },
+  "rate-limit": {
+    "term": "Rate limit",
+    "levels": [
+      {
+        "ch": 16,
+        "def": "A counter that refuses callers who ask too often. For an API that costs money per call it is a spending cap, not politeness."
+      },
+      {
+        "ch": 25,
+        "def": "A cap on how often one caller may do an expensive thing. Memento's AI proxy applies device, IP and global limits before it spends anything upstream."
+      }
+    ]
+  },
+  "fail-closed": {
+    "term": "Fail closed",
+    "levels": [
+      {
+        "ch": 16,
+        "def": "When the safety check itself breaks, refuse. Failing open instead turns an outage into an unlimited bill."
+      },
+      {
+        "ch": 25,
+        "def": "When the check itself cannot answer, refuse. The opposite, fail open, means one outage in the checking system removes the control entirely."
+      }
+    ]
+  },
+  "deno": {
+    "term": "Deno",
+    "levels": [
+      {
+        "ch": 16,
+        "def": "A way to run JavaScript and TypeScript outside a browser, with no build step. Supabase edge functions run on it."
+      }
+    ]
+  },
+  "node": {
+    "term": "Node",
+    "levels": [
+      {
+        "ch": 16,
+        "def": "The original way to run JavaScript outside a browser, from 2009. It brought npm with it. Memento Jr's server is Node."
+      }
+    ]
+  },
+  "package": {
+    "term": "Package",
+    "levels": [
+      {
+        "ch": 19,
+        "def": "A named, versioned folder of somebody else's code, published to the npm registry. Add it to package.json and it becomes a dependency of your app."
+      }
+    ]
+  },
+  "package-json": {
+    "term": "package.json",
+    "levels": [
+      {
+        "ch": 19,
+        "def": "A project's identity card at the top of the folder: name, version, the named commands, and the list of borrowed code with the version ranges it accepts."
+      }
+    ]
+  },
+  "registry": {
+    "term": "Registry",
+    "levels": [
+      {
+        "ch": 19,
+        "def": "The public warehouse npm downloads from, registry.npmjs.org. Anyone can publish to it, which is the whole convenience and the whole risk."
+      }
+    ]
+  },
+  "lockfile": {
+    "term": "Lockfile",
+    "levels": [
+      {
+        "ch": 19,
+        "def": "package-lock.json. Machine-written, committed to git. The exact version, download URL and content hash of every package that actually landed, including the ones you never asked for."
+      }
+    ]
+  },
+  "semver": {
+    "term": "Semver",
+    "levels": [
+      {
+        "ch": 19,
+        "def": "Semantic versioning: major.minor.patch. A caret accepts new minors and patches, a tilde accepts patches only, a bare number accepts nothing new. A major bump is the author saying he broke something on purpose."
+      }
+    ]
+  },
+  "transitive-dependency": {
+    "term": "Transitive dependency",
+    "levels": [
+      {
+        "ch": 19,
+        "def": "A package your packages brought with them. You did not choose it, you have not read it, and it runs inside your app anyway."
+      }
+    ]
+  },
+  "node-modules": {
+    "term": "node_modules",
+    "levels": [
+      {
+        "ch": 19,
+        "def": "The borrowed code unpacked on disk. Derived from the lockfile, enormous, and never committed to git."
+      }
+    ]
+  },
+  "npm-ci": {
+    "term": "npm ci",
+    "levels": [
+      {
+        "ch": 19,
+        "def": "Reproduce the lockfile exactly, and fail if the lockfile and package.json disagree. Humans run npm install, robots run npm ci."
+      }
+    ]
+  },
+  "supply-chain-attack": {
+    "term": "Supply chain risk",
+    "levels": [
+      {
+        "ch": 19,
+        "def": "A package can run code the moment it installs, a maintainer's account can be stolen, and a name can be one letter off a real one. Every dependency added is trust extended to a stranger."
+      }
+    ]
+  },
+  "typosquatting": {
+    "term": "Typosquatting",
+    "levels": [
+      {
+        "ch": 19,
+        "def": "Publishing a malicious package under a name one character away from a popular one, then waiting for a fumbled install command."
+      }
+    ]
+  },
+  "vendoring": {
+    "term": "Vendoring",
+    "levels": [
+      {
+        "ch": 19,
+        "def": "Copying a dependency into your own repo so you control its contents. Memento does it for one patched package, under a private version number so nobody mistakes it for the real release."
+      }
+    ]
+  },
+  "secret": {
+    "term": "Secret",
+    "levels": [
+      {
+        "ch": 19,
+        "def": "A value the code needs at run time and must never contain: an API key, a database password, a billing token. It arrives from the environment and lives in a hosting dashboard, not in a file."
+      },
+      {
+        "ch": 25,
+        "def": "A value the code needs and must never contain. It arrives from the environment at runtime, on a server, and is never in git or in a browser. A secret that reaches a browser is burned and must be rotated, not hidden."
+      }
+    ]
+  },
+  "dotenv": {
+    "term": ".env file",
+    "levels": [
+      {
+        "ch": 19,
+        "def": "A local, untracked list of NAME=value lines holding your machine's secrets. Commit the .env.example with fake values, never the real one."
+      }
+    ]
+  },
+  "gitignore": {
+    "term": ".gitignore",
+    "levels": [
+      {
+        "ch": 19,
+        "def": "The list of paths git is told to pretend it cannot see. First line of defence for secrets, key files and anything derived like node_modules."
+      }
+    ]
+  },
+  "public-by-prefix": {
+    "term": "Public by prefix",
+    "levels": [
+      {
+        "ch": 19,
+        "def": "A naming convention where the prefix declares that a value is not secret. In Expo, anything called EXPO_PUBLIC_* is baked into the app the user downloads, on purpose."
+      }
+    ]
+  },
+  "revoke": {
+    "term": "Revoke",
+    "levels": [
+      {
+        "ch": 19,
+        "def": "What you do to a leaked key. Deleting the line does nothing, because the old commit still holds it. Revoking at the vendor makes the leaked string worthless."
+      }
+    ]
+  },
+  "production": {
+    "term": "Production",
+    "levels": [
+      {
+        "ch": 20,
+        "def": "The copy real users reach, holding real data and real money. Never edited by hand, never experimented on."
+      }
+    ]
+  },
+  "build": {
+    "term": "Build",
+    "levels": [
+      {
+        "ch": 20,
+        "def": "Turning source code into the thing that actually runs. Memento's web app has no build at all; the native app builds with expo export."
+      }
+    ]
+  },
+  "continuous-integration": {
+    "term": "CI (continuous integration)",
+    "levels": [
+      {
+        "ch": 20,
+        "def": "A robot that checks out every push on a clean rented computer and runs your checks. A non-zero exit code means it refuses, and nothing after the failed step runs."
+      }
+    ]
+  },
+  "hosting": {
+    "term": "Hosting",
+    "levels": [
+      {
+        "ch": 20,
+        "def": "The computer that answers when someone knocks on your address. Memento's web app is served by GitHub Pages out of the mirrored public repo."
+      }
+    ]
+  },
+  "dns": {
+    "term": "DNS",
+    "levels": [
+      {
+        "ch": 20,
+        "def": "The internet's phone book, turning a name like mementoapp.co into a machine's address. Answers are cached along the way, which is why a change takes time to spread."
+      }
+    ]
+  },
+  "cache-busting": {
+    "term": "Cache busting",
+    "levels": [
+      {
+        "ch": 20,
+        "def": "Changing the address so a cached copy cannot answer. A bundler does it with a content hash in the filename; Memento does it by hand with ?v=v1378 on every script tag."
+      }
+    ]
+  },
+  "rollback": {
+    "term": "Rollback",
+    "levels": [
+      {
+        "ch": 20,
+        "def": "Undoing a bad deploy by reverting the commit and pushing, so the robot ships the corrected version the same way it shipped the broken one. Code can roll back. Data cannot."
+      }
+    ]
+  },
+  "log": {
+    "term": "Log",
+    "levels": [
+      {
+        "ch": 20,
+        "def": "The app writing down what it did. Three places to look: the browser console for the phone, the Supabase dashboard for the edge functions, the GitHub Actions run log for the deploy."
+      }
+    ]
+  },
+  "backup": {
+    "term": "Backup",
+    "levels": [
+      {
+        "ch": 20,
+        "def": "A scheduled copy of the data. Restoring one puts the database back to a moment in time and throws away everything after it. A backup you have never restored is a hope, not a backup."
+      }
+    ]
+  },
+  "kill-switch": {
+    "term": "Kill switch",
+    "levels": [
+      {
+        "ch": 20,
+        "def": "A setting that turns a dangerous capability off without a deploy. Memento's POLAR_PRODUCTION_MODE defaults to disabled, so anything unset or misspelled means real billing stays off."
+      }
+    ]
+  },
+  "validation": {
+    "term": "Validation",
+    "levels": [
+      {
+        "ch": 25,
+        "def": "Checking an incoming value's size, type and range at the door, and refusing early with one plain sentence. Cheap, boring, and it removes a whole category of bugs before they get deeper into the code."
+      }
+    ]
+  },
+  "least-privilege": {
+    "term": "Least privilege",
+    "levels": [
+      {
+        "ch": 25,
+        "def": "Every key, token and database role gets the smallest power that still does the job, so a leak costs as little as possible."
+      }
+    ]
+  },
+  "injection": {
+    "term": "Injection",
+    "levels": [
+      {
+        "ch": 25,
+        "def": "Data getting treated as code. Text a user typed ends up inside a database or shell command and changes what the command means. Killed by passing values as values instead of gluing strings."
+      }
+    ]
+  },
+  "xss": {
+    "term": "XSS (cross-site scripting)",
+    "levels": [
+      {
+        "ch": 25,
+        "def": "Someone else's script running inside your page with your user's session, usually because text a human typed was written into the page as HTML. Killed by escaping before it becomes HTML."
+      }
+    ]
+  },
+  "throughput": {
+    "term": "Throughput",
+    "levels": [
+      {
+        "ch": 25,
+        "def": "How many things fit in a second. Batching usually raises throughput and can make one person's wait longer."
+      }
+    ]
+  },
+  "n-plus-one": {
+    "term": "N+1 query",
+    "levels": [
+      {
+        "ch": 25,
+        "def": "One query for the list, then one more per row. Thirty rows means thirty one round trips where one would do. The most common real performance bug, and it looks harmless in the code."
+      }
+    ]
+  },
+  "bundle-size": {
+    "term": "Bundle size",
+    "levels": [
+      {
+        "ch": 25,
+        "def": "How much the phone must download before anything appears. The single number that predicts how an app feels on a cheap phone and a bad connection."
+      }
+    ]
+  },
+  "cache": {
+    "term": "Cache",
+    "levels": [
+      {
+        "ch": 25,
+        "def": "A kept copy of an answer so it does not have to be computed or fetched twice. It introduces exactly one new problem: knowing when the copy is stale. Memento's ?v=v1378 on every script tag is how it tells a phone the copy expired."
+      }
+    ]
+  },
+  "coupling": {
+    "term": "Coupling",
+    "levels": [
+      {
+        "ch": 26,
+        "def": "How much one piece of code has to know about another piece's insides. High coupling means a change over here forces a change over there, often in a file you did not think to open."
+      }
+    ]
+  },
+  "cohesion": {
+    "term": "Cohesion",
+    "levels": [
+      {
+        "ch": 26,
+        "def": "How much a single file is about one thing. Low cohesion is a file that accumulated four unrelated jobs because each one was nearby at the time."
+      }
+    ]
+  },
+  "module-boundary": {
+    "term": "Boundary",
+    "levels": [
+      {
+        "ch": 26,
+        "def": "A promise between two pieces of code: this is what I guarantee, the rest is mine, do not reach past this line. Memento's native Clarity screens hold an interface, never a URL."
+      }
+    ]
+  },
+  "import-graph": {
+    "term": "Import graph",
+    "levels": [
+      {
+        "ch": 26,
+        "def": "The machine-readable map of which file needs which, built from import statements. The web Memento has none, so its map is the script load order in index.html, enforced by a human reading a list."
+      }
+    ]
+  },
+  "technical-debt": {
+    "term": "Technical debt",
+    "levels": [
+      {
+        "ch": 26,
+        "def": "A loan taken to ship faster than the clean version would allow. Interest is paid on every future change that touches the shortcut. Fine when it was decided and recorded, expensive when nobody knew they took it."
+      }
+    ]
+  },
+  "shim": {
+    "term": "Shim",
+    "levels": [
+      {
+        "ch": 26,
+        "def": "A small forwarder that keeps an old name working after the thing behind it moved or was deleted. Memento's 33-action-shim.js is 37 lines standing in for 6,070 deleted ones."
+      }
+    ]
+  },
+  "refactor": {
+    "term": "Refactor",
+    "levels": [
+      {
+        "ch": 26,
+        "def": "Changing the shape of code without changing what it does. This is how debt gets repaid, and why tests are what make repayment affordable."
       }
     ]
   }

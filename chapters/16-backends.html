@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>16. Backends: servers, routes, handlers, edge functions. BIG CODE BOOK</title>
+<link rel="stylesheet" href="../css/book.css">
+<meta name="theme-color" content="#0b0b0d">
+</head>
+<body data-chapter="16">
+<main>
+  <div class="kicker">Chapter 16 <span class="tag need">NEED</span> <span class="tag">~55 min</span> <span class="tag mac">MAC</span></div>
+  <h1>Backends: servers, routes, handlers, edge functions</h1>
+  <p class="lede">A server is not a machine in a rack, and it is not magic. It is a program that sits awake on an address, and for every parcel that arrives it looks up which function to run. Today you read Memento's real one from line 1, then add a route to your own.</p>
+
+  <div class="box recap"><div class="h">LAST TIME</div><p>A client asks and a server answers, in parcels with five parts: a verb, a path, headers, a body, and a three digit status code coming back. JSON is the parcel's language, and an API is the contract that says which parcels an address accepts. You sent four of them by hand with <code>curl</code>.</p></div>
+
+  <h2>Quick check</h2>
+  <details class="check"><summary>401 and 403 both mean no. What is the difference?</summary><div class="a">401: I do not know who you are, go and sign in. 403: I know exactly who you are and you still may not do this. Memento's native app turns a 403 into <code>paid-required</code> for that reason.</div></details>
+  <details class="check"><summary>What is the difference between defining a function and handing it to something else?</summary><div class="a">Defining writes the recipe. Handing it over gives another program the card, so it can call it later, on its own schedule. That is what an event listener is, and it is what every route in a server is too.</div></details>
+  <details class="check"><summary>Why does Memento's phone app never talk to Anthropic directly?</summary><div class="a">Because the call needs a secret key, and anything shipped to a phone or a browser can be read by anyone who has it. So the phone calls a server Memento controls, and that server holds the key.</div></details>
+
+  <h2>The idea</h2>
+  <p>Take the word apart. A <dfn data-term="server">server</dfn> is a program that repeats three things forever: it <dfn data-term="listen">listens</dfn> on a port, it waits, and when a request arrives it runs a function and writes a response. The program you started with <code>node server.js</code> was a server the moment it printed its line and refused to exit.</p>
+  <p>The interesting part is the lookup in the middle. A <dfn data-term="route">route</dfn> is a pair: this verb plus this path goes to this function. That function is a <dfn data-term="handler">handler</dfn>. The code that reads the verb and path and picks the handler is a <dfn data-term="router">router</dfn>. That is the architecture of every backend ever written, from ten lines to ten million.</p>
+
+  <div class="box analogy"><div class="h">ANALOGY (TEMPORARY)</div><p>A reception desk with a laminated list of extensions. Somebody walks in, says what they want, and the receptionist reads the list: "deliveries, extension 4" or "accounts, extension 9". The receptionist does no actual work. They match what was said against the list and pass it on. Anything not on the list gets the same flat answer: nobody here does that. A route is a line on the laminated list. A handler is whoever picks up at the extension.</p></div>
+
+  <p>Where the server runs is a separate question with three common answers. Rent a whole computer and keep your program running on it, which means you also own patching it, restarting it at 3am, and paying for it while it sits idle. Pay a platform to run a container for you. Or write one file, hand it over, and let the platform start it when a request arrives and stop it when nobody is calling. That last one gets called <dfn data-term="serverless">serverless</dfn>, a marketing word, because there is obviously still a server. Honest version: a server somebody else keeps warm, started from a file, billed per call.</p>
+  <p>Memento's version is a Supabase <dfn data-term="edge-function">edge function</dfn>, and it is also a <dfn data-term="proxy">proxy</dfn>: a server of Memento's own standing between the phone and Anthropic. One file of TypeScript, deployed with one command, run on machines near whoever called. Memento pays per invocation and owns no computer.</p>
+  <p>Two more words before the real file. The <dfn data-term="environment">environment</dfn> is the set of named values the platform hands a program at boot, and it is where secrets live: not in the code, not in git. And a <dfn data-term="rate-limit">rate limit</dfn> is a counter that refuses a caller who asks too often, which for an app that spends money per request is the spending cap.</p>
+
+  <figure class="fig-box">
+    <svg class="figure" viewBox="0 0 640 270" role="img" aria-label="The proxy sandwich. On the left, a phone box with a note saying it holds no secret key. An arrow goes to a middle box, Memento's edge function, which contains the Anthropic key read from its environment, plus an origin check, a rate limit, and a request builder. A second arrow goes from the edge function to a box on the right labelled Anthropic. Arrows return the other way. A line underneath notes that the secret only ever exists in the middle box.">
+      <rect class="bx" x="20" y="60" width="150" height="90" rx="8"/>
+      <text class="st b" x="95" y="90" text-anchor="middle">the phone</text>
+      <text class="st lo" x="95" y="112" text-anchor="middle">public app key only</text>
+      <text class="st lo" x="95" y="130" text-anchor="middle">no secret, ever</text>
+      <rect class="bx acc" x="230" y="34" width="180" height="142" rx="8"/>
+      <text class="st b" x="320" y="58" text-anchor="middle">Memento's edge function</text>
+      <text class="st lo" x="320" y="80" text-anchor="middle">1. is this origin allowed</text>
+      <text class="st lo" x="320" y="98" text-anchor="middle">2. is this a POST</text>
+      <text class="st lo" x="320" y="116" text-anchor="middle">3. read the key from env</text>
+      <text class="st lo" x="320" y="134" text-anchor="middle">4. rate limit, fail closed</text>
+      <text class="st lo" x="320" y="152" text-anchor="middle">5. server picks the model</text>
+      <text class="st lo" x="320" y="170" text-anchor="middle">6. forward, scrub, return</text>
+      <rect class="bx cy" x="470" y="60" width="150" height="90" rx="8"/>
+      <text class="st b" x="545" y="90" text-anchor="middle">Anthropic</text>
+      <text class="st lo" x="545" y="112" text-anchor="middle">needs the secret key</text>
+      <text class="st lo" x="545" y="130" text-anchor="middle">charges per call</text>
+      <path class="ln acc" d="M170 96 H230"/><circle class="dot" cx="230" cy="96" r="3.5"/>
+      <path class="ln" d="M230 126 H170"/><circle class="dot lo" cx="170" cy="126" r="3.5"/>
+      <path class="ln cy" d="M410 96 H470"/><circle class="dot cy" cx="470" cy="96" r="3.5"/>
+      <path class="ln" d="M470 126 H410"/><circle class="dot lo" cx="410" cy="126" r="3.5"/>
+      <text class="st lo" x="320" y="212" text-anchor="middle">The secret exists only inside the middle box, in its environment.</text>
+      <text class="st lo" x="320" y="234" text-anchor="middle">Take the middle box away and the key has to ship to the phone. That is the whole argument.</text>
+    </svg>
+    <figcaption>The proxy sandwich. Every serious app that calls a paid AI has this shape.</figcaption>
+  </figure>
+
+  <h2>See it</h2>
+  <p>A router is a lookup, and a lookup is an object. These boxes are a whole backend in miniature, with no network near them.</p>
+
+  <div class="sb">
+// 1. Routes are an object. The dispatcher is six lines. Predict all four, then run.
+const routes = {
+  "GET /api/sync":  function (body) { return { status: 200, body: { streak: 4 } }; },
+  "POST /api/ai":   function (body) {
+    if (!body || !body.message) return { status: 400, body: { error: "bad json" } };
+    return { status: 200, body: { reply: "One hold a day is enough." } };
+  }
+};
+function dispatch(method, path, body) {
+  const handler = routes[method + " " + path];
+  if (!handler) return { status: 404, body: { error: "not found" } };   // the flat answer
+  return handler(body);
+}
+console.log(dispatch("GET",  "/api/sync", null));
+console.log(dispatch("POST", "/api/ai", { message: "hi" }));
+console.log(dispatch("POST", "/api/ai", {}));
+console.log(dispatch("GET",  "/api/nope", null));
+</div>
+
+  <div class="sb">
+// 2. Add a route. One line. Then prove the 404 still works for everything else.
+const routes = { "GET /api/sync": function () { return { status: 200, body: {} }; } };
+function dispatch(method, path) {
+  const handler = routes[method + " " + path];
+  if (!handler) return { status: 404, body: { error: "not found" } };
+  return handler();
+}
+// YOUR LINE GOES HERE: make GET /api/ping answer 200 with { ok: true }
+console.log(dispatch("GET", "/api/ping"));   // want: { status: 200, body: { ok: true } }
+console.log(dispatch("POST", "/api/ping"));  // want: 404. Right path, wrong verb.
+console.log(dispatch("GET", "/api/nope"));   // want: 404
+</div>
+
+  <div class="sb">
+// 3. A rate limit that FAILS CLOSED. Predict what happens on call 4, and after the outage.
+let counter = { calls: 0, broken: false };
+function checkLimit() {
+  if (counter.broken) return { status: 503, body: { error: "temporarily unavailable" } };
+  counter.calls = counter.calls + 1;
+  if (counter.calls &gt; 3) return { status: 429, body: { error: "slow down" } };
+  return null;                       // null means "allowed, carry on"
+}
+function handle() {
+  const limited = checkLimit();
+  if (limited) return limited;       // refuse BEFORE spending anything
+  return { status: 200, body: { reply: "expensive answer" } };
+}
+for (let i = 1; i &lt;= 4; i++) console.log("call", i, handle().status);
+counter.broken = true;               // the counter's database just fell over
+console.log("during the outage:", handle().status);
+</div>
+
+  <p>Box 3 is the one worth sitting with. When the thing that counts your calls breaks, there are two choices. Fail open: "the counter is down, let everybody through", which keeps users happy and hands an attacker an unlimited budget on your card. <dfn data-term="fail-closed">Fail closed</dfn>: "the counter is down, nobody goes through", which annoys users for a few minutes and cannot be turned into a bill. Memento fails closed, in writing, at the top of its proxy.</p>
+
+  <h2>Now in Memento</h2>
+  <h3>First, the toy: Memento Jr's server, top to bottom</h3>
+  <p>Ninety-six lines, and lines 3 and 4 tell you not to copy it. It requires three built-in Node modules, reads <code>secrets.env</code> into an object and exits if the key is missing, then defines four helpers: <code>sendJSON</code>, <code>readBody</code>, <code>fakeReply</code>, <code>serveFile</code>. Then the router.</p>
+  <pre><code>function handle(req, res) {
+  const url = req.url.split("?")[0];
+  console.log(new Date().toLocaleTimeString(), req.method, url);
+  if (!url.startsWith("/api/")) return serveFile(res, url);
+  if (req.method === "POST" &amp;&amp; url === "/api/ai") {
+    return readBody(req, (body) =&gt; {
+      if (!body) return sendJSON(res, 400, { error: "bad json" });
+      setTimeout(() =&gt; sendJSON(res, 200, { reply: fakeReply(body.message) }), 600);
+    });
+  }</code></pre>
+  <div class="src">sandbox/v1/server.js:70-79</div>
+  <p>Five decisions. Line 71 throws away the query string, so <code>/api/sync?x=1</code> routes the same as <code>/api/sync</code>. Line 72 logs every request: the log you watched scroll past. Line 73 is chapter 15's static versus dynamic fork, since anything not starting <code>/api/</code> is a file on disk handed over unchanged. Line 74 is a route, spelled out as a verb check and a path check. Lines 75 to 78 are the handler, itself a function handed to <code>readBody</code> to be called later once the whole body has arrived, exactly like chapter 10's callback. The 400 and the 600 millisecond delay you met by hand are right there.</p>
+  <p>The file ends the way every router ends:</p>
+  <pre><code>  sendJSON(res, 404, { error: "not found" });
+}
+
+http.createServer(handle).listen(PORT, () =&gt; {
+  console.log("Memento Jr server on http://localhost:" + PORT);
+});</code></pre>
+  <div class="src">sandbox/v1/server.js:91-96</div>
+  <p>A flat 404 for anything unmatched, then two lines that are the actual server: hand the router to <code>createServer</code>, and <code>listen</code> on the port. That is what "listening" means in code.</p>
+
+  <h3>Then the real one: <code>ai-proxy/index.ts</code>, in order</h3>
+  <div class="lanes">
+    <div class="lane"><div class="h">ANY APP: the file's first job is to state its own rules</div>
+      <p>A file holding the only copy of a secret should open by saying so, in words. Not for style points: the next thing to touch it will be an AI agent taking instructions from a founder in a hurry, and the comment is what stands between them and a shortcut.</p>
+    </div>
+    <div class="lane mem"><div class="h">MEMENTO: lines 1 to 4</div>
+      <pre><code>// Memento's anonymous Clarity proxy: the ONLY place its Anthropic key lives.
+// The browser chooses one of four tightly-defined Clarity operations. The
+// server owns the model, prompt, token ceiling, and cache behavior, so an
+// anonymous caller cannot disguise paid Action work as free Clarity.</code></pre>
+      <div class="src">supabase/functions/ai-proxy/index.ts:1-4 (web pin ca8afc8)</div>
+      <pre><code>// Security posture:
+// - The public anon key is not treated as authentication. Anonymous Clarity
+//   remains available, with layered device, IP, and global rate limits.
+// - Model, token, request, response, and duration limits bound every call.
+// - Rate-limit failures fail closed so a database outage cannot remove the
+//   spend control.
+// - The Anthropic key comes from the function's env, never from the request.</code></pre>
+      <div class="src">supabase/functions/ai-proxy/index.ts:11-17 (web pin ca8afc8)</div>
+    </div>
+  </div>
+
+  <p>Now the body of the function, in the order it runs. Every step is a gate, and the expensive work is last on purpose.</p>
+  <p><strong>The door (lines 98 to 106).</strong> <code>Deno.serve(async (req) =&gt; {</code> is the listen step: one handler for every request, no router at all, because an edge function is one address. Then an origin check, then the verb check you already read: anything that is not a POST gets 405.</p>
+  <p><strong>The key (108 to 118).</strong></p>
+  <pre><code>  const apiKey = Deno.env.get('ANTHROPIC_API_KEY');</code></pre>
+  <div class="src">supabase/functions/ai-proxy/index.ts:108 (web pin ca8afc8)</div>
+  <p>The environment, in one line. The secret is not in this file, not in the repository, not in any commit. It was set once with <code>supabase secrets set</code> and handed to the program at boot. If it is missing, the function records a failure and returns 503, because "I am not configured" is the server's problem, not the caller's.</p>
+  <p><strong>The spending cap (120 to 132), before the body is even read.</strong> The comment says why: "Rate limit before spending anything upstream or parsing a large payload." Here is the fail-closed branch it calls:</p>
+  <pre><code>async function checkRateLimit(req: Request): Promise&lt;Response | null&gt; {
+  const result = await consumeRateLimits(req, 'ai', clarityAiRateRules());
+
+  if (result.unavailable) {
+    return jsonResponse(req, {
+      error: {
+        type: 'service_unavailable',
+        message: 'The AI service is temporarily unavailable. Try again shortly.',
+      },
+    }, 503);
+  }
+  if (result.allowed) return null;</code></pre>
+  <div class="src">supabase/functions/ai-proxy/index.ts:44-55 (web pin ca8afc8)</div>
+  <p>Read the order. If the limiter itself is unavailable, refuse with 503. Only then, if allowed, return <code>null</code> and let the request through. That is box 3, in production, guarding a real card. Below it, a 429 with a <code>Retry-After</code> header telling the caller how long to wait.</p>
+  <p><strong>The contract (134 to 146).</strong> The body is read with a byte ceiling, and then <code>built = buildClarityRequest(body);</code> at line 143 turns whatever arrived into the exact request the server is willing to make: the server picks the model, the system prompt and the token limit from the operation name. The caller sends an intent, not a shopping list. That single decision is why an anonymous caller cannot point Memento's free path at an expensive model.</p>
+  <p><strong>The forward (238 to 248).</strong></p>
+  <pre><code>    const upstream = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+      },
+      body: JSON.stringify(upstreamBody),
+      signal: AbortSignal.timeout(UPSTREAM_TIMEOUT_MS),
+    });</code></pre>
+    <div class="src">supabase/functions/ai-proxy/index.ts:239-248 (web pin ca8afc8)</div>
+  <p>The server becomes a client. Same five parts as chapter 15. The one difference from the phone's version is <code>'x-api-key': apiKey</code>, the secret, on a machine allowed to hold it. The <code>signal</code> is a 120 second leash, because a request with no timeout can hang forever.</p>
+  <p><strong>The scrub.</strong> On the Luna path there is a rule written down in a comment and then obeyed:</p>
+  <pre><code>        // Never forward the provider's raw error body (it can echo the request).
+        if (upstream.status === 429) {
+          return jsonResponse(req, { error: 'The AI service is busy. Try again in a moment.' }, 429);
+        }
+        return jsonResponse(req, { error: 'AI service request failed' }, 502);</code></pre>
+  <div class="src">supabase/functions/ai-proxy/index.ts:187-191 (web pin ca8afc8)</div>
+  <p>A provider's error message can quote your request back at you, so passing it through to a browser leaks what the server was sent. The status survives, the wording does not. The Anthropic path ends the same way in its catch: 504 for a timeout, 502 for anything else, fixed sentences.</p>
+
+  <div class="box memento"><div class="h">THE ALTERNATIVE, AND WHY MEMENTO CHOSE THIS</div><p><strong>Call Anthropic from the phone.</strong> Simplest thing that works, one less moving part, and a key shipped to every user. Memento did this once, and the comment recording it is still in the client: <code>// SECURITY: no API key ships in client code. (A live key used to sit here and</code> / <code>// is in git history; it MUST be revoked, see overnight/AI_PROXY_SETUP.md.)</code> (<code>memento-app/js/03-ai-integration.js:10-11</code>, web pin ca8afc8). That is not a hypothetical. That is the origin story of the file you just read. <strong>Run your own server.</strong> Full control, any language, no platform limits, and you now own uptime, patching, scaling and a bill that runs whether anyone calls or not. <strong>An edge function.</strong> One file, one deploy command, billed per call, near the caller, and the platform owns the machine. The cost is real: cold starts, a vendor's runtime, execution limits, and your backend logic living somewhere that is not your main repo's normal flow. For a solo founder with one AI call to protect, that trade is not close.</p></div>
+
+  <h2>Do it</h2>
+  <div class="ex" data-device="mac">
+    <div class="h">Exercise: add a route <span class="tag mac">MAC</span></div>
+    <div class="meta">Where: <code>~/Downloads/CODE-BOOK/sandbox/v1/server.js</code>. Expected: <code>GET /api/ping</code> returns 200 and <code>{ "ok": true }</code>, and everything else still behaves. Reset: <code>git checkout sandbox/v1/server.js</code> in the book repo, then <code>rm -f secrets.env db.json</code>. This cannot touch Memento.</div>
+    <p>Your first real code change in a real file. Nine words of logic.</p>
+    <ol>
+      <li>Open <code>sandbox/v1/server.js</code>. Find the last line inside <code>handle()</code>, the flat <code>sendJSON(res, 404, ...)</code> at line 91. <strong>Predict first:</strong> what happens if you put your new route <em>below</em> that line instead of above it?</li>
+      <li>Insert these three lines immediately <strong>above</strong> that 404 line:
+        <pre><code>  if (req.method === "GET" &amp;&amp; url === "/api/ping") {
+    return sendJSON(res, 200, { ok: true });
+  }</code></pre></li>
+      <li>Restart the server. A running Node program does not notice a changed file, so <kbd>Ctrl</kbd>+<kbd>C</kbd> in the window where it is running, then <code>node server.js</code> again. This catches everybody once.</li>
+      <li>Call it:
+        <pre><code>curl -i http://localhost:4321/api/ping</code></pre>
+        <pre><code>HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+  "ok": true
+}</code></pre></li>
+      <li><strong>The assertion.</strong> Run <code>curl -i http://localhost:4321/api/nope</code> and confirm it is still a 404. You added a route, you did not break the fallback. One change, two things checked.</li>
+      <li><strong>The boundary check.</strong> Run <code>curl -i -X POST http://localhost:4321/api/ping</code>. Predict the code first. You wrote <code>req.method === "GET"</code>, so a POST falls past your route to the 404 at the bottom. A purist would answer 405 there. Decide which you think is right and say why in one sentence.</li>
+    </ol>
+  </div>
+
+  <p><strong>On a phone instead:</strong> do box 2 above. Same change, same shape: a route is an entry in a lookup, and the fallback catches everything you did not name.</p>
+
+  <div class="box why"><div class="h">ASK THE AGENT WHY (paste this into Codex or Fable)</div><pre><code>Read supabase/functions/ai-proxy/index.ts in order and explain, for each gate between line 98 and line 160, what it refuses and what it would cost Memento if that gate were deleted. Pay particular attention to why the rate limit runs before the body is parsed, and to what "fail closed" means in checkRateLimit at line 47. Then tell me which of those gates would still protect Memento if someone extracted the public anon key from the shipped JavaScript. Do not change anything.</code></pre></div>
+
+  <div class="box words"><div class="h">WORDS YOU NOW OWN</div><dl>
+    <dt>Server</dt><dd>A program that listens on a port, waits, and runs a function for each request. It does not exit.</dd>
+    <dt>Listen</dt><dd>Claiming a port and sitting awake on it. Two programs cannot listen on the same port.</dd>
+    <dt>Route</dt><dd>A pair: this verb plus this path goes to this function.</dd>
+    <dt>Handler</dt><dd>The function a route points at. Takes the request, returns a status and a body.</dd>
+    <dt>Router / dispatcher</dt><dd>The code that reads verb and path and picks the handler. Always ends with a fallback 404.</dd>
+    <dt>Serverless / edge function</dt><dd>A server somebody else keeps warm, started from one file, billed per call. Memento's backend is a handful of them.</dd>
+    <dt>Environment</dt><dd>Named values the platform hands a program at boot. Where secrets live, because they are not in the code and not in git.</dd>
+    <dt>Proxy</dt><dd>A server of your own that stands between your app and someone else's API, so the secret, the model choice and the spending cap live on your side.</dd>
+    <dt>Rate limit</dt><dd>A counter that refuses callers who ask too often. For a paid API it is a spending cap, not politeness.</dd>
+    <dt>Fail closed</dt><dd>When the safety check itself breaks, refuse. The opposite, fail open, turns an outage into an unlimited bill.</dd>
+    <dt>Deno / Node</dt><dd>Two ways to run JavaScript outside a browser. Supabase functions use Deno; Memento Jr uses Node.</dd>
+  </dl></div>
+
+  <div class="box expiry"><div class="h">WHERE TODAY'S ANALOGY BREAKS</div><p><strong>Breaks when:</strong> you picture one receptionist, at one desk, remembering the morning. An edge function has no desk. Dozens of copies of it can be running at once in different cities, any of them can be shut down the moment it stops being called, and the next request may be answered by a copy that has never run before and remembers nothing. That is why the rate limit counts in a shared database instead of a variable in the file: a variable would be counting one copy's morning, which is worth nothing. It is also why the first call after a quiet spell is slower, a cold start. <strong>Real model:</strong> a handler is a pure-ish function that receives a request and returns a response, run on a machine that may not exist five seconds later. Every piece of memory that has to outlive one request belongs in a database. Chapter 17 is that database.</p></div>
+  <details class="hole"><summary>CAMEO: Deno vs Node, and why Memento uses both</summary><p>Both run JavaScript outside a browser, which for most of the language's life was a niche curiosity and since Node in 2009 is ordinary. <dfn data-term="node">Node</dfn> came first and brought npm with it; Memento Jr is Node, which is why its first lines say <code>require("http")</code>. <dfn data-term="deno">Deno</dfn> is the newer one, built by the same person, and it runs TypeScript directly with no build step and reads its environment through <code>Deno.env</code>. Supabase's edge functions run on Deno, so Memento's backend is Deno and its practice server is Node. The language is the same. The standard library and the import style differ, which is exactly the kind of difference that makes an AI agent write confidently wrong code if you do not tell it which runtime it is in.</p></details>
+</main>
+<script src="../js/book.js"></script>
+</body>
+</html>
