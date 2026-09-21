@@ -41,345 +41,538 @@
     },
     {
       "index": 7,
-      "tag": "summary",
-      "text": "What do you think a \"program\" physically is?"
+      "tag": "div",
+      "text": "Whatever you answered, hold it. By the end of chapter 2 you will be able to say exactly which parts happen on the phone and which parts happen on a computer you have never seen."
     },
     {
       "index": 8,
       "tag": "summary",
-      "text": "Do you think the computer understands what you want?"
+      "text": "What do you think a \"program\" physically is?"
     },
     {
       "index": 9,
+      "tag": "div",
+      "text": "A file. Text, saved on a disk. When it runs, the text becomes instructions a chip follows. This chapter shows that."
+    },
+    {
+      "index": 10,
+      "tag": "summary",
+      "text": "Do you think the computer understands what you want?"
+    },
+    {
+      "index": 11,
+      "tag": "div",
+      "text": "It does not. Not even a little. The AI agent you talk to does guess what you want. The machine underneath it does not. Keeping those two apart is the whole chapter."
+    },
+    {
+      "index": 12,
       "tag": "h2",
       "text": "The idea"
     },
     {
-      "index": 10,
+      "index": 13,
       "tag": "p",
       "text": "A computer is three things and a loop."
     },
     {
-      "index": 11,
+      "index": 14,
       "tag": "p",
       "text": "The CPU is a chip that can do a small number of stupid things: add two numbers, copy a number from here to there, compare two numbers, jump to a different instruction. That is roughly it. It does one of those things, then the next, then the next. Billions of times a second."
     },
     {
-      "index": 12,
+      "index": 15,
       "tag": "p",
       "text": "Memory is a huge row of numbered slots. Each slot holds a number. The CPU reads from slots and writes to slots. When the power goes, the slots are wiped."
     },
     {
-      "index": 13,
+      "index": 16,
       "tag": "p",
       "text": "The disk is where things survive the power going. A file is a named chunk of bytes on the disk. Your code is a file. A photo is a file. Memento's JavaScript is 38 files."
     },
     {
-      "index": 14,
+      "index": 17,
       "tag": "p",
       "text": "A program is a file full of instructions. When you run it, the instructions get copied into memory, and the CPU starts at the first one and walks forward. A program that is currently running is called a process . Memento open in Safari is one process. The server that answers it, on a computer in a data centre, is a different process."
     },
     {
-      "index": 15,
+      "index": 18,
       "tag": "div",
       "text": "ANALOGY (TEMPORARY)"
     },
     {
-      "index": 16,
+      "index": 19,
       "tag": "p",
       "text": "The CPU is a very fast, very obedient intern who cannot think. Memory is the intern's desk: a row of numbered sticky notes. The disk is the filing cabinet across the room. A program is a to-do list you leave on the desk. The intern reads line 1, does exactly that, reads line 2, does exactly that. If line 7 says \"put the coffee in the bin\", the coffee goes in the bin. The intern never asks \"are you sure?\" The intern never notices that you obviously meant the cup."
     },
     {
-      "index": 17,
-      "tag": "p",
-      "text": "Here is the part that matters. The CPU has no idea what a \"goal\" or a \"streak\" or a \"user\" is. It moves numbers between slots. A streak of 12 days is the number 12 sitting in a slot. \"Show the streak on screen\" is a few thousand instructions that end with numbers being written into a special region of memory that the screen is wired to read from. Every meaning is in the human's head. The machine has none."
-    },
-    {
-      "index": 18,
-      "tag": "p",
-      "text": "This is why software breaks. You wrote \"if the streak is bigger than 7, show the badge\" but the streak got saved as the text \"7\" instead of the number 7 , and comparing text to a number does something you did not expect. You meant one thing. You said another. The machine did the other. Forever. At full speed."
-    },
-    {
-      "index": 19,
-      "tag": "h3",
-      "text": "Where your AI agents fit"
-    },
-    {
       "index": 20,
-      "tag": "p",
-      "text": "This is the single most important idea in the book for you specifically, so read it twice."
+      "tag": "figcaption",
+      "text": "The whole machine, at the level you need. Everything in this book is built on these three boxes."
     },
     {
       "index": 21,
       "tag": "p",
-      "text": "When you tell Codex or Fable \"make the streak badge show after a week\", the agent guesses what you mean. It reads your app, infers \"a week\" is 7 days, picks a file, writes instructions. That guessing is real and it is often good. But the agent is a writer, not the machine. Once the instructions are written, the machine runs them literally. If the agent guessed wrong, or wrote a typo, or misread a number, the machine does not catch it. The machine does not know what you meant either. There is no layer where intention lives. Only text, and a chip that obeys it."
+      "text": "Here is the part that matters. The CPU has no idea what a \"goal\" or a \"streak\" or a \"user\" is. It moves numbers between slots. A streak of 12 days is the number 12 sitting in a slot. \"Show the streak on screen\" is a few thousand instructions that end with numbers being written into a special region of memory that the screen is wired to read from. Every meaning is in the human's head. The machine has none."
     },
     {
       "index": 22,
       "tag": "p",
-      "text": "So there are two very different questions, and you have been mixing them:"
+      "text": "This is why software breaks. You wrote \"if the streak is bigger than 7, show the badge\" but the streak got saved as the text \"7\" instead of the number 7 , and comparing text to a number does something you did not expect. You meant one thing. You said another. The machine did the other. Forever. At full speed."
     },
     {
       "index": 23,
-      "tag": "li",
-      "text": "Did the agent understand me? A question about a guess. You check it by reading the plan and the change."
+      "tag": "h3",
+      "text": "Where your AI agents fit"
     },
     {
       "index": 24,
-      "tag": "li",
-      "text": "Does the code do what it says? A question about literal instructions. You check it by running it and looking."
+      "tag": "p",
+      "text": "This is the single most important idea in the book for you specifically, so read it twice."
     },
     {
       "index": 25,
       "tag": "p",
-      "text": "Vibe coding is skipping both questions. This book is the opposite."
+      "text": "When you tell Codex or Fable \"make the streak badge show after a week\", the agent guesses what you mean. It reads your app, infers \"a week\" is 7 days, picks a file, writes instructions. That guessing is real and it is often good. But the agent is a writer, not the machine. Once the instructions are written, the machine runs them literally. If the agent guessed wrong, or wrote a typo, or misread a number, the machine does not catch it. The machine does not know what you meant either. There is no layer where intention lives. Only text, and a chip that obeys it."
     },
     {
       "index": 26,
-      "tag": "h2",
-      "text": "See it"
+      "tag": "p",
+      "text": "So there are two very different questions, and you have been mixing them:"
     },
     {
       "index": 27,
-      "tag": "p",
-      "text": "Five tiny programs. For each one, say out loud what you think it will print before you press Run. Being wrong is the point. Every wrong guess is a place where your model of the machine differs from the real machine, and that is exactly the gap we are closing."
+      "tag": "li",
+      "text": "Did the agent understand me? A question about a guess. You check it by reading the plan and the change."
     },
     {
       "index": 28,
-      "tag": "p",
-      "text": "You do not need to understand the words yet. console.log means \"print this\". Chapter 9 teaches the rest."
+      "tag": "li",
+      "text": "Does the code do what it says? A question about literal instructions. You check it by running it and looking."
     },
     {
       "index": 29,
       "tag": "p",
-      "text": "Number 2 is the one people remember. 7 + 5 is 12. \"7\" + \"5\" is \"75\" , because the quotes make them text, and adding text glues it together. \"7\" + 5 is also \"75\" , because the machine picks a rule and applies it without asking. Real bugs in real apps come from exactly this: a number that arrived as text."
+      "text": "Vibe coding is skipping both questions. This book is the opposite."
     },
     {
       "index": 30,
       "tag": "h2",
-      "text": "Now in Memento"
+      "text": "See it"
     },
     {
       "index": 31,
-      "tag": "div",
-      "text": "ANY APP"
+      "tag": "p",
+      "text": "Five tiny programs. For each one, say out loud what you think it will print before you press Run. Being wrong is the point. Every wrong guess is a place where your model of the machine differs from the real machine, and that is exactly the gap we are closing."
     },
     {
       "index": 32,
       "tag": "p",
-      "text": "Every app is a pile of files on a disk, loaded into memory, walked through by a CPU. A \"feature\" is a region of that pile. Deleting a feature means deleting files, and every place that still names the deleted thing becomes an instruction the machine cannot follow. The machine does not know the feature is gone. It just hits a name that points at nothing, and stops."
+      "text": "You do not need to understand the words yet. console.log means \"print this\". Chapter 9 teaches the rest."
     },
     {
       "index": 33,
+      "tag": "p",
+      "text": "Number 2 is the one people remember. 7 + 5 is 12. \"7\" + \"5\" is \"75\" , because the quotes make them text, and adding text glues it together. \"7\" + 5 is also \"75\" , because the machine picks a rule and applies it without asking. Real bugs in real apps come from exactly this: a number that arrived as text."
+    },
+    {
+      "index": 34,
+      "tag": "h2",
+      "text": "Now in Memento"
+    },
+    {
+      "index": 35,
+      "tag": "div",
+      "text": "ANY APP"
+    },
+    {
+      "index": 36,
+      "tag": "p",
+      "text": "Every app is a pile of files on a disk, loaded into memory, walked through by a CPU. A \"feature\" is a region of that pile. Deleting a feature means deleting files, and every place that still names the deleted thing becomes an instruction the machine cannot follow. The machine does not know the feature is gone. It just hits a name that points at nothing, and stops."
+    },
+    {
+      "index": 37,
       "tag": "div",
       "text": "MEMENTO"
     },
     {
-      "index": 34,
+      "index": 38,
       "tag": "p",
       "text": "The best specimen in the whole codebase is a file that exists only because the machine is literal. In v1319 the old Action module, 6,070 lines, was deleted. About eighty other places in the app still say ActionExperience.open() . If that name vanished, each of those eighty spots would crash the moment a user touched it. So a human left a 37-line file whose only job is to catch the old name and forward it to the new system:"
     },
     {
-      "index": 35,
+      "index": 39,
       "tag": "p",
       "text": "Read the comments above the code in that file some time. Twenty of its 37 lines are a human explaining to future humans why the machine needs this. The machine does not read comments. Only people do."
     },
     {
-      "index": 36,
+      "index": 40,
       "tag": "div",
       "text": "THE ALTERNATIVE, AND WHY MEMENTO CHOSE THIS"
     },
     {
-      "index": 37,
+      "index": 41,
       "tag": "p",
       "text": "The clean alternative is to edit all eighty call sites to say the new name, then delete the shim. That is more correct and more work, and with two agents editing in parallel it risks a half-done rename where forty spots say the new name and forty say the old one. The shim is a deliberate, documented piece of debt: cheap now, a small tax on understanding later. Chapter 26 comes back to it as the textbook example of debt done honestly."
     },
     {
-      "index": 38,
+      "index": 42,
       "tag": "h2",
       "text": "Do it"
     },
     {
-      "index": 39,
+      "index": 43,
       "tag": "div",
       "text": "Exercise phone or Mac"
     },
     {
-      "index": 40,
+      "index": 44,
       "tag": "li",
       "text": "Go back to sandbox 2. Change the last line to console.log(7 + \"5\" + 5); . Predict. Run. The machine reads left to right and applies its rule at each step."
     },
     {
-      "index": 41,
+      "index": 45,
       "tag": "li",
       "text": "Go to sandbox 5. Add one line inside the loop: n = n + 1; . Run it. The bug is gone. Notice that you fixed it by saying the thing you meant, not by explaining yourself."
     },
     {
-      "index": 42,
+      "index": 46,
       "tag": "li",
       "text": "Go to sandbox 3 and change let streak = 3; to let streak = \"3\"; . Run. Which lines changed? That is the text-versus-number bug, in your hands."
     },
     {
-      "index": 43,
+      "index": 47,
       "tag": "div",
       "text": "ASK THE AGENT WHY (paste this into Codex or Fable)"
     },
     {
-      "index": 44,
+      "index": 48,
       "tag": "div",
       "text": "WORDS YOU NOW OWN"
     },
     {
-      "index": 45,
+      "index": 49,
       "tag": "dt",
       "text": "CPU"
     },
     {
-      "index": 46,
+      "index": 50,
       "tag": "dd",
       "text": "The chip that does the work. Reads one tiny instruction, does exactly that, reads the next. No understanding anywhere in it."
     },
     {
-      "index": 47,
+      "index": 51,
       "tag": "dt",
       "text": "Memory (RAM)"
     },
     {
-      "index": 48,
+      "index": 52,
       "tag": "dd",
       "text": "Numbered slots holding numbers. Fast. Wiped when power goes."
     },
     {
-      "index": 49,
+      "index": 53,
       "tag": "dt",
       "text": "Disk and file"
     },
     {
-      "index": 50,
+      "index": 54,
       "tag": "dd",
       "text": "Where things survive. A file is a named chunk of bytes. Code is files."
     },
     {
-      "index": 51,
+      "index": 55,
       "tag": "dt",
       "text": "Program and process"
     },
     {
-      "index": 52,
+      "index": 56,
       "tag": "dd",
       "text": "A program is a file of instructions. A process is that program while it is running."
     },
     {
-      "index": 53,
+      "index": 57,
       "tag": "dt",
       "text": "Literal execution"
     },
     {
-      "index": 54,
+      "index": 58,
       "tag": "dd",
       "text": "The machine does what the text says, not what the author meant. Every bug lives in that gap."
     },
     {
-      "index": 55,
+      "index": 59,
       "tag": "div",
       "text": "WHERE TODAY'S ANALOGY BREAKS"
     },
     {
-      "index": 56,
+      "index": 60,
       "tag": "p",
       "text": "Breaks when: you picture one intern. A phone's CPU has several cores, each walking its own list at the same time, and the screen, the radio, and the disk each have their own small chips doing their own work. Also, a real CPU reorders and predicts instructions for speed, so \"one step at a time\" is a story the chip tells you, not what it literally does inside. Real model: a process is a sequence of instructions executed with the appearance of order; the hardware guarantees the result looks as if it ran one step at a time. For everything in this book, \"one obedient step at a time\" gives you the right answers. Chapter 12 adds the one place where the order gets interesting: waiting for the network."
     },
     {
-      "index": 57,
+      "index": 61,
       "tag": "summary",
       "text": "RABBIT HOLE: what an instruction physically is"
     },
     {
-      "index": 58,
+      "index": 62,
       "tag": "p",
       "text": "An instruction is a number. The CPU's designers publish a table: this number means \"add\", that number means \"copy\". Your JavaScript never becomes those numbers directly; a program called an engine (V8 in Chrome, JavaScriptCore in Safari) reads your text and produces them on the fly. That is why JavaScript works on an iPhone and a Mac despite the chips being different: the engine on each does the translating. Chapter 3 has the history of how humans stopped writing the numbers by hand."
     }
   ],
   "segments": [
     {
-      "blocks": [
-        0,
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7,
-        8,
-        9,
-        10,
-        11,
-        12,
-        13,
-        14,
-        15,
-        16
-      ],
-      "text": "The machine does exactly what you say\n\nThere is no mind inside the computer. It does not know what you meant. It does what you said, one tiny step at a time, at an absurd speed. Everything else in this book sits on that fact.\n\nBEFORE WE START\n\nYou already run a software company. You approve plans, read status lines, and say \"push it\" every day. What you do not have yet is the picture of what is physically happening when you do. This chapter gives you the bottom layer of that picture. Nothing to install, nothing to type. Just read and press Run a few times.\n\nQuick check\n\nNo earlier chapters yet, so three questions about you.\n\nWhen you tap a button in Memento, where do you currently think the work happens?\n\nWhat do you think a \"program\" physically is?\n\nDo you think the computer understands what you want?\n\nThe idea\n\nA computer is three things and a loop.\n\nThe CPU is a chip that can do a small number of stupid things: add two numbers, copy a number from here to there, compare two numbers, jump to a different instruction. That is roughly it. It does one of those things, then the next, then the next. Billions of times a second.\n\nMemory is a huge row of numbered slots. Each slot holds a number. The CPU reads from slots and writes to slots. When the power goes, the slots are wiped.\n\nThe disk is where things survive the power going. A file is a named chunk of bytes on the disk. Your code is a file. A photo is a file. Memento's JavaScript is 38 files.\n\nA program is a file full of instructions. When you run it, the instructions get copied into memory, and the CPU starts at the first one and walks forward. A program that is currently running is called a process . Memento open in Safari is one process. The server that answers it, on a computer in a data centre, is a different process.\n\nANALOGY (TEMPORARY)\n\nThe CPU is a very fast, very obedient intern who cannot think. Memory is the intern's desk: a row of numbered sticky notes. The disk is the filing cabinet across the room. A program is a to-do list you leave on the desk. The intern reads line 1, does exactly that, reads line 2, does exactly that. If line 7 says \"put the coffee in the bin\", the coffee goes in the bin. The intern never asks \"are you sure?\" The intern never notices that you obviously meant the cup."
+      "block": 0,
+      "text": "The machine does exactly what you say"
     },
     {
-      "blocks": [
-        17,
-        18,
-        19,
-        20,
-        21,
-        22,
-        23,
-        24,
-        25,
-        26,
-        27,
-        28
-      ],
-      "text": "Here is the part that matters. The CPU has no idea what a \"goal\" or a \"streak\" or a \"user\" is. It moves numbers between slots. A streak of 12 days is the number 12 sitting in a slot. \"Show the streak on screen\" is a few thousand instructions that end with numbers being written into a special region of memory that the screen is wired to read from. Every meaning is in the human's head. The machine has none.\n\nThis is why software breaks. You wrote \"if the streak is bigger than 7, show the badge\" but the streak got saved as the text \"7\" instead of the number 7 , and comparing text to a number does something you did not expect. You meant one thing. You said another. The machine did the other. Forever. At full speed.\n\nWhere your AI agents fit\n\nThis is the single most important idea in the book for you specifically, so read it twice.\n\nWhen you tell Codex or Fable \"make the streak badge show after a week\", the agent guesses what you mean. It reads your app, infers \"a week\" is 7 days, picks a file, writes instructions. That guessing is real and it is often good. But the agent is a writer, not the machine. Once the instructions are written, the machine runs them literally. If the agent guessed wrong, or wrote a typo, or misread a number, the machine does not catch it. The machine does not know what you meant either. There is no layer where intention lives. Only text, and a chip that obeys it.\n\nSo there are two very different questions, and you have been mixing them:\n\nDid the agent understand me? A question about a guess. You check it by reading the plan and the change.\n\nDoes the code do what it says? A question about literal instructions. You check it by running it and looking.\n\nVibe coding is skipping both questions. This book is the opposite.\n\nSee it\n\nFive tiny programs. For each one, say out loud what you think it will print before you press Run. Being wrong is the point. Every wrong guess is a place where your model of the machine differs from the real machine, and that is exactly the gap we are closing.\n\nYou do not need to understand the words yet. console.log means \"print this\". Chapter 9 teaches the rest."
+      "block": 1,
+      "text": "There is no mind inside the computer. It does not know what you meant. It does what you said, one tiny step at a time, at an absurd speed. Everything else in this book sits on that fact."
     },
     {
-      "blocks": [
-        29,
-        30,
-        31,
-        32,
-        33,
-        34,
-        35,
-        36,
-        37,
-        38,
-        39,
-        40,
-        41,
-        42,
-        43,
-        44,
-        45
-      ],
-      "text": "Number 2 is the one people remember. 7 + 5 is 12. \"7\" + \"5\" is \"75\" , because the quotes make them text, and adding text glues it together. \"7\" + 5 is also \"75\" , because the machine picks a rule and applies it without asking. Real bugs in real apps come from exactly this: a number that arrived as text.\n\nNow in Memento\n\nANY APP\n\nEvery app is a pile of files on a disk, loaded into memory, walked through by a CPU. A \"feature\" is a region of that pile. Deleting a feature means deleting files, and every place that still names the deleted thing becomes an instruction the machine cannot follow. The machine does not know the feature is gone. It just hits a name that points at nothing, and stops.\n\nMEMENTO\n\nThe best specimen in the whole codebase is a file that exists only because the machine is literal. In v1319 the old Action module, 6,070 lines, was deleted. About eighty other places in the app still say ActionExperience.open() . If that name vanished, each of those eighty spots would crash the moment a user touched it. So a human left a 37-line file whose only job is to catch the old name and forward it to the new system:\n\nRead the comments above the code in that file some time. Twenty of its 37 lines are a human explaining to future humans why the machine needs this. The machine does not read comments. Only people do.\n\nTHE ALTERNATIVE, AND WHY MEMENTO CHOSE THIS\n\nThe clean alternative is to edit all eighty call sites to say the new name, then delete the shim. That is more correct and more work, and with two agents editing in parallel it risks a half-done rename where forty spots say the new name and forty say the old one. The shim is a deliberate, documented piece of debt: cheap now, a small tax on understanding later. Chapter 26 comes back to it as the textbook example of debt done honestly.\n\nDo it\n\nExercise phone or Mac\n\nGo back to sandbox 2. Change the last line to console.log(7 + \"5\" + 5); . Predict. Run. The machine reads left to right and applies its rule at each step.\n\nGo to sandbox 5. Add one line inside the loop: n = n + 1; . Run it. The bug is gone. Notice that you fixed it by saying the thing you meant, not by explaining yourself.\n\nGo to sandbox 3 and change let streak = 3; to let streak = \"3\"; . Run. Which lines changed? That is the text-versus-number bug, in your hands.\n\nASK THE AGENT WHY (paste this into Codex or Fable)\n\nWORDS YOU NOW OWN\n\nCPU"
+      "block": 2,
+      "text": "BEFORE WE START"
     },
     {
-      "blocks": [
-        46,
-        47,
-        48,
-        49,
-        50,
-        51,
-        52,
-        53,
-        54,
-        55,
-        56,
-        57,
-        58
-      ],
-      "text": "The chip that does the work. Reads one tiny instruction, does exactly that, reads the next. No understanding anywhere in it.\n\nMemory (RAM)\n\nNumbered slots holding numbers. Fast. Wiped when power goes.\n\nDisk and file\n\nWhere things survive. A file is a named chunk of bytes. Code is files.\n\nProgram and process\n\nA program is a file of instructions. A process is that program while it is running.\n\nLiteral execution\n\nThe machine does what the text says, not what the author meant. Every bug lives in that gap.\n\nWHERE TODAY'S ANALOGY BREAKS\n\nBreaks when: you picture one intern. A phone's CPU has several cores, each walking its own list at the same time, and the screen, the radio, and the disk each have their own small chips doing their own work. Also, a real CPU reorders and predicts instructions for speed, so \"one step at a time\" is a story the chip tells you, not what it literally does inside. Real model: a process is a sequence of instructions executed with the appearance of order; the hardware guarantees the result looks as if it ran one step at a time. For everything in this book, \"one obedient step at a time\" gives you the right answers. Chapter 12 adds the one place where the order gets interesting: waiting for the network.\n\nRABBIT HOLE: what an instruction physically is\n\nAn instruction is a number. The CPU's designers publish a table: this number means \"add\", that number means \"copy\". Your JavaScript never becomes those numbers directly; a program called an engine (V8 in Chrome, JavaScriptCore in Safari) reads your text and produces them on the fly. That is why JavaScript works on an iPhone and a Mac despite the chips being different: the engine on each does the translating. Chapter 3 has the history of how humans stopped writing the numbers by hand."
+      "block": 3,
+      "text": "You already run a software company. You approve plans, read status lines, and say \"push it\" every day. What you do not have yet is the picture of what is physically happening when you do. This chapter gives you the bottom layer of that picture. Nothing to install, nothing to type. Just read and press Run a few times."
+    },
+    {
+      "block": 4,
+      "text": "Quick check"
+    },
+    {
+      "block": 5,
+      "text": "No earlier chapters yet, so three questions about you."
+    },
+    {
+      "block": 6,
+      "text": "When you tap a button in Memento, where do you currently think the work happens?"
+    },
+    {
+      "block": 7,
+      "text": "Whatever you answered, hold it. By the end of chapter 2 you will be able to say exactly which parts happen on the phone and which parts happen on a computer you have never seen."
+    },
+    {
+      "block": 8,
+      "text": "What do you think a \"program\" physically is?"
+    },
+    {
+      "block": 9,
+      "text": "A file. Text, saved on a disk. When it runs, the text becomes instructions a chip follows. This chapter shows that."
+    },
+    {
+      "block": 10,
+      "text": "Do you think the computer understands what you want?"
+    },
+    {
+      "block": 11,
+      "text": "It does not. Not even a little. The AI agent you talk to does guess what you want. The machine underneath it does not. Keeping those two apart is the whole chapter."
+    },
+    {
+      "block": 12,
+      "text": "The idea"
+    },
+    {
+      "block": 13,
+      "text": "A computer is three things and a loop."
+    },
+    {
+      "block": 14,
+      "text": "The CPU is a chip that can do a small number of stupid things: add two numbers, copy a number from here to there, compare two numbers, jump to a different instruction. That is roughly it. It does one of those things, then the next, then the next. Billions of times a second."
+    },
+    {
+      "block": 15,
+      "text": "Memory is a huge row of numbered slots. Each slot holds a number. The CPU reads from slots and writes to slots. When the power goes, the slots are wiped."
+    },
+    {
+      "block": 16,
+      "text": "The disk is where things survive the power going. A file is a named chunk of bytes on the disk. Your code is a file. A photo is a file. Memento's JavaScript is 38 files."
+    },
+    {
+      "block": 17,
+      "text": "A program is a file full of instructions. When you run it, the instructions get copied into memory, and the CPU starts at the first one and walks forward. A program that is currently running is called a process . Memento open in Safari is one process. The server that answers it, on a computer in a data centre, is a different process."
+    },
+    {
+      "block": 18,
+      "text": "ANALOGY (TEMPORARY)"
+    },
+    {
+      "block": 19,
+      "text": "The CPU is a very fast, very obedient intern who cannot think. Memory is the intern's desk: a row of numbered sticky notes. The disk is the filing cabinet across the room. A program is a to-do list you leave on the desk. The intern reads line 1, does exactly that, reads line 2, does exactly that. If line 7 says \"put the coffee in the bin\", the coffee goes in the bin. The intern never asks \"are you sure?\" The intern never notices that you obviously meant the cup."
+    },
+    {
+      "block": 20,
+      "text": "The whole machine, at the level you need. Everything in this book is built on these three boxes."
+    },
+    {
+      "block": 21,
+      "text": "Here is the part that matters. The CPU has no idea what a \"goal\" or a \"streak\" or a \"user\" is. It moves numbers between slots. A streak of 12 days is the number 12 sitting in a slot. \"Show the streak on screen\" is a few thousand instructions that end with numbers being written into a special region of memory that the screen is wired to read from. Every meaning is in the human's head. The machine has none."
+    },
+    {
+      "block": 22,
+      "text": "This is why software breaks. You wrote \"if the streak is bigger than 7, show the badge\" but the streak got saved as the text \"7\" instead of the number 7 , and comparing text to a number does something you did not expect. You meant one thing. You said another. The machine did the other. Forever. At full speed."
+    },
+    {
+      "block": 23,
+      "text": "Where your AI agents fit"
+    },
+    {
+      "block": 24,
+      "text": "This is the single most important idea in the book for you specifically, so read it twice."
+    },
+    {
+      "block": 25,
+      "text": "When you tell Codex or Fable \"make the streak badge show after a week\", the agent guesses what you mean. It reads your app, infers \"a week\" is 7 days, picks a file, writes instructions. That guessing is real and it is often good. But the agent is a writer, not the machine. Once the instructions are written, the machine runs them literally. If the agent guessed wrong, or wrote a typo, or misread a number, the machine does not catch it. The machine does not know what you meant either. There is no layer where intention lives. Only text, and a chip that obeys it."
+    },
+    {
+      "block": 26,
+      "text": "So there are two very different questions, and you have been mixing them:"
+    },
+    {
+      "block": 27,
+      "text": "Did the agent understand me? A question about a guess. You check it by reading the plan and the change."
+    },
+    {
+      "block": 28,
+      "text": "Does the code do what it says? A question about literal instructions. You check it by running it and looking."
+    },
+    {
+      "block": 29,
+      "text": "Vibe coding is skipping both questions. This book is the opposite."
+    },
+    {
+      "block": 30,
+      "text": "See it"
+    },
+    {
+      "block": 31,
+      "text": "Five tiny programs. For each one, say out loud what you think it will print before you press Run. Being wrong is the point. Every wrong guess is a place where your model of the machine differs from the real machine, and that is exactly the gap we are closing."
+    },
+    {
+      "block": 32,
+      "text": "You do not need to understand the words yet. console.log means \"print this\". Chapter 9 teaches the rest."
+    },
+    {
+      "block": 33,
+      "text": "Number 2 is the one people remember. 7 + 5 is 12. \"7\" + \"5\" is \"75\" , because the quotes make them text, and adding text glues it together. \"7\" + 5 is also \"75\" , because the machine picks a rule and applies it without asking. Real bugs in real apps come from exactly this: a number that arrived as text."
+    },
+    {
+      "block": 34,
+      "text": "Now in Memento"
+    },
+    {
+      "block": 35,
+      "text": "ANY APP"
+    },
+    {
+      "block": 36,
+      "text": "Every app is a pile of files on a disk, loaded into memory, walked through by a CPU. A \"feature\" is a region of that pile. Deleting a feature means deleting files, and every place that still names the deleted thing becomes an instruction the machine cannot follow. The machine does not know the feature is gone. It just hits a name that points at nothing, and stops."
+    },
+    {
+      "block": 37,
+      "text": "MEMENTO"
+    },
+    {
+      "block": 38,
+      "text": "The best specimen in the whole codebase is a file that exists only because the machine is literal. In v1319 the old Action module, 6,070 lines, was deleted. About eighty other places in the app still say ActionExperience.open() . If that name vanished, each of those eighty spots would crash the moment a user touched it. So a human left a 37-line file whose only job is to catch the old name and forward it to the new system:"
+    },
+    {
+      "block": 39,
+      "text": "Read the comments above the code in that file some time. Twenty of its 37 lines are a human explaining to future humans why the machine needs this. The machine does not read comments. Only people do."
+    },
+    {
+      "block": 40,
+      "text": "THE ALTERNATIVE, AND WHY MEMENTO CHOSE THIS"
+    },
+    {
+      "block": 41,
+      "text": "The clean alternative is to edit all eighty call sites to say the new name, then delete the shim. That is more correct and more work, and with two agents editing in parallel it risks a half-done rename where forty spots say the new name and forty say the old one. The shim is a deliberate, documented piece of debt: cheap now, a small tax on understanding later. Chapter 26 comes back to it as the textbook example of debt done honestly."
+    },
+    {
+      "block": 42,
+      "text": "Do it"
+    },
+    {
+      "block": 43,
+      "text": "Exercise phone or Mac"
+    },
+    {
+      "block": 44,
+      "text": "Go back to sandbox 2. Change the last line to console.log(7 + \"5\" + 5); . Predict. Run. The machine reads left to right and applies its rule at each step."
+    },
+    {
+      "block": 45,
+      "text": "Go to sandbox 5. Add one line inside the loop: n = n + 1; . Run it. The bug is gone. Notice that you fixed it by saying the thing you meant, not by explaining yourself."
+    },
+    {
+      "block": 46,
+      "text": "Go to sandbox 3 and change let streak = 3; to let streak = \"3\"; . Run. Which lines changed? That is the text-versus-number bug, in your hands."
+    },
+    {
+      "block": 47,
+      "text": "ASK THE AGENT WHY (paste this into Codex or Fable)"
+    },
+    {
+      "block": 48,
+      "text": "WORDS YOU NOW OWN"
+    },
+    {
+      "block": 49,
+      "text": "CPU"
+    },
+    {
+      "block": 50,
+      "text": "The chip that does the work. Reads one tiny instruction, does exactly that, reads the next. No understanding anywhere in it."
+    },
+    {
+      "block": 51,
+      "text": "Memory (RAM)"
+    },
+    {
+      "block": 52,
+      "text": "Numbered slots holding numbers. Fast. Wiped when power goes."
+    },
+    {
+      "block": 53,
+      "text": "Disk and file"
+    },
+    {
+      "block": 54,
+      "text": "Where things survive. A file is a named chunk of bytes. Code is files."
+    },
+    {
+      "block": 55,
+      "text": "Program and process"
+    },
+    {
+      "block": 56,
+      "text": "A program is a file of instructions. A process is that program while it is running."
+    },
+    {
+      "block": 57,
+      "text": "Literal execution"
+    },
+    {
+      "block": 58,
+      "text": "The machine does what the text says, not what the author meant. Every bug lives in that gap."
+    },
+    {
+      "block": 59,
+      "text": "WHERE TODAY'S ANALOGY BREAKS"
+    },
+    {
+      "block": 60,
+      "text": "Breaks when: you picture one intern. A phone's CPU has several cores, each walking its own list at the same time, and the screen, the radio, and the disk each have their own small chips doing their own work. Also, a real CPU reorders and predicts instructions for speed, so \"one step at a time\" is a story the chip tells you, not what it literally does inside. Real model: a process is a sequence of instructions executed with the appearance of order; the hardware guarantees the result looks as if it ran one step at a time. For everything in this book, \"one obedient step at a time\" gives you the right answers. Chapter 12 adds the one place where the order gets interesting: waiting for the network."
+    },
+    {
+      "block": 61,
+      "text": "RABBIT HOLE: what an instruction physically is"
+    },
+    {
+      "block": 62,
+      "text": "An instruction is a number. The CPU's designers publish a table: this number means \"add\", that number means \"copy\". Your JavaScript never becomes those numbers directly; a program called an engine (V8 in Chrome, JavaScriptCore in Safari) reads your text and produces them on the fly. That is why JavaScript works on an iPhone and a Mac despite the chips being different: the engine on each does the translating. Chapter 3 has the history of how humans stopped writing the numbers by hand."
     }
   ],
-  "wordCount": 1593
+  "wordCount": 1699
 }

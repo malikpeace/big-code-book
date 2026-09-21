@@ -63,11 +63,13 @@
   function narratableBlocks() {
     var selector = [
       'main h1', 'main h2', 'main h3', 'main p', 'main li', 'main summary',
-      'main dt', 'main dd', 'main th', 'main td', 'main .box > .h',
-      'main .lane > .h', 'main .ex > .h'
+      'main dt', 'main dd', 'main th', 'main td', 'main figcaption',
+      'main .box > .h', 'main .lane > .h', 'main .ex > .h', 'main .check > .a'
     ].join(',');
-    return Array.prototype.slice.call(document.querySelectorAll(selector)).filter(function (node) {
-      return !node.closest('pre, figure, script, style, svg, textarea, button, nav, .sb, .src, .audio-player, .audio-library');
+    var candidates = Array.prototype.slice.call(document.querySelectorAll(selector));
+    return candidates.filter(function (node) {
+      var nested = candidates.some(function (other) { return other !== node && other.contains(node); });
+      return !nested && !node.closest('pre, script, style, svg, textarea, button, nav, .sb, .src, .audio-player, .audio-library');
     });
   }
   function chapterEntry(number) {

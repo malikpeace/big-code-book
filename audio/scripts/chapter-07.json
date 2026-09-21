@@ -36,480 +36,705 @@
     },
     {
       "index": 6,
-      "tag": "summary",
-      "text": "What is a path, and what does the ~ in ~/Downloads/MEMENTO mean?"
+      "tag": "div",
+      "text": "grep is the program. -n , state and file.js are arguments. The shell finds grep by looking through the folders listed in PATH, then hands it the rest."
     },
     {
       "index": 7,
       "tag": "summary",
-      "text": "Chapter 4 gave you five habits. The fifth one was \"own the commit\". What do you think that actually means?"
+      "text": "What is a path, and what does the ~ in ~/Downloads/MEMENTO mean?"
     },
     {
       "index": 8,
+      "tag": "div",
+      "text": "A path is a file's address: the folders you walk through, joined with slashes. ~ is shorthand for your home folder, so that path means /Users/malikpeace/Downloads/MEMENTO ."
+    },
+    {
+      "index": 9,
+      "tag": "summary",
+      "text": "Chapter 4 gave you five habits. The fifth one was \"own the commit\". What do you think that actually means?"
+    },
+    {
+      "index": 10,
+      "tag": "div",
+      "text": "Whatever the agent wrote, it goes into history under a message you approved, and you are the one who can say what changed and why. By the end of this chapter you will know exactly what a commit is, so that habit stops being a slogan."
+    },
+    {
+      "index": 11,
       "tag": "h2",
       "text": "The idea"
     },
     {
-      "index": 9,
+      "index": 12,
       "tag": "p",
       "text": "Almost everyone believes a commit is a record of what changed. It is not. A commit is a complete snapshot of the entire folder at one moment: every file, in the state it was in, with the folder structure it had. Git stores the whole tree, not the edit."
     },
     {
-      "index": 10,
+      "index": 13,
       "tag": "p",
       "text": "That sounds insane until the second half of the trick. If a file did not change since the last snapshot, git does not store it again. It stores each file's content once, under a fingerprint of that content, and every snapshot containing that exact file points at the same stored copy. Complete and cheap. Memento has 2,659 snapshots of a folder whose web app alone is 7.8 megabytes. Real copies would be over twenty gigabytes. The whole history is 462 megabytes."
     },
     {
-      "index": 11,
+      "index": 14,
       "tag": "p",
       "text": "The snapshots are not a pile. They are a chain. Each commit records which commit came before it, its parent . Follow the parents backwards and you walk the entire life of the project, one snapshot at a time, to the first one. That chain is the history. Nothing in it is ever edited. Things only get added to the end."
     },
     {
-      "index": 12,
+      "index": 15,
       "tag": "div",
       "text": "ANALOGY (TEMPORARY)"
     },
     {
-      "index": 13,
+      "index": 16,
       "tag": "p",
       "text": "Save-game slots, with one extra rule. Every save is a full save of the entire world, not a list of what you did since last time, so loading any slot gives you the world exactly as it was. The extra rule: each save writes down which save you were playing when you made it, so the slots form a line you can walk backwards. And undoing does not delete a save. It makes a new save with the thing undone. Nothing ever comes off the shelf."
     },
     {
-      "index": 14,
+      "index": 17,
       "tag": "p",
       "text": "Now the part that confuses everybody. When you work with git there are three different places your work can be, and they are genuinely separate:"
     },
     {
-      "index": 15,
+      "index": 18,
       "tag": "li",
       "text": "The working folder . The actual files on your disk, the ones your editor opens and your app runs. You change these all day."
     },
     {
-      "index": 16,
+      "index": 19,
       "tag": "li",
       "text": "The staging area , also called the index. A waiting room. It holds the exact version of each file that will go into the next snapshot. Putting a file in the waiting room is git add ."
     },
     {
-      "index": 17,
+      "index": 20,
       "tag": "li",
       "text": "The history, which lives in a hidden folder called .git at the top of the project. Every snapshot ever taken is in there. git commit takes everything in the waiting room and writes it in as a new snapshot. A project folder plus its .git folder is a repository , or repo."
     },
     {
-      "index": 18,
+      "index": 21,
       "tag": "p",
       "text": "The difference between any two of those places, printed as removed and added lines, is a diff . And HEAD is git's word for the snapshot you are currently standing on, which for now is simply the newest one."
     },
     {
-      "index": 19,
+      "index": 22,
       "tag": "p",
       "text": "Editing a file changes the first place only. Nothing reaches history until you add, then commit. That two-step is not bureaucracy. It lets you say \"these four files are one coherent change, and those two I am still messing with are not part of it\". Hold that thought: it is the entire reason for a rule you have enforced in Memento for a year."
     },
     {
-      "index": 20,
+      "index": 23,
+      "tag": "figcaption",
+      "text": "Three places, then the chain. Every git command you will ever run is moving something between these boxes or reading the chain."
+    },
+    {
+      "index": 24,
       "tag": "h3",
       "text": "The hash, and why it looks like that"
     },
     {
-      "index": 21,
+      "index": 25,
       "tag": "p",
       "text": "Every commit has an id that looks like 93bfa79698c797f48bd3a45add06fb17ff31ca7a . That is a hash : a fingerprint calculated from the snapshot's contents, including the parent's id and the message and the author and the time. Feed identical contents in, get the identical fingerprint out. Change one character anywhere and you get a completely different fingerprint."
     },
     {
-      "index": 22,
+      "index": 26,
       "tag": "p",
       "text": "Two consequences. The id is not a counter, so there is no \"commit number 400\"; ids identify, they do not sort. And because the fingerprint includes the parent's fingerprint, you cannot quietly rewrite an old snapshot: change anything back there and every id after it changes too. History is tamper-evident by construction."
     },
     {
-      "index": 23,
+      "index": 27,
       "tag": "p",
       "text": "In practice nobody types forty characters. The first seven or eight are enough to be unique in a project this size, which is why you see ca8afc8 and 93bfa796 in Memento's own notes."
     },
     {
-      "index": 24,
+      "index": 28,
       "tag": "h2",
       "text": "See it"
     },
     {
-      "index": 25,
+      "index": 29,
       "tag": "p",
       "text": "Git in miniature. Commits are objects with a parent pointer. Watch two things: the history only ever grows, and undoing a change makes a new snapshot rather than removing an old one."
     },
     {
-      "index": 26,
+      "index": 30,
       "tag": "p",
       "text": "Three snapshots, not one. The middle one still holds the streak code, which is why a revert is safe: you can go and read the thing you undid. Now the second half of the claim, that a full snapshot is not a full copy."
     },
     {
-      "index": 27,
+      "index": 31,
       "tag": "p",
       "text": "Three complete snapshots, three stored file contents, not six. The README was written once and pointed at three times, and the third snapshot's app.js reuses the first one's fingerprint because the content came back to identical. That is git, minus a million lines of hard engineering."
     },
     {
-      "index": 28,
+      "index": 32,
       "tag": "h2",
       "text": "Now in Memento"
     },
     {
-      "index": 29,
+      "index": 33,
       "tag": "div",
       "text": "READ-ONLY. THIS IS NOT A DRILL"
     },
     {
-      "index": 30,
+      "index": 34,
       "tag": "p",
       "text": "Memento is a live shared tree. Two AI agents work in it. In ~/Downloads/MEMENTO the only git commands you or this book may ever run are the ones that look and do not touch: git log , git show , git diff , git status , and git branch with no arguments. Never add , commit , checkout , switch , stash , restore , reset , pull or push there while you are learning. Practice happens in git-lab , which is disposable. Looking is free. Touching is not."
     },
     {
-      "index": 31,
+      "index": 35,
       "tag": "div",
       "text": "ANY APP"
     },
     {
-      "index": 32,
+      "index": 36,
       "tag": "p",
       "text": "The one-line summary of history is git log --oneline . Each line is a short hash and the commit's subject. It reads newest first. This is the single most useful git command in the world, and it is completely safe."
     },
     {
-      "index": 33,
+      "index": 37,
       "tag": "p",
       "text": "To look inside one snapshot, git show <hash> . Add --stat and you get the header plus a count of which files moved and by how many lines, without a wall of code."
     },
     {
-      "index": 34,
+      "index": 38,
       "tag": "p",
       "text": "The -C <folder> flag means \"run this as if you were in that folder\", so you never have to cd into one you must not disturb."
     },
     {
-      "index": 35,
+      "index": 39,
       "tag": "div",
       "text": "MEMENTO"
     },
     {
-      "index": 36,
+      "index": 40,
       "tag": "p",
       "text": "Run this. It changes nothing."
     },
     {
-      "index": 37,
+      "index": 41,
       "tag": "p",
       "text": "Real output, at the native pin:"
     },
     {
-      "index": 38,
+      "index": 42,
       "tag": "p",
       "text": "Then open the newest one, header and file counts only:"
     },
     {
-      "index": 39,
+      "index": 43,
       "tag": "p",
       "text": "One file, nine lines added, three removed. That snapshot still contains all 38 JavaScript files and everything else. It just shares them with its parent."
     },
     {
-      "index": 40,
+      "index": 44,
       "tag": "h3",
       "text": "Why Memento bans git add -A"
     },
     {
-      "index": 41,
+      "index": 45,
       "tag": "p",
       "text": "This is the rule you wrote, and now you can read it properly. Run grep -n 'git add' ~/Downloads/MEMENTO/CLAUDE.md and you get line 73:"
     },
     {
-      "index": 42,
+      "index": 46,
       "tag": "p",
       "text": "git add -A means \"put every changed file in the whole project into the waiting room\". On a solo project, convenient. In Memento it is a loaded gun, because the working folder is shared. While Fable is halfway through a screen, its unfinished files sit in that folder. If Codex runs git add -A then, they go into the waiting room, get committed under Codex's message, and are pushed. A broken half-feature is now in history under a message that does not describe it, and the next agent to pull gets it. The duplicate features the rule complains about are exactly that: half a thing committed twice, from two directions."
     },
     {
-      "index": 43,
+      "index": 47,
       "tag": "p",
       "text": "The staging area is the defence. Naming your files is how you say \"this change is mine, and it is these four files\". The rule is not tidiness. It is the only mechanism git gives you to stop two authors in one folder eating each other's work."
     },
     {
-      "index": 44,
+      "index": 48,
       "tag": "div",
       "text": "THE ALTERNATIVE, AND WHY MEMENTO CHOSE THIS"
     },
     {
-      "index": 45,
+      "index": 49,
       "tag": "p",
       "text": "The obvious alternative is one working copy per agent, so nobody shares a folder and git add -A is harmless. Memento does that for the native rebuild: the migration plan puts Codex in a separate worktree at ../MEMENTO-codex while Fable stays in the Downloads checkout. It costs disk space, a second checkout to keep current, and remembering which copy you are looking at. For the web app the agents kept one tree and paid with a rule instead. Both are real choices. What does not work is one tree and no rule, which is what most people do."
     },
     {
-      "index": 46,
+      "index": 50,
       "tag": "h2",
       "text": "Do it"
     },
     {
-      "index": 47,
+      "index": 51,
       "tag": "div",
       "text": "Exercise MAC"
     },
     {
-      "index": 48,
+      "index": 52,
       "tag": "li",
       "text": "Open Terminal and try cd ~/Downloads/CODE-BOOK/git-lab . If it says no such file or directory, the lab is not built yet. Make one by hand: mkdir -p ~/Downloads/CODE-BOOK/git-lab && cd ~/Downloads/CODE-BOOK/git-lab && git init echo \"ship the native app\" > north-star.txt echo \"start()\" > app.js git add north-star.txt app.js git commit -m \"first snapshot\" Note you named both files instead of using -A . Build the habit here."
     },
     {
-      "index": 49,
+      "index": 53,
       "tag": "li",
       "text": "ls -a . There is a .git folder you did not create. That is the time machine. Do not poke inside it; just know every snapshot lives there."
     },
     {
-      "index": 50,
+      "index": 54,
       "tag": "li",
       "text": "git status . Expected: nothing to commit, working folder clean. All three places agree."
     },
     {
-      "index": 51,
+      "index": 55,
       "tag": "li",
       "text": "git log --oneline . One line, one snapshot, with a short hash. Copy that hash."
     },
     {
-      "index": 52,
+      "index": 56,
       "tag": "li",
       "text": "Now change the working folder: echo \"start(); trackStreak()\" > app.js . Run git status again. Expected: app.js is listed as modified and not staged . The change exists in place one only."
     },
     {
-      "index": 53,
+      "index": 57,
       "tag": "li",
       "text": "git diff . The difference between working folder and waiting room. Lines starting - were removed, + were added. Read it."
     },
     {
-      "index": 54,
+      "index": 58,
       "tag": "li",
       "text": "git add app.js , then git status . Same change, different place: staged. Now git diff prints nothing, because working folder and waiting room agree, while git diff --staged shows the change, because it compares the waiting room to the last snapshot. Two commands, two questions, confused forever."
     },
     {
-      "index": 55,
+      "index": 59,
       "tag": "li",
       "text": "git commit -m \"track the streak\" , then git log --oneline . Two lines. Then git show --stat HEAD : header, message, file count, exactly like Memento's."
     },
     {
-      "index": 56,
+      "index": 60,
       "tag": "li",
       "text": "Break it. echo \"oops, garbage\" > north-star.txt . Run git status , see modified, run git diff , read what you wrecked. Inspect first, always. Then, and only then, undo it: DESTRUCTIVE COMMAND. READ BEFORE YOU TYPE git restore north-star.txt throws away every uncommitted change to that file and puts back the version from the last snapshot. There is no undo, because what you lose was never in history. Git can only return what you committed. Run git diff and look first, every time, forever. Run it, then git status . Clean. The north star is back and the garbage is gone for good."
     },
     {
-      "index": 57,
-      "tag": "div",
-      "text": "DESTRUCTIVE COMMAND. READ BEFORE YOU TYPE"
-    },
-    {
-      "index": 58,
-      "tag": "p",
-      "text": "git restore north-star.txt throws away every uncommitted change to that file and puts back the version from the last snapshot. There is no undo, because what you lose was never in history. Git can only return what you committed. Run git diff and look first, every time, forever."
-    },
-    {
-      "index": 59,
+      "index": 61,
       "tag": "div",
       "text": "ASK THE AGENT WHY (paste this into Codex or Fable)"
     },
     {
-      "index": 60,
+      "index": 62,
       "tag": "div",
       "text": "WORDS YOU NOW OWN"
     },
     {
-      "index": 61,
+      "index": 63,
       "tag": "dt",
       "text": "Commit"
     },
     {
-      "index": 62,
+      "index": 64,
       "tag": "dd",
       "text": "A snapshot of the whole folder, with a message, an author, a time, and a pointer to the snapshot before it. Not a record of changes."
     },
     {
-      "index": 63,
+      "index": 65,
       "tag": "dt",
       "text": "Repository (repo)"
     },
     {
-      "index": 64,
+      "index": 66,
       "tag": "dd",
       "text": "A project folder plus its hidden .git folder containing every snapshot ever taken of it."
     },
     {
-      "index": 65,
+      "index": 67,
       "tag": "dt",
       "text": "Working folder"
     },
     {
-      "index": 66,
+      "index": 68,
       "tag": "dd",
       "text": "The real files on disk that you and the agents edit. Nothing here is in a snapshot until you add and commit."
     },
     {
-      "index": 67,
+      "index": 69,
       "tag": "dt",
       "text": "Staging area (the index)"
     },
     {
-      "index": 68,
+      "index": 70,
       "tag": "dd",
       "text": "The waiting room. It holds the exact file versions that will go into the next snapshot. git add <file> puts one in."
     },
     {
-      "index": 69,
+      "index": 71,
       "tag": "dt",
       "text": "Hash"
     },
     {
-      "index": 70,
+      "index": 72,
       "tag": "dd",
       "text": "A commit's id: a fingerprint of the snapshot's contents and its parent's id. Same contents, same fingerprint. Change anything and every id after it changes too."
     },
     {
-      "index": 71,
+      "index": 73,
       "tag": "dt",
       "text": "Diff"
     },
     {
-      "index": 72,
+      "index": 74,
       "tag": "dd",
       "text": "The difference between two versions of a file, as removed and added lines. git diff : working folder against waiting room. git diff --staged : waiting room against the last snapshot."
     },
     {
-      "index": 73,
+      "index": 75,
       "tag": "dt",
       "text": "HEAD"
     },
     {
-      "index": 74,
+      "index": 76,
       "tag": "dd",
       "text": "Git's word for the snapshot you are currently standing on. Chapter 8 makes it move."
     },
     {
-      "index": 75,
+      "index": 77,
       "tag": "div",
       "text": "WHERE TODAY'S ANALOGY BREAKS"
     },
     {
-      "index": 76,
+      "index": 78,
       "tag": "p",
       "text": "Breaks when: you picture 2,659 complete copies of the folder, or assume every save survives forever. Git stores each unique file content once and every snapshot points at the shared copies, which is why the history is 462 megabytes instead of twenty gigabytes. And a snapshot nothing points at any more, because a label moved or a branch was deleted, becomes unreachable and is eventually swept away by git's garbage collector. Real model: a content-addressed database of objects, where a commit names a tree, a tree names file contents by fingerprint, and reachability from a label keeps an object alive. Chapter 8 brings the labels."
     },
     {
-      "index": 77,
+      "index": 79,
       "tag": "summary",
       "text": "RABBIT HOLE: what is actually inside .git"
     },
     {
-      "index": 78,
+      "index": 80,
       "tag": "p",
       "text": "Four kinds of object, all stored by fingerprint. A blob is one file's contents with no name. A tree is a folder listing: names plus the fingerprints they point at, including other trees. A commit names one tree, its parents, an author, a time and a message. A tag names a commit with a human label. On top of that sits a small folder of refs , which are plain text files each containing one hash, and those are branches. That is the entire design. Everything else in git, every command and every flag, is manipulation of those four object types and those one-line ref files. Linus Torvalds wrote the first working version in about ten days in 2005, which chapter 3 put on the timeline."
     }
   ],
   "segments": [
     {
-      "blocks": [
-        0,
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7,
-        8,
-        9,
-        10,
-        11,
-        12,
-        13
-      ],
-      "text": "Git 1: snapshots and history\n\nEvery version of Memento that has ever existed is still on your Mac, 2,659 of them, each one a complete photograph of the whole folder. This chapter is how that works and how you look at it without breaking anything.\n\nLAST TIME\n\nThe terminal is a conversation: every line is a program's name plus arguments, and the shell finds that program by walking PATH. Output comes back on two channels and every command ends with an exit code, where 0 means it worked. You are no longer scared of a black window.\n\nQuick check\n\nYou type grep -n state file.js . Which part is the program and which parts are arguments?\n\nWhat is a path, and what does the ~ in ~/Downloads/MEMENTO mean?\n\nChapter 4 gave you five habits. The fifth one was \"own the commit\". What do you think that actually means?\n\nThe idea\n\nAlmost everyone believes a commit is a record of what changed. It is not. A commit is a complete snapshot of the entire folder at one moment: every file, in the state it was in, with the folder structure it had. Git stores the whole tree, not the edit.\n\nThat sounds insane until the second half of the trick. If a file did not change since the last snapshot, git does not store it again. It stores each file's content once, under a fingerprint of that content, and every snapshot containing that exact file points at the same stored copy. Complete and cheap. Memento has 2,659 snapshots of a folder whose web app alone is 7.8 megabytes. Real copies would be over twenty gigabytes. The whole history is 462 megabytes.\n\nThe snapshots are not a pile. They are a chain. Each commit records which commit came before it, its parent . Follow the parents backwards and you walk the entire life of the project, one snapshot at a time, to the first one. That chain is the history. Nothing in it is ever edited. Things only get added to the end.\n\nANALOGY (TEMPORARY)\n\nSave-game slots, with one extra rule. Every save is a full save of the entire world, not a list of what you did since last time, so loading any slot gives you the world exactly as it was. The extra rule: each save writes down which save you were playing when you made it, so the slots form a line you can walk backwards. And undoing does not delete a save. It makes a new save with the thing undone. Nothing ever comes off the shelf."
+      "block": 0,
+      "text": "Git 1: snapshots and history"
     },
     {
-      "blocks": [
-        14,
-        15,
-        16,
-        17,
-        18,
-        19,
-        20,
-        21,
-        22,
-        23,
-        24,
-        25
-      ],
-      "text": "Now the part that confuses everybody. When you work with git there are three different places your work can be, and they are genuinely separate:\n\nThe working folder . The actual files on your disk, the ones your editor opens and your app runs. You change these all day.\n\nThe staging area , also called the index. A waiting room. It holds the exact version of each file that will go into the next snapshot. Putting a file in the waiting room is git add .\n\nThe history, which lives in a hidden folder called .git at the top of the project. Every snapshot ever taken is in there. git commit takes everything in the waiting room and writes it in as a new snapshot. A project folder plus its .git folder is a repository , or repo.\n\nThe difference between any two of those places, printed as removed and added lines, is a diff . And HEAD is git's word for the snapshot you are currently standing on, which for now is simply the newest one.\n\nEditing a file changes the first place only. Nothing reaches history until you add, then commit. That two-step is not bureaucracy. It lets you say \"these four files are one coherent change, and those two I am still messing with are not part of it\". Hold that thought: it is the entire reason for a rule you have enforced in Memento for a year.\n\nThe hash, and why it looks like that\n\nEvery commit has an id that looks like 93bfa79698c797f48bd3a45add06fb17ff31ca7a . That is a hash : a fingerprint calculated from the snapshot's contents, including the parent's id and the message and the author and the time. Feed identical contents in, get the identical fingerprint out. Change one character anywhere and you get a completely different fingerprint.\n\nTwo consequences. The id is not a counter, so there is no \"commit number 400\"; ids identify, they do not sort. And because the fingerprint includes the parent's fingerprint, you cannot quietly rewrite an old snapshot: change anything back there and every id after it changes too. History is tamper-evident by construction.\n\nIn practice nobody types forty characters. The first seven or eight are enough to be unique in a project this size, which is why you see ca8afc8 and 93bfa796 in Memento's own notes.\n\nSee it\n\nGit in miniature. Commits are objects with a parent pointer. Watch two things: the history only ever grows, and undoing a change makes a new snapshot rather than removing an old one."
+      "block": 1,
+      "text": "Every version of Memento that has ever existed is still on your Mac, 2,659 of them, each one a complete photograph of the whole folder. This chapter is how that works and how you look at it without breaking anything."
     },
     {
-      "blocks": [
-        26,
-        27,
-        28,
-        29,
-        30,
-        31,
-        32,
-        33,
-        34,
-        35,
-        36,
-        37,
-        38,
-        39,
-        40,
-        41
-      ],
-      "text": "Three snapshots, not one. The middle one still holds the streak code, which is why a revert is safe: you can go and read the thing you undid. Now the second half of the claim, that a full snapshot is not a full copy.\n\nThree complete snapshots, three stored file contents, not six. The README was written once and pointed at three times, and the third snapshot's app.js reuses the first one's fingerprint because the content came back to identical. That is git, minus a million lines of hard engineering.\n\nNow in Memento\n\nREAD-ONLY. THIS IS NOT A DRILL\n\nMemento is a live shared tree. Two AI agents work in it. In ~/Downloads/MEMENTO the only git commands you or this book may ever run are the ones that look and do not touch: git log , git show , git diff , git status , and git branch with no arguments. Never add , commit , checkout , switch , stash , restore , reset , pull or push there while you are learning. Practice happens in git-lab , which is disposable. Looking is free. Touching is not.\n\nANY APP\n\nThe one-line summary of history is git log --oneline . Each line is a short hash and the commit's subject. It reads newest first. This is the single most useful git command in the world, and it is completely safe.\n\nTo look inside one snapshot, git show <hash> . Add --stat and you get the header plus a count of which files moved and by how many lines, without a wall of code.\n\nThe -C <folder> flag means \"run this as if you were in that folder\", so you never have to cd into one you must not disturb.\n\nMEMENTO\n\nRun this. It changes nothing.\n\nReal output, at the native pin:\n\nThen open the newest one, header and file counts only:\n\nOne file, nine lines added, three removed. That snapshot still contains all 38 JavaScript files and everything else. It just shares them with its parent.\n\nWhy Memento bans git add -A\n\nThis is the rule you wrote, and now you can read it properly. Run grep -n 'git add' ~/Downloads/MEMENTO/CLAUDE.md and you get line 73:"
+      "block": 2,
+      "text": "LAST TIME"
     },
     {
-      "blocks": [
-        42,
-        43,
-        44,
-        45,
-        46,
-        47,
-        48,
-        49,
-        50,
-        51,
-        52
-      ],
-      "text": "git add -A means \"put every changed file in the whole project into the waiting room\". On a solo project, convenient. In Memento it is a loaded gun, because the working folder is shared. While Fable is halfway through a screen, its unfinished files sit in that folder. If Codex runs git add -A then, they go into the waiting room, get committed under Codex's message, and are pushed. A broken half-feature is now in history under a message that does not describe it, and the next agent to pull gets it. The duplicate features the rule complains about are exactly that: half a thing committed twice, from two directions.\n\nThe staging area is the defence. Naming your files is how you say \"this change is mine, and it is these four files\". The rule is not tidiness. It is the only mechanism git gives you to stop two authors in one folder eating each other's work.\n\nTHE ALTERNATIVE, AND WHY MEMENTO CHOSE THIS\n\nThe obvious alternative is one working copy per agent, so nobody shares a folder and git add -A is harmless. Memento does that for the native rebuild: the migration plan puts Codex in a separate worktree at ../MEMENTO-codex while Fable stays in the Downloads checkout. It costs disk space, a second checkout to keep current, and remembering which copy you are looking at. For the web app the agents kept one tree and paid with a rule instead. Both are real choices. What does not work is one tree and no rule, which is what most people do.\n\nDo it\n\nExercise MAC\n\nOpen Terminal and try cd ~/Downloads/CODE-BOOK/git-lab . If it says no such file or directory, the lab is not built yet. Make one by hand: mkdir -p ~/Downloads/CODE-BOOK/git-lab && cd ~/Downloads/CODE-BOOK/git-lab && git init echo \"ship the native app\" > north-star.txt echo \"start()\" > app.js git add north-star.txt app.js git commit -m \"first snapshot\" Note you named both files instead of using -A . Build the habit here.\n\nls -a . There is a .git folder you did not create. That is the time machine. Do not poke inside it; just know every snapshot lives there.\n\ngit status . Expected: nothing to commit, working folder clean. All three places agree.\n\ngit log --oneline . One line, one snapshot, with a short hash. Copy that hash.\n\nNow change the working folder: echo \"start(); trackStreak()\" > app.js . Run git status again. Expected: app.js is listed as modified and not staged . The change exists in place one only."
+      "block": 3,
+      "text": "The terminal is a conversation: every line is a program's name plus arguments, and the shell finds that program by walking PATH. Output comes back on two channels and every command ends with an exit code, where 0 means it worked. You are no longer scared of a black window."
     },
     {
-      "blocks": [
-        53,
-        54,
-        55,
-        56,
-        57,
-        58,
-        59,
-        60,
-        61,
-        62,
-        63,
-        64,
-        65,
-        66,
-        67,
-        68,
-        69,
-        70,
-        71
-      ],
-      "text": "git diff . The difference between working folder and waiting room. Lines starting - were removed, + were added. Read it.\n\ngit add app.js , then git status . Same change, different place: staged. Now git diff prints nothing, because working folder and waiting room agree, while git diff --staged shows the change, because it compares the waiting room to the last snapshot. Two commands, two questions, confused forever.\n\ngit commit -m \"track the streak\" , then git log --oneline . Two lines. Then git show --stat HEAD : header, message, file count, exactly like Memento's.\n\nBreak it. echo \"oops, garbage\" > north-star.txt . Run git status , see modified, run git diff , read what you wrecked. Inspect first, always. Then, and only then, undo it: DESTRUCTIVE COMMAND. READ BEFORE YOU TYPE git restore north-star.txt throws away every uncommitted change to that file and puts back the version from the last snapshot. There is no undo, because what you lose was never in history. Git can only return what you committed. Run git diff and look first, every time, forever. Run it, then git status . Clean. The north star is back and the garbage is gone for good.\n\nDESTRUCTIVE COMMAND. READ BEFORE YOU TYPE\n\ngit restore north-star.txt throws away every uncommitted change to that file and puts back the version from the last snapshot. There is no undo, because what you lose was never in history. Git can only return what you committed. Run git diff and look first, every time, forever.\n\nASK THE AGENT WHY (paste this into Codex or Fable)\n\nWORDS YOU NOW OWN\n\nCommit\n\nA snapshot of the whole folder, with a message, an author, a time, and a pointer to the snapshot before it. Not a record of changes.\n\nRepository (repo)\n\nA project folder plus its hidden .git folder containing every snapshot ever taken of it.\n\nWorking folder\n\nThe real files on disk that you and the agents edit. Nothing here is in a snapshot until you add and commit.\n\nStaging area (the index)\n\nThe waiting room. It holds the exact file versions that will go into the next snapshot. git add <file> puts one in.\n\nHash\n\nA commit's id: a fingerprint of the snapshot's contents and its parent's id. Same contents, same fingerprint. Change anything and every id after it changes too.\n\nDiff"
+      "block": 4,
+      "text": "Quick check"
     },
     {
-      "blocks": [
-        72,
-        73,
-        74,
-        75,
-        76,
-        77,
-        78
-      ],
-      "text": "The difference between two versions of a file, as removed and added lines. git diff : working folder against waiting room. git diff --staged : waiting room against the last snapshot.\n\nHEAD\n\nGit's word for the snapshot you are currently standing on. Chapter 8 makes it move.\n\nWHERE TODAY'S ANALOGY BREAKS\n\nBreaks when: you picture 2,659 complete copies of the folder, or assume every save survives forever. Git stores each unique file content once and every snapshot points at the shared copies, which is why the history is 462 megabytes instead of twenty gigabytes. And a snapshot nothing points at any more, because a label moved or a branch was deleted, becomes unreachable and is eventually swept away by git's garbage collector. Real model: a content-addressed database of objects, where a commit names a tree, a tree names file contents by fingerprint, and reachability from a label keeps an object alive. Chapter 8 brings the labels.\n\nRABBIT HOLE: what is actually inside .git\n\nFour kinds of object, all stored by fingerprint. A blob is one file's contents with no name. A tree is a folder listing: names plus the fingerprints they point at, including other trees. A commit names one tree, its parents, an author, a time and a message. A tag names a commit with a human label. On top of that sits a small folder of refs , which are plain text files each containing one hash, and those are branches. That is the entire design. Everything else in git, every command and every flag, is manipulation of those four object types and those one-line ref files. Linus Torvalds wrote the first working version in about ten days in 2005, which chapter 3 put on the timeline."
+      "block": 5,
+      "text": "You type grep -n state file.js . Which part is the program and which parts are arguments?"
+    },
+    {
+      "block": 6,
+      "text": "grep is the program. -n , state and file.js are arguments. The shell finds grep by looking through the folders listed in PATH, then hands it the rest."
+    },
+    {
+      "block": 7,
+      "text": "What is a path, and what does the ~ in ~/Downloads/MEMENTO mean?"
+    },
+    {
+      "block": 8,
+      "text": "A path is a file's address: the folders you walk through, joined with slashes. ~ is shorthand for your home folder, so that path means /Users/malikpeace/Downloads/MEMENTO ."
+    },
+    {
+      "block": 9,
+      "text": "Chapter 4 gave you five habits. The fifth one was \"own the commit\". What do you think that actually means?"
+    },
+    {
+      "block": 10,
+      "text": "Whatever the agent wrote, it goes into history under a message you approved, and you are the one who can say what changed and why. By the end of this chapter you will know exactly what a commit is, so that habit stops being a slogan."
+    },
+    {
+      "block": 11,
+      "text": "The idea"
+    },
+    {
+      "block": 12,
+      "text": "Almost everyone believes a commit is a record of what changed. It is not. A commit is a complete snapshot of the entire folder at one moment: every file, in the state it was in, with the folder structure it had. Git stores the whole tree, not the edit."
+    },
+    {
+      "block": 13,
+      "text": "That sounds insane until the second half of the trick. If a file did not change since the last snapshot, git does not store it again. It stores each file's content once, under a fingerprint of that content, and every snapshot containing that exact file points at the same stored copy. Complete and cheap. Memento has 2,659 snapshots of a folder whose web app alone is 7.8 megabytes. Real copies would be over twenty gigabytes. The whole history is 462 megabytes."
+    },
+    {
+      "block": 14,
+      "text": "The snapshots are not a pile. They are a chain. Each commit records which commit came before it, its parent . Follow the parents backwards and you walk the entire life of the project, one snapshot at a time, to the first one. That chain is the history. Nothing in it is ever edited. Things only get added to the end."
+    },
+    {
+      "block": 15,
+      "text": "ANALOGY (TEMPORARY)"
+    },
+    {
+      "block": 16,
+      "text": "Save-game slots, with one extra rule. Every save is a full save of the entire world, not a list of what you did since last time, so loading any slot gives you the world exactly as it was. The extra rule: each save writes down which save you were playing when you made it, so the slots form a line you can walk backwards. And undoing does not delete a save. It makes a new save with the thing undone. Nothing ever comes off the shelf."
+    },
+    {
+      "block": 17,
+      "text": "Now the part that confuses everybody. When you work with git there are three different places your work can be, and they are genuinely separate:"
+    },
+    {
+      "block": 18,
+      "text": "The working folder . The actual files on your disk, the ones your editor opens and your app runs. You change these all day."
+    },
+    {
+      "block": 19,
+      "text": "The staging area , also called the index. A waiting room. It holds the exact version of each file that will go into the next snapshot. Putting a file in the waiting room is git add ."
+    },
+    {
+      "block": 20,
+      "text": "The history, which lives in a hidden folder called .git at the top of the project. Every snapshot ever taken is in there. git commit takes everything in the waiting room and writes it in as a new snapshot. A project folder plus its .git folder is a repository , or repo."
+    },
+    {
+      "block": 21,
+      "text": "The difference between any two of those places, printed as removed and added lines, is a diff . And HEAD is git's word for the snapshot you are currently standing on, which for now is simply the newest one."
+    },
+    {
+      "block": 22,
+      "text": "Editing a file changes the first place only. Nothing reaches history until you add, then commit. That two-step is not bureaucracy. It lets you say \"these four files are one coherent change, and those two I am still messing with are not part of it\". Hold that thought: it is the entire reason for a rule you have enforced in Memento for a year."
+    },
+    {
+      "block": 23,
+      "text": "Three places, then the chain. Every git command you will ever run is moving something between these boxes or reading the chain."
+    },
+    {
+      "block": 24,
+      "text": "The hash, and why it looks like that"
+    },
+    {
+      "block": 25,
+      "text": "Every commit has an id that looks like 93bfa79698c797f48bd3a45add06fb17ff31ca7a . That is a hash : a fingerprint calculated from the snapshot's contents, including the parent's id and the message and the author and the time. Feed identical contents in, get the identical fingerprint out. Change one character anywhere and you get a completely different fingerprint."
+    },
+    {
+      "block": 26,
+      "text": "Two consequences. The id is not a counter, so there is no \"commit number 400\"; ids identify, they do not sort. And because the fingerprint includes the parent's fingerprint, you cannot quietly rewrite an old snapshot: change anything back there and every id after it changes too. History is tamper-evident by construction."
+    },
+    {
+      "block": 27,
+      "text": "In practice nobody types forty characters. The first seven or eight are enough to be unique in a project this size, which is why you see ca8afc8 and 93bfa796 in Memento's own notes."
+    },
+    {
+      "block": 28,
+      "text": "See it"
+    },
+    {
+      "block": 29,
+      "text": "Git in miniature. Commits are objects with a parent pointer. Watch two things: the history only ever grows, and undoing a change makes a new snapshot rather than removing an old one."
+    },
+    {
+      "block": 30,
+      "text": "Three snapshots, not one. The middle one still holds the streak code, which is why a revert is safe: you can go and read the thing you undid. Now the second half of the claim, that a full snapshot is not a full copy."
+    },
+    {
+      "block": 31,
+      "text": "Three complete snapshots, three stored file contents, not six. The README was written once and pointed at three times, and the third snapshot's app.js reuses the first one's fingerprint because the content came back to identical. That is git, minus a million lines of hard engineering."
+    },
+    {
+      "block": 32,
+      "text": "Now in Memento"
+    },
+    {
+      "block": 33,
+      "text": "READ-ONLY. THIS IS NOT A DRILL"
+    },
+    {
+      "block": 34,
+      "text": "Memento is a live shared tree. Two AI agents work in it. In ~/Downloads/MEMENTO the only git commands you or this book may ever run are the ones that look and do not touch: git log , git show , git diff , git status , and git branch with no arguments. Never add , commit , checkout , switch , stash , restore , reset , pull or push there while you are learning. Practice happens in git-lab , which is disposable. Looking is free. Touching is not."
+    },
+    {
+      "block": 35,
+      "text": "ANY APP"
+    },
+    {
+      "block": 36,
+      "text": "The one-line summary of history is git log --oneline . Each line is a short hash and the commit's subject. It reads newest first. This is the single most useful git command in the world, and it is completely safe."
+    },
+    {
+      "block": 37,
+      "text": "To look inside one snapshot, git show <hash> . Add --stat and you get the header plus a count of which files moved and by how many lines, without a wall of code."
+    },
+    {
+      "block": 38,
+      "text": "The -C <folder> flag means \"run this as if you were in that folder\", so you never have to cd into one you must not disturb."
+    },
+    {
+      "block": 39,
+      "text": "MEMENTO"
+    },
+    {
+      "block": 40,
+      "text": "Run this. It changes nothing."
+    },
+    {
+      "block": 41,
+      "text": "Real output, at the native pin:"
+    },
+    {
+      "block": 42,
+      "text": "Then open the newest one, header and file counts only:"
+    },
+    {
+      "block": 43,
+      "text": "One file, nine lines added, three removed. That snapshot still contains all 38 JavaScript files and everything else. It just shares them with its parent."
+    },
+    {
+      "block": 44,
+      "text": "Why Memento bans git add -A"
+    },
+    {
+      "block": 45,
+      "text": "This is the rule you wrote, and now you can read it properly. Run grep -n 'git add' ~/Downloads/MEMENTO/CLAUDE.md and you get line 73:"
+    },
+    {
+      "block": 46,
+      "text": "git add -A means \"put every changed file in the whole project into the waiting room\". On a solo project, convenient. In Memento it is a loaded gun, because the working folder is shared. While Fable is halfway through a screen, its unfinished files sit in that folder. If Codex runs git add -A then, they go into the waiting room, get committed under Codex's message, and are pushed. A broken half-feature is now in history under a message that does not describe it, and the next agent to pull gets it. The duplicate features the rule complains about are exactly that: half a thing committed twice, from two directions."
+    },
+    {
+      "block": 47,
+      "text": "The staging area is the defence. Naming your files is how you say \"this change is mine, and it is these four files\". The rule is not tidiness. It is the only mechanism git gives you to stop two authors in one folder eating each other's work."
+    },
+    {
+      "block": 48,
+      "text": "THE ALTERNATIVE, AND WHY MEMENTO CHOSE THIS"
+    },
+    {
+      "block": 49,
+      "text": "The obvious alternative is one working copy per agent, so nobody shares a folder and git add -A is harmless. Memento does that for the native rebuild: the migration plan puts Codex in a separate worktree at ../MEMENTO-codex while Fable stays in the Downloads checkout. It costs disk space, a second checkout to keep current, and remembering which copy you are looking at. For the web app the agents kept one tree and paid with a rule instead. Both are real choices. What does not work is one tree and no rule, which is what most people do."
+    },
+    {
+      "block": 50,
+      "text": "Do it"
+    },
+    {
+      "block": 51,
+      "text": "Exercise MAC"
+    },
+    {
+      "block": 52,
+      "text": "Open Terminal and try cd ~/Downloads/CODE-BOOK/git-lab . If it says no such file or directory, the lab is not built yet. Make one by hand: mkdir -p ~/Downloads/CODE-BOOK/git-lab && cd ~/Downloads/CODE-BOOK/git-lab && git init echo \"ship the native app\" > north-star.txt echo \"start()\" > app.js git add north-star.txt app.js git commit -m \"first snapshot\" Note you named both files instead of using -A . Build the habit here."
+    },
+    {
+      "block": 53,
+      "text": "ls -a . There is a .git folder you did not create. That is the time machine. Do not poke inside it; just know every snapshot lives there."
+    },
+    {
+      "block": 54,
+      "text": "git status . Expected: nothing to commit, working folder clean. All three places agree."
+    },
+    {
+      "block": 55,
+      "text": "git log --oneline . One line, one snapshot, with a short hash. Copy that hash."
+    },
+    {
+      "block": 56,
+      "text": "Now change the working folder: echo \"start(); trackStreak()\" > app.js . Run git status again. Expected: app.js is listed as modified and not staged . The change exists in place one only."
+    },
+    {
+      "block": 57,
+      "text": "git diff . The difference between working folder and waiting room. Lines starting - were removed, + were added. Read it."
+    },
+    {
+      "block": 58,
+      "text": "git add app.js , then git status . Same change, different place: staged. Now git diff prints nothing, because working folder and waiting room agree, while git diff --staged shows the change, because it compares the waiting room to the last snapshot. Two commands, two questions, confused forever."
+    },
+    {
+      "block": 59,
+      "text": "git commit -m \"track the streak\" , then git log --oneline . Two lines. Then git show --stat HEAD : header, message, file count, exactly like Memento's."
+    },
+    {
+      "block": 60,
+      "text": "Break it. echo \"oops, garbage\" > north-star.txt . Run git status , see modified, run git diff , read what you wrecked. Inspect first, always. Then, and only then, undo it: DESTRUCTIVE COMMAND. READ BEFORE YOU TYPE git restore north-star.txt throws away every uncommitted change to that file and puts back the version from the last snapshot. There is no undo, because what you lose was never in history. Git can only return what you committed. Run git diff and look first, every time, forever. Run it, then git status . Clean. The north star is back and the garbage is gone for good."
+    },
+    {
+      "block": 61,
+      "text": "ASK THE AGENT WHY (paste this into Codex or Fable)"
+    },
+    {
+      "block": 62,
+      "text": "WORDS YOU NOW OWN"
+    },
+    {
+      "block": 63,
+      "text": "Commit"
+    },
+    {
+      "block": 64,
+      "text": "A snapshot of the whole folder, with a message, an author, a time, and a pointer to the snapshot before it. Not a record of changes."
+    },
+    {
+      "block": 65,
+      "text": "Repository (repo)"
+    },
+    {
+      "block": 66,
+      "text": "A project folder plus its hidden .git folder containing every snapshot ever taken of it."
+    },
+    {
+      "block": 67,
+      "text": "Working folder"
+    },
+    {
+      "block": 68,
+      "text": "The real files on disk that you and the agents edit. Nothing here is in a snapshot until you add and commit."
+    },
+    {
+      "block": 69,
+      "text": "Staging area (the index)"
+    },
+    {
+      "block": 70,
+      "text": "The waiting room. It holds the exact file versions that will go into the next snapshot. git add <file> puts one in."
+    },
+    {
+      "block": 71,
+      "text": "Hash"
+    },
+    {
+      "block": 72,
+      "text": "A commit's id: a fingerprint of the snapshot's contents and its parent's id. Same contents, same fingerprint. Change anything and every id after it changes too."
+    },
+    {
+      "block": 73,
+      "text": "Diff"
+    },
+    {
+      "block": 74,
+      "text": "The difference between two versions of a file, as removed and added lines. git diff : working folder against waiting room. git diff --staged : waiting room against the last snapshot."
+    },
+    {
+      "block": 75,
+      "text": "HEAD"
+    },
+    {
+      "block": 76,
+      "text": "Git's word for the snapshot you are currently standing on. Chapter 8 makes it move."
+    },
+    {
+      "block": 77,
+      "text": "WHERE TODAY'S ANALOGY BREAKS"
+    },
+    {
+      "block": 78,
+      "text": "Breaks when: you picture 2,659 complete copies of the folder, or assume every save survives forever. Git stores each unique file content once and every snapshot points at the shared copies, which is why the history is 462 megabytes instead of twenty gigabytes. And a snapshot nothing points at any more, because a label moved or a branch was deleted, becomes unreachable and is eventually swept away by git's garbage collector. Real model: a content-addressed database of objects, where a commit names a tree, a tree names file contents by fingerprint, and reachability from a label keeps an object alive. Chapter 8 brings the labels."
+    },
+    {
+      "block": 79,
+      "text": "RABBIT HOLE: what is actually inside .git"
+    },
+    {
+      "block": 80,
+      "text": "Four kinds of object, all stored by fingerprint. A blob is one file's contents with no name. A tree is a folder listing: names plus the fingerprints they point at, including other trees. A commit names one tree, its parents, an author, a time and a message. A tag names a commit with a human label. On top of that sits a small folder of refs , which are plain text files each containing one hash, and those are branches. That is the entire design. Everything else in git, every command and every flag, is manipulation of those four object types and those one-line ref files. Linus Torvalds wrote the first working version in about ten days in 2005, which chapter 3 put on the timeline."
     }
   ],
-  "wordCount": 2295
+  "wordCount": 2364
 }

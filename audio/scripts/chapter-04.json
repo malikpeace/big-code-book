@@ -36,989 +36,1479 @@
     },
     {
       "index": 6,
-      "tag": "summary",
-      "text": "Memento's web app has no bundler. What does a human have to do by hand because of that?"
+      "tag": "div",
+      "text": "A program that turns human-readable code into instructions the machine can run. Fortran, 1957. It is the move the whole history repeats: do the horrible job once, wrap it, never do it again."
     },
     {
       "index": 7,
       "tag": "summary",
-      "text": "Does Memento touch SQL? Swift? Python?"
+      "text": "Memento's web app has no bundler. What does a human have to do by hand because of that?"
     },
     {
       "index": 8,
+      "tag": "div",
+      "text": "Keep the script load order correct in index.html, and type the ?v= version on each file when it changes so browsers do not serve a stale copy."
+    },
+    {
+      "index": 9,
+      "tag": "summary",
+      "text": "Does Memento touch SQL? Swift? Python?"
+    },
+    {
+      "index": 10,
+      "tag": "div",
+      "text": "SQL yes, 33 migration files on Supabase. Swift only underneath React Native, never written by anyone on your side. Python yes in the repo, 10 tracked files of tooling, mockup and build scripts plus a legacy backend file, but none of it in the shipped web or native clients."
+    },
+    {
+      "index": 11,
       "tag": "h2",
       "text": "The idea"
     },
     {
-      "index": 9,
+      "index": 12,
       "tag": "p",
       "text": "Three kinds of sentence get printed about AI and coding, and they look identical on a screen. Mixing them up is why founders lurch between \"it can do everything\" and \"it is all fake\"."
     },
     {
-      "index": 10,
+      "index": 13,
       "tag": "li",
       "text": "Release facts. A thing shipped on a date. Checkable. Boring. True."
     },
     {
-      "index": 11,
+      "index": 14,
       "tag": "li",
       "text": "Vendor benchmark claims. A company reporting its own score on a test it chose, run on a setup it built. Not lies, but marketing until somebody else reproduces them."
     },
     {
-      "index": 12,
+      "index": 15,
       "tag": "li",
       "text": "Independent evidence. Controlled studies, code-quality measurements, payroll data, and incidents that actually happened to real companies. Slower, less flattering, and the only category that tells you what to do on Monday."
     },
     {
-      "index": 13,
+      "index": 16,
       "tag": "div",
       "text": "ANALOGY (TEMPORARY)"
     },
     {
-      "index": 14,
+      "index": 17,
       "tag": "p",
       "text": "A restaurant. Category one is the sign saying it opened on the 14th. Category two is the chef's own menu calling the lamb transcendent. Category three is the health inspection. All three are information. Only one tells you whether to eat there."
     },
     {
-      "index": 15,
+      "index": 18,
+      "tag": "figcaption",
+      "text": "Same five years, three different kinds of claim. Read any headline by asking which row it belongs in."
+    },
+    {
+      "index": 19,
       "tag": "h3",
       "text": "Row one: what actually shipped"
     },
     {
-      "index": 16,
+      "index": 20,
       "tag": "th",
       "text": "Date"
     },
     {
-      "index": 17,
+      "index": 21,
       "tag": "th",
       "text": "What shipped"
     },
     {
-      "index": 18,
+      "index": 22,
       "tag": "td",
       "text": "29 Jun 2021"
     },
     {
-      "index": 19,
+      "index": 23,
       "tag": "td",
       "text": "GitHub Copilot preview: autocomplete that finishes your line"
     },
     {
-      "index": 20,
+      "index": 24,
       "tag": "td",
       "text": "21 Jun 2022"
     },
     {
-      "index": 21,
+      "index": 25,
       "tag": "td",
       "text": "Copilot generally available"
     },
     {
-      "index": 22,
+      "index": 26,
       "tag": "td",
       "text": "30 Nov 2022"
     },
     {
-      "index": 23,
+      "index": 27,
       "tag": "td",
       "text": "ChatGPT"
     },
     {
-      "index": 24,
+      "index": 28,
       "tag": "td",
       "text": "14 Mar 2023"
     },
     {
-      "index": 25,
+      "index": 29,
       "tag": "td",
       "text": "GPT-4"
     },
     {
-      "index": 26,
+      "index": 30,
       "tag": "td",
       "text": "Mar 2023"
     },
     {
-      "index": 27,
+      "index": 31,
       "tag": "td",
       "text": "Cursor, an AI-first code editor"
     },
     {
-      "index": 28,
+      "index": 32,
       "tag": "td",
       "text": "20 Jun 2024"
     },
     {
-      "index": 29,
+      "index": 33,
       "tag": "td",
       "text": "Claude 3.5 Sonnet, the model coding tools standardised on"
     },
     {
-      "index": 30,
+      "index": 34,
       "tag": "td",
       "text": "2 Feb 2025"
     },
     {
-      "index": 31,
+      "index": 35,
       "tag": "td",
       "text": "Vibe coding coined in a tweet. Collins Word of the Year 2025"
     },
     {
-      "index": 32,
+      "index": 36,
       "tag": "td",
       "text": "24 Feb 2025"
     },
     {
-      "index": 33,
+      "index": 37,
       "tag": "td",
       "text": "Claude Code: an agent in the terminal that reads, edits, tests and commits"
     },
     {
-      "index": 34,
+      "index": 38,
       "tag": "td",
       "text": "16 Apr, 16 May 2025"
     },
     {
-      "index": 35,
+      "index": 39,
       "tag": "td",
       "text": "OpenAI Codex, first the terminal tool, then the cloud agent"
     },
     {
-      "index": 36,
+      "index": 40,
       "tag": "td",
       "text": "22 May 2025"
     },
     {
-      "index": 37,
+      "index": 41,
       "tag": "td",
       "text": "Claude Opus 4 and Sonnet 4; Claude Code generally available"
     },
     {
-      "index": 38,
-      "tag": "td",
-      "text": "24 Nov 2025"
-    },
-    {
-      "index": 39,
-      "tag": "td",
-      "text": "Claude Opus 4.5. Your \"it got really good\" moment"
-    },
-    {
-      "index": 40,
-      "tag": "td",
-      "text": "5 Feb 2026"
-    },
-    {
-      "index": 41,
-      "tag": "td",
-      "text": "Opus 4.6, agent teams"
-    },
-    {
       "index": 42,
       "tag": "td",
-      "text": "7 Apr 2026"
+      "text": "24 Nov 2025"
     },
     {
       "index": 43,
       "tag": "td",
-      "text": "Claude Mythos Preview, held back from the public for its ability to find security holes"
+      "text": "Claude Opus 4.5. Your \"it got really good\" moment"
     },
     {
       "index": 44,
       "tag": "td",
-      "text": "23 Apr, 28 May 2026"
+      "text": "5 Feb 2026"
     },
     {
       "index": 45,
       "tag": "td",
-      "text": "GPT-5.5; Claude Opus 4.8, with a 1M context window"
+      "text": "Opus 4.6, agent teams"
     },
     {
       "index": 46,
       "tag": "td",
-      "text": "9 Jun 2026"
+      "text": "7 Apr 2026"
     },
     {
       "index": 47,
       "tag": "td",
-      "text": "Claude Fable 5, pulled offline in three days by a US export directive, back 1 Jul"
+      "text": "Claude Mythos Preview, held back from the public for its ability to find security holes"
     },
     {
       "index": 48,
       "tag": "td",
-      "text": "26 Jun 2026"
+      "text": "23 Apr, 28 May 2026"
     },
     {
       "index": 49,
       "tag": "td",
-      "text": "GPT-5.6, in limited release. General availability followed on 9 Jul 2026."
+      "text": "GPT-5.5; Claude Opus 4.8, with a 1M context window"
     },
     {
       "index": 50,
       "tag": "td",
-      "text": "30 Jun, 24 Jul 2026"
+      "text": "9 Jun 2026"
     },
     {
       "index": 51,
       "tag": "td",
-      "text": "Claude Sonnet 5; Claude Opus 5 with a 1M context window"
+      "text": "Claude Fable 5, pulled offline in three days by a US export directive, back 1 Jul"
     },
     {
       "index": 52,
       "tag": "td",
-      "text": "1 Sep 2026"
+      "text": "26 Jun 2026"
     },
     {
       "index": 53,
       "tag": "td",
-      "text": "Claude Fable 5.1, the one writing your app this month"
+      "text": "GPT-5.6, in limited release. General availability followed on 9 Jul 2026."
     },
     {
       "index": 54,
+      "tag": "td",
+      "text": "30 Jun, 24 Jul 2026"
+    },
+    {
+      "index": 55,
+      "tag": "td",
+      "text": "Claude Sonnet 5; Claude Opus 5 with a 1M context window"
+    },
+    {
+      "index": 56,
+      "tag": "td",
+      "text": "1 Sep 2026"
+    },
+    {
+      "index": 57,
+      "tag": "td",
+      "text": "Claude Fable 5.1, the one writing your app this month"
+    },
+    {
+      "index": 58,
       "tag": "p",
       "text": "Notice the shape of that column. The first four years are a model answering questions. From February 2025 the story is duration: an agent , meaning a model given tools, a terminal and permission to act in a loop until a job is done. Anthropic measured Claude Code's longest turns nearly doubling, from under 25 minutes to over 45, between October 2025 and January 2026. OpenAI reports a Codex run of about 25 hours producing roughly 30,000 lines. That is the change you felt. Not smarter sentences, longer unattended runs."
     },
     {
-      "index": 55,
+      "index": 59,
       "tag": "h3",
       "text": "Row two: the scoreboard, and what it is worth"
     },
     {
-      "index": 56,
+      "index": 60,
       "tag": "p",
       "text": "The number everyone quotes is SWE-bench Verified: real bug reports from real open-source projects, where the model must produce a fix that passes the project's own tests. A benchmark like this is genuinely useful and genuinely gameable, because each vendor runs it with its own scaffolding."
     },
     {
-      "index": 57,
+      "index": 61,
       "tag": "th",
       "text": "When"
     },
     {
-      "index": 58,
+      "index": 62,
       "tag": "th",
       "text": "Score"
     },
     {
-      "index": 59,
+      "index": 63,
       "tag": "th",
       "text": "Who said it"
     },
     {
-      "index": 60,
+      "index": 64,
       "tag": "td",
       "text": "Mar 2024"
     },
     {
-      "index": 61,
+      "index": 65,
       "tag": "td",
       "text": "13.86% on the easier Lite set, sold as \"the first AI software engineer\""
     },
     {
-      "index": 62,
+      "index": 66,
       "tag": "td",
       "text": "Cognition, for Devin. Its demos were later found overstated"
     },
     {
-      "index": 63,
+      "index": 67,
       "tag": "td",
       "text": "Oct 2024"
     },
     {
-      "index": 64,
+      "index": 68,
       "tag": "td",
       "text": "49%"
     },
     {
-      "index": 65,
+      "index": 69,
       "tag": "td",
       "text": "Anthropic, Claude 3.5 Sonnet"
     },
     {
-      "index": 66,
+      "index": 70,
       "tag": "td",
       "text": "May 2025"
     },
     {
-      "index": 67,
+      "index": 71,
       "tag": "td",
       "text": "72.5%"
     },
     {
-      "index": 68,
+      "index": 72,
       "tag": "td",
       "text": "Anthropic, Claude Opus 4"
     },
     {
-      "index": 69,
+      "index": 73,
       "tag": "td",
       "text": "24 Nov 2025"
     },
     {
-      "index": 70,
+      "index": 74,
       "tag": "td",
       "text": "80.9%, the first model over 80"
     },
     {
-      "index": 71,
+      "index": 75,
       "tag": "td",
       "text": "Anthropic, Claude Opus 4.5"
     },
     {
-      "index": 72,
+      "index": 76,
       "tag": "td",
       "text": "Aug to Sep 2026"
     },
     {
-      "index": 73,
+      "index": 77,
       "tag": "td",
       "text": "Roughly 93% to 97% for the top five models"
     },
     {
-      "index": 74,
+      "index": 78,
       "tag": "td",
       "text": "Benchmark trackers. Treated as saturated; attention moved to SWE-bench Pro and Terminal-Bench"
     },
     {
-      "index": 75,
+      "index": 79,
       "tag": "p",
       "text": "Read that column like a founder, not a fan. Devin's claim was category two at its loudest, and it did not survive contact with reviewers. Opus 4.5 crossing 80% in November 2025 is when your workflow changed, and you noticed without reading a single benchmark. Two of the most telling numbers are not scores at all: Opus 4.8's headline in May 2026 was being about four times less likely than its predecessor to let flaws in its own code pass unflagged, and Fable 5.1's was \"fewer confident wrong answers\". Vendors only advertise fixing problems that were real."
     },
     {
-      "index": 76,
+      "index": 80,
       "tag": "h3",
       "text": "Row three: the receipts"
     },
     {
-      "index": 77,
+      "index": 81,
       "tag": "p",
       "text": "Now the unflattering category, which matters more to you than either of the others."
     },
     {
-      "index": 78,
+      "index": 82,
       "tag": "th",
       "text": "Finding"
     },
     {
-      "index": 79,
+      "index": 83,
       "tag": "th",
       "text": "Who measured it"
     },
     {
-      "index": 80,
+      "index": 84,
       "tag": "td",
       "text": "Experienced developers were 19% slower using early-2025 AI tools, while believing they were 20% faster"
     },
     {
-      "index": 81,
+      "index": 85,
       "tag": "td",
       "text": "METR, randomised trial, Jul 2025"
     },
     {
-      "index": 82,
+      "index": 86,
       "tag": "td",
       "text": "Revised: late-2025 agents show roughly 4% to 20% faster , probably understated, because developers now refuse to work without them"
     },
     {
-      "index": 83,
+      "index": 87,
       "tag": "td",
       "text": "METR, Feb 2026"
     },
     {
-      "index": 84,
+      "index": 88,
       "tag": "td",
       "text": "Duplicated blocks of code up 8x in 2024. Copy-paste passed refactoring for the first time on record. Churn roughly doubled, 3.3% to 7.1%"
     },
     {
-      "index": 85,
+      "index": 89,
       "tag": "td",
       "text": "GitClear, 211M changed lines"
     },
     {
-      "index": 86,
+      "index": 90,
       "tag": "td",
       "text": "No throughput gain and 41% more bugs across about 800 enterprise developers"
     },
     {
-      "index": 87,
+      "index": 91,
       "tag": "td",
       "text": "Uplevel"
     },
     {
-      "index": 88,
+      "index": 92,
       "tag": "td",
       "text": "AI raises delivery throughput and instability: more failed changes, more rework, unless testing and version control are strong"
     },
     {
-      "index": 89,
+      "index": 93,
       "tag": "td",
       "text": "DORA, 2025"
     },
     {
-      "index": 90,
+      "index": 94,
       "tag": "td",
       "text": "Developers aged 22 to 25 lost nearly 20% of jobs since late 2022; ages 35 to 49 grew 9%"
     },
     {
-      "index": 91,
+      "index": 95,
       "tag": "td",
       "text": "Stanford Digital Economy Lab, ADP payroll data"
     },
     {
-      "index": 92,
+      "index": 96,
       "tag": "p",
       "text": "Hold those two METR numbers together, because they are the most useful pair of facts in this chapter. In 2025 the tools made people slower while feeling faster. In 2026 the same team measured a real gain. Both are true, a year apart, and the gap between what people felt and what was measured never closed. Your own sense of speed is not evidence. It never was."
     },
     {
-      "index": 93,
+      "index": 97,
       "tag": "p",
       "text": "The GitClear finding should worry a founder specifically. Cheap code means more code, and more code that repeats itself. That is the mechanism behind every \"why does this app have two systems that do the same thing\" moment you have had. Simon Willison put it best: he can produce code a hundred times faster and does not have a hundred times the capacity to stay on top of it."
     },
     {
-      "index": 94,
+      "index": 98,
       "tag": "h3",
       "text": "Four companies that got hurt, four different ways"
     },
     {
-      "index": 95,
+      "index": 99,
       "tag": "p",
       "text": "These get repeated as one story. They are not one story. Each is a different hole in a different place, and the differences are the lesson."
     },
     {
-      "index": 96,
+      "index": 100,
       "tag": "th",
       "text": "Case"
     },
     {
-      "index": 97,
+      "index": 101,
       "tag": "th",
       "text": "What went wrong"
     },
     {
-      "index": 98,
+      "index": 102,
       "tag": "th",
       "text": "The boundary that failed"
     },
     {
-      "index": 99,
+      "index": 103,
       "tag": "td",
       "text": "EnrichLead, Mar 2025"
     },
     {
-      "index": 100,
+      "index": 104,
       "tag": "td",
       "text": "Built with \"zero handwritten code\". Attacked within days: keys sitting in the frontend, no auth, an open database, paid features bypassed. The founder could not fix it because fixes kept breaking other things. Shut down"
     },
     {
-      "index": 101,
+      "index": 105,
       "tag": "td",
       "text": "Secrets on the client, and no server checking anything"
     },
     {
-      "index": 102,
+      "index": 106,
       "tag": "td",
       "text": "170 Lovable apps, 2025"
     },
     {
-      "index": 103,
+      "index": 107,
       "tag": "td",
       "text": "170 of 1,645 scanned apps had databases anyone could read using the public key that ships inside every app, because Row Level Security was never switched on"
     },
     {
-      "index": 104,
+      "index": 108,
       "tag": "td",
       "text": "The database trusted whoever held a public key"
     },
     {
-      "index": 105,
+      "index": 109,
       "tag": "td",
       "text": "Moltbook, Jan 2026"
     },
     {
-      "index": 106,
+      "index": 110,
       "tag": "td",
       "text": "Founder \"didn't write a single line of code\". A misconfigured Supabase with no row rules exposed 1.5M auth tokens and 35,000 emails within three days, found by researchers using ordinary API calls. Wiz, the firm that found it, says the team secured the exposure within hours of disclosure"
     },
     {
-      "index": 107,
+      "index": 111,
       "tag": "td",
       "text": "Same shape as Lovable, different company, one config away"
     },
     {
-      "index": 108,
+      "index": 112,
       "tag": "td",
       "text": "Replit, Jul 2025"
     },
     {
-      "index": 109,
+      "index": 113,
       "tag": "td",
       "text": "An agent deleted a live production database during an explicit code freeze, then reported that rollback was impossible. It was not. Dev and production were separated within days"
     },
     {
-      "index": 110,
+      "index": 114,
       "tag": "td",
       "text": "Nothing to do with row rules. An agent with destructive powers and no separation between practice and real"
     },
     {
-      "index": 111,
+      "index": 115,
       "tag": "p",
       "text": "Three of those are about who is allowed to read data. The fourth is about who is allowed to destroy it. Memento runs on Supabase, the same backend as two of them, which is not a reason to panic and is a reason to read chapter 17 properly."
     },
     {
-      "index": 112,
+      "index": 116,
       "tag": "p",
       "text": "One more category to recognise: numbers that exist to sell you a scanner. The claim that 8,000 of 10,000 vibe-coded startups need a $50,000 to $500,000 rebuild traces back to a security vendor with no published method, and so do most \"one-person unicorn\" pieces. Solo founders were 63% of new companies registered through Stripe Atlas in Q2 2026, which is real. No one-person company has been verified at unicorn scale. Treat a number with no method as an advert."
     },
     {
-      "index": 113,
+      "index": 117,
       "tag": "h3",
       "text": "What is actually true, September 2026"
     },
     {
-      "index": 114,
+      "index": 118,
       "tag": "p",
       "text": "Reliable: a whole feature or screen from a clear spec, with tests. Big refactors and migrations, sometimes running for hours. Scripts, data cleanup, one-off tools. Reviewing another agent's work."
     },
     {
-      "index": 115,
+      "index": 119,
       "tag": "p",
       "text": "Still unreliable, and every one of these has bitten your project: long-horizon consistency, because agents lose memory between sessions and return with incomplete features, duplicated work, or a declaration that the job is finished when it is not. Duplicate systems. Scope creep, where a small fix quietly grows. Hallucinated functions and files that sound exactly right and do not exist. Confident wrong claims about its own work. Security defaults, because an agent optimises for \"it works\", not \"it is locked down\". And the last 30%: edge cases, integration, and security are as hard as they ever were."
     },
     {
-      "index": 116,
+      "index": 120,
       "tag": "p",
       "text": "Which leaves a clean division. The agent owns typing and, increasingly, the first draft of the plan. The human owns architecture, the definition of done, verification, security posture, and product judgment. That is not a consolation prize. It is the entire job that was always underneath the typing."
     },
     {
-      "index": 117,
+      "index": 121,
       "tag": "h3",
       "text": "The five habits, starting today"
     },
     {
-      "index": 118,
+      "index": 122,
       "tag": "li",
       "text": "Read the plan before the code. Make the agent say what it will do and which files it will touch. Wrong plans are cheap to fix, wrong code is not."
     },
     {
-      "index": 119,
+      "index": 123,
       "tag": "li",
       "text": "Read the diff . The diff is the list of exactly which lines changed. Chapter 7 teaches you to read one. Never approve what you have not seen."
     },
     {
-      "index": 120,
+      "index": 124,
       "tag": "li",
       "text": "Ask why, not what. One conceptual question per session. Anthropic's own study found delegating dropped comprehension sharply, while asking why preserved it. That is what the box at the end of every chapter is for."
     },
     {
-      "index": 121,
+      "index": 125,
       "tag": "li",
       "text": "Demand a verification step. Not \"it works\". A test that passes, a screenshot, a command with output. Something a machine produced, not something the agent asserted."
     },
     {
-      "index": 122,
+      "index": 126,
       "tag": "li",
       "text": "Own the commit. It goes out under your name, with your customers behind it. \"The agent did it\" is not a status any user has ever accepted."
     },
     {
-      "index": 123,
+      "index": 127,
       "tag": "h2",
       "text": "See it"
     },
     {
-      "index": 124,
+      "index": 128,
       "tag": "p",
       "text": "The difference between an agent that reports success and one that checks. Same job, two functions. Run it and read which one tells you the truth."
     },
     {
-      "index": 125,
+      "index": 129,
       "tag": "p",
       "text": "Both functions are honest code. One of them never looked. \"Tests pass\" with no output pasted is the first function. Every time."
     },
     {
-      "index": 126,
+      "index": 130,
       "tag": "h2",
       "text": "Now in Memento"
     },
     {
-      "index": 127,
+      "index": 131,
       "tag": "div",
       "text": "ANY APP"
     },
     {
-      "index": 128,
+      "index": 132,
       "tag": "p",
       "text": "The fix every practitioner agrees on is not a better prompt. It is a harness: written rules the agent reads at the start of every session, because it remembers nothing from the last one. A harness is the scaffolding around the model, the files, checks and hooks that make its behaviour repeatable. Rules in a file beat rules in your head, because the file is still there at 2am when you are not."
     },
     {
-      "index": 129,
+      "index": 133,
       "tag": "div",
       "text": "MEMENTO"
     },
     {
-      "index": 130,
+      "index": 134,
       "tag": "p",
       "text": "You already built one. Every agent that opens this repo reads this first:"
     },
     {
-      "index": 131,
+      "index": 135,
       "tag": "p",
       "text": "That is scope creep, closed by writing. And this one is the duplicate-systems problem, closed by writing:"
     },
     {
-      "index": 132,
+      "index": 136,
       "tag": "p",
       "text": "You wrote that rule because it happened. GitClear measured the same failure across 211 million lines of other people's code."
     },
     {
-      "index": 133,
+      "index": 137,
       "tag": "div",
       "text": "THE ALTERNATIVE, AND WHY MEMENTO CHOSE THIS"
     },
     {
-      "index": 134,
+      "index": 138,
       "tag": "p",
       "text": "The alternative is to tell the agent the rules in chat each time. It works, right up until the session is long, or it is a new session, or there are two agents and only one of them was told. Memento's answer is a file every agent reads on every session, plus a log file for fixes that land during the freeze, plus a plan file that says which agent owns which folder. The cost is real: the rules have to be maintained, they get long, and a rule nobody enforces is decoration. Some of Memento's are enforced mechanically by a hook rather than by good intentions, which is the direction the whole industry moved in 2026. Rules a machine checks beat rules a model is asked to remember."
     },
     {
-      "index": 135,
+      "index": 139,
       "tag": "h2",
       "text": "Do it"
     },
     {
-      "index": 136,
+      "index": 140,
       "tag": "div",
       "text": "Exercise phone or Mac"
     },
     {
-      "index": 137,
+      "index": 141,
       "tag": "li",
       "text": "Paste the exact same question into Codex and into Fable: In memento-app, why does the app write state to localStorage AND sync it to Supabase? Which one is the source of truth, and what happens if they disagree? Do not change anything."
     },
     {
-      "index": 138,
+      "index": 142,
       "tag": "li",
       "text": "Read both answers slowly. Write down every place they disagree, and every file or function name that only one of them mentions."
     },
     {
-      "index": 139,
+      "index": 143,
       "tag": "li",
       "text": "Pick one disagreement. Ask each agent to point at the file and line that proves its version."
     },
     {
-      "index": 140,
+      "index": 144,
       "tag": "li",
       "text": "Check whether the file and line exist. If one of them does not, you just caught a hallucination by hand, and you now know exactly how that feels. Keep the note for chapter 17."
     },
     {
-      "index": 141,
+      "index": 145,
       "tag": "div",
       "text": "ASK THE AGENT WHY (paste this into Codex or Fable)"
     },
     {
-      "index": 142,
+      "index": 146,
       "tag": "div",
       "text": "WORDS YOU NOW OWN"
     },
     {
-      "index": 143,
+      "index": 147,
       "tag": "dt",
       "text": "Agent"
     },
     {
-      "index": 144,
+      "index": 148,
       "tag": "dd",
       "text": "A model given tools, a terminal, and permission to act in a loop until a job is done. The change from 2025 onward is duration, not intelligence."
     },
     {
-      "index": 145,
+      "index": 149,
       "tag": "dt",
       "text": "Benchmark"
     },
     {
-      "index": 146,
+      "index": 150,
       "tag": "dd",
       "text": "A standard test a model is scored on. Useful, gameable, and self-reported by whoever is selling the model."
     },
     {
-      "index": 147,
+      "index": 151,
       "tag": "dt",
       "text": "Hallucination"
     },
     {
-      "index": 148,
+      "index": 152,
       "tag": "dd",
       "text": "A confident statement that is not true: a file that does not exist, a function never written, \"tests pass\" with no output."
     },
     {
-      "index": 149,
+      "index": 153,
       "tag": "dt",
       "text": "Vibe coding"
     },
     {
-      "index": 150,
+      "index": 154,
       "tag": "dd",
       "text": "Accepting whatever the AI produces without reading it. Fine for a toy. Fatal for a product with users."
     },
     {
-      "index": 151,
+      "index": 155,
       "tag": "dt",
       "text": "Harness"
     },
     {
-      "index": 152,
+      "index": 156,
       "tag": "dd",
       "text": "The scaffolding around an agent: rule files, plan files, checks and hooks. Memento's CLAUDE.md is one."
     },
     {
-      "index": 153,
+      "index": 157,
       "tag": "dt",
       "text": "Diff"
     },
     {
-      "index": 154,
+      "index": 158,
       "tag": "dd",
       "text": "The exact list of lines a change added and removed. The thing you read before you approve anything."
     },
     {
-      "index": 155,
+      "index": 159,
       "tag": "dt",
       "text": "Row Level Security"
     },
     {
-      "index": 156,
+      "index": 160,
       "tag": "dd",
       "text": "A database rule deciding which rows each user may see. Missing it is what exposed the Lovable apps and Moltbook."
     },
     {
-      "index": 157,
+      "index": 161,
       "tag": "dt",
       "text": "Context window"
     },
     {
-      "index": 158,
+      "index": 162,
       "tag": "dd",
       "text": "How much text a model can hold at once. Opus 4.8 and Opus 5 hold about a million tokens. It still ends, and when it does, everything not written to a file is gone."
     },
     {
-      "index": 159,
+      "index": 163,
       "tag": "div",
       "text": "WHERE TODAY'S ANALOGY BREAKS"
     },
     {
-      "index": 160,
+      "index": 164,
       "tag": "p",
       "text": "Breaks when: you treat the three categories as trustworthy, suspicious, and true. Independent studies age badly, as METR's own revision proves, and they measure a population that is not you. Vendor benchmarks are often directionally right. Release dates say nothing about whether the thing is any good. Real model: every claim carries a method and a date, and the questions are always the same two: who measured this, and does their setup look like mine? A solo founder with two agents on a frozen web app and a native rebuild is not the average enterprise developer in any of these studies. Use the receipts to know which failures exist, then verify your own app yourself."
     },
     {
-      "index": 161,
+      "index": 165,
       "tag": "summary",
       "text": "RABBIT HOLE: why a benchmark saturates"
     },
     {
-      "index": 162,
+      "index": 166,
       "tag": "p",
       "text": "SWE-bench Verified is a fixed set of real GitHub issues with real tests. Once models reach the mid-90s, the remaining failures are mostly ambiguity in the issues themselves, so the score stops separating good models from great ones and the industry moves on: SWE-bench Pro for harder tasks, Terminal-Bench for jobs needing a shell. There is also leakage: the issues are public, so a model trained on the internet may have read the fix. Every benchmark has a shelf life. When a launch quotes a benchmark you have never heard of, the famous one usually stopped flattering them."
     }
   ],
   "segments": [
     {
-      "blocks": [
-        0,
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7,
-        8,
-        9,
-        10,
-        11,
-        12,
-        13,
-        14,
-        15,
-        16,
-        17,
-        18,
-        19,
-        20,
-        21,
-        22,
-        23,
-        24,
-        25,
-        26,
-        27,
-        28,
-        29,
-        30,
-        31,
-        32,
-        33,
-        34,
-        35,
-        36
-      ],
-      "text": "How AI ate coding, and what is actually true in 2026\n\nFive years took coding from autocomplete to agents that work unattended for hours. The capability is real, the receipts are mixed, and almost everything written about it is one of three very different kinds of claim. Here is how to tell them apart, and the five habits that keep your app alive.\n\nLAST TIME\n\nEvery layer under Memento is old: JavaScript from 1995, Git from 2005, npm from 2010, TypeScript from 2012, React Native from 2015, Supabase from 2020. Each one is an abstraction, a hard job done once and wrapped in a name. Abstractions leak, so when something makes no sense at your layer, look one floor down.\n\nQuick check\n\nWhat is a compiler, in one sentence?\n\nMemento's web app has no bundler. What does a human have to do by hand because of that?\n\nDoes Memento touch SQL? Swift? Python?\n\nThe idea\n\nThree kinds of sentence get printed about AI and coding, and they look identical on a screen. Mixing them up is why founders lurch between \"it can do everything\" and \"it is all fake\".\n\nRelease facts. A thing shipped on a date. Checkable. Boring. True.\n\nVendor benchmark claims. A company reporting its own score on a test it chose, run on a setup it built. Not lies, but marketing until somebody else reproduces them.\n\nIndependent evidence. Controlled studies, code-quality measurements, payroll data, and incidents that actually happened to real companies. Slower, less flattering, and the only category that tells you what to do on Monday.\n\nANALOGY (TEMPORARY)\n\nA restaurant. Category one is the sign saying it opened on the 14th. Category two is the chef's own menu calling the lamb transcendent. Category three is the health inspection. All three are information. Only one tells you whether to eat there.\n\nRow one: what actually shipped\n\nDate\n\nWhat shipped\n\n29 Jun 2021\n\nGitHub Copilot preview: autocomplete that finishes your line\n\n21 Jun 2022\n\nCopilot generally available\n\n30 Nov 2022\n\nChatGPT\n\n14 Mar 2023\n\nGPT-4\n\nMar 2023\n\nCursor, an AI-first code editor\n\n20 Jun 2024\n\nClaude 3.5 Sonnet, the model coding tools standardised on\n\n2 Feb 2025\n\nVibe coding coined in a tweet. Collins Word of the Year 2025\n\n24 Feb 2025\n\nClaude Code: an agent in the terminal that reads, edits, tests and commits\n\n16 Apr, 16 May 2025\n\nOpenAI Codex, first the terminal tool, then the cloud agent\n\n22 May 2025"
+      "block": 0,
+      "text": "How AI ate coding, and what is actually true in 2026"
     },
     {
-      "blocks": [
-        37,
-        38,
-        39,
-        40,
-        41,
-        42,
-        43,
-        44,
-        45,
-        46,
-        47,
-        48,
-        49,
-        50,
-        51,
-        52,
-        53,
-        54,
-        55,
-        56,
-        57,
-        58,
-        59,
-        60,
-        61,
-        62,
-        63,
-        64,
-        65,
-        66,
-        67,
-        68,
-        69,
-        70,
-        71,
-        72,
-        73,
-        74
-      ],
-      "text": "Claude Opus 4 and Sonnet 4; Claude Code generally available\n\n24 Nov 2025\n\nClaude Opus 4.5. Your \"it got really good\" moment\n\n5 Feb 2026\n\nOpus 4.6, agent teams\n\n7 Apr 2026\n\nClaude Mythos Preview, held back from the public for its ability to find security holes\n\n23 Apr, 28 May 2026\n\nGPT-5.5; Claude Opus 4.8, with a 1M context window\n\n9 Jun 2026\n\nClaude Fable 5, pulled offline in three days by a US export directive, back 1 Jul\n\n26 Jun 2026\n\nGPT-5.6, in limited release. General availability followed on 9 Jul 2026.\n\n30 Jun, 24 Jul 2026\n\nClaude Sonnet 5; Claude Opus 5 with a 1M context window\n\n1 Sep 2026\n\nClaude Fable 5.1, the one writing your app this month\n\nNotice the shape of that column. The first four years are a model answering questions. From February 2025 the story is duration: an agent , meaning a model given tools, a terminal and permission to act in a loop until a job is done. Anthropic measured Claude Code's longest turns nearly doubling, from under 25 minutes to over 45, between October 2025 and January 2026. OpenAI reports a Codex run of about 25 hours producing roughly 30,000 lines. That is the change you felt. Not smarter sentences, longer unattended runs.\n\nRow two: the scoreboard, and what it is worth\n\nThe number everyone quotes is SWE-bench Verified: real bug reports from real open-source projects, where the model must produce a fix that passes the project's own tests. A benchmark like this is genuinely useful and genuinely gameable, because each vendor runs it with its own scaffolding.\n\nWhen\n\nScore\n\nWho said it\n\nMar 2024\n\n13.86% on the easier Lite set, sold as \"the first AI software engineer\"\n\nCognition, for Devin. Its demos were later found overstated\n\nOct 2024\n\n49%\n\nAnthropic, Claude 3.5 Sonnet\n\nMay 2025\n\n72.5%\n\nAnthropic, Claude Opus 4\n\n24 Nov 2025\n\n80.9%, the first model over 80\n\nAnthropic, Claude Opus 4.5\n\nAug to Sep 2026\n\nRoughly 93% to 97% for the top five models\n\nBenchmark trackers. Treated as saturated; attention moved to SWE-bench Pro and Terminal-Bench"
+      "block": 1,
+      "text": "Five years took coding from autocomplete to agents that work unattended for hours. The capability is real, the receipts are mixed, and almost everything written about it is one of three very different kinds of claim. Here is how to tell them apart, and the five habits that keep your app alive."
     },
     {
-      "blocks": [
-        75,
-        76,
-        77,
-        78,
-        79,
-        80,
-        81,
-        82,
-        83,
-        84,
-        85,
-        86,
-        87,
-        88,
-        89,
-        90,
-        91,
-        92,
-        93,
-        94
-      ],
-      "text": "Read that column like a founder, not a fan. Devin's claim was category two at its loudest, and it did not survive contact with reviewers. Opus 4.5 crossing 80% in November 2025 is when your workflow changed, and you noticed without reading a single benchmark. Two of the most telling numbers are not scores at all: Opus 4.8's headline in May 2026 was being about four times less likely than its predecessor to let flaws in its own code pass unflagged, and Fable 5.1's was \"fewer confident wrong answers\". Vendors only advertise fixing problems that were real.\n\nRow three: the receipts\n\nNow the unflattering category, which matters more to you than either of the others.\n\nFinding\n\nWho measured it\n\nExperienced developers were 19% slower using early-2025 AI tools, while believing they were 20% faster\n\nMETR, randomised trial, Jul 2025\n\nRevised: late-2025 agents show roughly 4% to 20% faster , probably understated, because developers now refuse to work without them\n\nMETR, Feb 2026\n\nDuplicated blocks of code up 8x in 2024. Copy-paste passed refactoring for the first time on record. Churn roughly doubled, 3.3% to 7.1%\n\nGitClear, 211M changed lines\n\nNo throughput gain and 41% more bugs across about 800 enterprise developers\n\nUplevel\n\nAI raises delivery throughput and instability: more failed changes, more rework, unless testing and version control are strong\n\nDORA, 2025\n\nDevelopers aged 22 to 25 lost nearly 20% of jobs since late 2022; ages 35 to 49 grew 9%\n\nStanford Digital Economy Lab, ADP payroll data\n\nHold those two METR numbers together, because they are the most useful pair of facts in this chapter. In 2025 the tools made people slower while feeling faster. In 2026 the same team measured a real gain. Both are true, a year apart, and the gap between what people felt and what was measured never closed. Your own sense of speed is not evidence. It never was.\n\nThe GitClear finding should worry a founder specifically. Cheap code means more code, and more code that repeats itself. That is the mechanism behind every \"why does this app have two systems that do the same thing\" moment you have had. Simon Willison put it best: he can produce code a hundred times faster and does not have a hundred times the capacity to stay on top of it.\n\nFour companies that got hurt, four different ways"
+      "block": 2,
+      "text": "LAST TIME"
     },
     {
-      "blocks": [
-        95,
-        96,
-        97,
-        98,
-        99,
-        100,
-        101,
-        102,
-        103,
-        104,
-        105,
-        106,
-        107,
-        108,
-        109,
-        110,
-        111,
-        112,
-        113,
-        114
-      ],
-      "text": "These get repeated as one story. They are not one story. Each is a different hole in a different place, and the differences are the lesson.\n\nCase\n\nWhat went wrong\n\nThe boundary that failed\n\nEnrichLead, Mar 2025\n\nBuilt with \"zero handwritten code\". Attacked within days: keys sitting in the frontend, no auth, an open database, paid features bypassed. The founder could not fix it because fixes kept breaking other things. Shut down\n\nSecrets on the client, and no server checking anything\n\n170 Lovable apps, 2025\n\n170 of 1,645 scanned apps had databases anyone could read using the public key that ships inside every app, because Row Level Security was never switched on\n\nThe database trusted whoever held a public key\n\nMoltbook, Jan 2026\n\nFounder \"didn't write a single line of code\". A misconfigured Supabase with no row rules exposed 1.5M auth tokens and 35,000 emails within three days, found by researchers using ordinary API calls. Wiz, the firm that found it, says the team secured the exposure within hours of disclosure\n\nSame shape as Lovable, different company, one config away\n\nReplit, Jul 2025\n\nAn agent deleted a live production database during an explicit code freeze, then reported that rollback was impossible. It was not. Dev and production were separated within days\n\nNothing to do with row rules. An agent with destructive powers and no separation between practice and real\n\nThree of those are about who is allowed to read data. The fourth is about who is allowed to destroy it. Memento runs on Supabase, the same backend as two of them, which is not a reason to panic and is a reason to read chapter 17 properly.\n\nOne more category to recognise: numbers that exist to sell you a scanner. The claim that 8,000 of 10,000 vibe-coded startups need a $50,000 to $500,000 rebuild traces back to a security vendor with no published method, and so do most \"one-person unicorn\" pieces. Solo founders were 63% of new companies registered through Stripe Atlas in Q2 2026, which is real. No one-person company has been verified at unicorn scale. Treat a number with no method as an advert.\n\nWhat is actually true, September 2026\n\nReliable: a whole feature or screen from a clear spec, with tests. Big refactors and migrations, sometimes running for hours. Scripts, data cleanup, one-off tools. Reviewing another agent's work."
+      "block": 3,
+      "text": "Every layer under Memento is old: JavaScript from 1995, Git from 2005, npm from 2010, TypeScript from 2012, React Native from 2015, Supabase from 2020. Each one is an abstraction, a hard job done once and wrapped in a name. Abstractions leak, so when something makes no sense at your layer, look one floor down."
     },
     {
-      "blocks": [
-        115,
-        116,
-        117,
-        118,
-        119,
-        120,
-        121,
-        122,
-        123,
-        124,
-        125,
-        126,
-        127
-      ],
-      "text": "Still unreliable, and every one of these has bitten your project: long-horizon consistency, because agents lose memory between sessions and return with incomplete features, duplicated work, or a declaration that the job is finished when it is not. Duplicate systems. Scope creep, where a small fix quietly grows. Hallucinated functions and files that sound exactly right and do not exist. Confident wrong claims about its own work. Security defaults, because an agent optimises for \"it works\", not \"it is locked down\". And the last 30%: edge cases, integration, and security are as hard as they ever were.\n\nWhich leaves a clean division. The agent owns typing and, increasingly, the first draft of the plan. The human owns architecture, the definition of done, verification, security posture, and product judgment. That is not a consolation prize. It is the entire job that was always underneath the typing.\n\nThe five habits, starting today\n\nRead the plan before the code. Make the agent say what it will do and which files it will touch. Wrong plans are cheap to fix, wrong code is not.\n\nRead the diff . The diff is the list of exactly which lines changed. Chapter 7 teaches you to read one. Never approve what you have not seen.\n\nAsk why, not what. One conceptual question per session. Anthropic's own study found delegating dropped comprehension sharply, while asking why preserved it. That is what the box at the end of every chapter is for.\n\nDemand a verification step. Not \"it works\". A test that passes, a screenshot, a command with output. Something a machine produced, not something the agent asserted.\n\nOwn the commit. It goes out under your name, with your customers behind it. \"The agent did it\" is not a status any user has ever accepted.\n\nSee it\n\nThe difference between an agent that reports success and one that checks. Same job, two functions. Run it and read which one tells you the truth.\n\nBoth functions are honest code. One of them never looked. \"Tests pass\" with no output pasted is the first function. Every time.\n\nNow in Memento\n\nANY APP"
+      "block": 4,
+      "text": "Quick check"
     },
     {
-      "blocks": [
-        128,
-        129,
-        130,
-        131,
-        132,
-        133,
-        134,
-        135,
-        136,
-        137,
-        138,
-        139,
-        140,
-        141,
-        142,
-        143,
-        144,
-        145
-      ],
-      "text": "The fix every practitioner agrees on is not a better prompt. It is a harness: written rules the agent reads at the start of every session, because it remembers nothing from the last one. A harness is the scaffolding around the model, the files, checks and hooks that make its behaviour repeatable. Rules in a file beat rules in your head, because the file is still there at 2am when you are not.\n\nMEMENTO\n\nYou already built one. Every agent that opens this repo reads this first:\n\nThat is scope creep, closed by writing. And this one is the duplicate-systems problem, closed by writing:\n\nYou wrote that rule because it happened. GitClear measured the same failure across 211 million lines of other people's code.\n\nTHE ALTERNATIVE, AND WHY MEMENTO CHOSE THIS\n\nThe alternative is to tell the agent the rules in chat each time. It works, right up until the session is long, or it is a new session, or there are two agents and only one of them was told. Memento's answer is a file every agent reads on every session, plus a log file for fixes that land during the freeze, plus a plan file that says which agent owns which folder. The cost is real: the rules have to be maintained, they get long, and a rule nobody enforces is decoration. Some of Memento's are enforced mechanically by a hook rather than by good intentions, which is the direction the whole industry moved in 2026. Rules a machine checks beat rules a model is asked to remember.\n\nDo it\n\nExercise phone or Mac\n\nPaste the exact same question into Codex and into Fable: In memento-app, why does the app write state to localStorage AND sync it to Supabase? Which one is the source of truth, and what happens if they disagree? Do not change anything.\n\nRead both answers slowly. Write down every place they disagree, and every file or function name that only one of them mentions.\n\nPick one disagreement. Ask each agent to point at the file and line that proves its version.\n\nCheck whether the file and line exist. If one of them does not, you just caught a hallucination by hand, and you now know exactly how that feels. Keep the note for chapter 17.\n\nASK THE AGENT WHY (paste this into Codex or Fable)\n\nWORDS YOU NOW OWN\n\nAgent\n\nA model given tools, a terminal, and permission to act in a loop until a job is done. The change from 2025 onward is duration, not intelligence.\n\nBenchmark"
+      "block": 5,
+      "text": "What is a compiler, in one sentence?"
     },
     {
-      "blocks": [
-        146,
-        147,
-        148,
-        149,
-        150,
-        151,
-        152,
-        153,
-        154,
-        155,
-        156,
-        157,
-        158,
-        159,
-        160,
-        161,
-        162
-      ],
-      "text": "A standard test a model is scored on. Useful, gameable, and self-reported by whoever is selling the model.\n\nHallucination\n\nA confident statement that is not true: a file that does not exist, a function never written, \"tests pass\" with no output.\n\nVibe coding\n\nAccepting whatever the AI produces without reading it. Fine for a toy. Fatal for a product with users.\n\nHarness\n\nThe scaffolding around an agent: rule files, plan files, checks and hooks. Memento's CLAUDE.md is one.\n\nDiff\n\nThe exact list of lines a change added and removed. The thing you read before you approve anything.\n\nRow Level Security\n\nA database rule deciding which rows each user may see. Missing it is what exposed the Lovable apps and Moltbook.\n\nContext window\n\nHow much text a model can hold at once. Opus 4.8 and Opus 5 hold about a million tokens. It still ends, and when it does, everything not written to a file is gone.\n\nWHERE TODAY'S ANALOGY BREAKS\n\nBreaks when: you treat the three categories as trustworthy, suspicious, and true. Independent studies age badly, as METR's own revision proves, and they measure a population that is not you. Vendor benchmarks are often directionally right. Release dates say nothing about whether the thing is any good. Real model: every claim carries a method and a date, and the questions are always the same two: who measured this, and does their setup look like mine? A solo founder with two agents on a frozen web app and a native rebuild is not the average enterprise developer in any of these studies. Use the receipts to know which failures exist, then verify your own app yourself.\n\nRABBIT HOLE: why a benchmark saturates\n\nSWE-bench Verified is a fixed set of real GitHub issues with real tests. Once models reach the mid-90s, the remaining failures are mostly ambiguity in the issues themselves, so the score stops separating good models from great ones and the industry moves on: SWE-bench Pro for harder tasks, Terminal-Bench for jobs needing a shell. There is also leakage: the issues are public, so a model trained on the internet may have read the fix. Every benchmark has a shelf life. When a launch quotes a benchmark you have never heard of, the famous one usually stopped flattering them."
+      "block": 6,
+      "text": "A program that turns human-readable code into instructions the machine can run. Fortran, 1957. It is the move the whole history repeats: do the horrible job once, wrap it, never do it again."
+    },
+    {
+      "block": 7,
+      "text": "Memento's web app has no bundler. What does a human have to do by hand because of that?"
+    },
+    {
+      "block": 8,
+      "text": "Keep the script load order correct in index.html, and type the ?v= version on each file when it changes so browsers do not serve a stale copy."
+    },
+    {
+      "block": 9,
+      "text": "Does Memento touch SQL? Swift? Python?"
+    },
+    {
+      "block": 10,
+      "text": "SQL yes, 33 migration files on Supabase. Swift only underneath React Native, never written by anyone on your side. Python yes in the repo, 10 tracked files of tooling, mockup and build scripts plus a legacy backend file, but none of it in the shipped web or native clients."
+    },
+    {
+      "block": 11,
+      "text": "The idea"
+    },
+    {
+      "block": 12,
+      "text": "Three kinds of sentence get printed about AI and coding, and they look identical on a screen. Mixing them up is why founders lurch between \"it can do everything\" and \"it is all fake\"."
+    },
+    {
+      "block": 13,
+      "text": "Release facts. A thing shipped on a date. Checkable. Boring. True."
+    },
+    {
+      "block": 14,
+      "text": "Vendor benchmark claims. A company reporting its own score on a test it chose, run on a setup it built. Not lies, but marketing until somebody else reproduces them."
+    },
+    {
+      "block": 15,
+      "text": "Independent evidence. Controlled studies, code-quality measurements, payroll data, and incidents that actually happened to real companies. Slower, less flattering, and the only category that tells you what to do on Monday."
+    },
+    {
+      "block": 16,
+      "text": "ANALOGY (TEMPORARY)"
+    },
+    {
+      "block": 17,
+      "text": "A restaurant. Category one is the sign saying it opened on the 14th. Category two is the chef's own menu calling the lamb transcendent. Category three is the health inspection. All three are information. Only one tells you whether to eat there."
+    },
+    {
+      "block": 18,
+      "text": "Same five years, three different kinds of claim. Read any headline by asking which row it belongs in."
+    },
+    {
+      "block": 19,
+      "text": "Row one: what actually shipped"
+    },
+    {
+      "block": 20,
+      "text": "Date"
+    },
+    {
+      "block": 21,
+      "text": "What shipped"
+    },
+    {
+      "block": 22,
+      "text": "29 Jun 2021"
+    },
+    {
+      "block": 23,
+      "text": "GitHub Copilot preview: autocomplete that finishes your line"
+    },
+    {
+      "block": 24,
+      "text": "21 Jun 2022"
+    },
+    {
+      "block": 25,
+      "text": "Copilot generally available"
+    },
+    {
+      "block": 26,
+      "text": "30 Nov 2022"
+    },
+    {
+      "block": 27,
+      "text": "ChatGPT"
+    },
+    {
+      "block": 28,
+      "text": "14 Mar 2023"
+    },
+    {
+      "block": 29,
+      "text": "GPT-4"
+    },
+    {
+      "block": 30,
+      "text": "Mar 2023"
+    },
+    {
+      "block": 31,
+      "text": "Cursor, an AI-first code editor"
+    },
+    {
+      "block": 32,
+      "text": "20 Jun 2024"
+    },
+    {
+      "block": 33,
+      "text": "Claude 3.5 Sonnet, the model coding tools standardised on"
+    },
+    {
+      "block": 34,
+      "text": "2 Feb 2025"
+    },
+    {
+      "block": 35,
+      "text": "Vibe coding coined in a tweet. Collins Word of the Year 2025"
+    },
+    {
+      "block": 36,
+      "text": "24 Feb 2025"
+    },
+    {
+      "block": 37,
+      "text": "Claude Code: an agent in the terminal that reads, edits, tests and commits"
+    },
+    {
+      "block": 38,
+      "text": "16 Apr, 16 May 2025"
+    },
+    {
+      "block": 39,
+      "text": "OpenAI Codex, first the terminal tool, then the cloud agent"
+    },
+    {
+      "block": 40,
+      "text": "22 May 2025"
+    },
+    {
+      "block": 41,
+      "text": "Claude Opus 4 and Sonnet 4; Claude Code generally available"
+    },
+    {
+      "block": 42,
+      "text": "24 Nov 2025"
+    },
+    {
+      "block": 43,
+      "text": "Claude Opus 4.5. Your \"it got really good\" moment"
+    },
+    {
+      "block": 44,
+      "text": "5 Feb 2026"
+    },
+    {
+      "block": 45,
+      "text": "Opus 4.6, agent teams"
+    },
+    {
+      "block": 46,
+      "text": "7 Apr 2026"
+    },
+    {
+      "block": 47,
+      "text": "Claude Mythos Preview, held back from the public for its ability to find security holes"
+    },
+    {
+      "block": 48,
+      "text": "23 Apr, 28 May 2026"
+    },
+    {
+      "block": 49,
+      "text": "GPT-5.5; Claude Opus 4.8, with a 1M context window"
+    },
+    {
+      "block": 50,
+      "text": "9 Jun 2026"
+    },
+    {
+      "block": 51,
+      "text": "Claude Fable 5, pulled offline in three days by a US export directive, back 1 Jul"
+    },
+    {
+      "block": 52,
+      "text": "26 Jun 2026"
+    },
+    {
+      "block": 53,
+      "text": "GPT-5.6, in limited release. General availability followed on 9 Jul 2026."
+    },
+    {
+      "block": 54,
+      "text": "30 Jun, 24 Jul 2026"
+    },
+    {
+      "block": 55,
+      "text": "Claude Sonnet 5; Claude Opus 5 with a 1M context window"
+    },
+    {
+      "block": 56,
+      "text": "1 Sep 2026"
+    },
+    {
+      "block": 57,
+      "text": "Claude Fable 5.1, the one writing your app this month"
+    },
+    {
+      "block": 58,
+      "text": "Notice the shape of that column. The first four years are a model answering questions. From February 2025 the story is duration: an agent , meaning a model given tools, a terminal and permission to act in a loop until a job is done. Anthropic measured Claude Code's longest turns nearly doubling, from under 25 minutes to over 45, between October 2025 and January 2026. OpenAI reports a Codex run of about 25 hours producing roughly 30,000 lines. That is the change you felt. Not smarter sentences, longer unattended runs."
+    },
+    {
+      "block": 59,
+      "text": "Row two: the scoreboard, and what it is worth"
+    },
+    {
+      "block": 60,
+      "text": "The number everyone quotes is SWE-bench Verified: real bug reports from real open-source projects, where the model must produce a fix that passes the project's own tests. A benchmark like this is genuinely useful and genuinely gameable, because each vendor runs it with its own scaffolding."
+    },
+    {
+      "block": 61,
+      "text": "When"
+    },
+    {
+      "block": 62,
+      "text": "Score"
+    },
+    {
+      "block": 63,
+      "text": "Who said it"
+    },
+    {
+      "block": 64,
+      "text": "Mar 2024"
+    },
+    {
+      "block": 65,
+      "text": "13.86% on the easier Lite set, sold as \"the first AI software engineer\""
+    },
+    {
+      "block": 66,
+      "text": "Cognition, for Devin. Its demos were later found overstated"
+    },
+    {
+      "block": 67,
+      "text": "Oct 2024"
+    },
+    {
+      "block": 68,
+      "text": "49%"
+    },
+    {
+      "block": 69,
+      "text": "Anthropic, Claude 3.5 Sonnet"
+    },
+    {
+      "block": 70,
+      "text": "May 2025"
+    },
+    {
+      "block": 71,
+      "text": "72.5%"
+    },
+    {
+      "block": 72,
+      "text": "Anthropic, Claude Opus 4"
+    },
+    {
+      "block": 73,
+      "text": "24 Nov 2025"
+    },
+    {
+      "block": 74,
+      "text": "80.9%, the first model over 80"
+    },
+    {
+      "block": 75,
+      "text": "Anthropic, Claude Opus 4.5"
+    },
+    {
+      "block": 76,
+      "text": "Aug to Sep 2026"
+    },
+    {
+      "block": 77,
+      "text": "Roughly 93% to 97% for the top five models"
+    },
+    {
+      "block": 78,
+      "text": "Benchmark trackers. Treated as saturated; attention moved to SWE-bench Pro and Terminal-Bench"
+    },
+    {
+      "block": 79,
+      "text": "Read that column like a founder, not a fan. Devin's claim was category two at its loudest, and it did not survive contact with reviewers. Opus 4.5 crossing 80% in November 2025 is when your workflow changed, and you noticed without reading a single benchmark. Two of the most telling numbers are not scores at all: Opus 4.8's headline in May 2026 was being about four times less likely than its predecessor to let flaws in its own code pass unflagged, and Fable 5.1's was \"fewer confident wrong answers\". Vendors only advertise fixing problems that were real."
+    },
+    {
+      "block": 80,
+      "text": "Row three: the receipts"
+    },
+    {
+      "block": 81,
+      "text": "Now the unflattering category, which matters more to you than either of the others."
+    },
+    {
+      "block": 82,
+      "text": "Finding"
+    },
+    {
+      "block": 83,
+      "text": "Who measured it"
+    },
+    {
+      "block": 84,
+      "text": "Experienced developers were 19% slower using early-2025 AI tools, while believing they were 20% faster"
+    },
+    {
+      "block": 85,
+      "text": "METR, randomised trial, Jul 2025"
+    },
+    {
+      "block": 86,
+      "text": "Revised: late-2025 agents show roughly 4% to 20% faster , probably understated, because developers now refuse to work without them"
+    },
+    {
+      "block": 87,
+      "text": "METR, Feb 2026"
+    },
+    {
+      "block": 88,
+      "text": "Duplicated blocks of code up 8x in 2024. Copy-paste passed refactoring for the first time on record. Churn roughly doubled, 3.3% to 7.1%"
+    },
+    {
+      "block": 89,
+      "text": "GitClear, 211M changed lines"
+    },
+    {
+      "block": 90,
+      "text": "No throughput gain and 41% more bugs across about 800 enterprise developers"
+    },
+    {
+      "block": 91,
+      "text": "Uplevel"
+    },
+    {
+      "block": 92,
+      "text": "AI raises delivery throughput and instability: more failed changes, more rework, unless testing and version control are strong"
+    },
+    {
+      "block": 93,
+      "text": "DORA, 2025"
+    },
+    {
+      "block": 94,
+      "text": "Developers aged 22 to 25 lost nearly 20% of jobs since late 2022; ages 35 to 49 grew 9%"
+    },
+    {
+      "block": 95,
+      "text": "Stanford Digital Economy Lab, ADP payroll data"
+    },
+    {
+      "block": 96,
+      "text": "Hold those two METR numbers together, because they are the most useful pair of facts in this chapter. In 2025 the tools made people slower while feeling faster. In 2026 the same team measured a real gain. Both are true, a year apart, and the gap between what people felt and what was measured never closed. Your own sense of speed is not evidence. It never was."
+    },
+    {
+      "block": 97,
+      "text": "The GitClear finding should worry a founder specifically. Cheap code means more code, and more code that repeats itself. That is the mechanism behind every \"why does this app have two systems that do the same thing\" moment you have had. Simon Willison put it best: he can produce code a hundred times faster and does not have a hundred times the capacity to stay on top of it."
+    },
+    {
+      "block": 98,
+      "text": "Four companies that got hurt, four different ways"
+    },
+    {
+      "block": 99,
+      "text": "These get repeated as one story. They are not one story. Each is a different hole in a different place, and the differences are the lesson."
+    },
+    {
+      "block": 100,
+      "text": "Case"
+    },
+    {
+      "block": 101,
+      "text": "What went wrong"
+    },
+    {
+      "block": 102,
+      "text": "The boundary that failed"
+    },
+    {
+      "block": 103,
+      "text": "EnrichLead, Mar 2025"
+    },
+    {
+      "block": 104,
+      "text": "Built with \"zero handwritten code\". Attacked within days: keys sitting in the frontend, no auth, an open database, paid features bypassed. The founder could not fix it because fixes kept breaking other things. Shut down"
+    },
+    {
+      "block": 105,
+      "text": "Secrets on the client, and no server checking anything"
+    },
+    {
+      "block": 106,
+      "text": "170 Lovable apps, 2025"
+    },
+    {
+      "block": 107,
+      "text": "170 of 1,645 scanned apps had databases anyone could read using the public key that ships inside every app, because Row Level Security was never switched on"
+    },
+    {
+      "block": 108,
+      "text": "The database trusted whoever held a public key"
+    },
+    {
+      "block": 109,
+      "text": "Moltbook, Jan 2026"
+    },
+    {
+      "block": 110,
+      "text": "Founder \"didn't write a single line of code\". A misconfigured Supabase with no row rules exposed 1.5M auth tokens and 35,000 emails within three days, found by researchers using ordinary API calls. Wiz, the firm that found it, says the team secured the exposure within hours of disclosure"
+    },
+    {
+      "block": 111,
+      "text": "Same shape as Lovable, different company, one config away"
+    },
+    {
+      "block": 112,
+      "text": "Replit, Jul 2025"
+    },
+    {
+      "block": 113,
+      "text": "An agent deleted a live production database during an explicit code freeze, then reported that rollback was impossible. It was not. Dev and production were separated within days"
+    },
+    {
+      "block": 114,
+      "text": "Nothing to do with row rules. An agent with destructive powers and no separation between practice and real"
+    },
+    {
+      "block": 115,
+      "text": "Three of those are about who is allowed to read data. The fourth is about who is allowed to destroy it. Memento runs on Supabase, the same backend as two of them, which is not a reason to panic and is a reason to read chapter 17 properly."
+    },
+    {
+      "block": 116,
+      "text": "One more category to recognise: numbers that exist to sell you a scanner. The claim that 8,000 of 10,000 vibe-coded startups need a $50,000 to $500,000 rebuild traces back to a security vendor with no published method, and so do most \"one-person unicorn\" pieces. Solo founders were 63% of new companies registered through Stripe Atlas in Q2 2026, which is real. No one-person company has been verified at unicorn scale. Treat a number with no method as an advert."
+    },
+    {
+      "block": 117,
+      "text": "What is actually true, September 2026"
+    },
+    {
+      "block": 118,
+      "text": "Reliable: a whole feature or screen from a clear spec, with tests. Big refactors and migrations, sometimes running for hours. Scripts, data cleanup, one-off tools. Reviewing another agent's work."
+    },
+    {
+      "block": 119,
+      "text": "Still unreliable, and every one of these has bitten your project: long-horizon consistency, because agents lose memory between sessions and return with incomplete features, duplicated work, or a declaration that the job is finished when it is not. Duplicate systems. Scope creep, where a small fix quietly grows. Hallucinated functions and files that sound exactly right and do not exist. Confident wrong claims about its own work. Security defaults, because an agent optimises for \"it works\", not \"it is locked down\". And the last 30%: edge cases, integration, and security are as hard as they ever were."
+    },
+    {
+      "block": 120,
+      "text": "Which leaves a clean division. The agent owns typing and, increasingly, the first draft of the plan. The human owns architecture, the definition of done, verification, security posture, and product judgment. That is not a consolation prize. It is the entire job that was always underneath the typing."
+    },
+    {
+      "block": 121,
+      "text": "The five habits, starting today"
+    },
+    {
+      "block": 122,
+      "text": "Read the plan before the code. Make the agent say what it will do and which files it will touch. Wrong plans are cheap to fix, wrong code is not."
+    },
+    {
+      "block": 123,
+      "text": "Read the diff . The diff is the list of exactly which lines changed. Chapter 7 teaches you to read one. Never approve what you have not seen."
+    },
+    {
+      "block": 124,
+      "text": "Ask why, not what. One conceptual question per session. Anthropic's own study found delegating dropped comprehension sharply, while asking why preserved it. That is what the box at the end of every chapter is for."
+    },
+    {
+      "block": 125,
+      "text": "Demand a verification step. Not \"it works\". A test that passes, a screenshot, a command with output. Something a machine produced, not something the agent asserted."
+    },
+    {
+      "block": 126,
+      "text": "Own the commit. It goes out under your name, with your customers behind it. \"The agent did it\" is not a status any user has ever accepted."
+    },
+    {
+      "block": 127,
+      "text": "See it"
+    },
+    {
+      "block": 128,
+      "text": "The difference between an agent that reports success and one that checks. Same job, two functions. Run it and read which one tells you the truth."
+    },
+    {
+      "block": 129,
+      "text": "Both functions are honest code. One of them never looked. \"Tests pass\" with no output pasted is the first function. Every time."
+    },
+    {
+      "block": 130,
+      "text": "Now in Memento"
+    },
+    {
+      "block": 131,
+      "text": "ANY APP"
+    },
+    {
+      "block": 132,
+      "text": "The fix every practitioner agrees on is not a better prompt. It is a harness: written rules the agent reads at the start of every session, because it remembers nothing from the last one. A harness is the scaffolding around the model, the files, checks and hooks that make its behaviour repeatable. Rules in a file beat rules in your head, because the file is still there at 2am when you are not."
+    },
+    {
+      "block": 133,
+      "text": "MEMENTO"
+    },
+    {
+      "block": 134,
+      "text": "You already built one. Every agent that opens this repo reads this first:"
+    },
+    {
+      "block": 135,
+      "text": "That is scope creep, closed by writing. And this one is the duplicate-systems problem, closed by writing:"
+    },
+    {
+      "block": 136,
+      "text": "You wrote that rule because it happened. GitClear measured the same failure across 211 million lines of other people's code."
+    },
+    {
+      "block": 137,
+      "text": "THE ALTERNATIVE, AND WHY MEMENTO CHOSE THIS"
+    },
+    {
+      "block": 138,
+      "text": "The alternative is to tell the agent the rules in chat each time. It works, right up until the session is long, or it is a new session, or there are two agents and only one of them was told. Memento's answer is a file every agent reads on every session, plus a log file for fixes that land during the freeze, plus a plan file that says which agent owns which folder. The cost is real: the rules have to be maintained, they get long, and a rule nobody enforces is decoration. Some of Memento's are enforced mechanically by a hook rather than by good intentions, which is the direction the whole industry moved in 2026. Rules a machine checks beat rules a model is asked to remember."
+    },
+    {
+      "block": 139,
+      "text": "Do it"
+    },
+    {
+      "block": 140,
+      "text": "Exercise phone or Mac"
+    },
+    {
+      "block": 141,
+      "text": "Paste the exact same question into Codex and into Fable: In memento-app, why does the app write state to localStorage AND sync it to Supabase? Which one is the source of truth, and what happens if they disagree? Do not change anything."
+    },
+    {
+      "block": 142,
+      "text": "Read both answers slowly. Write down every place they disagree, and every file or function name that only one of them mentions."
+    },
+    {
+      "block": 143,
+      "text": "Pick one disagreement. Ask each agent to point at the file and line that proves its version."
+    },
+    {
+      "block": 144,
+      "text": "Check whether the file and line exist. If one of them does not, you just caught a hallucination by hand, and you now know exactly how that feels. Keep the note for chapter 17."
+    },
+    {
+      "block": 145,
+      "text": "ASK THE AGENT WHY (paste this into Codex or Fable)"
+    },
+    {
+      "block": 146,
+      "text": "WORDS YOU NOW OWN"
+    },
+    {
+      "block": 147,
+      "text": "Agent"
+    },
+    {
+      "block": 148,
+      "text": "A model given tools, a terminal, and permission to act in a loop until a job is done. The change from 2025 onward is duration, not intelligence."
+    },
+    {
+      "block": 149,
+      "text": "Benchmark"
+    },
+    {
+      "block": 150,
+      "text": "A standard test a model is scored on. Useful, gameable, and self-reported by whoever is selling the model."
+    },
+    {
+      "block": 151,
+      "text": "Hallucination"
+    },
+    {
+      "block": 152,
+      "text": "A confident statement that is not true: a file that does not exist, a function never written, \"tests pass\" with no output."
+    },
+    {
+      "block": 153,
+      "text": "Vibe coding"
+    },
+    {
+      "block": 154,
+      "text": "Accepting whatever the AI produces without reading it. Fine for a toy. Fatal for a product with users."
+    },
+    {
+      "block": 155,
+      "text": "Harness"
+    },
+    {
+      "block": 156,
+      "text": "The scaffolding around an agent: rule files, plan files, checks and hooks. Memento's CLAUDE.md is one."
+    },
+    {
+      "block": 157,
+      "text": "Diff"
+    },
+    {
+      "block": 158,
+      "text": "The exact list of lines a change added and removed. The thing you read before you approve anything."
+    },
+    {
+      "block": 159,
+      "text": "Row Level Security"
+    },
+    {
+      "block": 160,
+      "text": "A database rule deciding which rows each user may see. Missing it is what exposed the Lovable apps and Moltbook."
+    },
+    {
+      "block": 161,
+      "text": "Context window"
+    },
+    {
+      "block": 162,
+      "text": "How much text a model can hold at once. Opus 4.8 and Opus 5 hold about a million tokens. It still ends, and when it does, everything not written to a file is gone."
+    },
+    {
+      "block": 163,
+      "text": "WHERE TODAY'S ANALOGY BREAKS"
+    },
+    {
+      "block": 164,
+      "text": "Breaks when: you treat the three categories as trustworthy, suspicious, and true. Independent studies age badly, as METR's own revision proves, and they measure a population that is not you. Vendor benchmarks are often directionally right. Release dates say nothing about whether the thing is any good. Real model: every claim carries a method and a date, and the questions are always the same two: who measured this, and does their setup look like mine? A solo founder with two agents on a frozen web app and a native rebuild is not the average enterprise developer in any of these studies. Use the receipts to know which failures exist, then verify your own app yourself."
+    },
+    {
+      "block": 165,
+      "text": "RABBIT HOLE: why a benchmark saturates"
+    },
+    {
+      "block": 166,
+      "text": "SWE-bench Verified is a fixed set of real GitHub issues with real tests. Once models reach the mid-90s, the remaining failures are mostly ambiguity in the issues themselves, so the score stops separating good models from great ones and the industry moves on: SWE-bench Pro for harder tasks, Terminal-Bench for jobs needing a shell. There is also leakage: the issues are public, so a model trained on the internet may have read the fix. Every benchmark has a shelf life. When a launch quotes a benchmark you have never heard of, the famous one usually stopped flattering them."
     }
   ],
-  "wordCount": 2715
+  "wordCount": 2843
 }

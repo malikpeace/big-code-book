@@ -36,827 +36,1209 @@
     },
     {
       "index": 6,
-      "tag": "summary",
-      "text": "Chapter 12: await does not freeze the app. What is it actually doing?"
+      "tag": "div",
+      "text": "Imperative: find the element and change it yourself. Declarative: change the state and let a framework redraw from it. The web app is the first. Today is the second, in full."
     },
     {
       "index": 7,
       "tag": "summary",
-      "text": "Chapter 21: your phone runs the TypeScript you wrote. True or false?"
+      "text": "Chapter 12: await does not freeze the app. What is it actually doing?"
     },
     {
       "index": 8,
+      "tag": "div",
+      "text": "Handing the single thread back so other work can run, with a note to come back to this line when the answer arrives. That is why the screen still responds while a request is in flight."
+    },
+    {
+      "index": 9,
+      "tag": "summary",
+      "text": "Chapter 21: your phone runs the TypeScript you wrote. True or false?"
+    },
+    {
+      "index": 10,
+      "tag": "div",
+      "text": "False. Types are erased at build time and the phone runs plain JavaScript. They existed only for the proofreader, before shipping."
+    },
+    {
+      "index": 11,
       "tag": "h2",
       "text": "The idea"
     },
     {
-      "index": 9,
+      "index": 12,
       "tag": "p",
       "text": "A component is a function that takes inputs and returns a description of what should be on screen. Not a class, not a widget, not a magic object. A function."
     },
     {
-      "index": 10,
+      "index": 13,
       "tag": "p",
       "text": "Its inputs come from two places. Props are handed down by whoever used the component, and it may not change them: the parent's data, on loan. State is the component's own memory, and when it changes the component runs again and the screen updates. Same props and same state, same screen, every time."
     },
     {
-      "index": 11,
+      "index": 14,
       "tag": "div",
       "text": "ANALOGY (TEMPORARY)"
     },
     {
-      "index": 12,
+      "index": 15,
       "tag": "p",
       "text": "A chef at a station. The ingredients come from the kitchen, already chosen, and the chef cannot change what was sent. That is props. In the chef's pocket is a notebook with tonight's plate count. That is state. Given the same ingredients and the same notebook, the chef plates the identical dish every time. When the notebook changes, the dish is plated again and the new plate replaces the old one."
     },
     {
-      "index": 13,
-      "tag": "h3",
-      "text": "Redrawing, and why nobody touches the screen"
-    },
-    {
-      "index": 14,
-      "tag": "p",
-      "text": "Chapter 14 gave you the two styles. Memento's web app is imperative: something happens, code finds the element, code edits it. React is the other one. You never edit the screen. You change state, React calls your component again, compares what it returns with what is on screen, and applies the smallest set of real changes itself. That second run is a re-render , cheap because it is mostly comparison. The payoff: the screen cannot drift out of step with the data, because it is only ever produced from the data. The cost: you say what you want, not how to get there, which feels backwards for about a week."
-    },
-    {
-      "index": 15,
-      "tag": "h3",
-      "text": "What the function returns"
-    },
-    {
       "index": 16,
-      "tag": "p",
-      "text": "Components return JSX , HTML-shaped syntax inside JavaScript: <Text>{label}</Text> . It is not HTML and not a string. The build turns every tag into a function call, so that line becomes roughly createElement(Text, null, label) . Curly braces drop a value into the middle, and a capitalised tag is one of your own components. Nesting them builds the component tree : a screen is a component holding components, down to the ones that actually draw something. Reading an unfamiliar React app means finding the top of that tree and walking down."
+      "tag": "figcaption",
+      "text": "Data goes down the tree as props. State lives where it is owned, and changing it redraws that component and everything under it. Hooks are the only way a function keeps anything between calls."
     },
     {
       "index": 17,
       "tag": "h3",
-      "text": "Hooks: how a function remembers"
+      "text": "Redrawing, and why nobody touches the screen"
     },
     {
       "index": 18,
       "tag": "p",
-      "text": "A function forgets everything when it returns, so React provides hooks : functions whose names start with use , which attach memory to a component."
+      "text": "Chapter 14 gave you the two styles. Memento's web app is imperative: something happens, code finds the element, code edits it. React is the other one. You never edit the screen. You change state, React calls your component again, compares what it returns with what is on screen, and applies the smallest set of real changes itself. That second run is a re-render , cheap because it is mostly comparison. The payoff: the screen cannot drift out of step with the data, because it is only ever produced from the data. The cost: you say what you want, not how to get there, which feels backwards for about a week."
     },
     {
       "index": 19,
+      "tag": "h3",
+      "text": "What the function returns"
+    },
+    {
+      "index": 20,
+      "tag": "p",
+      "text": "Components return JSX , HTML-shaped syntax inside JavaScript: <Text>{label}</Text> . It is not HTML and not a string. The build turns every tag into a function call, so that line becomes roughly createElement(Text, null, label) . Curly braces drop a value into the middle, and a capitalised tag is one of your own components. Nesting them builds the component tree : a screen is a component holding components, down to the ones that actually draw something. Reading an unfamiliar React app means finding the top of that tree and walking down."
+    },
+    {
+      "index": 21,
+      "tag": "h3",
+      "text": "Hooks: how a function remembers"
+    },
+    {
+      "index": 22,
+      "tag": "p",
+      "text": "A function forgets everything when it returns, so React provides hooks : functions whose names start with use , which attach memory to a component."
+    },
+    {
+      "index": 23,
       "tag": "th",
       "text": "Hook"
     },
     {
-      "index": 20,
+      "index": 24,
       "tag": "th",
       "text": "Gives you"
     },
     {
-      "index": 21,
+      "index": 25,
       "tag": "th",
       "text": "Use it when"
     },
     {
-      "index": 22,
+      "index": 26,
       "tag": "td",
       "text": "useState"
     },
     {
-      "index": 23,
+      "index": 27,
       "tag": "td",
       "text": "A value and a setter: const [n, setN] = useState(0)"
     },
     {
-      "index": 24,
+      "index": 28,
       "tag": "td",
       "text": "The screen must change when this changes."
     },
     {
-      "index": 25,
+      "index": 29,
       "tag": "td",
       "text": "useEffect"
     },
     {
-      "index": 26,
+      "index": 30,
       "tag": "td",
       "text": "Work that runs after drawing, plus a function that undoes it"
     },
     {
-      "index": 27,
+      "index": 31,
       "tag": "td",
       "text": "Timers, subscriptions, anything outside React."
     },
     {
-      "index": 28,
+      "index": 32,
       "tag": "td",
       "text": "useRef"
     },
     {
-      "index": 29,
+      "index": 33,
       "tag": "td",
       "text": "A box that survives redraws and never causes one"
     },
     {
-      "index": 30,
+      "index": 34,
       "tag": "td",
       "text": "You must remember something the screen does not show."
     },
     {
-      "index": 31,
+      "index": 35,
       "tag": "td",
       "text": "useCallback"
     },
     {
-      "index": 32,
+      "index": 36,
       "tag": "td",
       "text": "The same function object across redraws"
     },
     {
-      "index": 33,
+      "index": 37,
       "tag": "td",
       "text": "Handing a function to a child that would otherwise redraw for nothing."
     },
     {
-      "index": 34,
+      "index": 38,
       "tag": "p",
       "text": "The one that bites people is useEffect . It takes a job and a list of things to watch, and it may return a cleanup function . React runs that cleanup before running the job again, and when the component leaves the screen. Start a timer with no cleanup and it fires into a screen that no longer exists. Half the crashes in a young React app are exactly that."
     },
     {
-      "index": 35,
+      "index": 39,
       "tag": "h3",
       "text": "React Native: same model, no browser"
     },
     {
-      "index": 36,
+      "index": 40,
       "tag": "p",
       "text": "React Native keeps all of the above and changes the tags. There is no DOM. <View> , <Text> and <Pressable> become the real native views iOS and Android already have, so scrolling, text selection and the keyboard are the platform's own. Styling is a style object in JavaScript instead of a CSS file: same properties, camelCased, no cascade, no selectors, in the component's own file."
     },
     {
-      "index": 37,
+      "index": 41,
       "tag": "p",
       "text": "Expo is the toolkit around it: build system, native modules, packaging. expo-router turns files into screens, so src/app/index.tsx is the first screen and src/app/_layout.tsx wraps everything. Running on a phone needs a dev build : a real app installed once, holding the project's native pieces, that loads your JavaScript over the network as you edit. On a Mac it runs in the simulator , a fake iPhone in a window that belongs to Xcode, which is why Xcode is installed even though nobody opens it. Shipping means Apple's review and a cut of anything bought inside the app."
     },
     {
-      "index": 38,
+      "index": 42,
       "tag": "h2",
       "text": "See it"
     },
     {
-      "index": 39,
+      "index": 43,
       "tag": "p",
       "text": "React will not run in this page, so here is a model of it: thirty lines that behave like React and are not React. Components are functions returning strings of HTML, and one render rebuilds the root from state. Press Run, then tap the button."
     },
     {
-      "index": 40,
+      "index": 44,
       "tag": "p",
       "text": "Nothing there reaches into the page to edit a number. The click changes state, the screen is rebuilt from state. Real React does the same, except it compares old and new trees and touches only what differs. Delete the render() call inside setState and you get the web app's classic bug: the data moves and the screen does not."
     },
     {
-      "index": 41,
+      "index": 45,
       "tag": "h2",
       "text": "Now in Memento"
     },
     {
-      "index": 42,
+      "index": 46,
       "tag": "div",
       "text": "ANY APP"
     },
     {
-      "index": 43,
+      "index": 47,
       "tag": "p",
       "text": "Every React app has one component at the very top, running before any screen. It loads what the app needs, holds the splash until that is ready, and renders the navigator that picks the screen. First file to open in a codebase you do not know."
     },
     {
-      "index": 44,
+      "index": 48,
       "tag": "div",
       "text": "MEMENTO"
     },
     {
-      "index": 45,
+      "index": 49,
       "tag": "p",
       "text": "A list of decisions. useFonts is a hook, so it re-renders this component when the fonts load. The first useEffect has an empty watch list, so it runs once ever; the second watches loaded and error , so it runs again whenever either changes. return null is a component drawing nothing yet, so no screen flashes in the wrong typeface. Then one line of JSX puts <Stack> , the router's navigator, under the whole app."
     },
     {
-      "index": 46,
+      "index": 50,
       "tag": "p",
       "text": "It is the root because of where it sits. src/app/_layout.tsx is a name expo-router recognises. Nothing registers it, nothing imports it. The folder is the configuration."
     },
     {
-      "index": 47,
+      "index": 51,
       "tag": "h3",
       "text": "The versions, and the doors that only open in development"
     },
     {
-      "index": 48,
+      "index": 52,
       "tag": "p",
       "text": "The first screen's file opens by reading switches out of the environment, chapter 19's mechanism exactly."
     },
     {
-      "index": 49,
+      "index": 53,
       "tag": "p",
       "text": "Two dev-preview gates, entry and feel. __DEV__ is true only in a dev build, so both are gone from anything that ships. The versions underneath are pinned to the number, not a range."
     },
     {
-      "index": 50,
+      "index": 54,
       "tag": "th",
       "text": "Package"
     },
     {
-      "index": 51,
+      "index": 55,
       "tag": "th",
       "text": "Version"
     },
     {
-      "index": 52,
+      "index": 56,
       "tag": "th",
       "text": "What it is"
     },
     {
-      "index": 53,
+      "index": 57,
       "tag": "td",
       "text": "expo"
     },
     {
-      "index": 54,
+      "index": 58,
       "tag": "td",
       "text": "57.0.22"
     },
     {
-      "index": 55,
+      "index": 59,
       "tag": "td",
       "text": "The toolkit and build system."
     },
     {
-      "index": 56,
+      "index": 60,
       "tag": "td",
       "text": "expo-router"
     },
     {
-      "index": 57,
+      "index": 61,
       "tag": "td",
       "text": "57.0.21"
     },
     {
-      "index": 58,
+      "index": 62,
       "tag": "td",
       "text": "Files in src/app/ become screens."
     },
     {
-      "index": 59,
+      "index": 63,
       "tag": "td",
       "text": "react"
     },
     {
-      "index": 60,
+      "index": 64,
       "tag": "td",
       "text": "19.2.3"
     },
     {
-      "index": 61,
+      "index": 65,
       "tag": "td",
       "text": "Components, props, state, hooks. The model itself."
     },
     {
-      "index": 62,
+      "index": 66,
       "tag": "td",
       "text": "react-native"
     },
     {
-      "index": 63,
+      "index": 67,
       "tag": "td",
       "text": "0.86.3"
     },
     {
-      "index": 64,
+      "index": 68,
       "tag": "td",
       "text": "The part that draws native views instead of HTML."
     },
     {
-      "index": 65,
+      "index": 69,
       "tag": "h3",
       "text": "A real component, top to bottom"
     },
     {
-      "index": 66,
+      "index": 70,
       "tag": "p",
       "text": "The props list is the component's contract, typed by chapter 21. onComplete: () => void is how a child talks back up: the button does not know what completing means, only who to tell."
     },
     {
-      "index": 67,
+      "index": 71,
       "tag": "p",
       "text": "Then four useRef calls, and why they are refs and not state is the lesson. Whether a finger is down changes many times a second and must never redraw the button. A ref survives every redraw and never triggers one. State is for what the screen shows, refs for what the component must remember."
     },
     {
-      "index": 68,
+      "index": 72,
       "tag": "p",
       "text": "Two effects, both about cleanup. The first watches props.actionKey : a new action arrives, cancel the animation, re-arm. The second's body is a function, so it does nothing going in and runs that function on the way out. When the button leaves the screen, kill the timer, because a timer firing into a component that no longer exists is a crash."
     },
     {
-      "index": 69,
+      "index": 73,
       "tag": "p",
       "text": "Three guard clauses from chapter 10, then two things started together: an animation filling the button over HOLD_MS , and a timer firing at the same moment to do the completing. useCallback keeps the function object the same between redraws. At three seconds finish runs and calls onComplete.current() ."
     },
     {
-      "index": 70,
+      "index": 74,
       "tag": "h3",
       "text": "Tokens and a hook of your own"
     },
     {
-      "index": 71,
+      "index": 75,
       "tag": "p",
       "text": "The web app's tokens are CSS variables. Here they are an object, because there is no stylesheet to put them in. useTheme is a hook you wrote yourself, and only a hook because it calls one. The phone switching to light mode re-renders every component that called it."
     },
     {
-      "index": 72,
+      "index": 76,
       "tag": "h3",
       "text": "Where state changes actually live"
     },
     {
-      "index": 73,
+      "index": 77,
       "tag": "p",
       "text": "Big flows do not keep their state in a component. Clarity's whole journey is a reducer : one pure function taking the current state and an event, returning the next state. No screens, no network."
     },
     {
-      "index": 74,
+      "index": 78,
       "tag": "p",
       "text": "Every case returns a new object built with the spread from chapter 11, never an edit of the old one, which makes it testable without a screen: feed it a state and an event, check what comes back. Components stay thin, showing the state and sending events."
     },
     {
-      "index": 75,
+      "index": 79,
       "tag": "div",
       "text": "THE WEB TWIN (imperative)"
     },
     {
-      "index": 76,
+      "index": 80,
       "tag": "p",
       "text": "Four explicit instructions to four parts of the screen. Forget one and a corner of the app goes stale. Nothing is wrong with this code. It is a list a human maintains by hand."
     },
     {
-      "index": 77,
+      "index": 81,
       "tag": "div",
       "text": "THE NATIVE VERSION (declarative)"
     },
     {
-      "index": 78,
+      "index": 82,
       "tag": "p",
       "text": "There is no equivalent function, and that is the point. State changes, the components that read it run again, and every part is correct because it was drawn from the new state. Nobody keeps a list of what to refresh. The trade: less control over exactly when a piece of screen updates, in exchange for a guarantee that it cannot be forgotten."
     },
     {
-      "index": 79,
+      "index": 83,
       "tag": "h3",
       "text": "Memento Jr, React Native version"
     },
     {
-      "index": 80,
+      "index": 84,
       "tag": "p",
       "text": "Read only for now: the sandbox app's hold button written the way the real one is, cut to the bones."
     },
     {
-      "index": 81,
+      "index": 85,
       "tag": "p",
       "text": "Two props, one piece of state, one ref, one cleanup, two callbacks, three tags. The real one adds a typed theme, an animation, haptics, a re-arming key and an inverted twin layer sweeping across the label. Same skeleton."
     },
     {
-      "index": 82,
+      "index": 86,
       "tag": "div",
       "text": "THE ALTERNATIVE, AND WHY MEMENTO CHOSE THIS"
     },
     {
-      "index": 83,
+      "index": 87,
       "tag": "p",
       "text": "The alternatives: wrap the web app, write Swift for iPhone and Kotlin for Android, or rebuild once in React Native. The decision is on record, in writing, before any code."
     },
     {
-      "index": 84,
+      "index": 88,
       "tag": "p",
       "text": "Two phone platforms from one codebase decided it. Two native codebases would double every screen, every fix and every review round, for a product one founder and two agents maintain. The bill is Apple's 15% under their small business programme, accepted on purpose rather than discovered later. The other cost: React Native sits between you and the platform, so anything new on iOS arrives when the library catches up."
     },
     {
-      "index": 85,
+      "index": 89,
       "tag": "p",
       "text": "The same document explains the storage choice. MMKV is used from day one because its reads are synchronous once the app has hydrated, so the first frame is drawn with real data instead of a flash of empty state that corrects itself. Hydration finishes before first render and the splash holds until it does. The same fear _layout.tsx answers with the fonts."
     },
     {
-      "index": 86,
+      "index": 90,
       "tag": "h2",
       "text": "Do it"
     },
     {
-      "index": 87,
+      "index": 91,
       "tag": "div",
       "text": "Exercise MAC"
     },
     {
-      "index": 88,
+      "index": 92,
       "tag": "li",
       "text": "Open the file. Read the comment block at the top first, it names the frozen web code this came from."
     },
     {
-      "index": 89,
+      "index": 93,
       "tag": "li",
       "text": "Answer on paper: what are its props? What state does it own? What does each useEffect clean up? What happens at three seconds?"
     },
     {
-      "index": 90,
+      "index": 94,
       "tag": "li",
       "text": "Open the check when you have four answers written down."
     },
     {
-      "index": 91,
+      "index": 95,
       "tag": "summary",
       "text": "The four answers"
     },
     {
-      "index": 92,
-      "tag": "p",
-      "text": "Props: theme , typeface , width , onComplete required; completed , actionKey , label , icon optional. All typed in the signature at line 22."
-    },
-    {
-      "index": 93,
-      "tag": "p",
-      "text": "State: almost none, which is the interesting answer. Nothing uses useState . There is a shared animation value and four refs: holding , finished , timer , and one holding the latest onComplete . None of them redraw, because none of them are what the screen shows."
-    },
-    {
-      "index": 94,
-      "tag": "p",
-      "text": "Cleanups: the first effect re-arms on a new actionKey : clear the timer, cancel the animation, reset progress. The second returns a function and does nothing else, so its whole job is the unmount cleanup: clear the timer, drop the holding flag, so nothing fires after the button is gone."
-    },
-    {
-      "index": 95,
-      "tag": "p",
-      "text": "At three seconds: the setTimeout from begin fires finish , which refuses if the finger lifted or it already fired, marks itself finished, triggers a light haptic whose failure is swallowed on purpose, and calls onComplete.current() . The parent decides what completing means."
-    },
-    {
       "index": 96,
+      "tag": "div",
+      "text": "Props: theme , typeface , width , onComplete required; completed , actionKey , label , icon optional. All typed in the signature at line 22. State: almost none, which is the interesting answer. Nothing uses useState . There is a shared animation value and four refs: holding , finished , timer , and one holding the latest onComplete . None of them redraw, because none of them are what the screen shows. Cleanups: the first effect re-arms on a new actionKey : clear the timer, cancel the animation, reset progress. The second returns a function and does nothing else, so its whole job is the unmount cleanup: clear the timer, drop the holding flag, so nothing fires after the button is gone. At three seconds: the setTimeout from begin fires finish , which refuses if the finger lifted or it already fired, marks itself finished, triggers a light haptic whose failure is swallowed on purpose, and calls onComplete.current() . The parent decides what completing means."
+    },
+    {
+      "index": 97,
       "tag": "div",
       "text": "Exercise, phone version phone or Mac"
     },
     {
-      "index": 97,
+      "index": 98,
       "tag": "li",
       "text": "Add a component Title that returns '<h3>Memento Jr</h3>' and put it first inside App ."
     },
     {
-      "index": 98,
+      "index": 99,
       "tag": "li",
       "text": "Give StreakText a second prop, label , passed from App . Props travel down, never up."
     },
     {
-      "index": 99,
+      "index": 100,
       "tag": "li",
       "text": "Delete the render() call inside setState and press the button. That one line is what React does for you."
     },
     {
-      "index": 100,
+      "index": 101,
       "tag": "div",
       "text": "ASK THE AGENT WHY (paste this into Codex or Fable)"
     },
     {
-      "index": 101,
+      "index": 102,
       "tag": "div",
       "text": "WORDS YOU NOW OWN"
     },
     {
-      "index": 102,
+      "index": 103,
       "tag": "dt",
       "text": "Component"
     },
     {
-      "index": 103,
+      "index": 104,
       "tag": "dd",
       "text": "A function that takes props and returns what to draw. The unit everything else is made of."
     },
     {
-      "index": 104,
+      "index": 105,
       "tag": "dt",
       "text": "Props"
     },
     {
-      "index": 105,
+      "index": 106,
       "tag": "dd",
       "text": "Inputs handed down from the parent. Read only. Data goes down the tree, never up."
     },
     {
-      "index": 106,
+      "index": 107,
       "tag": "dt",
       "text": "State (in a component)"
     },
     {
-      "index": 107,
+      "index": 108,
       "tag": "dd",
       "text": "Memory the component owns. Changing it redraws. Only for things the screen shows."
     },
     {
-      "index": 108,
+      "index": 109,
       "tag": "dt",
       "text": "Re-render"
     },
     {
-      "index": 109,
+      "index": 110,
       "tag": "dd",
       "text": "React calling your function again after state changed, comparing the result to what is on screen, and applying the difference."
     },
     {
-      "index": 110,
+      "index": 111,
       "tag": "dt",
       "text": "JSX"
     },
     {
-      "index": 111,
+      "index": 112,
       "tag": "dd",
       "text": "HTML-shaped syntax that the build turns into plain function calls. Capitalised tag means your component."
     },
     {
-      "index": 112,
+      "index": 113,
       "tag": "dt",
       "text": "Component tree"
     },
     {
-      "index": 113,
+      "index": 114,
       "tag": "dd",
       "text": "Components nested inside components. Where you start reading an unfamiliar app."
     },
     {
-      "index": 114,
+      "index": 115,
       "tag": "dt",
       "text": "Hook"
     },
     {
-      "index": 115,
+      "index": 116,
       "tag": "dd",
       "text": "A use -prefixed function that gives a component memory or behaviour. Called in the same order every render, never inside an if."
     },
     {
-      "index": 116,
+      "index": 117,
       "tag": "dt",
       "text": "useState / useRef"
     },
     {
-      "index": 117,
+      "index": 118,
       "tag": "dd",
       "text": "A value plus a setter, changing it redraws / a box that survives redraws and never causes one."
     },
     {
-      "index": 118,
+      "index": 119,
       "tag": "dt",
       "text": "useEffect and its cleanup"
     },
     {
-      "index": 119,
+      "index": 120,
       "tag": "dd",
       "text": "Work after drawing, plus the function that undoes it. The cleanup runs before the next run and when the component leaves."
     },
     {
-      "index": 120,
+      "index": 121,
       "tag": "dt",
       "text": "useCallback"
     },
     {
-      "index": 121,
+      "index": 122,
       "tag": "dd",
       "text": "Keeps the same function object between renders so children do not redraw for nothing."
     },
     {
-      "index": 122,
+      "index": 123,
       "tag": "dt",
       "text": "Reducer"
     },
     {
-      "index": 123,
+      "index": 124,
       "tag": "dd",
       "text": "A pure function from (state, event) to the next state. Where a big flow's logic lives, testable without a screen."
     },
     {
-      "index": 124,
+      "index": 125,
       "tag": "dt",
       "text": "Style object"
     },
     {
-      "index": 125,
+      "index": 126,
       "tag": "dd",
       "text": "Styles as JavaScript next to the component. Same properties as CSS, camelCased, no cascade."
     },
     {
-      "index": 126,
+      "index": 127,
       "tag": "dt",
       "text": "Expo / expo-router"
     },
     {
-      "index": 127,
+      "index": 128,
       "tag": "dd",
       "text": "The toolkit around React Native / the router where a file in src/app/ is a screen."
     },
     {
-      "index": 128,
+      "index": 129,
       "tag": "dt",
       "text": "Dev build"
     },
     {
-      "index": 129,
+      "index": 130,
       "tag": "dd",
       "text": "A real app installed once, holding the project's native pieces, that loads your JavaScript as you edit."
     },
     {
-      "index": 130,
+      "index": 131,
       "tag": "dt",
       "text": "Simulator"
     },
     {
-      "index": 131,
+      "index": 132,
       "tag": "dd",
       "text": "A fake iPhone in a window on the Mac, provided by Xcode. Not a real device, and it will lie to you about safe areas and performance."
     },
     {
-      "index": 132,
+      "index": 133,
       "tag": "div",
       "text": "WHERE TODAY'S ANALOGY BREAKS"
     },
     {
-      "index": 133,
+      "index": 134,
       "tag": "p",
       "text": "Breaks when: you believe the dish really is plated from scratch. React produces a fresh description, then changes only the parts of the real screen that differ. Native views that stayed are the same objects they were, which is why a text field keeps its cursor through a re-render and the chef picture predicts the opposite. It breaks again on refs, effects and timers, the chef reaching outside the station: they survive re-plating, and uncleaned they carry on after the chef has gone home. Real model: a component is a description of a screen, re-run when its inputs change, and anything outside that description is created and destroyed by hand through effects."
     },
     {
-      "index": 134,
+      "index": 135,
       "tag": "summary",
       "text": "RABBIT HOLE: why hooks may not go inside an if"
     },
     {
-      "index": 135,
+      "index": 136,
       "tag": "p",
       "text": "React does not know your hooks' names. It matches them by call order: first, second, third. A hook inside an if changes the count between renders, so React hands your second hook the memory belonging to your third. Hence the rule, hooks at the top level always, enforced by a lint rule in every React project alive. One strange rule, in exchange for components that stay simple functions instead of classes."
     }
   ],
   "segments": [
     {
-      "blocks": [
-        0,
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7,
-        8,
-        9,
-        10,
-        11,
-        12,
-        13,
-        14,
-        15
-      ],
-      "text": "React and React Native: components, props, state, hooks\n\nThe rebuild is 104 files of small functions that each return a piece of screen. Learn the four words in this title and you can read any of them, and most of the apps on your phone.\n\nLAST TIME\n\nA type is a note about the shape of a value, checked by a proofreader that never runs your code. Unions say \"one of these\", strict mode forces you to handle null, and every annotation is erased before the phone runs anything. That proofreader is what catches an agent inventing a property name.\n\nQuick check\n\nChapter 14: what are the two ways to get a change onto the screen?\n\nChapter 12: await does not freeze the app. What is it actually doing?\n\nChapter 21: your phone runs the TypeScript you wrote. True or false?\n\nThe idea\n\nA component is a function that takes inputs and returns a description of what should be on screen. Not a class, not a widget, not a magic object. A function.\n\nIts inputs come from two places. Props are handed down by whoever used the component, and it may not change them: the parent's data, on loan. State is the component's own memory, and when it changes the component runs again and the screen updates. Same props and same state, same screen, every time.\n\nANALOGY (TEMPORARY)\n\nA chef at a station. The ingredients come from the kitchen, already chosen, and the chef cannot change what was sent. That is props. In the chef's pocket is a notebook with tonight's plate count. That is state. Given the same ingredients and the same notebook, the chef plates the identical dish every time. When the notebook changes, the dish is plated again and the new plate replaces the old one.\n\nRedrawing, and why nobody touches the screen\n\nChapter 14 gave you the two styles. Memento's web app is imperative: something happens, code finds the element, code edits it. React is the other one. You never edit the screen. You change state, React calls your component again, compares what it returns with what is on screen, and applies the smallest set of real changes itself. That second run is a re-render , cheap because it is mostly comparison. The payoff: the screen cannot drift out of step with the data, because it is only ever produced from the data. The cost: you say what you want, not how to get there, which feels backwards for about a week.\n\nWhat the function returns"
+      "block": 0,
+      "text": "React and React Native: components, props, state, hooks"
     },
     {
-      "blocks": [
-        16,
-        17,
-        18,
-        19,
-        20,
-        21,
-        22,
-        23,
-        24,
-        25,
-        26,
-        27,
-        28,
-        29,
-        30,
-        31,
-        32,
-        33,
-        34,
-        35,
-        36
-      ],
-      "text": "Components return JSX , HTML-shaped syntax inside JavaScript: <Text>{label}</Text> . It is not HTML and not a string. The build turns every tag into a function call, so that line becomes roughly createElement(Text, null, label) . Curly braces drop a value into the middle, and a capitalised tag is one of your own components. Nesting them builds the component tree : a screen is a component holding components, down to the ones that actually draw something. Reading an unfamiliar React app means finding the top of that tree and walking down.\n\nHooks: how a function remembers\n\nA function forgets everything when it returns, so React provides hooks : functions whose names start with use , which attach memory to a component.\n\nHook\n\nGives you\n\nUse it when\n\nuseState\n\nA value and a setter: const [n, setN] = useState(0)\n\nThe screen must change when this changes.\n\nuseEffect\n\nWork that runs after drawing, plus a function that undoes it\n\nTimers, subscriptions, anything outside React.\n\nuseRef\n\nA box that survives redraws and never causes one\n\nYou must remember something the screen does not show.\n\nuseCallback\n\nThe same function object across redraws\n\nHanding a function to a child that would otherwise redraw for nothing.\n\nThe one that bites people is useEffect . It takes a job and a list of things to watch, and it may return a cleanup function . React runs that cleanup before running the job again, and when the component leaves the screen. Start a timer with no cleanup and it fires into a screen that no longer exists. Half the crashes in a young React app are exactly that.\n\nReact Native: same model, no browser\n\nReact Native keeps all of the above and changes the tags. There is no DOM. <View> , <Text> and <Pressable> become the real native views iOS and Android already have, so scrolling, text selection and the keyboard are the platform's own. Styling is a style object in JavaScript instead of a CSS file: same properties, camelCased, no cascade, no selectors, in the component's own file."
+      "block": 1,
+      "text": "The rebuild is 104 files of small functions that each return a piece of screen. Learn the four words in this title and you can read any of them, and most of the apps on your phone."
     },
     {
-      "blocks": [
-        37,
-        38,
-        39,
-        40,
-        41,
-        42,
-        43,
-        44,
-        45,
-        46,
-        47,
-        48,
-        49,
-        50,
-        51,
-        52
-      ],
-      "text": "Expo is the toolkit around it: build system, native modules, packaging. expo-router turns files into screens, so src/app/index.tsx is the first screen and src/app/_layout.tsx wraps everything. Running on a phone needs a dev build : a real app installed once, holding the project's native pieces, that loads your JavaScript over the network as you edit. On a Mac it runs in the simulator , a fake iPhone in a window that belongs to Xcode, which is why Xcode is installed even though nobody opens it. Shipping means Apple's review and a cut of anything bought inside the app.\n\nSee it\n\nReact will not run in this page, so here is a model of it: thirty lines that behave like React and are not React. Components are functions returning strings of HTML, and one render rebuilds the root from state. Press Run, then tap the button.\n\nNothing there reaches into the page to edit a number. The click changes state, the screen is rebuilt from state. Real React does the same, except it compares old and new trees and touches only what differs. Delete the render() call inside setState and you get the web app's classic bug: the data moves and the screen does not.\n\nNow in Memento\n\nANY APP\n\nEvery React app has one component at the very top, running before any screen. It loads what the app needs, holds the splash until that is ready, and renders the navigator that picks the screen. First file to open in a codebase you do not know.\n\nMEMENTO\n\nA list of decisions. useFonts is a hook, so it re-renders this component when the fonts load. The first useEffect has an empty watch list, so it runs once ever; the second watches loaded and error , so it runs again whenever either changes. return null is a component drawing nothing yet, so no screen flashes in the wrong typeface. Then one line of JSX puts <Stack> , the router's navigator, under the whole app.\n\nIt is the root because of where it sits. src/app/_layout.tsx is a name expo-router recognises. Nothing registers it, nothing imports it. The folder is the configuration.\n\nThe versions, and the doors that only open in development\n\nThe first screen's file opens by reading switches out of the environment, chapter 19's mechanism exactly.\n\nTwo dev-preview gates, entry and feel. __DEV__ is true only in a dev build, so both are gone from anything that ships. The versions underneath are pinned to the number, not a range.\n\nPackage\n\nVersion\n\nWhat it is"
+      "block": 2,
+      "text": "LAST TIME"
     },
     {
-      "blocks": [
-        53,
-        54,
-        55,
-        56,
-        57,
-        58,
-        59,
-        60,
-        61,
-        62,
-        63,
-        64,
-        65,
-        66,
-        67,
-        68,
-        69,
-        70,
-        71,
-        72,
-        73,
-        74,
-        75,
-        76
-      ],
-      "text": "expo\n\n57.0.22\n\nThe toolkit and build system.\n\nexpo-router\n\n57.0.21\n\nFiles in src/app/ become screens.\n\nreact\n\n19.2.3\n\nComponents, props, state, hooks. The model itself.\n\nreact-native\n\n0.86.3\n\nThe part that draws native views instead of HTML.\n\nA real component, top to bottom\n\nThe props list is the component's contract, typed by chapter 21. onComplete: () => void is how a child talks back up: the button does not know what completing means, only who to tell.\n\nThen four useRef calls, and why they are refs and not state is the lesson. Whether a finger is down changes many times a second and must never redraw the button. A ref survives every redraw and never triggers one. State is for what the screen shows, refs for what the component must remember.\n\nTwo effects, both about cleanup. The first watches props.actionKey : a new action arrives, cancel the animation, re-arm. The second's body is a function, so it does nothing going in and runs that function on the way out. When the button leaves the screen, kill the timer, because a timer firing into a component that no longer exists is a crash.\n\nThree guard clauses from chapter 10, then two things started together: an animation filling the button over HOLD_MS , and a timer firing at the same moment to do the completing. useCallback keeps the function object the same between redraws. At three seconds finish runs and calls onComplete.current() .\n\nTokens and a hook of your own\n\nThe web app's tokens are CSS variables. Here they are an object, because there is no stylesheet to put them in. useTheme is a hook you wrote yourself, and only a hook because it calls one. The phone switching to light mode re-renders every component that called it.\n\nWhere state changes actually live\n\nBig flows do not keep their state in a component. Clarity's whole journey is a reducer : one pure function taking the current state and an event, returning the next state. No screens, no network.\n\nEvery case returns a new object built with the spread from chapter 11, never an edit of the old one, which makes it testable without a screen: feed it a state and an event, check what comes back. Components stay thin, showing the state and sending events.\n\nTHE WEB TWIN (imperative)\n\nFour explicit instructions to four parts of the screen. Forget one and a corner of the app goes stale. Nothing is wrong with this code. It is a list a human maintains by hand."
+      "block": 3,
+      "text": "A type is a note about the shape of a value, checked by a proofreader that never runs your code. Unions say \"one of these\", strict mode forces you to handle null, and every annotation is erased before the phone runs anything. That proofreader is what catches an agent inventing a property name."
     },
     {
-      "blocks": [
-        77,
-        78,
-        79,
-        80,
-        81,
-        82,
-        83,
-        84,
-        85,
-        86,
-        87,
-        88,
-        89,
-        90,
-        91,
-        92
-      ],
-      "text": "THE NATIVE VERSION (declarative)\n\nThere is no equivalent function, and that is the point. State changes, the components that read it run again, and every part is correct because it was drawn from the new state. Nobody keeps a list of what to refresh. The trade: less control over exactly when a piece of screen updates, in exchange for a guarantee that it cannot be forgotten.\n\nMemento Jr, React Native version\n\nRead only for now: the sandbox app's hold button written the way the real one is, cut to the bones.\n\nTwo props, one piece of state, one ref, one cleanup, two callbacks, three tags. The real one adds a typed theme, an animation, haptics, a re-arming key and an inverted twin layer sweeping across the label. Same skeleton.\n\nTHE ALTERNATIVE, AND WHY MEMENTO CHOSE THIS\n\nThe alternatives: wrap the web app, write Swift for iPhone and Kotlin for Android, or rebuild once in React Native. The decision is on record, in writing, before any code.\n\nTwo phone platforms from one codebase decided it. Two native codebases would double every screen, every fix and every review round, for a product one founder and two agents maintain. The bill is Apple's 15% under their small business programme, accepted on purpose rather than discovered later. The other cost: React Native sits between you and the platform, so anything new on iOS arrives when the library catches up.\n\nThe same document explains the storage choice. MMKV is used from day one because its reads are synchronous once the app has hydrated, so the first frame is drawn with real data instead of a flash of empty state that corrects itself. Hydration finishes before first render and the splash holds until it does. The same fear _layout.tsx answers with the fonts.\n\nDo it\n\nExercise MAC\n\nOpen the file. Read the comment block at the top first, it names the frozen web code this came from.\n\nAnswer on paper: what are its props? What state does it own? What does each useEffect clean up? What happens at three seconds?\n\nOpen the check when you have four answers written down.\n\nThe four answers\n\nProps: theme , typeface , width , onComplete required; completed , actionKey , label , icon optional. All typed in the signature at line 22."
+      "block": 4,
+      "text": "Quick check"
     },
     {
-      "blocks": [
-        93,
-        94,
-        95,
-        96,
-        97,
-        98,
-        99,
-        100,
-        101,
-        102,
-        103,
-        104,
-        105,
-        106,
-        107,
-        108,
-        109,
-        110,
-        111,
-        112,
-        113,
-        114,
-        115,
-        116,
-        117,
-        118,
-        119,
-        120,
-        121,
-        122
-      ],
-      "text": "State: almost none, which is the interesting answer. Nothing uses useState . There is a shared animation value and four refs: holding , finished , timer , and one holding the latest onComplete . None of them redraw, because none of them are what the screen shows.\n\nCleanups: the first effect re-arms on a new actionKey : clear the timer, cancel the animation, reset progress. The second returns a function and does nothing else, so its whole job is the unmount cleanup: clear the timer, drop the holding flag, so nothing fires after the button is gone.\n\nAt three seconds: the setTimeout from begin fires finish , which refuses if the finger lifted or it already fired, marks itself finished, triggers a light haptic whose failure is swallowed on purpose, and calls onComplete.current() . The parent decides what completing means.\n\nExercise, phone version phone or Mac\n\nAdd a component Title that returns '<h3>Memento Jr</h3>' and put it first inside App .\n\nGive StreakText a second prop, label , passed from App . Props travel down, never up.\n\nDelete the render() call inside setState and press the button. That one line is what React does for you.\n\nASK THE AGENT WHY (paste this into Codex or Fable)\n\nWORDS YOU NOW OWN\n\nComponent\n\nA function that takes props and returns what to draw. The unit everything else is made of.\n\nProps\n\nInputs handed down from the parent. Read only. Data goes down the tree, never up.\n\nState (in a component)\n\nMemory the component owns. Changing it redraws. Only for things the screen shows.\n\nRe-render\n\nReact calling your function again after state changed, comparing the result to what is on screen, and applying the difference.\n\nJSX\n\nHTML-shaped syntax that the build turns into plain function calls. Capitalised tag means your component.\n\nComponent tree\n\nComponents nested inside components. Where you start reading an unfamiliar app.\n\nHook\n\nA use -prefixed function that gives a component memory or behaviour. Called in the same order every render, never inside an if.\n\nuseState / useRef\n\nA value plus a setter, changing it redraws / a box that survives redraws and never causes one.\n\nuseEffect and its cleanup\n\nWork after drawing, plus the function that undoes it. The cleanup runs before the next run and when the component leaves.\n\nuseCallback\n\nKeeps the same function object between renders so children do not redraw for nothing.\n\nReducer"
+      "block": 5,
+      "text": "Chapter 14: what are the two ways to get a change onto the screen?"
     },
     {
-      "blocks": [
-        123,
-        124,
-        125,
-        126,
-        127,
-        128,
-        129,
-        130,
-        131,
-        132,
-        133,
-        134,
-        135
-      ],
-      "text": "A pure function from (state, event) to the next state. Where a big flow's logic lives, testable without a screen.\n\nStyle object\n\nStyles as JavaScript next to the component. Same properties as CSS, camelCased, no cascade.\n\nExpo / expo-router\n\nThe toolkit around React Native / the router where a file in src/app/ is a screen.\n\nDev build\n\nA real app installed once, holding the project's native pieces, that loads your JavaScript as you edit.\n\nSimulator\n\nA fake iPhone in a window on the Mac, provided by Xcode. Not a real device, and it will lie to you about safe areas and performance.\n\nWHERE TODAY'S ANALOGY BREAKS\n\nBreaks when: you believe the dish really is plated from scratch. React produces a fresh description, then changes only the parts of the real screen that differ. Native views that stayed are the same objects they were, which is why a text field keeps its cursor through a re-render and the chef picture predicts the opposite. It breaks again on refs, effects and timers, the chef reaching outside the station: they survive re-plating, and uncleaned they carry on after the chef has gone home. Real model: a component is a description of a screen, re-run when its inputs change, and anything outside that description is created and destroyed by hand through effects.\n\nRABBIT HOLE: why hooks may not go inside an if\n\nReact does not know your hooks' names. It matches them by call order: first, second, third. A hook inside an if changes the count between renders, so React hands your second hook the memory belonging to your third. Hence the rule, hooks at the top level always, enforced by a lint rule in every React project alive. One strange rule, in exchange for components that stay simple functions instead of classes."
+      "block": 6,
+      "text": "Imperative: find the element and change it yourself. Declarative: change the state and let a framework redraw from it. The web app is the first. Today is the second, in full."
+    },
+    {
+      "block": 7,
+      "text": "Chapter 12: await does not freeze the app. What is it actually doing?"
+    },
+    {
+      "block": 8,
+      "text": "Handing the single thread back so other work can run, with a note to come back to this line when the answer arrives. That is why the screen still responds while a request is in flight."
+    },
+    {
+      "block": 9,
+      "text": "Chapter 21: your phone runs the TypeScript you wrote. True or false?"
+    },
+    {
+      "block": 10,
+      "text": "False. Types are erased at build time and the phone runs plain JavaScript. They existed only for the proofreader, before shipping."
+    },
+    {
+      "block": 11,
+      "text": "The idea"
+    },
+    {
+      "block": 12,
+      "text": "A component is a function that takes inputs and returns a description of what should be on screen. Not a class, not a widget, not a magic object. A function."
+    },
+    {
+      "block": 13,
+      "text": "Its inputs come from two places. Props are handed down by whoever used the component, and it may not change them: the parent's data, on loan. State is the component's own memory, and when it changes the component runs again and the screen updates. Same props and same state, same screen, every time."
+    },
+    {
+      "block": 14,
+      "text": "ANALOGY (TEMPORARY)"
+    },
+    {
+      "block": 15,
+      "text": "A chef at a station. The ingredients come from the kitchen, already chosen, and the chef cannot change what was sent. That is props. In the chef's pocket is a notebook with tonight's plate count. That is state. Given the same ingredients and the same notebook, the chef plates the identical dish every time. When the notebook changes, the dish is plated again and the new plate replaces the old one."
+    },
+    {
+      "block": 16,
+      "text": "Data goes down the tree as props. State lives where it is owned, and changing it redraws that component and everything under it. Hooks are the only way a function keeps anything between calls."
+    },
+    {
+      "block": 17,
+      "text": "Redrawing, and why nobody touches the screen"
+    },
+    {
+      "block": 18,
+      "text": "Chapter 14 gave you the two styles. Memento's web app is imperative: something happens, code finds the element, code edits it. React is the other one. You never edit the screen. You change state, React calls your component again, compares what it returns with what is on screen, and applies the smallest set of real changes itself. That second run is a re-render , cheap because it is mostly comparison. The payoff: the screen cannot drift out of step with the data, because it is only ever produced from the data. The cost: you say what you want, not how to get there, which feels backwards for about a week."
+    },
+    {
+      "block": 19,
+      "text": "What the function returns"
+    },
+    {
+      "block": 20,
+      "text": "Components return JSX , HTML-shaped syntax inside JavaScript: <Text>{label}</Text> . It is not HTML and not a string. The build turns every tag into a function call, so that line becomes roughly createElement(Text, null, label) . Curly braces drop a value into the middle, and a capitalised tag is one of your own components. Nesting them builds the component tree : a screen is a component holding components, down to the ones that actually draw something. Reading an unfamiliar React app means finding the top of that tree and walking down."
+    },
+    {
+      "block": 21,
+      "text": "Hooks: how a function remembers"
+    },
+    {
+      "block": 22,
+      "text": "A function forgets everything when it returns, so React provides hooks : functions whose names start with use , which attach memory to a component."
+    },
+    {
+      "block": 23,
+      "text": "Hook"
+    },
+    {
+      "block": 24,
+      "text": "Gives you"
+    },
+    {
+      "block": 25,
+      "text": "Use it when"
+    },
+    {
+      "block": 26,
+      "text": "useState"
+    },
+    {
+      "block": 27,
+      "text": "A value and a setter: const [n, setN] = useState(0)"
+    },
+    {
+      "block": 28,
+      "text": "The screen must change when this changes."
+    },
+    {
+      "block": 29,
+      "text": "useEffect"
+    },
+    {
+      "block": 30,
+      "text": "Work that runs after drawing, plus a function that undoes it"
+    },
+    {
+      "block": 31,
+      "text": "Timers, subscriptions, anything outside React."
+    },
+    {
+      "block": 32,
+      "text": "useRef"
+    },
+    {
+      "block": 33,
+      "text": "A box that survives redraws and never causes one"
+    },
+    {
+      "block": 34,
+      "text": "You must remember something the screen does not show."
+    },
+    {
+      "block": 35,
+      "text": "useCallback"
+    },
+    {
+      "block": 36,
+      "text": "The same function object across redraws"
+    },
+    {
+      "block": 37,
+      "text": "Handing a function to a child that would otherwise redraw for nothing."
+    },
+    {
+      "block": 38,
+      "text": "The one that bites people is useEffect . It takes a job and a list of things to watch, and it may return a cleanup function . React runs that cleanup before running the job again, and when the component leaves the screen. Start a timer with no cleanup and it fires into a screen that no longer exists. Half the crashes in a young React app are exactly that."
+    },
+    {
+      "block": 39,
+      "text": "React Native: same model, no browser"
+    },
+    {
+      "block": 40,
+      "text": "React Native keeps all of the above and changes the tags. There is no DOM. <View> , <Text> and <Pressable> become the real native views iOS and Android already have, so scrolling, text selection and the keyboard are the platform's own. Styling is a style object in JavaScript instead of a CSS file: same properties, camelCased, no cascade, no selectors, in the component's own file."
+    },
+    {
+      "block": 41,
+      "text": "Expo is the toolkit around it: build system, native modules, packaging. expo-router turns files into screens, so src/app/index.tsx is the first screen and src/app/_layout.tsx wraps everything. Running on a phone needs a dev build : a real app installed once, holding the project's native pieces, that loads your JavaScript over the network as you edit. On a Mac it runs in the simulator , a fake iPhone in a window that belongs to Xcode, which is why Xcode is installed even though nobody opens it. Shipping means Apple's review and a cut of anything bought inside the app."
+    },
+    {
+      "block": 42,
+      "text": "See it"
+    },
+    {
+      "block": 43,
+      "text": "React will not run in this page, so here is a model of it: thirty lines that behave like React and are not React. Components are functions returning strings of HTML, and one render rebuilds the root from state. Press Run, then tap the button."
+    },
+    {
+      "block": 44,
+      "text": "Nothing there reaches into the page to edit a number. The click changes state, the screen is rebuilt from state. Real React does the same, except it compares old and new trees and touches only what differs. Delete the render() call inside setState and you get the web app's classic bug: the data moves and the screen does not."
+    },
+    {
+      "block": 45,
+      "text": "Now in Memento"
+    },
+    {
+      "block": 46,
+      "text": "ANY APP"
+    },
+    {
+      "block": 47,
+      "text": "Every React app has one component at the very top, running before any screen. It loads what the app needs, holds the splash until that is ready, and renders the navigator that picks the screen. First file to open in a codebase you do not know."
+    },
+    {
+      "block": 48,
+      "text": "MEMENTO"
+    },
+    {
+      "block": 49,
+      "text": "A list of decisions. useFonts is a hook, so it re-renders this component when the fonts load. The first useEffect has an empty watch list, so it runs once ever; the second watches loaded and error , so it runs again whenever either changes. return null is a component drawing nothing yet, so no screen flashes in the wrong typeface. Then one line of JSX puts <Stack> , the router's navigator, under the whole app."
+    },
+    {
+      "block": 50,
+      "text": "It is the root because of where it sits. src/app/_layout.tsx is a name expo-router recognises. Nothing registers it, nothing imports it. The folder is the configuration."
+    },
+    {
+      "block": 51,
+      "text": "The versions, and the doors that only open in development"
+    },
+    {
+      "block": 52,
+      "text": "The first screen's file opens by reading switches out of the environment, chapter 19's mechanism exactly."
+    },
+    {
+      "block": 53,
+      "text": "Two dev-preview gates, entry and feel. __DEV__ is true only in a dev build, so both are gone from anything that ships. The versions underneath are pinned to the number, not a range."
+    },
+    {
+      "block": 54,
+      "text": "Package"
+    },
+    {
+      "block": 55,
+      "text": "Version"
+    },
+    {
+      "block": 56,
+      "text": "What it is"
+    },
+    {
+      "block": 57,
+      "text": "expo"
+    },
+    {
+      "block": 58,
+      "text": "57.0.22"
+    },
+    {
+      "block": 59,
+      "text": "The toolkit and build system."
+    },
+    {
+      "block": 60,
+      "text": "expo-router"
+    },
+    {
+      "block": 61,
+      "text": "57.0.21"
+    },
+    {
+      "block": 62,
+      "text": "Files in src/app/ become screens."
+    },
+    {
+      "block": 63,
+      "text": "react"
+    },
+    {
+      "block": 64,
+      "text": "19.2.3"
+    },
+    {
+      "block": 65,
+      "text": "Components, props, state, hooks. The model itself."
+    },
+    {
+      "block": 66,
+      "text": "react-native"
+    },
+    {
+      "block": 67,
+      "text": "0.86.3"
+    },
+    {
+      "block": 68,
+      "text": "The part that draws native views instead of HTML."
+    },
+    {
+      "block": 69,
+      "text": "A real component, top to bottom"
+    },
+    {
+      "block": 70,
+      "text": "The props list is the component's contract, typed by chapter 21. onComplete: () => void is how a child talks back up: the button does not know what completing means, only who to tell."
+    },
+    {
+      "block": 71,
+      "text": "Then four useRef calls, and why they are refs and not state is the lesson. Whether a finger is down changes many times a second and must never redraw the button. A ref survives every redraw and never triggers one. State is for what the screen shows, refs for what the component must remember."
+    },
+    {
+      "block": 72,
+      "text": "Two effects, both about cleanup. The first watches props.actionKey : a new action arrives, cancel the animation, re-arm. The second's body is a function, so it does nothing going in and runs that function on the way out. When the button leaves the screen, kill the timer, because a timer firing into a component that no longer exists is a crash."
+    },
+    {
+      "block": 73,
+      "text": "Three guard clauses from chapter 10, then two things started together: an animation filling the button over HOLD_MS , and a timer firing at the same moment to do the completing. useCallback keeps the function object the same between redraws. At three seconds finish runs and calls onComplete.current() ."
+    },
+    {
+      "block": 74,
+      "text": "Tokens and a hook of your own"
+    },
+    {
+      "block": 75,
+      "text": "The web app's tokens are CSS variables. Here they are an object, because there is no stylesheet to put them in. useTheme is a hook you wrote yourself, and only a hook because it calls one. The phone switching to light mode re-renders every component that called it."
+    },
+    {
+      "block": 76,
+      "text": "Where state changes actually live"
+    },
+    {
+      "block": 77,
+      "text": "Big flows do not keep their state in a component. Clarity's whole journey is a reducer : one pure function taking the current state and an event, returning the next state. No screens, no network."
+    },
+    {
+      "block": 78,
+      "text": "Every case returns a new object built with the spread from chapter 11, never an edit of the old one, which makes it testable without a screen: feed it a state and an event, check what comes back. Components stay thin, showing the state and sending events."
+    },
+    {
+      "block": 79,
+      "text": "THE WEB TWIN (imperative)"
+    },
+    {
+      "block": 80,
+      "text": "Four explicit instructions to four parts of the screen. Forget one and a corner of the app goes stale. Nothing is wrong with this code. It is a list a human maintains by hand."
+    },
+    {
+      "block": 81,
+      "text": "THE NATIVE VERSION (declarative)"
+    },
+    {
+      "block": 82,
+      "text": "There is no equivalent function, and that is the point. State changes, the components that read it run again, and every part is correct because it was drawn from the new state. Nobody keeps a list of what to refresh. The trade: less control over exactly when a piece of screen updates, in exchange for a guarantee that it cannot be forgotten."
+    },
+    {
+      "block": 83,
+      "text": "Memento Jr, React Native version"
+    },
+    {
+      "block": 84,
+      "text": "Read only for now: the sandbox app's hold button written the way the real one is, cut to the bones."
+    },
+    {
+      "block": 85,
+      "text": "Two props, one piece of state, one ref, one cleanup, two callbacks, three tags. The real one adds a typed theme, an animation, haptics, a re-arming key and an inverted twin layer sweeping across the label. Same skeleton."
+    },
+    {
+      "block": 86,
+      "text": "THE ALTERNATIVE, AND WHY MEMENTO CHOSE THIS"
+    },
+    {
+      "block": 87,
+      "text": "The alternatives: wrap the web app, write Swift for iPhone and Kotlin for Android, or rebuild once in React Native. The decision is on record, in writing, before any code."
+    },
+    {
+      "block": 88,
+      "text": "Two phone platforms from one codebase decided it. Two native codebases would double every screen, every fix and every review round, for a product one founder and two agents maintain. The bill is Apple's 15% under their small business programme, accepted on purpose rather than discovered later. The other cost: React Native sits between you and the platform, so anything new on iOS arrives when the library catches up."
+    },
+    {
+      "block": 89,
+      "text": "The same document explains the storage choice. MMKV is used from day one because its reads are synchronous once the app has hydrated, so the first frame is drawn with real data instead of a flash of empty state that corrects itself. Hydration finishes before first render and the splash holds until it does. The same fear _layout.tsx answers with the fonts."
+    },
+    {
+      "block": 90,
+      "text": "Do it"
+    },
+    {
+      "block": 91,
+      "text": "Exercise MAC"
+    },
+    {
+      "block": 92,
+      "text": "Open the file. Read the comment block at the top first, it names the frozen web code this came from."
+    },
+    {
+      "block": 93,
+      "text": "Answer on paper: what are its props? What state does it own? What does each useEffect clean up? What happens at three seconds?"
+    },
+    {
+      "block": 94,
+      "text": "Open the check when you have four answers written down."
+    },
+    {
+      "block": 95,
+      "text": "The four answers"
+    },
+    {
+      "block": 96,
+      "text": "Props: theme , typeface , width , onComplete required; completed , actionKey , label , icon optional. All typed in the signature at line 22. State: almost none, which is the interesting answer. Nothing uses useState . There is a shared animation value and four refs: holding , finished , timer , and one holding the latest onComplete . None of them redraw, because none of them are what the screen shows. Cleanups: the first effect re-arms on a new actionKey : clear the timer, cancel the animation, reset progress. The second returns a function and does nothing else, so its whole job is the unmount cleanup: clear the timer, drop the holding flag, so nothing fires after the button is gone. At three seconds: the setTimeout from begin fires finish , which refuses if the finger lifted or it already fired, marks itself finished, triggers a light haptic whose failure is swallowed on purpose, and calls onComplete.current() . The parent decides what completing means."
+    },
+    {
+      "block": 97,
+      "text": "Exercise, phone version phone or Mac"
+    },
+    {
+      "block": 98,
+      "text": "Add a component Title that returns '<h3>Memento Jr</h3>' and put it first inside App ."
+    },
+    {
+      "block": 99,
+      "text": "Give StreakText a second prop, label , passed from App . Props travel down, never up."
+    },
+    {
+      "block": 100,
+      "text": "Delete the render() call inside setState and press the button. That one line is what React does for you."
+    },
+    {
+      "block": 101,
+      "text": "ASK THE AGENT WHY (paste this into Codex or Fable)"
+    },
+    {
+      "block": 102,
+      "text": "WORDS YOU NOW OWN"
+    },
+    {
+      "block": 103,
+      "text": "Component"
+    },
+    {
+      "block": 104,
+      "text": "A function that takes props and returns what to draw. The unit everything else is made of."
+    },
+    {
+      "block": 105,
+      "text": "Props"
+    },
+    {
+      "block": 106,
+      "text": "Inputs handed down from the parent. Read only. Data goes down the tree, never up."
+    },
+    {
+      "block": 107,
+      "text": "State (in a component)"
+    },
+    {
+      "block": 108,
+      "text": "Memory the component owns. Changing it redraws. Only for things the screen shows."
+    },
+    {
+      "block": 109,
+      "text": "Re-render"
+    },
+    {
+      "block": 110,
+      "text": "React calling your function again after state changed, comparing the result to what is on screen, and applying the difference."
+    },
+    {
+      "block": 111,
+      "text": "JSX"
+    },
+    {
+      "block": 112,
+      "text": "HTML-shaped syntax that the build turns into plain function calls. Capitalised tag means your component."
+    },
+    {
+      "block": 113,
+      "text": "Component tree"
+    },
+    {
+      "block": 114,
+      "text": "Components nested inside components. Where you start reading an unfamiliar app."
+    },
+    {
+      "block": 115,
+      "text": "Hook"
+    },
+    {
+      "block": 116,
+      "text": "A use -prefixed function that gives a component memory or behaviour. Called in the same order every render, never inside an if."
+    },
+    {
+      "block": 117,
+      "text": "useState / useRef"
+    },
+    {
+      "block": 118,
+      "text": "A value plus a setter, changing it redraws / a box that survives redraws and never causes one."
+    },
+    {
+      "block": 119,
+      "text": "useEffect and its cleanup"
+    },
+    {
+      "block": 120,
+      "text": "Work after drawing, plus the function that undoes it. The cleanup runs before the next run and when the component leaves."
+    },
+    {
+      "block": 121,
+      "text": "useCallback"
+    },
+    {
+      "block": 122,
+      "text": "Keeps the same function object between renders so children do not redraw for nothing."
+    },
+    {
+      "block": 123,
+      "text": "Reducer"
+    },
+    {
+      "block": 124,
+      "text": "A pure function from (state, event) to the next state. Where a big flow's logic lives, testable without a screen."
+    },
+    {
+      "block": 125,
+      "text": "Style object"
+    },
+    {
+      "block": 126,
+      "text": "Styles as JavaScript next to the component. Same properties as CSS, camelCased, no cascade."
+    },
+    {
+      "block": 127,
+      "text": "Expo / expo-router"
+    },
+    {
+      "block": 128,
+      "text": "The toolkit around React Native / the router where a file in src/app/ is a screen."
+    },
+    {
+      "block": 129,
+      "text": "Dev build"
+    },
+    {
+      "block": 130,
+      "text": "A real app installed once, holding the project's native pieces, that loads your JavaScript as you edit."
+    },
+    {
+      "block": 131,
+      "text": "Simulator"
+    },
+    {
+      "block": 132,
+      "text": "A fake iPhone in a window on the Mac, provided by Xcode. Not a real device, and it will lie to you about safe areas and performance."
+    },
+    {
+      "block": 133,
+      "text": "WHERE TODAY'S ANALOGY BREAKS"
+    },
+    {
+      "block": 134,
+      "text": "Breaks when: you believe the dish really is plated from scratch. React produces a fresh description, then changes only the parts of the real screen that differ. Native views that stayed are the same objects they were, which is why a text field keeps its cursor through a re-render and the chef picture predicts the opposite. It breaks again on refs, effects and timers, the chef reaching outside the station: they survive re-plating, and uncleaned they carry on after the chef has gone home. Real model: a component is a description of a screen, re-run when its inputs change, and anything outside that description is created and destroyed by hand through effects."
+    },
+    {
+      "block": 135,
+      "text": "RABBIT HOLE: why hooks may not go inside an if"
+    },
+    {
+      "block": 136,
+      "text": "React does not know your hooks' names. It matches them by call order: first, second, third. A hook inside an if changes the count between renders, so React hands your second hook the memory belonging to your third. Hence the rule, hooks at the top level always, enforced by a lint rule in every React project alive. One strange rule, in exchange for components that stay simple functions instead of classes."
     }
   ],
-  "wordCount": 2664
+  "wordCount": 2786
 }

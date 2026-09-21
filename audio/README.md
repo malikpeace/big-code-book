@@ -1,6 +1,6 @@
 # BIG CODE BOOK audio
 
-The audiobook uses OpenAI `gpt-4o-mini-tts` with the `marin` voice. Final chapter audio lives in `chapters/`; paragraph timing and metadata live in `manifest.json`.
+The audiobook uses OpenAI `gpt-4o-mini-tts` with the `marin` voice. Final chapter audio lives in `chapters/`; exact paragraph timing and metadata live in `manifest.json`. Each narratable block is generated separately and assembled into a chapter, so synchronization does not require a second paid transcription pass.
 
 Regenerate the narration scripts after chapter prose changes:
 

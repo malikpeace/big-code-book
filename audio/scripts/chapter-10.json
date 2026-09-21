@@ -36,445 +36,678 @@
     },
     {
       "index": 6,
-      "tag": "summary",
-      "text": "What does typeof \"7\" print, and why does it matter?"
+      "tag": "div",
+      "text": "Whatever streak was pointing at when that line ran. The two names were never linked. Assignment reads the right side once and points the left name at the result."
     },
     {
       "index": 7,
       "tag": "summary",
-      "text": "What is a commit, physically?"
+      "text": "What does typeof \"7\" print, and why does it matter?"
     },
     {
       "index": 8,
+      "tag": "div",
+      "text": "\"string\" . It matters because a string of digits does arithmetic wrong and silently. It glues instead of adding."
+    },
+    {
+      "index": 9,
+      "tag": "summary",
+      "text": "What is a commit, physically?"
+    },
+    {
+      "index": 10,
+      "tag": "div",
+      "text": "A snapshot of the whole folder at one moment, with a message, an author, and an id. History is a chain of them, each pointing at the one before."
+    },
+    {
+      "index": 11,
       "tag": "h2",
       "text": "The idea"
     },
     {
-      "index": 9,
+      "index": 12,
       "tag": "p",
       "text": "A function is a chunk of steps with a name on it. You write the steps once. Then anywhere in the app, any number of times, you say the name followed by brackets and the steps run."
     },
     {
-      "index": 10,
+      "index": 13,
       "tag": "p",
       "text": "Two words do all the work, and mixing them up is the beginner's mistake. Defining a function means writing the recipe down. Nothing happens. No step inside it runs. The machine notes the name and moves on. Calling it, writing its name followed by () , is what makes the steps run. A file full of definitions and no calls does precisely nothing."
     },
     {
-      "index": 11,
+      "index": 14,
       "tag": "div",
       "text": "ANALOGY (TEMPORARY)"
     },
     {
-      "index": 12,
+      "index": 15,
       "tag": "p",
       "text": "A recipe card and a cook. The card says \"carbonara: boil water, fry the guanciale, mix the eggs\". Writing that card feeds nobody. The cook reading the card out loud feeds somebody. Parameters are the blanks on the card: \"serves N people\". Arguments are the numbers you shout at the cook when you hand the card over: \"make it for four\". Return is the plate coming back. And the moment the cook hands the plate over, that recipe is finished; anything written after the \"hand over the plate\" line never gets read."
     },
     {
-      "index": 13,
+      "index": 16,
       "tag": "p",
       "text": "The shape, with every word labelled:"
     },
     {
-      "index": 14,
+      "index": 17,
       "tag": "p",
       "text": "Parameters are variables, and chapter 9's model applies exactly. They are name tags, tied to the values you passed in, and they only exist while the function is running. name is not a box the string went into. It is a tag on the string you handed over."
     },
     {
-      "index": 15,
+      "index": 18,
       "tag": "p",
       "text": "return does two things at once and people usually only notice the first. It hands a value back to whoever called, and it stops the function on the spot. Lines below a return that has just run are dead. That second behaviour is what makes guard clauses possible, and Memento is full of them."
     },
     {
-      "index": 16,
+      "index": 19,
       "tag": "p",
       "text": "A function with no return still hands something back: undefined , the machine's shrug from chapter 9. This is the most common confusing moment for a beginner. You call a function, it clearly did its job, you print the result, and you get undefined . Nothing is broken. You just never said what to hand back."
     },
     {
-      "index": 17,
+      "index": 20,
       "tag": "h3",
       "text": "The call stack"
     },
     {
-      "index": 18,
+      "index": 21,
       "tag": "p",
       "text": "Now the picture that pays for the whole chapter. While a program runs, it keeps a pile of index cards. Each card is one function currently in progress, and holds that function's own local names and the line it is paused on."
     },
     {
-      "index": 19,
+      "index": 22,
       "tag": "p",
       "text": "Call a function: a new card goes on top of the pile. That function calls another: another card on top. A function returns: its card is thrown away, and the machine resumes the card now on top, exactly where it paused. The pile is the call stack , and the only card being worked on is the top one."
     },
     {
-      "index": 20,
+      "index": 23,
+      "tag": "figcaption",
+      "text": "The pile of index cards. Chapter 23 reads real ones out of real crashes; today you only need to be able to draw it."
+    },
+    {
+      "index": 24,
       "tag": "p",
       "text": "Two things fall out of this picture for free. First, scope : names created inside a function live on that function's card, so they are thrown away when it returns. That is why a name from inside a function is invisible outside it, and why two functions can both use a name like text without colliding. Each has its own card."
     },
     {
-      "index": 21,
+      "index": 25,
       "tag": "p",
       "text": "Second, a stack trace . When something breaks, the machine prints the pile top to bottom: the function that broke, then who called it, then who called that. It reads like a chain of blame, and the useful line is usually not the top one, it is the first one that names a file you wrote."
     },
     {
-      "index": 22,
+      "index": 26,
       "tag": "h3",
       "text": "Guard clauses"
     },
     {
-      "index": 23,
+      "index": 27,
       "tag": "p",
       "text": "Because return stops the function, the cleanest way to handle a bad input is to check for it on the first line and leave. That is a guard clause : deal with the exits at the top, then write the real work with no nesting under it. The alternative is wrapping everything in an if and drifting three levels deep. Memento's small functions almost all open with one or two guards, and once you can spot them, you can read the real intent of a function in about four seconds."
     },
     {
-      "index": 24,
+      "index": 28,
       "tag": "h3",
       "text": "Arrow functions"
     },
     {
-      "index": 25,
+      "index": 29,
       "tag": "p",
       "text": "There is a second spelling. function add(a, b) { return a + b; } can also be written const add = (a, b) => a + b; . That is an arrow function : parameters left of the arrow, body on the right, and with a single-expression body the return is implied. Shorter, which matters most when a function is being handed to something else as an instruction, like \"when this is clicked, run this\". Memento uses both styles, often within a few lines of each other."
     },
     {
-      "index": 26,
+      "index": 30,
       "tag": "h2",
       "text": "See it"
     },
     {
-      "index": 27,
+      "index": 31,
       "tag": "p",
       "text": "Same rule as chapter 9, and it stays the rule. Predict what this prints. Then run. Six boxes, growing."
     },
     {
-      "index": 28,
+      "index": 32,
       "tag": "p",
       "text": "Box 2's second line is a quiet warning: passing \"12\" as text prints exactly the same sentence as passing 12 , because gluing text to text looks identical. That is where a type bug hides until the first time someone does maths on it. The third line is the one that teaches outright. Calling describe(\"Malik\") with one argument does not crash. The days parameter simply never gets tied to anything, so it is undefined , and the sentence comes out with the word undefined in it. The machine did exactly what you said, again."
     },
     {
-      "index": 29,
+      "index": 33,
       "tag": "h2",
       "text": "Now in Memento"
     },
     {
-      "index": 30,
+      "index": 34,
       "tag": "div",
       "text": "ANY APP: save, but not too often"
     },
     {
-      "index": 31,
+      "index": 35,
       "tag": "p",
       "text": "Saving on every change is wasteful. A user typing a sentence would trigger forty writes. The standard move: cancel any save that has not happened yet, then schedule one for a moment from now. Type fast and only the last survives. Pause and it lands. Before any of that, one guard: if saving would be wrong right now, leave immediately."
     },
     {
-      "index": 32,
+      "index": 36,
       "tag": "div",
       "text": "MEMENTO: persistState()"
     },
     {
-      "index": 33,
+      "index": 37,
       "tag": "p",
       "text": "Six lines, and you can now read every one. Line two is the guard: if this is a demo account or a reset is in progress, return, and the four lines below never run. Line four hands an arrow function to setTimeout as an instruction to carry out in 150 milliseconds. Note that persistState() returns nothing, so it hands back undefined . It was called for what it does, not for what it gives."
     },
     {
-      "index": 34,
+      "index": 38,
       "tag": "div",
       "text": "ANY APP: the double-submit guard"
     },
     {
-      "index": 35,
+      "index": 39,
       "tag": "p",
       "text": "A user taps Send twice, or taps Send with an empty box. Without a guard you get two requests for one answer, which in an AI product means paying twice and dropping two conflicting replies into one conversation. One line at the top stops both cases."
     },
     {
-      "index": 36,
+      "index": 40,
       "tag": "div",
       "text": "MEMENTO: sendAiAnswer()"
     },
     {
-      "index": 37,
+      "index": 41,
       "tag": "p",
       "text": "Read the guard out loud: if there is no text, or a request is already in flight, leave. Two failure cases, one line, zero nesting. The comment underneath says what it is protecting: money."
     },
     {
-      "index": 38,
+      "index": 42,
       "tag": "div",
       "text": "ANY APP: a function handed to something else"
     },
     {
-      "index": 39,
+      "index": 43,
       "tag": "p",
       "text": "\"When this is clicked, run this\" needs a this to run. So you hand a whole function over as a value, and something else calls it later, when the event happens. This is the moment a function stops looking like a recipe card."
     },
     {
-      "index": 40,
+      "index": 44,
       "tag": "div",
       "text": "MEMENTO: the tap from chapter 2"
     },
     {
-      "index": 41,
+      "index": 45,
       "tag": "p",
       "text": "Three arrow functions in six lines. The outer one is never called by Memento's own code at all. It is handed to the browser, which keeps it and calls it, with the tap event as its argument, possibly minutes later. The two inner ones get handed to forEach and called once per item."
     },
     {
-      "index": 42,
+      "index": 46,
       "tag": "div",
       "text": "THE ALTERNATIVE, AND WHY MEMENTO CHOSE THIS"
     },
     {
-      "index": 43,
+      "index": 47,
       "tag": "p",
       "text": "The alternative is to write straight to storage every time anything changes. One line shorter, always correct, and it would make typing in the note editor stutter on a real phone, because every write converts the entire state object to text first. The timer means a burst of forty changes costs one write. The price is a 150 millisecond window where a hard crash loses the last change, which for this app is nothing. A bigger timer, say two seconds, saves more work and widens that window to something a user would notice. 150 is the founder's bet on where the line sits. Chapter 25 comes back to this as a performance tool."
     },
     {
-      "index": 44,
+      "index": 48,
       "tag": "h2",
       "text": "Do it"
     },
     {
-      "index": 45,
+      "index": 49,
       "tag": "div",
       "text": "Exercise phone or Mac"
     },
     {
-      "index": 46,
+      "index": 50,
       "tag": "li",
       "text": "Trace it by hand first. Read box 1 below without running it. On paper, write the pile at five moments: just before start() is called, inside start() , inside loadPlan() , inside label() , and just after label() returns. Each moment is a list of cards, bottom to top."
     },
     {
-      "index": 47,
+      "index": 51,
       "tag": "li",
       "text": "Now predict the exact order of the printed lines. Write it down."
     },
     {
-      "index": 48,
+      "index": 52,
       "tag": "li",
       "text": "Run box 1. Compare with your paper. The printed depth marks show you the pile. Anywhere you were wrong, say in one sentence what rule you had wrong."
     },
     {
-      "index": 49,
+      "index": 53,
       "tag": "li",
       "text": "Break it, then fix it. Box 2 has a function that forgets to hand anything back. Run it and see the undefined . Fix it by adding one word, run again, and get a real sentence."
     },
     {
-      "index": 50,
+      "index": 54,
       "tag": "div",
       "text": "ASK THE AGENT WHY (paste this into Codex or Fable)"
     },
     {
-      "index": 51,
+      "index": 55,
       "tag": "div",
       "text": "WORDS YOU NOW OWN"
     },
     {
-      "index": 52,
+      "index": 56,
       "tag": "dt",
       "text": "Function"
     },
     {
-      "index": 53,
+      "index": 57,
       "tag": "dd",
       "text": "A named chunk of steps. Writing it down does nothing. Calling it runs it."
     },
     {
-      "index": 54,
+      "index": 58,
       "tag": "dt",
       "text": "Define vs call"
     },
     {
-      "index": 55,
+      "index": 59,
       "tag": "dd",
       "text": "Writing the recipe card vs handing it to the cook. Only the second one does work."
     },
     {
-      "index": 56,
+      "index": 60,
       "tag": "dt",
       "text": "Parameter / argument"
     },
     {
-      "index": 57,
+      "index": 61,
       "tag": "dd",
       "text": "The blank on the card / the value you hand over to fill it. Parameters are name tags that exist only while the function runs."
     },
     {
-      "index": 58,
+      "index": 62,
       "tag": "dt",
       "text": "return"
     },
     {
-      "index": 59,
+      "index": 63,
       "tag": "dd",
       "text": "Hands a value back and stops the function immediately. No return means the caller gets undefined ."
     },
     {
-      "index": 60,
+      "index": 64,
       "tag": "dt",
       "text": "Call stack"
     },
     {
-      "index": 61,
+      "index": 65,
       "tag": "dd",
       "text": "The pile of index cards for the functions currently in progress. Only the top one is running."
     },
     {
-      "index": 62,
+      "index": 66,
       "tag": "dt",
       "text": "Stack trace"
     },
     {
-      "index": 63,
+      "index": 67,
       "tag": "dd",
       "text": "A photograph of that pile at the moment something broke. Chapter 23 reads real ones."
     },
     {
-      "index": 64,
+      "index": 68,
       "tag": "dt",
       "text": "Scope"
     },
     {
-      "index": 65,
+      "index": 69,
       "tag": "dd",
       "text": "Names made inside a function live on its card and die when it returns. That is why they are invisible from outside."
     },
     {
-      "index": 66,
+      "index": 70,
       "tag": "dt",
       "text": "Guard clause"
     },
     {
-      "index": 67,
+      "index": 71,
       "tag": "dd",
       "text": "A check at the very top that returns early on a bad case, so the real work below stays flat and readable."
     },
     {
-      "index": 68,
+      "index": 72,
       "tag": "dt",
       "text": "Arrow function"
     },
     {
-      "index": 69,
+      "index": 73,
       "tag": "dd",
       "text": "A shorter spelling, (a, b) => a + b . Same idea, used most when a function is being handed to something else."
     },
     {
-      "index": 70,
+      "index": 74,
       "tag": "div",
       "text": "WHERE TODAY'S ANALOGY BREAKS"
     },
     {
-      "index": 71,
+      "index": 75,
       "tag": "p",
       "text": "Breaks when: you try to hand a recipe card to another recipe. In a kitchen you cannot pass carbonara as an ingredient. In JavaScript a function is itself a value, with a type, and it can be stored in a variable, put in an object, passed as an argument, and returned from another function. You already saw it in the Memento lane: the arrow function handed to addEventListener is never called by Memento's code, it is given away and called later by the browser. Real model: functions are values. A function passed to something else so it can be called later is a callback, and it is the backbone of every event and every network reply in the app. Chapter 12 takes that idea and builds the whole async story on it. A second, smaller break: the pile is not the only place a paused function can live. An await takes a card off the pile and puts it aside until the answer arrives, which is why the phone stays responsive while waiting on the AI. Also chapter 12."
     },
     {
-      "index": 72,
+      "index": 76,
       "tag": "summary",
       "text": "RABBIT HOLE: what a stack overflow actually is"
     },
     {
-      "index": 73,
+      "index": 77,
       "tag": "p",
       "text": "The pile has a size limit, a few thousand cards deep in most browsers. If a function calls itself with no way out, cards pile up until the limit, and the machine gives up with \"Maximum call stack size exceeded\". That message means one specific thing: something called something called something forever. It is the one error where the top of the stack trace is almost never the useful part, because the trace is the same three lines repeated a thousand times."
     }
   ],
   "segments": [
     {
-      "blocks": [
-        0,
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7,
-        8,
-        9,
-        10,
-        11,
-        12,
-        13,
-        14,
-        15
-      ],
-      "text": "JavaScript 2: functions and the call stack\n\nA function is a named recipe. Writing it down does nothing at all. Calling it is what runs it. Once you can see the pile of half-finished recipes a running program is holding, error messages stop being noise and start being directions.\n\nLAST TIME\n\nA variable is a name tag tied to one value, never a box. Every value has a type, and text that looks like a number behaves nothing like a number. const locks the name, not the object behind it, and === is the only comparison you should write.\n\nQuick check\n\nlet best = streak; then streak = 10; . What is best ?\n\nWhat does typeof \"7\" print, and why does it matter?\n\nWhat is a commit, physically?\n\nThe idea\n\nA function is a chunk of steps with a name on it. You write the steps once. Then anywhere in the app, any number of times, you say the name followed by brackets and the steps run.\n\nTwo words do all the work, and mixing them up is the beginner's mistake. Defining a function means writing the recipe down. Nothing happens. No step inside it runs. The machine notes the name and moves on. Calling it, writing its name followed by () , is what makes the steps run. A file full of definitions and no calls does precisely nothing.\n\nANALOGY (TEMPORARY)\n\nA recipe card and a cook. The card says \"carbonara: boil water, fry the guanciale, mix the eggs\". Writing that card feeds nobody. The cook reading the card out loud feeds somebody. Parameters are the blanks on the card: \"serves N people\". Arguments are the numbers you shout at the cook when you hand the card over: \"make it for four\". Return is the plate coming back. And the moment the cook hands the plate over, that recipe is finished; anything written after the \"hand over the plate\" line never gets read.\n\nThe shape, with every word labelled:\n\nParameters are variables, and chapter 9's model applies exactly. They are name tags, tied to the values you passed in, and they only exist while the function is running. name is not a box the string went into. It is a tag on the string you handed over.\n\nreturn does two things at once and people usually only notice the first. It hands a value back to whoever called, and it stops the function on the spot. Lines below a return that has just run are dead. That second behaviour is what makes guard clauses possible, and Memento is full of them."
+      "block": 0,
+      "text": "JavaScript 2: functions and the call stack"
     },
     {
-      "blocks": [
-        16,
-        17,
-        18,
-        19,
-        20,
-        21,
-        22,
-        23,
-        24
-      ],
-      "text": "A function with no return still hands something back: undefined , the machine's shrug from chapter 9. This is the most common confusing moment for a beginner. You call a function, it clearly did its job, you print the result, and you get undefined . Nothing is broken. You just never said what to hand back.\n\nThe call stack\n\nNow the picture that pays for the whole chapter. While a program runs, it keeps a pile of index cards. Each card is one function currently in progress, and holds that function's own local names and the line it is paused on.\n\nCall a function: a new card goes on top of the pile. That function calls another: another card on top. A function returns: its card is thrown away, and the machine resumes the card now on top, exactly where it paused. The pile is the call stack , and the only card being worked on is the top one.\n\nTwo things fall out of this picture for free. First, scope : names created inside a function live on that function's card, so they are thrown away when it returns. That is why a name from inside a function is invisible outside it, and why two functions can both use a name like text without colliding. Each has its own card.\n\nSecond, a stack trace . When something breaks, the machine prints the pile top to bottom: the function that broke, then who called it, then who called that. It reads like a chain of blame, and the useful line is usually not the top one, it is the first one that names a file you wrote.\n\nGuard clauses\n\nBecause return stops the function, the cleanest way to handle a bad input is to check for it on the first line and leave. That is a guard clause : deal with the exits at the top, then write the real work with no nesting under it. The alternative is wrapping everything in an if and drifting three levels deep. Memento's small functions almost all open with one or two guards, and once you can spot them, you can read the real intent of a function in about four seconds.\n\nArrow functions"
+      "block": 1,
+      "text": "A function is a named recipe. Writing it down does nothing at all. Calling it is what runs it. Once you can see the pile of half-finished recipes a running program is holding, error messages stop being noise and start being directions."
     },
     {
-      "blocks": [
-        25,
-        26,
-        27,
-        28,
-        29,
-        30,
-        31,
-        32,
-        33,
-        34,
-        35,
-        36,
-        37
-      ],
-      "text": "There is a second spelling. function add(a, b) { return a + b; } can also be written const add = (a, b) => a + b; . That is an arrow function : parameters left of the arrow, body on the right, and with a single-expression body the return is implied. Shorter, which matters most when a function is being handed to something else as an instruction, like \"when this is clicked, run this\". Memento uses both styles, often within a few lines of each other.\n\nSee it\n\nSame rule as chapter 9, and it stays the rule. Predict what this prints. Then run. Six boxes, growing.\n\nBox 2's second line is a quiet warning: passing \"12\" as text prints exactly the same sentence as passing 12 , because gluing text to text looks identical. That is where a type bug hides until the first time someone does maths on it. The third line is the one that teaches outright. Calling describe(\"Malik\") with one argument does not crash. The days parameter simply never gets tied to anything, so it is undefined , and the sentence comes out with the word undefined in it. The machine did exactly what you said, again.\n\nNow in Memento\n\nANY APP: save, but not too often\n\nSaving on every change is wasteful. A user typing a sentence would trigger forty writes. The standard move: cancel any save that has not happened yet, then schedule one for a moment from now. Type fast and only the last survives. Pause and it lands. Before any of that, one guard: if saving would be wrong right now, leave immediately.\n\nMEMENTO: persistState()\n\nSix lines, and you can now read every one. Line two is the guard: if this is a demo account or a reset is in progress, return, and the four lines below never run. Line four hands an arrow function to setTimeout as an instruction to carry out in 150 milliseconds. Note that persistState() returns nothing, so it hands back undefined . It was called for what it does, not for what it gives.\n\nANY APP: the double-submit guard\n\nA user taps Send twice, or taps Send with an empty box. Without a guard you get two requests for one answer, which in an AI product means paying twice and dropping two conflicting replies into one conversation. One line at the top stops both cases.\n\nMEMENTO: sendAiAnswer()\n\nRead the guard out loud: if there is no text, or a request is already in flight, leave. Two failure cases, one line, zero nesting. The comment underneath says what it is protecting: money."
+      "block": 2,
+      "text": "LAST TIME"
     },
     {
-      "blocks": [
-        38,
-        39,
-        40,
-        41,
-        42,
-        43,
-        44,
-        45,
-        46,
-        47,
-        48,
-        49,
-        50,
-        51,
-        52,
-        53,
-        54,
-        55,
-        56,
-        57,
-        58
-      ],
-      "text": "ANY APP: a function handed to something else\n\n\"When this is clicked, run this\" needs a this to run. So you hand a whole function over as a value, and something else calls it later, when the event happens. This is the moment a function stops looking like a recipe card.\n\nMEMENTO: the tap from chapter 2\n\nThree arrow functions in six lines. The outer one is never called by Memento's own code at all. It is handed to the browser, which keeps it and calls it, with the tap event as its argument, possibly minutes later. The two inner ones get handed to forEach and called once per item.\n\nTHE ALTERNATIVE, AND WHY MEMENTO CHOSE THIS\n\nThe alternative is to write straight to storage every time anything changes. One line shorter, always correct, and it would make typing in the note editor stutter on a real phone, because every write converts the entire state object to text first. The timer means a burst of forty changes costs one write. The price is a 150 millisecond window where a hard crash loses the last change, which for this app is nothing. A bigger timer, say two seconds, saves more work and widens that window to something a user would notice. 150 is the founder's bet on where the line sits. Chapter 25 comes back to this as a performance tool.\n\nDo it\n\nExercise phone or Mac\n\nTrace it by hand first. Read box 1 below without running it. On paper, write the pile at five moments: just before start() is called, inside start() , inside loadPlan() , inside label() , and just after label() returns. Each moment is a list of cards, bottom to top.\n\nNow predict the exact order of the printed lines. Write it down.\n\nRun box 1. Compare with your paper. The printed depth marks show you the pile. Anywhere you were wrong, say in one sentence what rule you had wrong.\n\nBreak it, then fix it. Box 2 has a function that forgets to hand anything back. Run it and see the undefined . Fix it by adding one word, run again, and get a real sentence.\n\nASK THE AGENT WHY (paste this into Codex or Fable)\n\nWORDS YOU NOW OWN\n\nFunction\n\nA named chunk of steps. Writing it down does nothing. Calling it runs it.\n\nDefine vs call\n\nWriting the recipe card vs handing it to the cook. Only the second one does work.\n\nParameter / argument\n\nThe blank on the card / the value you hand over to fill it. Parameters are name tags that exist only while the function runs.\n\nreturn"
+      "block": 3,
+      "text": "A variable is a name tag tied to one value, never a box. Every value has a type, and text that looks like a number behaves nothing like a number. const locks the name, not the object behind it, and === is the only comparison you should write."
     },
     {
-      "blocks": [
-        59,
-        60,
-        61,
-        62,
-        63,
-        64,
-        65,
-        66,
-        67,
-        68,
-        69,
-        70,
-        71,
-        72,
-        73
-      ],
-      "text": "Hands a value back and stops the function immediately. No return means the caller gets undefined .\n\nCall stack\n\nThe pile of index cards for the functions currently in progress. Only the top one is running.\n\nStack trace\n\nA photograph of that pile at the moment something broke. Chapter 23 reads real ones.\n\nScope\n\nNames made inside a function live on its card and die when it returns. That is why they are invisible from outside.\n\nGuard clause\n\nA check at the very top that returns early on a bad case, so the real work below stays flat and readable.\n\nArrow function\n\nA shorter spelling, (a, b) => a + b . Same idea, used most when a function is being handed to something else.\n\nWHERE TODAY'S ANALOGY BREAKS\n\nBreaks when: you try to hand a recipe card to another recipe. In a kitchen you cannot pass carbonara as an ingredient. In JavaScript a function is itself a value, with a type, and it can be stored in a variable, put in an object, passed as an argument, and returned from another function. You already saw it in the Memento lane: the arrow function handed to addEventListener is never called by Memento's code, it is given away and called later by the browser. Real model: functions are values. A function passed to something else so it can be called later is a callback, and it is the backbone of every event and every network reply in the app. Chapter 12 takes that idea and builds the whole async story on it. A second, smaller break: the pile is not the only place a paused function can live. An await takes a card off the pile and puts it aside until the answer arrives, which is why the phone stays responsive while waiting on the AI. Also chapter 12.\n\nRABBIT HOLE: what a stack overflow actually is\n\nThe pile has a size limit, a few thousand cards deep in most browsers. If a function calls itself with no way out, cards pile up until the limit, and the machine gives up with \"Maximum call stack size exceeded\". That message means one specific thing: something called something called something forever. It is the one error where the top of the stack trace is almost never the useful part, because the trace is the same three lines repeated a thousand times."
+      "block": 4,
+      "text": "Quick check"
+    },
+    {
+      "block": 5,
+      "text": "let best = streak; then streak = 10; . What is best ?"
+    },
+    {
+      "block": 6,
+      "text": "Whatever streak was pointing at when that line ran. The two names were never linked. Assignment reads the right side once and points the left name at the result."
+    },
+    {
+      "block": 7,
+      "text": "What does typeof \"7\" print, and why does it matter?"
+    },
+    {
+      "block": 8,
+      "text": "\"string\" . It matters because a string of digits does arithmetic wrong and silently. It glues instead of adding."
+    },
+    {
+      "block": 9,
+      "text": "What is a commit, physically?"
+    },
+    {
+      "block": 10,
+      "text": "A snapshot of the whole folder at one moment, with a message, an author, and an id. History is a chain of them, each pointing at the one before."
+    },
+    {
+      "block": 11,
+      "text": "The idea"
+    },
+    {
+      "block": 12,
+      "text": "A function is a chunk of steps with a name on it. You write the steps once. Then anywhere in the app, any number of times, you say the name followed by brackets and the steps run."
+    },
+    {
+      "block": 13,
+      "text": "Two words do all the work, and mixing them up is the beginner's mistake. Defining a function means writing the recipe down. Nothing happens. No step inside it runs. The machine notes the name and moves on. Calling it, writing its name followed by () , is what makes the steps run. A file full of definitions and no calls does precisely nothing."
+    },
+    {
+      "block": 14,
+      "text": "ANALOGY (TEMPORARY)"
+    },
+    {
+      "block": 15,
+      "text": "A recipe card and a cook. The card says \"carbonara: boil water, fry the guanciale, mix the eggs\". Writing that card feeds nobody. The cook reading the card out loud feeds somebody. Parameters are the blanks on the card: \"serves N people\". Arguments are the numbers you shout at the cook when you hand the card over: \"make it for four\". Return is the plate coming back. And the moment the cook hands the plate over, that recipe is finished; anything written after the \"hand over the plate\" line never gets read."
+    },
+    {
+      "block": 16,
+      "text": "The shape, with every word labelled:"
+    },
+    {
+      "block": 17,
+      "text": "Parameters are variables, and chapter 9's model applies exactly. They are name tags, tied to the values you passed in, and they only exist while the function is running. name is not a box the string went into. It is a tag on the string you handed over."
+    },
+    {
+      "block": 18,
+      "text": "return does two things at once and people usually only notice the first. It hands a value back to whoever called, and it stops the function on the spot. Lines below a return that has just run are dead. That second behaviour is what makes guard clauses possible, and Memento is full of them."
+    },
+    {
+      "block": 19,
+      "text": "A function with no return still hands something back: undefined , the machine's shrug from chapter 9. This is the most common confusing moment for a beginner. You call a function, it clearly did its job, you print the result, and you get undefined . Nothing is broken. You just never said what to hand back."
+    },
+    {
+      "block": 20,
+      "text": "The call stack"
+    },
+    {
+      "block": 21,
+      "text": "Now the picture that pays for the whole chapter. While a program runs, it keeps a pile of index cards. Each card is one function currently in progress, and holds that function's own local names and the line it is paused on."
+    },
+    {
+      "block": 22,
+      "text": "Call a function: a new card goes on top of the pile. That function calls another: another card on top. A function returns: its card is thrown away, and the machine resumes the card now on top, exactly where it paused. The pile is the call stack , and the only card being worked on is the top one."
+    },
+    {
+      "block": 23,
+      "text": "The pile of index cards. Chapter 23 reads real ones out of real crashes; today you only need to be able to draw it."
+    },
+    {
+      "block": 24,
+      "text": "Two things fall out of this picture for free. First, scope : names created inside a function live on that function's card, so they are thrown away when it returns. That is why a name from inside a function is invisible outside it, and why two functions can both use a name like text without colliding. Each has its own card."
+    },
+    {
+      "block": 25,
+      "text": "Second, a stack trace . When something breaks, the machine prints the pile top to bottom: the function that broke, then who called it, then who called that. It reads like a chain of blame, and the useful line is usually not the top one, it is the first one that names a file you wrote."
+    },
+    {
+      "block": 26,
+      "text": "Guard clauses"
+    },
+    {
+      "block": 27,
+      "text": "Because return stops the function, the cleanest way to handle a bad input is to check for it on the first line and leave. That is a guard clause : deal with the exits at the top, then write the real work with no nesting under it. The alternative is wrapping everything in an if and drifting three levels deep. Memento's small functions almost all open with one or two guards, and once you can spot them, you can read the real intent of a function in about four seconds."
+    },
+    {
+      "block": 28,
+      "text": "Arrow functions"
+    },
+    {
+      "block": 29,
+      "text": "There is a second spelling. function add(a, b) { return a + b; } can also be written const add = (a, b) => a + b; . That is an arrow function : parameters left of the arrow, body on the right, and with a single-expression body the return is implied. Shorter, which matters most when a function is being handed to something else as an instruction, like \"when this is clicked, run this\". Memento uses both styles, often within a few lines of each other."
+    },
+    {
+      "block": 30,
+      "text": "See it"
+    },
+    {
+      "block": 31,
+      "text": "Same rule as chapter 9, and it stays the rule. Predict what this prints. Then run. Six boxes, growing."
+    },
+    {
+      "block": 32,
+      "text": "Box 2's second line is a quiet warning: passing \"12\" as text prints exactly the same sentence as passing 12 , because gluing text to text looks identical. That is where a type bug hides until the first time someone does maths on it. The third line is the one that teaches outright. Calling describe(\"Malik\") with one argument does not crash. The days parameter simply never gets tied to anything, so it is undefined , and the sentence comes out with the word undefined in it. The machine did exactly what you said, again."
+    },
+    {
+      "block": 33,
+      "text": "Now in Memento"
+    },
+    {
+      "block": 34,
+      "text": "ANY APP: save, but not too often"
+    },
+    {
+      "block": 35,
+      "text": "Saving on every change is wasteful. A user typing a sentence would trigger forty writes. The standard move: cancel any save that has not happened yet, then schedule one for a moment from now. Type fast and only the last survives. Pause and it lands. Before any of that, one guard: if saving would be wrong right now, leave immediately."
+    },
+    {
+      "block": 36,
+      "text": "MEMENTO: persistState()"
+    },
+    {
+      "block": 37,
+      "text": "Six lines, and you can now read every one. Line two is the guard: if this is a demo account or a reset is in progress, return, and the four lines below never run. Line four hands an arrow function to setTimeout as an instruction to carry out in 150 milliseconds. Note that persistState() returns nothing, so it hands back undefined . It was called for what it does, not for what it gives."
+    },
+    {
+      "block": 38,
+      "text": "ANY APP: the double-submit guard"
+    },
+    {
+      "block": 39,
+      "text": "A user taps Send twice, or taps Send with an empty box. Without a guard you get two requests for one answer, which in an AI product means paying twice and dropping two conflicting replies into one conversation. One line at the top stops both cases."
+    },
+    {
+      "block": 40,
+      "text": "MEMENTO: sendAiAnswer()"
+    },
+    {
+      "block": 41,
+      "text": "Read the guard out loud: if there is no text, or a request is already in flight, leave. Two failure cases, one line, zero nesting. The comment underneath says what it is protecting: money."
+    },
+    {
+      "block": 42,
+      "text": "ANY APP: a function handed to something else"
+    },
+    {
+      "block": 43,
+      "text": "\"When this is clicked, run this\" needs a this to run. So you hand a whole function over as a value, and something else calls it later, when the event happens. This is the moment a function stops looking like a recipe card."
+    },
+    {
+      "block": 44,
+      "text": "MEMENTO: the tap from chapter 2"
+    },
+    {
+      "block": 45,
+      "text": "Three arrow functions in six lines. The outer one is never called by Memento's own code at all. It is handed to the browser, which keeps it and calls it, with the tap event as its argument, possibly minutes later. The two inner ones get handed to forEach and called once per item."
+    },
+    {
+      "block": 46,
+      "text": "THE ALTERNATIVE, AND WHY MEMENTO CHOSE THIS"
+    },
+    {
+      "block": 47,
+      "text": "The alternative is to write straight to storage every time anything changes. One line shorter, always correct, and it would make typing in the note editor stutter on a real phone, because every write converts the entire state object to text first. The timer means a burst of forty changes costs one write. The price is a 150 millisecond window where a hard crash loses the last change, which for this app is nothing. A bigger timer, say two seconds, saves more work and widens that window to something a user would notice. 150 is the founder's bet on where the line sits. Chapter 25 comes back to this as a performance tool."
+    },
+    {
+      "block": 48,
+      "text": "Do it"
+    },
+    {
+      "block": 49,
+      "text": "Exercise phone or Mac"
+    },
+    {
+      "block": 50,
+      "text": "Trace it by hand first. Read box 1 below without running it. On paper, write the pile at five moments: just before start() is called, inside start() , inside loadPlan() , inside label() , and just after label() returns. Each moment is a list of cards, bottom to top."
+    },
+    {
+      "block": 51,
+      "text": "Now predict the exact order of the printed lines. Write it down."
+    },
+    {
+      "block": 52,
+      "text": "Run box 1. Compare with your paper. The printed depth marks show you the pile. Anywhere you were wrong, say in one sentence what rule you had wrong."
+    },
+    {
+      "block": 53,
+      "text": "Break it, then fix it. Box 2 has a function that forgets to hand anything back. Run it and see the undefined . Fix it by adding one word, run again, and get a real sentence."
+    },
+    {
+      "block": 54,
+      "text": "ASK THE AGENT WHY (paste this into Codex or Fable)"
+    },
+    {
+      "block": 55,
+      "text": "WORDS YOU NOW OWN"
+    },
+    {
+      "block": 56,
+      "text": "Function"
+    },
+    {
+      "block": 57,
+      "text": "A named chunk of steps. Writing it down does nothing. Calling it runs it."
+    },
+    {
+      "block": 58,
+      "text": "Define vs call"
+    },
+    {
+      "block": 59,
+      "text": "Writing the recipe card vs handing it to the cook. Only the second one does work."
+    },
+    {
+      "block": 60,
+      "text": "Parameter / argument"
+    },
+    {
+      "block": 61,
+      "text": "The blank on the card / the value you hand over to fill it. Parameters are name tags that exist only while the function runs."
+    },
+    {
+      "block": 62,
+      "text": "return"
+    },
+    {
+      "block": 63,
+      "text": "Hands a value back and stops the function immediately. No return means the caller gets undefined ."
+    },
+    {
+      "block": 64,
+      "text": "Call stack"
+    },
+    {
+      "block": 65,
+      "text": "The pile of index cards for the functions currently in progress. Only the top one is running."
+    },
+    {
+      "block": 66,
+      "text": "Stack trace"
+    },
+    {
+      "block": 67,
+      "text": "A photograph of that pile at the moment something broke. Chapter 23 reads real ones."
+    },
+    {
+      "block": 68,
+      "text": "Scope"
+    },
+    {
+      "block": 69,
+      "text": "Names made inside a function live on its card and die when it returns. That is why they are invisible from outside."
+    },
+    {
+      "block": 70,
+      "text": "Guard clause"
+    },
+    {
+      "block": 71,
+      "text": "A check at the very top that returns early on a bad case, so the real work below stays flat and readable."
+    },
+    {
+      "block": 72,
+      "text": "Arrow function"
+    },
+    {
+      "block": 73,
+      "text": "A shorter spelling, (a, b) => a + b . Same idea, used most when a function is being handed to something else."
+    },
+    {
+      "block": 74,
+      "text": "WHERE TODAY'S ANALOGY BREAKS"
+    },
+    {
+      "block": 75,
+      "text": "Breaks when: you try to hand a recipe card to another recipe. In a kitchen you cannot pass carbonara as an ingredient. In JavaScript a function is itself a value, with a type, and it can be stored in a variable, put in an object, passed as an argument, and returned from another function. You already saw it in the Memento lane: the arrow function handed to addEventListener is never called by Memento's code, it is given away and called later by the browser. Real model: functions are values. A function passed to something else so it can be called later is a callback, and it is the backbone of every event and every network reply in the app. Chapter 12 takes that idea and builds the whole async story on it. A second, smaller break: the pile is not the only place a paused function can live. An await takes a card off the pile and puts it aside until the answer arrives, which is why the phone stays responsive while waiting on the AI. Also chapter 12."
+    },
+    {
+      "block": 76,
+      "text": "RABBIT HOLE: what a stack overflow actually is"
+    },
+    {
+      "block": 77,
+      "text": "The pile has a size limit, a few thousand cards deep in most browsers. If a function calls itself with no way out, cards pile up until the limit, and the machine gives up with \"Maximum call stack size exceeded\". That message means one specific thing: something called something called something forever. It is the one error where the top of the stack trace is almost never the useful part, because the trace is the same three lines repeated a thousand times."
     }
   ],
-  "wordCount": 2043
+  "wordCount": 2143
 }

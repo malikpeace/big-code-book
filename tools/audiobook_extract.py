@@ -20,8 +20,8 @@ ROOT = Path(__file__).resolve().parents[1]
 CHAPTERS_DIR = ROOT / "chapters"
 SCRIPTS_DIR = ROOT / "audio" / "scripts"
 
-TARGET_TAGS = {"h1", "h2", "h3", "p", "li", "summary", "dt", "dd", "th", "td"}
-SKIP_TAGS = {"pre", "figure", "script", "style", "svg", "textarea", "button", "nav"}
+TARGET_TAGS = {"h1", "h2", "h3", "p", "li", "summary", "dt", "dd", "th", "td", "figcaption"}
+SKIP_TAGS = {"pre", "script", "style", "svg", "textarea", "button", "nav"}
 SKIP_CLASSES = {"sb", "src", "audio-player", "audio-library"}
 LABEL_PARENTS = {"box", "lane", "ex"}
 MAX_CHARS = 2400
@@ -97,6 +97,8 @@ def is_target(node: Node) -> bool:
         return True
     if "h" in node.classes and node.parent and node.parent.classes.intersection(LABEL_PARENTS):
         return True
+    if "a" in node.classes and node.parent and "check" in node.parent.classes:
+        return True
     return False
 
 
@@ -147,6 +149,9 @@ def extract(path: Path) -> dict:
                 continue
             if is_target(child) and not has_skipped_ancestor(child):
                 nodes.append(child)
+                # One spoken block owns its descendants. This prevents an
+                # answer div containing a paragraph from being read twice.
+                continue
             collect(child)
 
     walk(parser.root)
@@ -157,27 +162,10 @@ def extract(path: Path) -> dict:
             continue
         block_index = len(blocks)
         blocks.append({"index": block_index, "tag": node.tag, "text": text})
-    # Feed the narrator in multi-paragraph passages. This sounds far more like
-    # an audiobook than resetting the voice for every heading and sentence.
-    # Exact paragraph timing is recovered from a word-timestamp pass after the
-    # chapter audio is assembled.
     segments = []
-    current_texts: list[str] = []
-    current_blocks: list[int] = []
-    current_chars = 0
     for block in blocks:
         for part in split_long_text(block["text"]):
-            added = len(part) + (2 if current_texts else 0)
-            if current_texts and current_chars + added > MAX_CHARS:
-                segments.append({"blocks": current_blocks, "text": "\n\n".join(current_texts)})
-                current_texts = []
-                current_blocks = []
-                current_chars = 0
-            current_texts.append(part)
-            current_blocks.append(block["index"])
-            current_chars += len(part) + (2 if len(current_texts) > 1 else 0)
-    if current_texts:
-        segments.append({"blocks": current_blocks, "text": "\n\n".join(current_texts)})
+            segments.append({"block": block["index"], "text": part})
 
     match = re.match(r"(\d{2})-(.+)\.html$", path.name)
     if not match:

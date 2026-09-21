@@ -36,565 +36,858 @@
     },
     {
       "index": 6,
-      "tag": "summary",
-      "text": "What is the difference between a program and a process?"
+      "tag": "div",
+      "text": "\"75\" . The quotes make 7 text. Adding text glues. The machine applied its rule; it did not ask what you meant."
     },
     {
       "index": 7,
       "tag": "summary",
-      "text": "Why does the 37-line action shim exist?"
+      "text": "What is the difference between a program and a process?"
     },
     {
       "index": 8,
+      "tag": "div",
+      "text": "A program is the file. A process is that file while it is running, loaded into memory with the CPU walking through it."
+    },
+    {
+      "index": 9,
+      "tag": "summary",
+      "text": "Why does the 37-line action shim exist?"
+    },
+    {
+      "index": 10,
+      "tag": "div",
+      "text": "Eighty places still name a deleted feature. The machine would hit a name pointing at nothing and stop. The shim catches the old name and forwards it."
+    },
+    {
+      "index": 11,
       "tag": "h2",
       "text": "The idea"
     },
     {
-      "index": 9,
+      "index": 12,
       "tag": "p",
       "text": "Software is not one thing in one place. It is a relay. The tap starts on your phone, and the work gets handed from one computer to the next and back. Here is the whole trip for Memento's most important tap: starting a Clarity interview."
     },
     {
-      "index": 10,
+      "index": 13,
+      "tag": "figcaption",
+      "text": "The journey map. You will see this picture in every chapter with one stop lit up."
+    },
+    {
+      "index": 14,
       "tag": "p",
       "text": "Read it as a story:"
     },
     {
-      "index": 11,
+      "index": 15,
       "tag": "li",
       "text": "Finger, screen. The glass senses the touch. The phone's operating system works out which app, which spot. It hands the app an \"event\": a tap, here, now."
     },
     {
-      "index": 12,
+      "index": 16,
       "tag": "li",
       "text": "JavaScript. Memento's code has a function waiting for exactly that event. It runs. It decides: start the interview."
     },
     {
-      "index": 13,
+      "index": 17,
       "tag": "li",
       "text": "State. The code updates the app's memory of the world. \"Interview: loading.\" The screen is redrawn from that."
     },
     {
-      "index": 14,
+      "index": 18,
       "tag": "li",
       "text": "The network. The code builds a request, a small parcel of text, and sends it over Wi-Fi or cellular to an address. This is the slow, unreliable part. Everything before this took microseconds. This takes hundreds of milliseconds and can fail."
     },
     {
-      "index": 15,
+      "index": 19,
       "tag": "li",
       "text": "The edge function. The parcel arrives at a small program Memento wrote, running on a computer rented from Supabase. It checks the parcel, checks you are not spamming, and builds a new parcel for the AI, adding a secret key that only this server has."
     },
     {
-      "index": 16,
+      "index": 20,
       "tag": "li",
       "text": "Anthropic. Their computers run the model and send text back. Memento pays per call."
     },
     {
-      "index": 17,
+      "index": 21,
       "tag": "li",
       "text": "Back up. The edge function cleans the reply and sends it to your phone. JavaScript receives it, updates state: \"Interview: question one is ready.\" The screen redraws."
     },
     {
-      "index": 18,
+      "index": 22,
       "tag": "li",
       "text": "Saved on the phone. A moment later, state is written to the phone's storage, so closing the app loses nothing."
     },
     {
-      "index": 19,
+      "index": 23,
       "tag": "li",
       "text": "Sync. If you are signed in, a copy of your state is sent to Memento's database so your other devices, and a lost phone, are covered."
     },
     {
-      "index": 20,
+      "index": 24,
       "tag": "div",
       "text": "ANALOGY (TEMPORARY)"
     },
     {
-      "index": 21,
+      "index": 25,
       "tag": "p",
       "text": "Ordering at a restaurant. You (finger) tell the waiter (JavaScript) what you want. The waiter writes it on the pad (state) and walks it to the kitchen pass (the network). The kitchen (the edge function) checks the order, then hands part of it to a specialist supplier down the street (Anthropic) who has the one ingredient the kitchen is not allowed to keep in-house (the secret key). The plate comes back through the pass to the waiter to you. The pad is kept (saved on the phone). At closing, the day's orders are filed at head office (sync to the database)."
     },
     {
-      "index": 22,
+      "index": 26,
       "tag": "h3",
       "text": "The words, now that you have the picture"
     },
     {
-      "index": 23,
+      "index": 27,
       "tag": "p",
       "text": "Everything on the top row is the frontend : the part that runs on the user's device. Everything on the bottom row is the backend : the part that runs on servers the user never sees. A server is a computer somewhere else that answers requests. The database is where saved data lives on the server side. An API is the agreed way two of these programs talk to each other: what to send, what comes back. The network is the wire and radio between, and it is where speed goes to die."
     },
     {
-      "index": 24,
+      "index": 28,
       "tag": "p",
       "text": "State is the app's current memory of the world. In Memento it is literally one big JavaScript object named state . localStorage is the small box a browser gives each website to keep things between visits. Supabase is the company Memento rents its backend from. The edge function is a proxy : a middleman, and the reason your phone never holds the AI key."
     },
     {
-      "index": 25,
+      "index": 29,
       "tag": "h3",
       "text": "Who pays for what"
     },
     {
-      "index": 26,
+      "index": 30,
       "tag": "th",
       "text": "Stop"
     },
     {
-      "index": 27,
+      "index": 31,
       "tag": "th",
       "text": "Whose computer"
     },
     {
-      "index": 28,
+      "index": 32,
       "tag": "th",
       "text": "Who pays"
     },
     {
-      "index": 29,
+      "index": 33,
       "tag": "td",
       "text": "Finger to saved-on-phone"
     },
     {
-      "index": 30,
+      "index": 34,
       "tag": "td",
       "text": "The user's phone"
     },
     {
-      "index": 31,
+      "index": 35,
       "tag": "td",
       "text": "The user, when they bought it"
     },
     {
-      "index": 32,
+      "index": 36,
       "tag": "td",
       "text": "Edge function, database"
     },
     {
-      "index": 33,
+      "index": 37,
       "tag": "td",
       "text": "Supabase's servers"
     },
     {
-      "index": 34,
+      "index": 38,
       "tag": "td",
       "text": "Memento, monthly rent"
     },
     {
-      "index": 35,
+      "index": 39,
       "tag": "td",
       "text": "Anthropic"
     },
     {
-      "index": 36,
+      "index": 40,
       "tag": "td",
       "text": "Anthropic's servers"
     },
     {
-      "index": 37,
+      "index": 41,
       "tag": "td",
       "text": "Memento, per call, which is why free Clarity has rate limits"
     },
     {
-      "index": 38,
+      "index": 42,
       "tag": "h2",
       "text": "See it"
     },
     {
-      "index": 39,
+      "index": 43,
       "tag": "p",
       "text": "A fake version of the whole trip, in one box. Each step prints when it happens. The \"network\" steps are slow on purpose. Notice that the app prints \"screen shows: loading\" before the reply arrives. That is the phone staying responsive while it waits. Chapter 12 explains how."
     },
     {
-      "index": 40,
+      "index": 44,
       "tag": "h2",
       "text": "Now in Memento"
     },
     {
-      "index": 41,
+      "index": 45,
       "tag": "p",
       "text": "Now the real thing, stop by stop. You are not expected to understand the code yet. You are expected to see that every stop on the map has a real file and a real line, and none of it is magic."
     },
     {
-      "index": 42,
+      "index": 46,
       "tag": "div",
       "text": "ANY APP: the tap"
     },
     {
-      "index": 43,
+      "index": 47,
       "tag": "p",
       "text": "Some code registers interest in a button. When the button is tapped, that code runs. Every frontend in the world has this exact shape: \"when this happens, run that.\""
     },
     {
-      "index": 44,
+      "index": 48,
       "tag": "div",
       "text": "MEMENTO: the tap"
     },
     {
-      "index": 45,
+      "index": 49,
       "tag": "p",
       "text": "addEventListener('click', ...) means \"when this is clicked, run this\". You will see that phrase hundreds of times in Memento."
     },
     {
-      "index": 46,
+      "index": 50,
       "tag": "div",
       "text": "ANY APP: state, then the request"
     },
     {
-      "index": 47,
+      "index": 51,
       "tag": "p",
       "text": "Mark \"loading\" in state, redraw, then send the parcel and wait. The order matters: redraw first so the user sees something."
     },
     {
-      "index": 48,
+      "index": 52,
       "tag": "div",
       "text": "MEMENTO: state, then the request"
     },
     {
-      "index": 49,
+      "index": 53,
       "tag": "p",
       "text": "Set loading. Clear any old error. Repaint. Then, further down, it calls callClaude(...) , which builds the parcel."
     },
     {
-      "index": 50,
+      "index": 54,
       "tag": "div",
       "text": "ANY APP: the address"
     },
     {
-      "index": 51,
+      "index": 55,
       "tag": "p",
       "text": "The request goes to an address. A well-built app never sends it straight to the AI company, because the AI company needs a secret key and a phone cannot keep a secret. It goes to the app's own server first."
     },
     {
-      "index": 52,
+      "index": 56,
       "tag": "div",
       "text": "MEMENTO: the address"
     },
     {
-      "index": 53,
+      "index": 57,
       "tag": "p",
       "text": "Two lanes: free Clarity and paid Action, each with its own server address. The direct Anthropic address only exists for a developer's own machine."
     },
     {
-      "index": 54,
+      "index": 58,
       "tag": "div",
       "text": "ANY APP: the server and the secret"
     },
     {
-      "index": 55,
+      "index": 59,
       "tag": "p",
       "text": "The server reads the secret from its own environment, never from the request. If the secret is missing, it refuses politely instead of crashing."
     },
     {
-      "index": 56,
+      "index": 60,
       "tag": "div",
       "text": "MEMENTO: the server and the secret"
     },
     {
-      "index": 57,
+      "index": 61,
       "tag": "p",
       "text": "The first line of that file says it plainly: \"the ONLY place its Anthropic key lives.\" Chapter 16 walks the whole file."
     },
     {
-      "index": 58,
+      "index": 62,
       "tag": "div",
       "text": "ANY APP: saving"
     },
     {
-      "index": 59,
+      "index": 63,
       "tag": "p",
       "text": "After state changes, write it somewhere that survives closing the app. Not on every keystroke, though. Wait a beat, then write once."
     },
     {
-      "index": 60,
+      "index": 64,
       "tag": "div",
       "text": "MEMENTO: saving"
     },
     {
-      "index": 61,
+      "index": 65,
       "tag": "p",
       "text": "Wait 150 milliseconds, then write to the phone. And in the same breath, schedule the sync to the cloud."
     },
     {
-      "index": 62,
+      "index": 66,
       "tag": "div",
       "text": "ANY APP: sync"
     },
     {
-      "index": 63,
+      "index": 67,
       "tag": "p",
       "text": "Send a copy of state to the database, with a note saying which version you think is current, so two devices cannot silently overwrite each other."
     },
     {
-      "index": 64,
+      "index": 68,
       "tag": "div",
       "text": "MEMENTO: sync"
     },
     {
-      "index": 65,
+      "index": 69,
       "tag": "p",
       "text": "The database side of that call is a function written in SQL whose first comment reads: \"A stale or blank device may never overwrite meaningful cloud work.\" Chapter 17."
     },
     {
-      "index": 66,
+      "index": 70,
       "tag": "div",
       "text": "THE ALTERNATIVE, AND WHY MEMENTO CHOSE THIS"
     },
     {
-      "index": 67,
+      "index": 71,
       "tag": "p",
       "text": "The alternative is to call Anthropic straight from the phone with the key baked into the app. It is simpler: no server to run, no rent. It is also how a founder's key ends up in a public file and gets used by strangers until the bill arrives. Memento learned this the direct way: a comment at the top of 03-ai-integration.js notes that an old key \"is in git history; it MUST be revoked.\" The proxy exists because of that. It costs a small monthly rent and one extra hop, and it buys a locked box for the key, rate limits, and a server that decides which model and prompt to use so a free user cannot dress up as a paid one."
     },
     {
-      "index": 68,
+      "index": 72,
       "tag": "h2",
       "text": "Do it"
     },
     {
-      "index": 69,
+      "index": 73,
       "tag": "div",
       "text": "Exercise phone or Mac"
     },
     {
-      "index": 70,
+      "index": 74,
       "tag": "li",
       "text": "Close this page. Draw the journey map from memory. Two rows: on the phone, on someone else's server. Put the nine stops on it."
     },
     {
-      "index": 71,
+      "index": 75,
       "tag": "li",
       "text": "Next to each stop write who pays."
     },
     {
-      "index": 72,
+      "index": 76,
       "tag": "li",
       "text": "Open the page again and compare. Circle what you missed. That circle is your homework for chapter 3's quick check."
     },
     {
-      "index": 73,
+      "index": 77,
       "tag": "li",
       "text": "Go back to the sandbox above and change the 800 to 3000 . Run it. Notice \"screen shows: loading\" still prints instantly. Ask yourself how the app can keep going while it waits. Hold that question until chapter 12."
     },
     {
-      "index": 74,
+      "index": 78,
       "tag": "div",
       "text": "ASK THE AGENT WHY (paste this into Codex or Fable)"
     },
     {
-      "index": 75,
+      "index": 79,
       "tag": "div",
       "text": "WORDS YOU NOW OWN"
     },
     {
-      "index": 76,
+      "index": 80,
       "tag": "dt",
       "text": "Frontend / backend"
     },
     {
-      "index": 77,
+      "index": 81,
       "tag": "dd",
       "text": "What runs on the user's device / what runs on servers the user never sees."
     },
     {
-      "index": 78,
+      "index": 82,
       "tag": "dt",
       "text": "Server"
     },
     {
-      "index": 79,
+      "index": 83,
       "tag": "dd",
       "text": "A computer somewhere else that answers requests. Memento rents its servers from Supabase."
     },
     {
-      "index": 80,
+      "index": 84,
       "tag": "dt",
       "text": "Database"
     },
     {
-      "index": 81,
+      "index": 85,
       "tag": "dd",
       "text": "Where saved data lives on the server side."
     },
     {
-      "index": 82,
+      "index": 86,
       "tag": "dt",
       "text": "API"
     },
     {
-      "index": 83,
+      "index": 87,
       "tag": "dd",
       "text": "The agreed way two programs talk: what to send, what comes back. Gets a much sharper definition in chapter 15."
     },
     {
-      "index": 84,
+      "index": 88,
       "tag": "dt",
       "text": "State"
     },
     {
-      "index": 85,
+      "index": 89,
       "tag": "dd",
       "text": "The app's current memory of the world. In Memento, one big object called state."
     },
     {
-      "index": 86,
+      "index": 90,
       "tag": "dt",
       "text": "Proxy"
     },
     {
-      "index": 87,
+      "index": 91,
       "tag": "dd",
       "text": "A middleman server. Memento's phone never talks to the AI directly; the proxy does, with a key the phone never sees."
     },
     {
-      "index": 88,
+      "index": 92,
       "tag": "dt",
       "text": "The network"
     },
     {
-      "index": 89,
+      "index": 93,
       "tag": "dd",
       "text": "The slow, failable part between the phone and everything else."
     },
     {
-      "index": 90,
+      "index": 94,
       "tag": "div",
       "text": "WHERE TODAY'S ANALOGY BREAKS"
     },
     {
-      "index": 91,
+      "index": 95,
       "tag": "p",
       "text": "Breaks when: you picture one waiter serving one table in order. A phone can have several requests in flight at once, replies can come back out of order, and a reply can arrive after the user has already left the screen, which is a real class of bug Memento guards against (the native code kills a request the moment the signed-in user changes). Also the \"kitchen\" is not one building: Supabase's edge function, its database, and its auth are separate services that happen to share a bill. Real model: a set of independent processes on different machines exchanging text parcels over an unreliable network, each holding its own state, with no shared clock. Every distributed-systems headache lives in that sentence. You do not need to solve them. You need to know they exist, and that \"it worked on my phone\" proves nothing about the server."
     },
     {
-      "index": 92,
+      "index": 96,
       "tag": "summary",
       "text": "RABBIT HOLE: how a tap becomes an event"
     },
     {
-      "index": 93,
+      "index": 97,
       "tag": "p",
       "text": "The touchscreen reports a grid of capacitance changes to a tiny controller chip, which works out a point, which the operating system turns into a touch with coordinates, which it delivers to the frontmost app, which (for a web app) the browser matches against the element under that point and dispatches as a \"click\" event to any listeners registered on it and its ancestors. That last part is why Memento's code calls e.stopPropagation() : without it, the tap would keep travelling up to parent elements that also have listeners. Chapter 13 shows the tree the event travels through."
     }
   ],
   "segments": [
     {
-      "blocks": [
-        0,
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7,
-        8,
-        9,
-        10,
-        11,
-        12,
-        13,
-        14,
-        15,
-        16,
-        17,
-        18,
-        19,
-        20
-      ],
-      "text": "What happens when you tap a button\n\nOne tap in Memento touches your phone, a server in a data centre, an AI company's computers, and a database, and comes back, in about two seconds. This chapter is the map of that trip. Every later chapter zooms into one stop on it.\n\nLAST TIME\n\nA computer is a CPU, memory, and a disk. A program is a file of instructions. The machine runs them literally and never knows what you meant. Your AI agents guess your meaning when they write; the machine does not guess when it runs.\n\nQuick check\n\nWhat does \"7\" + 5 print, and why?\n\nWhat is the difference between a program and a process?\n\nWhy does the 37-line action shim exist?\n\nThe idea\n\nSoftware is not one thing in one place. It is a relay. The tap starts on your phone, and the work gets handed from one computer to the next and back. Here is the whole trip for Memento's most important tap: starting a Clarity interview.\n\nRead it as a story:\n\nFinger, screen. The glass senses the touch. The phone's operating system works out which app, which spot. It hands the app an \"event\": a tap, here, now.\n\nJavaScript. Memento's code has a function waiting for exactly that event. It runs. It decides: start the interview.\n\nState. The code updates the app's memory of the world. \"Interview: loading.\" The screen is redrawn from that.\n\nThe network. The code builds a request, a small parcel of text, and sends it over Wi-Fi or cellular to an address. This is the slow, unreliable part. Everything before this took microseconds. This takes hundreds of milliseconds and can fail.\n\nThe edge function. The parcel arrives at a small program Memento wrote, running on a computer rented from Supabase. It checks the parcel, checks you are not spamming, and builds a new parcel for the AI, adding a secret key that only this server has.\n\nAnthropic. Their computers run the model and send text back. Memento pays per call.\n\nBack up. The edge function cleans the reply and sends it to your phone. JavaScript receives it, updates state: \"Interview: question one is ready.\" The screen redraws.\n\nSaved on the phone. A moment later, state is written to the phone's storage, so closing the app loses nothing.\n\nSync. If you are signed in, a copy of your state is sent to Memento's database so your other devices, and a lost phone, are covered.\n\nANALOGY (TEMPORARY)"
+      "block": 0,
+      "text": "What happens when you tap a button"
     },
     {
-      "blocks": [
-        21,
-        22,
-        23,
-        24,
-        25,
-        26,
-        27,
-        28,
-        29,
-        30,
-        31,
-        32,
-        33,
-        34,
-        35,
-        36,
-        37,
-        38,
-        39,
-        40,
-        41,
-        42
-      ],
-      "text": "Ordering at a restaurant. You (finger) tell the waiter (JavaScript) what you want. The waiter writes it on the pad (state) and walks it to the kitchen pass (the network). The kitchen (the edge function) checks the order, then hands part of it to a specialist supplier down the street (Anthropic) who has the one ingredient the kitchen is not allowed to keep in-house (the secret key). The plate comes back through the pass to the waiter to you. The pad is kept (saved on the phone). At closing, the day's orders are filed at head office (sync to the database).\n\nThe words, now that you have the picture\n\nEverything on the top row is the frontend : the part that runs on the user's device. Everything on the bottom row is the backend : the part that runs on servers the user never sees. A server is a computer somewhere else that answers requests. The database is where saved data lives on the server side. An API is the agreed way two of these programs talk to each other: what to send, what comes back. The network is the wire and radio between, and it is where speed goes to die.\n\nState is the app's current memory of the world. In Memento it is literally one big JavaScript object named state . localStorage is the small box a browser gives each website to keep things between visits. Supabase is the company Memento rents its backend from. The edge function is a proxy : a middleman, and the reason your phone never holds the AI key.\n\nWho pays for what\n\nStop\n\nWhose computer\n\nWho pays\n\nFinger to saved-on-phone\n\nThe user's phone\n\nThe user, when they bought it\n\nEdge function, database\n\nSupabase's servers\n\nMemento, monthly rent\n\nAnthropic\n\nAnthropic's servers\n\nMemento, per call, which is why free Clarity has rate limits\n\nSee it\n\nA fake version of the whole trip, in one box. Each step prints when it happens. The \"network\" steps are slow on purpose. Notice that the app prints \"screen shows: loading\" before the reply arrives. That is the phone staying responsive while it waits. Chapter 12 explains how.\n\nNow in Memento\n\nNow the real thing, stop by stop. You are not expected to understand the code yet. You are expected to see that every stop on the map has a real file and a real line, and none of it is magic.\n\nANY APP: the tap"
+      "block": 1,
+      "text": "One tap in Memento touches your phone, a server in a data centre, an AI company's computers, and a database, and comes back, in about two seconds. This chapter is the map of that trip. Every later chapter zooms into one stop on it."
     },
     {
-      "blocks": [
-        43,
-        44,
-        45,
-        46,
-        47,
-        48,
-        49,
-        50,
-        51,
-        52,
-        53,
-        54,
-        55,
-        56,
-        57,
-        58,
-        59,
-        60,
-        61,
-        62,
-        63,
-        64,
-        65,
-        66
-      ],
-      "text": "Some code registers interest in a button. When the button is tapped, that code runs. Every frontend in the world has this exact shape: \"when this happens, run that.\"\n\nMEMENTO: the tap\n\naddEventListener('click', ...) means \"when this is clicked, run this\". You will see that phrase hundreds of times in Memento.\n\nANY APP: state, then the request\n\nMark \"loading\" in state, redraw, then send the parcel and wait. The order matters: redraw first so the user sees something.\n\nMEMENTO: state, then the request\n\nSet loading. Clear any old error. Repaint. Then, further down, it calls callClaude(...) , which builds the parcel.\n\nANY APP: the address\n\nThe request goes to an address. A well-built app never sends it straight to the AI company, because the AI company needs a secret key and a phone cannot keep a secret. It goes to the app's own server first.\n\nMEMENTO: the address\n\nTwo lanes: free Clarity and paid Action, each with its own server address. The direct Anthropic address only exists for a developer's own machine.\n\nANY APP: the server and the secret\n\nThe server reads the secret from its own environment, never from the request. If the secret is missing, it refuses politely instead of crashing.\n\nMEMENTO: the server and the secret\n\nThe first line of that file says it plainly: \"the ONLY place its Anthropic key lives.\" Chapter 16 walks the whole file.\n\nANY APP: saving\n\nAfter state changes, write it somewhere that survives closing the app. Not on every keystroke, though. Wait a beat, then write once.\n\nMEMENTO: saving\n\nWait 150 milliseconds, then write to the phone. And in the same breath, schedule the sync to the cloud.\n\nANY APP: sync\n\nSend a copy of state to the database, with a note saying which version you think is current, so two devices cannot silently overwrite each other.\n\nMEMENTO: sync\n\nThe database side of that call is a function written in SQL whose first comment reads: \"A stale or blank device may never overwrite meaningful cloud work.\" Chapter 17.\n\nTHE ALTERNATIVE, AND WHY MEMENTO CHOSE THIS"
+      "block": 2,
+      "text": "LAST TIME"
     },
     {
-      "blocks": [
-        67,
-        68,
-        69,
-        70,
-        71,
-        72,
-        73,
-        74,
-        75,
-        76,
-        77,
-        78,
-        79,
-        80,
-        81,
-        82,
-        83,
-        84,
-        85,
-        86,
-        87,
-        88,
-        89,
-        90
-      ],
-      "text": "The alternative is to call Anthropic straight from the phone with the key baked into the app. It is simpler: no server to run, no rent. It is also how a founder's key ends up in a public file and gets used by strangers until the bill arrives. Memento learned this the direct way: a comment at the top of 03-ai-integration.js notes that an old key \"is in git history; it MUST be revoked.\" The proxy exists because of that. It costs a small monthly rent and one extra hop, and it buys a locked box for the key, rate limits, and a server that decides which model and prompt to use so a free user cannot dress up as a paid one.\n\nDo it\n\nExercise phone or Mac\n\nClose this page. Draw the journey map from memory. Two rows: on the phone, on someone else's server. Put the nine stops on it.\n\nNext to each stop write who pays.\n\nOpen the page again and compare. Circle what you missed. That circle is your homework for chapter 3's quick check.\n\nGo back to the sandbox above and change the 800 to 3000 . Run it. Notice \"screen shows: loading\" still prints instantly. Ask yourself how the app can keep going while it waits. Hold that question until chapter 12.\n\nASK THE AGENT WHY (paste this into Codex or Fable)\n\nWORDS YOU NOW OWN\n\nFrontend / backend\n\nWhat runs on the user's device / what runs on servers the user never sees.\n\nServer\n\nA computer somewhere else that answers requests. Memento rents its servers from Supabase.\n\nDatabase\n\nWhere saved data lives on the server side.\n\nAPI\n\nThe agreed way two programs talk: what to send, what comes back. Gets a much sharper definition in chapter 15.\n\nState\n\nThe app's current memory of the world. In Memento, one big object called state.\n\nProxy\n\nA middleman server. Memento's phone never talks to the AI directly; the proxy does, with a key the phone never sees.\n\nThe network\n\nThe slow, failable part between the phone and everything else.\n\nWHERE TODAY'S ANALOGY BREAKS"
+      "block": 3,
+      "text": "A computer is a CPU, memory, and a disk. A program is a file of instructions. The machine runs them literally and never knows what you meant. Your AI agents guess your meaning when they write; the machine does not guess when it runs."
     },
     {
-      "blocks": [
-        91,
-        92,
-        93
-      ],
-      "text": "Breaks when: you picture one waiter serving one table in order. A phone can have several requests in flight at once, replies can come back out of order, and a reply can arrive after the user has already left the screen, which is a real class of bug Memento guards against (the native code kills a request the moment the signed-in user changes). Also the \"kitchen\" is not one building: Supabase's edge function, its database, and its auth are separate services that happen to share a bill. Real model: a set of independent processes on different machines exchanging text parcels over an unreliable network, each holding its own state, with no shared clock. Every distributed-systems headache lives in that sentence. You do not need to solve them. You need to know they exist, and that \"it worked on my phone\" proves nothing about the server.\n\nRABBIT HOLE: how a tap becomes an event\n\nThe touchscreen reports a grid of capacitance changes to a tiny controller chip, which works out a point, which the operating system turns into a touch with coordinates, which it delivers to the frontmost app, which (for a web app) the browser matches against the element under that point and dispatches as a \"click\" event to any listeners registered on it and its ancestors. That last part is why Memento's code calls e.stopPropagation() : without it, the tap would keep travelling up to parent elements that also have listeners. Chapter 13 shows the tree the event travels through."
+      "block": 4,
+      "text": "Quick check"
+    },
+    {
+      "block": 5,
+      "text": "What does \"7\" + 5 print, and why?"
+    },
+    {
+      "block": 6,
+      "text": "\"75\" . The quotes make 7 text. Adding text glues. The machine applied its rule; it did not ask what you meant."
+    },
+    {
+      "block": 7,
+      "text": "What is the difference between a program and a process?"
+    },
+    {
+      "block": 8,
+      "text": "A program is the file. A process is that file while it is running, loaded into memory with the CPU walking through it."
+    },
+    {
+      "block": 9,
+      "text": "Why does the 37-line action shim exist?"
+    },
+    {
+      "block": 10,
+      "text": "Eighty places still name a deleted feature. The machine would hit a name pointing at nothing and stop. The shim catches the old name and forwards it."
+    },
+    {
+      "block": 11,
+      "text": "The idea"
+    },
+    {
+      "block": 12,
+      "text": "Software is not one thing in one place. It is a relay. The tap starts on your phone, and the work gets handed from one computer to the next and back. Here is the whole trip for Memento's most important tap: starting a Clarity interview."
+    },
+    {
+      "block": 13,
+      "text": "The journey map. You will see this picture in every chapter with one stop lit up."
+    },
+    {
+      "block": 14,
+      "text": "Read it as a story:"
+    },
+    {
+      "block": 15,
+      "text": "Finger, screen. The glass senses the touch. The phone's operating system works out which app, which spot. It hands the app an \"event\": a tap, here, now."
+    },
+    {
+      "block": 16,
+      "text": "JavaScript. Memento's code has a function waiting for exactly that event. It runs. It decides: start the interview."
+    },
+    {
+      "block": 17,
+      "text": "State. The code updates the app's memory of the world. \"Interview: loading.\" The screen is redrawn from that."
+    },
+    {
+      "block": 18,
+      "text": "The network. The code builds a request, a small parcel of text, and sends it over Wi-Fi or cellular to an address. This is the slow, unreliable part. Everything before this took microseconds. This takes hundreds of milliseconds and can fail."
+    },
+    {
+      "block": 19,
+      "text": "The edge function. The parcel arrives at a small program Memento wrote, running on a computer rented from Supabase. It checks the parcel, checks you are not spamming, and builds a new parcel for the AI, adding a secret key that only this server has."
+    },
+    {
+      "block": 20,
+      "text": "Anthropic. Their computers run the model and send text back. Memento pays per call."
+    },
+    {
+      "block": 21,
+      "text": "Back up. The edge function cleans the reply and sends it to your phone. JavaScript receives it, updates state: \"Interview: question one is ready.\" The screen redraws."
+    },
+    {
+      "block": 22,
+      "text": "Saved on the phone. A moment later, state is written to the phone's storage, so closing the app loses nothing."
+    },
+    {
+      "block": 23,
+      "text": "Sync. If you are signed in, a copy of your state is sent to Memento's database so your other devices, and a lost phone, are covered."
+    },
+    {
+      "block": 24,
+      "text": "ANALOGY (TEMPORARY)"
+    },
+    {
+      "block": 25,
+      "text": "Ordering at a restaurant. You (finger) tell the waiter (JavaScript) what you want. The waiter writes it on the pad (state) and walks it to the kitchen pass (the network). The kitchen (the edge function) checks the order, then hands part of it to a specialist supplier down the street (Anthropic) who has the one ingredient the kitchen is not allowed to keep in-house (the secret key). The plate comes back through the pass to the waiter to you. The pad is kept (saved on the phone). At closing, the day's orders are filed at head office (sync to the database)."
+    },
+    {
+      "block": 26,
+      "text": "The words, now that you have the picture"
+    },
+    {
+      "block": 27,
+      "text": "Everything on the top row is the frontend : the part that runs on the user's device. Everything on the bottom row is the backend : the part that runs on servers the user never sees. A server is a computer somewhere else that answers requests. The database is where saved data lives on the server side. An API is the agreed way two of these programs talk to each other: what to send, what comes back. The network is the wire and radio between, and it is where speed goes to die."
+    },
+    {
+      "block": 28,
+      "text": "State is the app's current memory of the world. In Memento it is literally one big JavaScript object named state . localStorage is the small box a browser gives each website to keep things between visits. Supabase is the company Memento rents its backend from. The edge function is a proxy : a middleman, and the reason your phone never holds the AI key."
+    },
+    {
+      "block": 29,
+      "text": "Who pays for what"
+    },
+    {
+      "block": 30,
+      "text": "Stop"
+    },
+    {
+      "block": 31,
+      "text": "Whose computer"
+    },
+    {
+      "block": 32,
+      "text": "Who pays"
+    },
+    {
+      "block": 33,
+      "text": "Finger to saved-on-phone"
+    },
+    {
+      "block": 34,
+      "text": "The user's phone"
+    },
+    {
+      "block": 35,
+      "text": "The user, when they bought it"
+    },
+    {
+      "block": 36,
+      "text": "Edge function, database"
+    },
+    {
+      "block": 37,
+      "text": "Supabase's servers"
+    },
+    {
+      "block": 38,
+      "text": "Memento, monthly rent"
+    },
+    {
+      "block": 39,
+      "text": "Anthropic"
+    },
+    {
+      "block": 40,
+      "text": "Anthropic's servers"
+    },
+    {
+      "block": 41,
+      "text": "Memento, per call, which is why free Clarity has rate limits"
+    },
+    {
+      "block": 42,
+      "text": "See it"
+    },
+    {
+      "block": 43,
+      "text": "A fake version of the whole trip, in one box. Each step prints when it happens. The \"network\" steps are slow on purpose. Notice that the app prints \"screen shows: loading\" before the reply arrives. That is the phone staying responsive while it waits. Chapter 12 explains how."
+    },
+    {
+      "block": 44,
+      "text": "Now in Memento"
+    },
+    {
+      "block": 45,
+      "text": "Now the real thing, stop by stop. You are not expected to understand the code yet. You are expected to see that every stop on the map has a real file and a real line, and none of it is magic."
+    },
+    {
+      "block": 46,
+      "text": "ANY APP: the tap"
+    },
+    {
+      "block": 47,
+      "text": "Some code registers interest in a button. When the button is tapped, that code runs. Every frontend in the world has this exact shape: \"when this happens, run that.\""
+    },
+    {
+      "block": 48,
+      "text": "MEMENTO: the tap"
+    },
+    {
+      "block": 49,
+      "text": "addEventListener('click', ...) means \"when this is clicked, run this\". You will see that phrase hundreds of times in Memento."
+    },
+    {
+      "block": 50,
+      "text": "ANY APP: state, then the request"
+    },
+    {
+      "block": 51,
+      "text": "Mark \"loading\" in state, redraw, then send the parcel and wait. The order matters: redraw first so the user sees something."
+    },
+    {
+      "block": 52,
+      "text": "MEMENTO: state, then the request"
+    },
+    {
+      "block": 53,
+      "text": "Set loading. Clear any old error. Repaint. Then, further down, it calls callClaude(...) , which builds the parcel."
+    },
+    {
+      "block": 54,
+      "text": "ANY APP: the address"
+    },
+    {
+      "block": 55,
+      "text": "The request goes to an address. A well-built app never sends it straight to the AI company, because the AI company needs a secret key and a phone cannot keep a secret. It goes to the app's own server first."
+    },
+    {
+      "block": 56,
+      "text": "MEMENTO: the address"
+    },
+    {
+      "block": 57,
+      "text": "Two lanes: free Clarity and paid Action, each with its own server address. The direct Anthropic address only exists for a developer's own machine."
+    },
+    {
+      "block": 58,
+      "text": "ANY APP: the server and the secret"
+    },
+    {
+      "block": 59,
+      "text": "The server reads the secret from its own environment, never from the request. If the secret is missing, it refuses politely instead of crashing."
+    },
+    {
+      "block": 60,
+      "text": "MEMENTO: the server and the secret"
+    },
+    {
+      "block": 61,
+      "text": "The first line of that file says it plainly: \"the ONLY place its Anthropic key lives.\" Chapter 16 walks the whole file."
+    },
+    {
+      "block": 62,
+      "text": "ANY APP: saving"
+    },
+    {
+      "block": 63,
+      "text": "After state changes, write it somewhere that survives closing the app. Not on every keystroke, though. Wait a beat, then write once."
+    },
+    {
+      "block": 64,
+      "text": "MEMENTO: saving"
+    },
+    {
+      "block": 65,
+      "text": "Wait 150 milliseconds, then write to the phone. And in the same breath, schedule the sync to the cloud."
+    },
+    {
+      "block": 66,
+      "text": "ANY APP: sync"
+    },
+    {
+      "block": 67,
+      "text": "Send a copy of state to the database, with a note saying which version you think is current, so two devices cannot silently overwrite each other."
+    },
+    {
+      "block": 68,
+      "text": "MEMENTO: sync"
+    },
+    {
+      "block": 69,
+      "text": "The database side of that call is a function written in SQL whose first comment reads: \"A stale or blank device may never overwrite meaningful cloud work.\" Chapter 17."
+    },
+    {
+      "block": 70,
+      "text": "THE ALTERNATIVE, AND WHY MEMENTO CHOSE THIS"
+    },
+    {
+      "block": 71,
+      "text": "The alternative is to call Anthropic straight from the phone with the key baked into the app. It is simpler: no server to run, no rent. It is also how a founder's key ends up in a public file and gets used by strangers until the bill arrives. Memento learned this the direct way: a comment at the top of 03-ai-integration.js notes that an old key \"is in git history; it MUST be revoked.\" The proxy exists because of that. It costs a small monthly rent and one extra hop, and it buys a locked box for the key, rate limits, and a server that decides which model and prompt to use so a free user cannot dress up as a paid one."
+    },
+    {
+      "block": 72,
+      "text": "Do it"
+    },
+    {
+      "block": 73,
+      "text": "Exercise phone or Mac"
+    },
+    {
+      "block": 74,
+      "text": "Close this page. Draw the journey map from memory. Two rows: on the phone, on someone else's server. Put the nine stops on it."
+    },
+    {
+      "block": 75,
+      "text": "Next to each stop write who pays."
+    },
+    {
+      "block": 76,
+      "text": "Open the page again and compare. Circle what you missed. That circle is your homework for chapter 3's quick check."
+    },
+    {
+      "block": 77,
+      "text": "Go back to the sandbox above and change the 800 to 3000 . Run it. Notice \"screen shows: loading\" still prints instantly. Ask yourself how the app can keep going while it waits. Hold that question until chapter 12."
+    },
+    {
+      "block": 78,
+      "text": "ASK THE AGENT WHY (paste this into Codex or Fable)"
+    },
+    {
+      "block": 79,
+      "text": "WORDS YOU NOW OWN"
+    },
+    {
+      "block": 80,
+      "text": "Frontend / backend"
+    },
+    {
+      "block": 81,
+      "text": "What runs on the user's device / what runs on servers the user never sees."
+    },
+    {
+      "block": 82,
+      "text": "Server"
+    },
+    {
+      "block": 83,
+      "text": "A computer somewhere else that answers requests. Memento rents its servers from Supabase."
+    },
+    {
+      "block": 84,
+      "text": "Database"
+    },
+    {
+      "block": 85,
+      "text": "Where saved data lives on the server side."
+    },
+    {
+      "block": 86,
+      "text": "API"
+    },
+    {
+      "block": 87,
+      "text": "The agreed way two programs talk: what to send, what comes back. Gets a much sharper definition in chapter 15."
+    },
+    {
+      "block": 88,
+      "text": "State"
+    },
+    {
+      "block": 89,
+      "text": "The app's current memory of the world. In Memento, one big object called state."
+    },
+    {
+      "block": 90,
+      "text": "Proxy"
+    },
+    {
+      "block": 91,
+      "text": "A middleman server. Memento's phone never talks to the AI directly; the proxy does, with a key the phone never sees."
+    },
+    {
+      "block": 92,
+      "text": "The network"
+    },
+    {
+      "block": 93,
+      "text": "The slow, failable part between the phone and everything else."
+    },
+    {
+      "block": 94,
+      "text": "WHERE TODAY'S ANALOGY BREAKS"
+    },
+    {
+      "block": 95,
+      "text": "Breaks when: you picture one waiter serving one table in order. A phone can have several requests in flight at once, replies can come back out of order, and a reply can arrive after the user has already left the screen, which is a real class of bug Memento guards against (the native code kills a request the moment the signed-in user changes). Also the \"kitchen\" is not one building: Supabase's edge function, its database, and its auth are separate services that happen to share a bill. Real model: a set of independent processes on different machines exchanging text parcels over an unreliable network, each holding its own state, with no shared clock. Every distributed-systems headache lives in that sentence. You do not need to solve them. You need to know they exist, and that \"it worked on my phone\" proves nothing about the server."
+    },
+    {
+      "block": 96,
+      "text": "RABBIT HOLE: how a tap becomes an event"
+    },
+    {
+      "block": 97,
+      "text": "The touchscreen reports a grid of capacitance changes to a tiny controller chip, which works out a point, which the operating system turns into a touch with coordinates, which it delivers to the frontmost app, which (for a web app) the browser matches against the element under that point and dispatches as a \"click\" event to any listeners registered on it and its ancestors. That last part is why Memento's code calls e.stopPropagation() : without it, the tap would keep travelling up to parent elements that also have listeners. Chapter 13 shows the tree the event travels through."
     }
   ],
-  "wordCount": 1756
+  "wordCount": 1843
 }

@@ -36,712 +36,1056 @@
     },
     {
       "index": 6,
-      "tag": "summary",
-      "text": "You delete a line from a file and commit. Is the old line gone?"
+      "tag": "div",
+      "text": "Because calling Anthropic needs a key, and anything the phone holds, a user can read. The proxy also owns the model, the prompt and the spend ceiling, so an anonymous caller cannot dress up expensive work as free work."
     },
     {
       "index": 7,
       "tag": "summary",
-      "text": "Chapter 6: what is the number a command leaves behind, and who reads it?"
+      "text": "You delete a line from a file and commit. Is the old line gone?"
     },
     {
       "index": 8,
+      "tag": "div",
+      "text": "No. The commit that contained it is still in the history. Git is a chain of snapshots, so deleting forward never erases backward. Remember this, it is half of today's chapter."
+    },
+    {
+      "index": 9,
+      "tag": "summary",
+      "text": "Chapter 6: what is the number a command leaves behind, and who reads it?"
+    },
+    {
+      "index": 10,
+      "tag": "div",
+      "text": "The exit code. Zero means it worked. && reads it to decide whether to run the next command, and so does every deploy robot, which is chapter 20."
+    },
+    {
+      "index": 11,
       "tag": "h2",
       "text": "The idea"
     },
     {
-      "index": 9,
+      "index": 12,
       "tag": "p",
       "text": "A package is a folder of somebody else's code with a name and a version number, published to a shared library on the internet. When your project uses one, that package is a dependency : your app does not run without it. A date formatter, a gesture handler, a way to draw a blurred panel, all of it already exists, free, one line away."
     },
     {
-      "index": 10,
+      "index": 13,
       "tag": "p",
       "text": "The line is in a file called package.json , which sits at the top of a project and is its identity card: the name, the version, the commands, and the list of borrowed code. Then you run npm install , and npm goes to the registry , the public warehouse at registry.npmjs.org, and downloads everything on the list into a folder called node_modules ."
     },
     {
-      "index": 11,
+      "index": 14,
       "tag": "p",
       "text": "Your list is not the real list. Every package you asked for has its own package.json, with its own dependencies, which have theirs. Those are transitive dependencies , and they arrive without anyone asking. Ask for one router and twelve hundred folders land on your disk. You did not choose them, you did not read them, and they are now running inside your product."
     },
     {
-      "index": 12,
+      "index": 15,
       "tag": "div",
       "text": "ANALOGY (TEMPORARY)"
     },
     {
-      "index": 13,
+      "index": 16,
       "tag": "p",
       "text": "You hire a plumber and write on the job sheet \"a plumber, version 3-ish\". The plumber shows up, and he brings his own electrician, who brings his own apprentice. At the end you get a receipt that names the exact humans who walked in, which van, which day. The job sheet is what you wanted. The receipt is what you got. Rehiring from the job sheet next month gets you a different crew. Rehiring from the receipt gets you the same crew."
     },
     {
-      "index": 14,
+      "index": 17,
+      "tag": "figcaption",
+      "text": "One line asked for. Five packages delivered. The lockfile is the receipt."
+    },
+    {
+      "index": 18,
       "tag": "h3",
       "text": "Semver, and what the little symbols mean"
     },
     {
-      "index": 15,
+      "index": 19,
       "tag": "p",
       "text": "Version numbers are not decoration. Almost every package follows semantic versioning , three numbers separated by dots, and each one is a promise:"
     },
     {
-      "index": 16,
+      "index": 20,
       "tag": "th",
       "text": "Part"
     },
     {
-      "index": 17,
+      "index": 21,
       "tag": "th",
       "text": "Example"
     },
     {
-      "index": 18,
+      "index": 22,
       "tag": "th",
       "text": "Promise"
     },
     {
-      "index": 19,
+      "index": 23,
       "tag": "td",
       "text": "major"
     },
     {
-      "index": 20,
+      "index": 24,
       "tag": "td",
       "text": "1 .4.2"
     },
     {
-      "index": 21,
+      "index": 25,
       "tag": "td",
       "text": "Something broke on purpose. Your code may need changing."
     },
     {
-      "index": 22,
+      "index": 26,
       "tag": "td",
       "text": "minor"
     },
     {
-      "index": 23,
+      "index": 27,
       "tag": "td",
       "text": "1. 4 .2"
     },
     {
-      "index": 24,
+      "index": 28,
       "tag": "td",
       "text": "Something was added. Your code still works."
     },
     {
-      "index": 25,
+      "index": 29,
       "tag": "td",
       "text": "patch"
     },
     {
-      "index": 26,
+      "index": 30,
       "tag": "td",
       "text": "1.4. 2"
     },
     {
-      "index": 27,
+      "index": 31,
       "tag": "td",
       "text": "Something was fixed. Nothing else changed."
     },
     {
-      "index": 28,
+      "index": 32,
       "tag": "p",
       "text": "Now the symbols. ^1.4.2 means \"this or newer, up to but not including 2.0.0\", so patches and features arrive on their own. ~1.4.2 is tighter: patches only. And 1.4.2 with no symbol means exactly that one, until a human changes the line. That last one is pinning, and it costs you free bug fixes in exchange for this: nothing about your app changes while you sleep."
     },
     {
-      "index": 29,
+      "index": 33,
       "tag": "p",
       "text": "Ranges are why the lockfile exists. package-lock.json is written by npm, not by you, and it records what actually got installed: every package, the resolved version, the URL, and an integrity hash of the bytes. It goes in git. It is the reason the app on your Mac and the app on the robot's machine are the same app."
     },
     {
-      "index": 30,
+      "index": 34,
       "tag": "p",
       "text": "Two commands that look alike and are not. npm install reads package.json, works out what satisfies the ranges, and updates the lockfile if it found something newer. npm ci ignores all that and reproduces the lockfile exactly, failing loudly if the two disagree. Humans install. Robots ci."
     },
     {
-      "index": 31,
+      "index": 35,
       "tag": "p",
       "text": "One more rule, and it is the one founders skip. An upgrade is a change. Bumping a dependency is not housekeeping, it is shipping thousands of lines of code you did not read. It gets a branch, a test run and a review, exactly like a feature."
     },
     {
-      "index": 32,
+      "index": 36,
       "tag": "h2",
       "text": "See it"
     },
     {
-      "index": 33,
+      "index": 37,
       "tag": "p",
       "text": "Fifteen lines that answer the question you will actually have when you read a package.json: does this range accept that version? Predict the twelve answers before you press Run."
     },
     {
-      "index": 34,
+      "index": 38,
       "tag": "p",
       "text": "The caret lets 1.5.0 in. The tilde does not. Nothing lets 2.0.0 in, because a major bump is the author saying out loud that he broke something. One wrinkle the real npm has and this toy does not: below 1.0.0 the rules tighten, so ^0.2.3 behaves like a tilde and stops before 0.3.0."
     },
     {
-      "index": 35,
+      "index": 39,
       "tag": "h3",
       "text": "The tree, and why node_modules is enormous"
     },
     {
-      "index": 36,
+      "index": 40,
       "tag": "p",
       "text": "Ask for one thing, get five. That is the whole lesson, and it scales badly in your favour and in nobody else's."
     },
     {
-      "index": 37,
+      "index": 41,
       "tag": "p",
       "text": "Five names here. In the real native app the same walk ends in the thousands, and node_modules is the biggest folder on the project by a distance. It is never committed, because it is derived: the lockfile plus one command rebuilds it, so storing it would be storing the answer next to the question."
     },
     {
-      "index": 38,
+      "index": 42,
       "tag": "h3",
       "text": "The half of this nobody teaches until it is too late"
     },
     {
-      "index": 39,
+      "index": 43,
       "tag": "p",
       "text": "Installing a package runs a stranger's code on your machine. Not later, at install time: npm packages can declare install scripts that execute the moment they land. That is the whole attack surface, and it has three well-known shapes. A maintainer's account gets taken over and a poisoned version is published under a name millions of projects already trust. A package is named one letter away from a popular one, which is typosquatting , and it waits for a fumbled command. Or a tiny, boring, unpaid package deep in your tree changes hands, and the new owner is not who you think. Collectively that is supply chain risk , and it is why npm install <something-i-just-googled> is never free."
     },
     {
-      "index": 40,
+      "index": 44,
       "tag": "p",
       "text": "The defences are unglamorous and they work: pin versions, commit the lockfile, let robots run npm ci , read what an upgrade changed, and prefer fewer dependencies. Every package you do not add is a package that cannot betray you."
     },
     {
-      "index": 41,
+      "index": 45,
       "tag": "h3",
       "text": "Secrets: the value the code must never contain"
     },
     {
-      "index": 42,
+      "index": 46,
       "tag": "p",
       "text": "A secret is a value your code needs at the moment it runs and must never be embedded in client code, committed to history, logged, or shown to anyone who should not have it: an API key, a database password, a billing token. It can be written down in a protected place, a local .env that git ignores or a secret manager the host reads at runtime. Write one into a normal source file and it gets saved, committed, pushed and published, and it is in the history forever."
     },
     {
-      "index": 43,
+      "index": 47,
       "tag": "p",
       "text": "So the value is handed in from outside when the program starts, as an environment variable . You met those in chapter 6 as echo $HOME . Same mechanism, serious job. On a server you set them in the hosting dashboard. On your Mac you keep them in a .env file , a list of NAME=value lines, and the first thing you do is add it to .gitignore ."
     },
     {
-      "index": 44,
+      "index": 48,
       "tag": "p",
       "text": "There is one convention worth knowing because it trips people up. In an Expo app, any variable named EXPO_PUBLIC_SOMETHING is baked into the app the user downloads. That is public by prefix : the name itself is a promise that the value is not secret. Nothing secret ever gets that prefix, and a name without the prefix never reaches the phone."
     },
     {
-      "index": 45,
+      "index": 49,
       "tag": "p",
       "text": "And the part that hurts: if a key does leak, deleting the line does nothing. The old commit still has it. You revoke the key at the vendor, which makes the leaked string worthless, and you issue a new one. Deleting is theatre. Revoking is the fix."
     },
     {
-      "index": 46,
+      "index": 50,
       "tag": "p",
       "text": "Three of those four lines are real Memento code, and they all pass. The fourth is the shape of a mistake. Scanners like this run on every push at real companies, and they are smoke alarms, not fireproofing."
     },
     {
-      "index": 47,
+      "index": 51,
       "tag": "h2",
       "text": "Now in Memento"
     },
     {
-      "index": 48,
+      "index": 52,
       "tag": "div",
       "text": "ANY APP"
     },
     {
-      "index": 49,
+      "index": 53,
       "tag": "p",
       "text": "Four things you can check on any project in about two minutes, and they tell you how seriously it takes this."
     },
     {
-      "index": 50,
+      "index": 54,
       "tag": "p",
       "text": "Is there a lockfile, and is it committed? No lockfile means every install is a dice roll."
     },
     {
-      "index": 51,
+      "index": 55,
       "tag": "p",
       "text": "Are versions pinned or open? Carets everywhere means the app changes itself."
     },
     {
-      "index": 52,
+      "index": 56,
       "tag": "p",
       "text": "Does .gitignore block .env and key files? If not, a leak is scheduled, not possible."
     },
     {
-      "index": 53,
+      "index": 57,
       "tag": "p",
       "text": "Do secrets appear only as names? Search the repo for the word KEY. You should find lookups, never values."
     },
     {
-      "index": 54,
+      "index": 58,
       "tag": "div",
       "text": "MEMENTO"
     },
     {
-      "index": 55,
+      "index": 59,
       "tag": "p",
       "text": "The native app names the exact Node it expects, then pins almost everything:"
     },
     {
-      "index": 56,
+      "index": 60,
       "tag": "p",
       "text": "Look at what is missing: carets. Almost every line is a bare number, so the app does not move unless somebody moves it. Two use ~ , and exactly one in the whole file, react-native-web on line 43, carries a ^ . Line 7 pins the Node version too, so the robot and the Mac run the same runtime."
     },
     {
-      "index": 57,
+      "index": 61,
       "tag": "p",
       "text": "The receipt for all of that is 11,554 lines and 433 KB, and it is in git:"
     },
     {
-      "index": 58,
+      "index": 62,
       "tag": "p",
       "text": "Now the supply-chain story, in the manifest itself. One dependency is not downloaded at all:"
     },
     {
-      "index": 59,
+      "index": 63,
       "tag": "p",
       "text": "Paired with line 19, that says: whoever asks for this package, however deep in the tree, gets our local copy instead. The copy's README explains why:"
     },
     {
-      "index": 60,
+      "index": 64,
       "tag": "p",
       "text": "A package three levels down had a published vulnerability, the fixed version did not fit the tree yet, so a patched copy lives in the repo under a private version, 0.5.0-memento.1 , which nobody can mistake for a real release. That is vendoring . The line about not silencing the audit is the honest part."
     },
     {
-      "index": 61,
+      "index": 65,
       "tag": "p",
       "text": "Secrets. The native ignore list blocks the signing keys and every env file:"
     },
     {
-      "index": 62,
+      "index": 66,
       "tag": "p",
       "text": "The last two lines are the pattern worth copying: block every .env file, then un-block the example. The example holds names and fake values, so a new machine knows what to fill in and nothing real is in git."
     },
     {
-      "index": 63,
+      "index": 67,
       "tag": "p",
       "text": "The server asks for its key by name, at the moment it runs:"
     },
     {
-      "index": 64,
+      "index": 68,
       "tag": "p",
       "text": "The name is in git. The value lives only in Supabase's function settings, and if it is missing the function answers 503 rather than guessing."
     },
     {
-      "index": 65,
+      "index": 69,
       "tag": "p",
       "text": "On the phone side, the same rule with a second lock on top:"
     },
     {
-      "index": 66,
+      "index": 70,
       "tag": "p",
       "text": "Every one is a dev flag, never a secret, and every one is also gated on __DEV__ , which is false in a release build. Two locks for a value that was never dangerous. That is the right amount of paranoia."
     },
     {
-      "index": 67,
+      "index": 71,
       "tag": "p",
       "text": "And the origin story, still sitting at the top of the file where it happened:"
     },
     {
-      "index": 68,
+      "index": 72,
       "tag": "p",
       "text": "Read the second line twice. Not \"was deleted\". Is in git history, and must be revoked . That is this chapter, in your own repo."
     },
     {
-      "index": 69,
+      "index": 73,
       "tag": "p",
       "text": "Last, an absence. ls memento-app/ and there is no package.json, no lockfile, no node_modules. The whole web app has zero npm and build-time dependencies, which is what \"no bundler\" actually means: nothing to install and nothing to resolve. It is not zero third-party code. One runtime dependency is loaded straight from a CDN, pinned to an exact version with an integrity hash, at memento-app/index.html:816 (web pin ca8afc8):"
     },
     {
-      "index": 70,
+      "index": 74,
       "tag": "p",
       "text": "That is one stranger's code in the browser, not none. The pin plus the hash mean the browser refuses the file if a single byte of it changes."
     },
     {
-      "index": 71,
+      "index": 75,
       "tag": "div",
       "text": "THE ALTERNATIVE, AND WHY MEMENTO CHOSE THIS"
     },
     {
-      "index": 72,
+      "index": 76,
       "tag": "p",
       "text": "The web app could have used a framework and a build step. It would have got an import graph, module boundaries and automatic cache busting, paid for with a few hundred packages, an install step before anyone can see a change, and a permanent upgrade treadmill. Memento took the opposite deal: three dozen plain JavaScript files loaded in order by number, no install, no build, and a whole class of risk that does not apply. The native app cannot make that trade, because React Native is packages, so it takes the other defence: pin nearly every version, commit an 11,554-line lockfile, and vendor a patched copy of one broken transitive dependency. Two apps, two strategies, one rule underneath: know exactly what is in the building."
     },
     {
-      "index": 73,
+      "index": 77,
       "tag": "h2",
       "text": "Do it"
     },
     {
-      "index": 74,
+      "index": 78,
       "tag": "div",
       "text": "Exercise MAC"
     },
     {
-      "index": 75,
+      "index": 79,
       "tag": "li",
       "text": "cat ~/Downloads/MEMENTO/memento-native/package.json . Find engines and the dependency list. Count the lines carrying a caret. The answer is one."
     },
     {
-      "index": 76,
+      "index": 80,
       "tag": "li",
       "text": "head -20 ~/Downloads/MEMENTO/memento-native/package-lock.json . Same name, same version, then \"packages\" . The receipt, machine-written."
     },
     {
-      "index": 77,
+      "index": 81,
       "tag": "li",
       "text": "Pick one dependency, say react-native-mmkv . Get the wanted version: grep -n \"react-native-mmkv\" ~/Downloads/MEMENTO/memento-native/package.json ."
     },
     {
-      "index": 78,
+      "index": 82,
       "tag": "li",
       "text": "Get the version that landed: grep -n -A3 '\"node_modules/react-native-mmkv\"' ~/Downloads/MEMENTO/memento-native/package-lock.json . Same number, plus a URL and a hash. Say out loud which file is the wish and which is the fact."
     },
     {
-      "index": 79,
+      "index": 83,
       "tag": "li",
       "text": "ls ~/Downloads/MEMENTO/memento-app/package.json . You get \"No such file or directory\". That is not a mistake, that is the architecture."
     },
     {
-      "index": 80,
+      "index": 84,
       "tag": "li",
       "text": "cd ~/Downloads/CODE-BOOK/sandbox/v1 , then cat secrets.env.example . One line: a name and a fake value."
     },
     {
-      "index": 81,
+      "index": 85,
       "tag": "li",
       "text": "cp secrets.env.example secrets.env , then cat .gitignore , then git status from inside CODE-BOOK. Your new file does not appear. Git sees it and ignores it, because .gitignore line 1 says secrets.env . That is the whole defence."
     },
     {
-      "index": 82,
+      "index": 86,
       "tag": "li",
       "text": "rm secrets.env . It was thirty seconds old and you made it."
     },
     {
-      "index": 83,
+      "index": 87,
       "tag": "li",
       "text": "grep -rn \"ANTHROPIC_API_KEY\" ~/Downloads/MEMENTO/supabase | head . Every hit is a name being looked up. Not one is a value. That is what a clean repo looks like."
     },
     {
-      "index": 84,
+      "index": 88,
       "tag": "div",
       "text": "ASK THE AGENT WHY (paste this into Codex or Fable)"
     },
     {
-      "index": 85,
+      "index": 89,
       "tag": "div",
       "text": "WORDS YOU NOW OWN"
     },
     {
-      "index": 86,
+      "index": 90,
       "tag": "dt",
       "text": "Package / dependency"
     },
     {
-      "index": 87,
+      "index": 91,
       "tag": "dd",
       "text": "A named, versioned folder of someone else's code that your app needs to run. Published to the npm registry, listed in package.json."
     },
     {
-      "index": 88,
+      "index": 92,
       "tag": "dt",
       "text": "package.json"
     },
     {
-      "index": 89,
+      "index": 93,
       "tag": "dd",
       "text": "A project's identity card: name, version, commands, and the list of borrowed code with the version ranges it accepts."
     },
     {
-      "index": 90,
+      "index": 94,
       "tag": "dt",
       "text": "Lockfile"
     },
     {
-      "index": 91,
+      "index": 95,
       "tag": "dd",
       "text": "package-lock.json . Machine-written, committed to git. The exact version, URL and content hash of every package that actually landed, including the ones you never asked for."
     },
     {
-      "index": 92,
+      "index": 96,
       "tag": "dt",
       "text": "Semver"
     },
     {
-      "index": 93,
+      "index": 97,
       "tag": "dd",
       "text": "major.minor.patch. ^ accepts new minors, ~ accepts patches only, a bare number accepts nothing new. A major bump is the author saying he broke something."
     },
     {
-      "index": 94,
+      "index": 98,
       "tag": "dt",
       "text": "Transitive dependency"
     },
     {
-      "index": 95,
+      "index": 99,
       "tag": "dd",
       "text": "A package your packages brought with them. You did not choose it and it runs in your app anyway."
     },
     {
-      "index": 96,
+      "index": 100,
       "tag": "dt",
       "text": "node_modules"
     },
     {
-      "index": 97,
+      "index": 101,
       "tag": "dd",
       "text": "The borrowed code on disk. Derived from the lockfile, enormous, never committed."
     },
     {
-      "index": 98,
+      "index": 102,
       "tag": "dt",
       "text": "npm install vs npm ci"
     },
     {
-      "index": 99,
+      "index": 103,
       "tag": "dd",
       "text": "Install resolves ranges and may update the lockfile. ci reproduces the lockfile exactly and fails if it disagrees with package.json. Humans install, robots ci."
     },
     {
-      "index": 100,
+      "index": 104,
       "tag": "dt",
       "text": "Supply chain risk"
     },
     {
-      "index": 101,
+      "index": 105,
       "tag": "dd",
       "text": "A package can run code when it installs, a maintainer's account can be stolen, and a name can be one letter off. Every dependency added is trust extended to a stranger."
     },
     {
-      "index": 102,
+      "index": 106,
       "tag": "dt",
       "text": "Vendoring"
     },
     {
-      "index": 103,
+      "index": 107,
       "tag": "dd",
       "text": "Copying a dependency into your own repo so you control its contents. Memento does it for one patched package, under a private version number."
     },
     {
-      "index": 104,
+      "index": 108,
       "tag": "dt",
       "text": "Secret"
     },
     {
-      "index": 105,
+      "index": 109,
       "tag": "dd",
       "text": "A value the code needs and must never contain. It arrives from the environment at run time and lives in the hosting dashboard, not in a file."
     },
     {
-      "index": 106,
+      "index": 110,
       "tag": "dt",
       "text": ".env and .gitignore"
     },
     {
-      "index": 107,
+      "index": 111,
       "tag": "dd",
       "text": "A local file of NAME=value lines, and the list that tells git to pretend it does not exist. Commit the example, never the real one."
     },
     {
-      "index": 108,
+      "index": 112,
       "tag": "dt",
       "text": "Public by prefix"
     },
     {
-      "index": 109,
+      "index": 113,
       "tag": "dd",
       "text": "EXPO_PUBLIC_* is baked into the downloaded app on purpose. The prefix is a promise that the value is not secret."
     },
     {
-      "index": 110,
+      "index": 114,
       "tag": "dt",
       "text": "Revoke"
     },
     {
-      "index": 111,
+      "index": 115,
       "tag": "dd",
       "text": "What you do to a leaked key. Deleting the line does nothing, because the old commit still has it. Revoking makes the string worthless."
     },
     {
-      "index": 112,
+      "index": 116,
       "tag": "div",
       "text": "WHERE TODAY'S ANALOGY BREAKS"
     },
     {
-      "index": 113,
+      "index": 117,
       "tag": "p",
       "text": "Breaks when: you picture subcontractors as people who leave at the end of the day. A dependency never leaves. Its code sits inside your running app, on the same side of every trust boundary you have, with the same access to the same data. A plumber also cannot be replaced overnight by a stranger who bought his van and kept the name painted on the side, which is exactly the supply-chain attack. The receipt leaks too: the lockfile does not only record what arrived, it can cause what arrives, because npm ci reads the lockfile first and the ranges second. Real model: package.json is a set of constraints, the lockfile is one solved solution to those constraints plus a content hash per package, and node_modules is that solution unpacked onto disk. A secret is never part of any of it: it is a value the operating system hands the process at start, which is why it can be rotated without touching a line of code."
     },
     {
-      "index": 114,
+      "index": 118,
       "tag": "summary",
       "text": "RABBIT HOLE: why does a tiny package have a thousand folders under it"
     },
     {
-      "index": 115,
+      "index": 119,
       "tag": "p",
       "text": "The npm ecosystem grew a culture of very small packages, each doing one thing, each depending on a few others. It made publishing easy and it made trees deep. The famous demonstration was left-pad in 2016: one developer unpublished an eleven-line package over a naming dispute and broke builds across the industry for hours, because thousands of projects depended on it without knowing. npm changed its unpublish rules afterwards. The structural lesson survived: the danger in a dependency tree is almost never the package you chose, it is the fourth-level one you have never heard of, maintained by one unpaid person, that everything quietly rests on."
     }
   ],
   "segments": [
     {
-      "blocks": [
-        0,
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7,
-        8,
-        9,
-        10,
-        11,
-        12,
-        13,
-        14
-      ],
-      "text": "Packages, dependencies, secrets\n\nMost of the code that ships in your app was written by strangers, and you agreed to it by typing one command. This chapter is about what you agreed to, how to see it, and the one class of value that must never be written down in the code at all.\n\nLAST TIME\n\nAuthentication is who you are, authorization is what you may do, and they are different questions answered by different code. A token is a ticket with an expiry, not a password. Memento's anon key is public on purpose because Row Level Security, not secrecy, is what protects the rows.\n\nQuick check\n\nWhy does Memento's phone call an edge function instead of calling Anthropic directly?\n\nYou delete a line from a file and commit. Is the old line gone?\n\nChapter 6: what is the number a command leaves behind, and who reads it?\n\nThe idea\n\nA package is a folder of somebody else's code with a name and a version number, published to a shared library on the internet. When your project uses one, that package is a dependency : your app does not run without it. A date formatter, a gesture handler, a way to draw a blurred panel, all of it already exists, free, one line away.\n\nThe line is in a file called package.json , which sits at the top of a project and is its identity card: the name, the version, the commands, and the list of borrowed code. Then you run npm install , and npm goes to the registry , the public warehouse at registry.npmjs.org, and downloads everything on the list into a folder called node_modules .\n\nYour list is not the real list. Every package you asked for has its own package.json, with its own dependencies, which have theirs. Those are transitive dependencies , and they arrive without anyone asking. Ask for one router and twelve hundred folders land on your disk. You did not choose them, you did not read them, and they are now running inside your product.\n\nANALOGY (TEMPORARY)\n\nYou hire a plumber and write on the job sheet \"a plumber, version 3-ish\". The plumber shows up, and he brings his own electrician, who brings his own apprentice. At the end you get a receipt that names the exact humans who walked in, which van, which day. The job sheet is what you wanted. The receipt is what you got. Rehiring from the job sheet next month gets you a different crew. Rehiring from the receipt gets you the same crew.\n\nSemver, and what the little symbols mean"
+      "block": 0,
+      "text": "Packages, dependencies, secrets"
     },
     {
-      "blocks": [
-        15,
-        16,
-        17,
-        18,
-        19,
-        20,
-        21,
-        22,
-        23,
-        24,
-        25,
-        26,
-        27,
-        28,
-        29,
-        30,
-        31,
-        32,
-        33,
-        34,
-        35,
-        36
-      ],
-      "text": "Version numbers are not decoration. Almost every package follows semantic versioning , three numbers separated by dots, and each one is a promise:\n\nPart\n\nExample\n\nPromise\n\nmajor\n\n1 .4.2\n\nSomething broke on purpose. Your code may need changing.\n\nminor\n\n1. 4 .2\n\nSomething was added. Your code still works.\n\npatch\n\n1.4. 2\n\nSomething was fixed. Nothing else changed.\n\nNow the symbols. ^1.4.2 means \"this or newer, up to but not including 2.0.0\", so patches and features arrive on their own. ~1.4.2 is tighter: patches only. And 1.4.2 with no symbol means exactly that one, until a human changes the line. That last one is pinning, and it costs you free bug fixes in exchange for this: nothing about your app changes while you sleep.\n\nRanges are why the lockfile exists. package-lock.json is written by npm, not by you, and it records what actually got installed: every package, the resolved version, the URL, and an integrity hash of the bytes. It goes in git. It is the reason the app on your Mac and the app on the robot's machine are the same app.\n\nTwo commands that look alike and are not. npm install reads package.json, works out what satisfies the ranges, and updates the lockfile if it found something newer. npm ci ignores all that and reproduces the lockfile exactly, failing loudly if the two disagree. Humans install. Robots ci.\n\nOne more rule, and it is the one founders skip. An upgrade is a change. Bumping a dependency is not housekeeping, it is shipping thousands of lines of code you did not read. It gets a branch, a test run and a review, exactly like a feature.\n\nSee it\n\nFifteen lines that answer the question you will actually have when you read a package.json: does this range accept that version? Predict the twelve answers before you press Run.\n\nThe caret lets 1.5.0 in. The tilde does not. Nothing lets 2.0.0 in, because a major bump is the author saying out loud that he broke something. One wrinkle the real npm has and this toy does not: below 1.0.0 the rules tighten, so ^0.2.3 behaves like a tilde and stops before 0.3.0.\n\nThe tree, and why node_modules is enormous\n\nAsk for one thing, get five. That is the whole lesson, and it scales badly in your favour and in nobody else's."
+      "block": 1,
+      "text": "Most of the code that ships in your app was written by strangers, and you agreed to it by typing one command. This chapter is about what you agreed to, how to see it, and the one class of value that must never be written down in the code at all."
     },
     {
-      "blocks": [
-        37,
-        38,
-        39,
-        40,
-        41,
-        42,
-        43
-      ],
-      "text": "Five names here. In the real native app the same walk ends in the thousands, and node_modules is the biggest folder on the project by a distance. It is never committed, because it is derived: the lockfile plus one command rebuilds it, so storing it would be storing the answer next to the question.\n\nThe half of this nobody teaches until it is too late\n\nInstalling a package runs a stranger's code on your machine. Not later, at install time: npm packages can declare install scripts that execute the moment they land. That is the whole attack surface, and it has three well-known shapes. A maintainer's account gets taken over and a poisoned version is published under a name millions of projects already trust. A package is named one letter away from a popular one, which is typosquatting , and it waits for a fumbled command. Or a tiny, boring, unpaid package deep in your tree changes hands, and the new owner is not who you think. Collectively that is supply chain risk , and it is why npm install <something-i-just-googled> is never free.\n\nThe defences are unglamorous and they work: pin versions, commit the lockfile, let robots run npm ci , read what an upgrade changed, and prefer fewer dependencies. Every package you do not add is a package that cannot betray you.\n\nSecrets: the value the code must never contain\n\nA secret is a value your code needs at the moment it runs and must never be embedded in client code, committed to history, logged, or shown to anyone who should not have it: an API key, a database password, a billing token. It can be written down in a protected place, a local .env that git ignores or a secret manager the host reads at runtime. Write one into a normal source file and it gets saved, committed, pushed and published, and it is in the history forever.\n\nSo the value is handed in from outside when the program starts, as an environment variable . You met those in chapter 6 as echo $HOME . Same mechanism, serious job. On a server you set them in the hosting dashboard. On your Mac you keep them in a .env file , a list of NAME=value lines, and the first thing you do is add it to .gitignore ."
+      "block": 2,
+      "text": "LAST TIME"
     },
     {
-      "blocks": [
-        44,
-        45,
-        46,
-        47,
-        48,
-        49,
-        50,
-        51,
-        52,
-        53,
-        54,
-        55,
-        56,
-        57,
-        58,
-        59,
-        60,
-        61
-      ],
-      "text": "There is one convention worth knowing because it trips people up. In an Expo app, any variable named EXPO_PUBLIC_SOMETHING is baked into the app the user downloads. That is public by prefix : the name itself is a promise that the value is not secret. Nothing secret ever gets that prefix, and a name without the prefix never reaches the phone.\n\nAnd the part that hurts: if a key does leak, deleting the line does nothing. The old commit still has it. You revoke the key at the vendor, which makes the leaked string worthless, and you issue a new one. Deleting is theatre. Revoking is the fix.\n\nThree of those four lines are real Memento code, and they all pass. The fourth is the shape of a mistake. Scanners like this run on every push at real companies, and they are smoke alarms, not fireproofing.\n\nNow in Memento\n\nANY APP\n\nFour things you can check on any project in about two minutes, and they tell you how seriously it takes this.\n\nIs there a lockfile, and is it committed? No lockfile means every install is a dice roll.\n\nAre versions pinned or open? Carets everywhere means the app changes itself.\n\nDoes .gitignore block .env and key files? If not, a leak is scheduled, not possible.\n\nDo secrets appear only as names? Search the repo for the word KEY. You should find lookups, never values.\n\nMEMENTO\n\nThe native app names the exact Node it expects, then pins almost everything:\n\nLook at what is missing: carets. Almost every line is a bare number, so the app does not move unless somebody moves it. Two use ~ , and exactly one in the whole file, react-native-web on line 43, carries a ^ . Line 7 pins the Node version too, so the robot and the Mac run the same runtime.\n\nThe receipt for all of that is 11,554 lines and 433 KB, and it is in git:\n\nNow the supply-chain story, in the manifest itself. One dependency is not downloaded at all:\n\nPaired with line 19, that says: whoever asks for this package, however deep in the tree, gets our local copy instead. The copy's README explains why:\n\nA package three levels down had a published vulnerability, the fixed version did not fit the tree yet, so a patched copy lives in the repo under a private version, 0.5.0-memento.1 , which nobody can mistake for a real release. That is vendoring . The line about not silencing the audit is the honest part.\n\nSecrets. The native ignore list blocks the signing keys and every env file:"
+      "block": 3,
+      "text": "Authentication is who you are, authorization is what you may do, and they are different questions answered by different code. A token is a ticket with an expiry, not a password. Memento's anon key is public on purpose because Row Level Security, not secrecy, is what protects the rows."
     },
     {
-      "blocks": [
-        62,
-        63,
-        64,
-        65,
-        66,
-        67,
-        68,
-        69,
-        70,
-        71,
-        72,
-        73,
-        74
-      ],
-      "text": "The last two lines are the pattern worth copying: block every .env file, then un-block the example. The example holds names and fake values, so a new machine knows what to fill in and nothing real is in git.\n\nThe server asks for its key by name, at the moment it runs:\n\nThe name is in git. The value lives only in Supabase's function settings, and if it is missing the function answers 503 rather than guessing.\n\nOn the phone side, the same rule with a second lock on top:\n\nEvery one is a dev flag, never a secret, and every one is also gated on __DEV__ , which is false in a release build. Two locks for a value that was never dangerous. That is the right amount of paranoia.\n\nAnd the origin story, still sitting at the top of the file where it happened:\n\nRead the second line twice. Not \"was deleted\". Is in git history, and must be revoked . That is this chapter, in your own repo.\n\nLast, an absence. ls memento-app/ and there is no package.json, no lockfile, no node_modules. The whole web app has zero npm and build-time dependencies, which is what \"no bundler\" actually means: nothing to install and nothing to resolve. It is not zero third-party code. One runtime dependency is loaded straight from a CDN, pinned to an exact version with an integrity hash, at memento-app/index.html:816 (web pin ca8afc8):\n\nThat is one stranger's code in the browser, not none. The pin plus the hash mean the browser refuses the file if a single byte of it changes.\n\nTHE ALTERNATIVE, AND WHY MEMENTO CHOSE THIS\n\nThe web app could have used a framework and a build step. It would have got an import graph, module boundaries and automatic cache busting, paid for with a few hundred packages, an install step before anyone can see a change, and a permanent upgrade treadmill. Memento took the opposite deal: three dozen plain JavaScript files loaded in order by number, no install, no build, and a whole class of risk that does not apply. The native app cannot make that trade, because React Native is packages, so it takes the other defence: pin nearly every version, commit an 11,554-line lockfile, and vendor a patched copy of one broken transitive dependency. Two apps, two strategies, one rule underneath: know exactly what is in the building.\n\nDo it\n\nExercise MAC"
+      "block": 4,
+      "text": "Quick check"
     },
     {
-      "blocks": [
-        75,
-        76,
-        77,
-        78,
-        79,
-        80,
-        81,
-        82,
-        83,
-        84,
-        85,
-        86,
-        87,
-        88,
-        89,
-        90,
-        91,
-        92,
-        93,
-        94,
-        95,
-        96,
-        97,
-        98
-      ],
-      "text": "cat ~/Downloads/MEMENTO/memento-native/package.json . Find engines and the dependency list. Count the lines carrying a caret. The answer is one.\n\nhead -20 ~/Downloads/MEMENTO/memento-native/package-lock.json . Same name, same version, then \"packages\" . The receipt, machine-written.\n\nPick one dependency, say react-native-mmkv . Get the wanted version: grep -n \"react-native-mmkv\" ~/Downloads/MEMENTO/memento-native/package.json .\n\nGet the version that landed: grep -n -A3 '\"node_modules/react-native-mmkv\"' ~/Downloads/MEMENTO/memento-native/package-lock.json . Same number, plus a URL and a hash. Say out loud which file is the wish and which is the fact.\n\nls ~/Downloads/MEMENTO/memento-app/package.json . You get \"No such file or directory\". That is not a mistake, that is the architecture.\n\ncd ~/Downloads/CODE-BOOK/sandbox/v1 , then cat secrets.env.example . One line: a name and a fake value.\n\ncp secrets.env.example secrets.env , then cat .gitignore , then git status from inside CODE-BOOK. Your new file does not appear. Git sees it and ignores it, because .gitignore line 1 says secrets.env . That is the whole defence.\n\nrm secrets.env . It was thirty seconds old and you made it.\n\ngrep -rn \"ANTHROPIC_API_KEY\" ~/Downloads/MEMENTO/supabase | head . Every hit is a name being looked up. Not one is a value. That is what a clean repo looks like.\n\nASK THE AGENT WHY (paste this into Codex or Fable)\n\nWORDS YOU NOW OWN\n\nPackage / dependency\n\nA named, versioned folder of someone else's code that your app needs to run. Published to the npm registry, listed in package.json.\n\npackage.json\n\nA project's identity card: name, version, commands, and the list of borrowed code with the version ranges it accepts.\n\nLockfile\n\npackage-lock.json . Machine-written, committed to git. The exact version, URL and content hash of every package that actually landed, including the ones you never asked for.\n\nSemver\n\nmajor.minor.patch. ^ accepts new minors, ~ accepts patches only, a bare number accepts nothing new. A major bump is the author saying he broke something.\n\nTransitive dependency\n\nA package your packages brought with them. You did not choose it and it runs in your app anyway.\n\nnode_modules\n\nThe borrowed code on disk. Derived from the lockfile, enormous, never committed.\n\nnpm install vs npm ci"
+      "block": 5,
+      "text": "Why does Memento's phone call an edge function instead of calling Anthropic directly?"
     },
     {
-      "blocks": [
-        99,
-        100,
-        101,
-        102,
-        103,
-        104,
-        105,
-        106,
-        107,
-        108,
-        109,
-        110,
-        111,
-        112,
-        113,
-        114
-      ],
-      "text": "Install resolves ranges and may update the lockfile. ci reproduces the lockfile exactly and fails if it disagrees with package.json. Humans install, robots ci.\n\nSupply chain risk\n\nA package can run code when it installs, a maintainer's account can be stolen, and a name can be one letter off. Every dependency added is trust extended to a stranger.\n\nVendoring\n\nCopying a dependency into your own repo so you control its contents. Memento does it for one patched package, under a private version number.\n\nSecret\n\nA value the code needs and must never contain. It arrives from the environment at run time and lives in the hosting dashboard, not in a file.\n\n.env and .gitignore\n\nA local file of NAME=value lines, and the list that tells git to pretend it does not exist. Commit the example, never the real one.\n\nPublic by prefix\n\nEXPO_PUBLIC_* is baked into the downloaded app on purpose. The prefix is a promise that the value is not secret.\n\nRevoke\n\nWhat you do to a leaked key. Deleting the line does nothing, because the old commit still has it. Revoking makes the string worthless.\n\nWHERE TODAY'S ANALOGY BREAKS\n\nBreaks when: you picture subcontractors as people who leave at the end of the day. A dependency never leaves. Its code sits inside your running app, on the same side of every trust boundary you have, with the same access to the same data. A plumber also cannot be replaced overnight by a stranger who bought his van and kept the name painted on the side, which is exactly the supply-chain attack. The receipt leaks too: the lockfile does not only record what arrived, it can cause what arrives, because npm ci reads the lockfile first and the ranges second. Real model: package.json is a set of constraints, the lockfile is one solved solution to those constraints plus a content hash per package, and node_modules is that solution unpacked onto disk. A secret is never part of any of it: it is a value the operating system hands the process at start, which is why it can be rotated without touching a line of code.\n\nRABBIT HOLE: why does a tiny package have a thousand folders under it"
+      "block": 6,
+      "text": "Because calling Anthropic needs a key, and anything the phone holds, a user can read. The proxy also owns the model, the prompt and the spend ceiling, so an anonymous caller cannot dress up expensive work as free work."
     },
     {
-      "blocks": [
-        115
-      ],
+      "block": 7,
+      "text": "You delete a line from a file and commit. Is the old line gone?"
+    },
+    {
+      "block": 8,
+      "text": "No. The commit that contained it is still in the history. Git is a chain of snapshots, so deleting forward never erases backward. Remember this, it is half of today's chapter."
+    },
+    {
+      "block": 9,
+      "text": "Chapter 6: what is the number a command leaves behind, and who reads it?"
+    },
+    {
+      "block": 10,
+      "text": "The exit code. Zero means it worked. && reads it to decide whether to run the next command, and so does every deploy robot, which is chapter 20."
+    },
+    {
+      "block": 11,
+      "text": "The idea"
+    },
+    {
+      "block": 12,
+      "text": "A package is a folder of somebody else's code with a name and a version number, published to a shared library on the internet. When your project uses one, that package is a dependency : your app does not run without it. A date formatter, a gesture handler, a way to draw a blurred panel, all of it already exists, free, one line away."
+    },
+    {
+      "block": 13,
+      "text": "The line is in a file called package.json , which sits at the top of a project and is its identity card: the name, the version, the commands, and the list of borrowed code. Then you run npm install , and npm goes to the registry , the public warehouse at registry.npmjs.org, and downloads everything on the list into a folder called node_modules ."
+    },
+    {
+      "block": 14,
+      "text": "Your list is not the real list. Every package you asked for has its own package.json, with its own dependencies, which have theirs. Those are transitive dependencies , and they arrive without anyone asking. Ask for one router and twelve hundred folders land on your disk. You did not choose them, you did not read them, and they are now running inside your product."
+    },
+    {
+      "block": 15,
+      "text": "ANALOGY (TEMPORARY)"
+    },
+    {
+      "block": 16,
+      "text": "You hire a plumber and write on the job sheet \"a plumber, version 3-ish\". The plumber shows up, and he brings his own electrician, who brings his own apprentice. At the end you get a receipt that names the exact humans who walked in, which van, which day. The job sheet is what you wanted. The receipt is what you got. Rehiring from the job sheet next month gets you a different crew. Rehiring from the receipt gets you the same crew."
+    },
+    {
+      "block": 17,
+      "text": "One line asked for. Five packages delivered. The lockfile is the receipt."
+    },
+    {
+      "block": 18,
+      "text": "Semver, and what the little symbols mean"
+    },
+    {
+      "block": 19,
+      "text": "Version numbers are not decoration. Almost every package follows semantic versioning , three numbers separated by dots, and each one is a promise:"
+    },
+    {
+      "block": 20,
+      "text": "Part"
+    },
+    {
+      "block": 21,
+      "text": "Example"
+    },
+    {
+      "block": 22,
+      "text": "Promise"
+    },
+    {
+      "block": 23,
+      "text": "major"
+    },
+    {
+      "block": 24,
+      "text": "1 .4.2"
+    },
+    {
+      "block": 25,
+      "text": "Something broke on purpose. Your code may need changing."
+    },
+    {
+      "block": 26,
+      "text": "minor"
+    },
+    {
+      "block": 27,
+      "text": "1. 4 .2"
+    },
+    {
+      "block": 28,
+      "text": "Something was added. Your code still works."
+    },
+    {
+      "block": 29,
+      "text": "patch"
+    },
+    {
+      "block": 30,
+      "text": "1.4. 2"
+    },
+    {
+      "block": 31,
+      "text": "Something was fixed. Nothing else changed."
+    },
+    {
+      "block": 32,
+      "text": "Now the symbols. ^1.4.2 means \"this or newer, up to but not including 2.0.0\", so patches and features arrive on their own. ~1.4.2 is tighter: patches only. And 1.4.2 with no symbol means exactly that one, until a human changes the line. That last one is pinning, and it costs you free bug fixes in exchange for this: nothing about your app changes while you sleep."
+    },
+    {
+      "block": 33,
+      "text": "Ranges are why the lockfile exists. package-lock.json is written by npm, not by you, and it records what actually got installed: every package, the resolved version, the URL, and an integrity hash of the bytes. It goes in git. It is the reason the app on your Mac and the app on the robot's machine are the same app."
+    },
+    {
+      "block": 34,
+      "text": "Two commands that look alike and are not. npm install reads package.json, works out what satisfies the ranges, and updates the lockfile if it found something newer. npm ci ignores all that and reproduces the lockfile exactly, failing loudly if the two disagree. Humans install. Robots ci."
+    },
+    {
+      "block": 35,
+      "text": "One more rule, and it is the one founders skip. An upgrade is a change. Bumping a dependency is not housekeeping, it is shipping thousands of lines of code you did not read. It gets a branch, a test run and a review, exactly like a feature."
+    },
+    {
+      "block": 36,
+      "text": "See it"
+    },
+    {
+      "block": 37,
+      "text": "Fifteen lines that answer the question you will actually have when you read a package.json: does this range accept that version? Predict the twelve answers before you press Run."
+    },
+    {
+      "block": 38,
+      "text": "The caret lets 1.5.0 in. The tilde does not. Nothing lets 2.0.0 in, because a major bump is the author saying out loud that he broke something. One wrinkle the real npm has and this toy does not: below 1.0.0 the rules tighten, so ^0.2.3 behaves like a tilde and stops before 0.3.0."
+    },
+    {
+      "block": 39,
+      "text": "The tree, and why node_modules is enormous"
+    },
+    {
+      "block": 40,
+      "text": "Ask for one thing, get five. That is the whole lesson, and it scales badly in your favour and in nobody else's."
+    },
+    {
+      "block": 41,
+      "text": "Five names here. In the real native app the same walk ends in the thousands, and node_modules is the biggest folder on the project by a distance. It is never committed, because it is derived: the lockfile plus one command rebuilds it, so storing it would be storing the answer next to the question."
+    },
+    {
+      "block": 42,
+      "text": "The half of this nobody teaches until it is too late"
+    },
+    {
+      "block": 43,
+      "text": "Installing a package runs a stranger's code on your machine. Not later, at install time: npm packages can declare install scripts that execute the moment they land. That is the whole attack surface, and it has three well-known shapes. A maintainer's account gets taken over and a poisoned version is published under a name millions of projects already trust. A package is named one letter away from a popular one, which is typosquatting , and it waits for a fumbled command. Or a tiny, boring, unpaid package deep in your tree changes hands, and the new owner is not who you think. Collectively that is supply chain risk , and it is why npm install <something-i-just-googled> is never free."
+    },
+    {
+      "block": 44,
+      "text": "The defences are unglamorous and they work: pin versions, commit the lockfile, let robots run npm ci , read what an upgrade changed, and prefer fewer dependencies. Every package you do not add is a package that cannot betray you."
+    },
+    {
+      "block": 45,
+      "text": "Secrets: the value the code must never contain"
+    },
+    {
+      "block": 46,
+      "text": "A secret is a value your code needs at the moment it runs and must never be embedded in client code, committed to history, logged, or shown to anyone who should not have it: an API key, a database password, a billing token. It can be written down in a protected place, a local .env that git ignores or a secret manager the host reads at runtime. Write one into a normal source file and it gets saved, committed, pushed and published, and it is in the history forever."
+    },
+    {
+      "block": 47,
+      "text": "So the value is handed in from outside when the program starts, as an environment variable . You met those in chapter 6 as echo $HOME . Same mechanism, serious job. On a server you set them in the hosting dashboard. On your Mac you keep them in a .env file , a list of NAME=value lines, and the first thing you do is add it to .gitignore ."
+    },
+    {
+      "block": 48,
+      "text": "There is one convention worth knowing because it trips people up. In an Expo app, any variable named EXPO_PUBLIC_SOMETHING is baked into the app the user downloads. That is public by prefix : the name itself is a promise that the value is not secret. Nothing secret ever gets that prefix, and a name without the prefix never reaches the phone."
+    },
+    {
+      "block": 49,
+      "text": "And the part that hurts: if a key does leak, deleting the line does nothing. The old commit still has it. You revoke the key at the vendor, which makes the leaked string worthless, and you issue a new one. Deleting is theatre. Revoking is the fix."
+    },
+    {
+      "block": 50,
+      "text": "Three of those four lines are real Memento code, and they all pass. The fourth is the shape of a mistake. Scanners like this run on every push at real companies, and they are smoke alarms, not fireproofing."
+    },
+    {
+      "block": 51,
+      "text": "Now in Memento"
+    },
+    {
+      "block": 52,
+      "text": "ANY APP"
+    },
+    {
+      "block": 53,
+      "text": "Four things you can check on any project in about two minutes, and they tell you how seriously it takes this."
+    },
+    {
+      "block": 54,
+      "text": "Is there a lockfile, and is it committed? No lockfile means every install is a dice roll."
+    },
+    {
+      "block": 55,
+      "text": "Are versions pinned or open? Carets everywhere means the app changes itself."
+    },
+    {
+      "block": 56,
+      "text": "Does .gitignore block .env and key files? If not, a leak is scheduled, not possible."
+    },
+    {
+      "block": 57,
+      "text": "Do secrets appear only as names? Search the repo for the word KEY. You should find lookups, never values."
+    },
+    {
+      "block": 58,
+      "text": "MEMENTO"
+    },
+    {
+      "block": 59,
+      "text": "The native app names the exact Node it expects, then pins almost everything:"
+    },
+    {
+      "block": 60,
+      "text": "Look at what is missing: carets. Almost every line is a bare number, so the app does not move unless somebody moves it. Two use ~ , and exactly one in the whole file, react-native-web on line 43, carries a ^ . Line 7 pins the Node version too, so the robot and the Mac run the same runtime."
+    },
+    {
+      "block": 61,
+      "text": "The receipt for all of that is 11,554 lines and 433 KB, and it is in git:"
+    },
+    {
+      "block": 62,
+      "text": "Now the supply-chain story, in the manifest itself. One dependency is not downloaded at all:"
+    },
+    {
+      "block": 63,
+      "text": "Paired with line 19, that says: whoever asks for this package, however deep in the tree, gets our local copy instead. The copy's README explains why:"
+    },
+    {
+      "block": 64,
+      "text": "A package three levels down had a published vulnerability, the fixed version did not fit the tree yet, so a patched copy lives in the repo under a private version, 0.5.0-memento.1 , which nobody can mistake for a real release. That is vendoring . The line about not silencing the audit is the honest part."
+    },
+    {
+      "block": 65,
+      "text": "Secrets. The native ignore list blocks the signing keys and every env file:"
+    },
+    {
+      "block": 66,
+      "text": "The last two lines are the pattern worth copying: block every .env file, then un-block the example. The example holds names and fake values, so a new machine knows what to fill in and nothing real is in git."
+    },
+    {
+      "block": 67,
+      "text": "The server asks for its key by name, at the moment it runs:"
+    },
+    {
+      "block": 68,
+      "text": "The name is in git. The value lives only in Supabase's function settings, and if it is missing the function answers 503 rather than guessing."
+    },
+    {
+      "block": 69,
+      "text": "On the phone side, the same rule with a second lock on top:"
+    },
+    {
+      "block": 70,
+      "text": "Every one is a dev flag, never a secret, and every one is also gated on __DEV__ , which is false in a release build. Two locks for a value that was never dangerous. That is the right amount of paranoia."
+    },
+    {
+      "block": 71,
+      "text": "And the origin story, still sitting at the top of the file where it happened:"
+    },
+    {
+      "block": 72,
+      "text": "Read the second line twice. Not \"was deleted\". Is in git history, and must be revoked . That is this chapter, in your own repo."
+    },
+    {
+      "block": 73,
+      "text": "Last, an absence. ls memento-app/ and there is no package.json, no lockfile, no node_modules. The whole web app has zero npm and build-time dependencies, which is what \"no bundler\" actually means: nothing to install and nothing to resolve. It is not zero third-party code. One runtime dependency is loaded straight from a CDN, pinned to an exact version with an integrity hash, at memento-app/index.html:816 (web pin ca8afc8):"
+    },
+    {
+      "block": 74,
+      "text": "That is one stranger's code in the browser, not none. The pin plus the hash mean the browser refuses the file if a single byte of it changes."
+    },
+    {
+      "block": 75,
+      "text": "THE ALTERNATIVE, AND WHY MEMENTO CHOSE THIS"
+    },
+    {
+      "block": 76,
+      "text": "The web app could have used a framework and a build step. It would have got an import graph, module boundaries and automatic cache busting, paid for with a few hundred packages, an install step before anyone can see a change, and a permanent upgrade treadmill. Memento took the opposite deal: three dozen plain JavaScript files loaded in order by number, no install, no build, and a whole class of risk that does not apply. The native app cannot make that trade, because React Native is packages, so it takes the other defence: pin nearly every version, commit an 11,554-line lockfile, and vendor a patched copy of one broken transitive dependency. Two apps, two strategies, one rule underneath: know exactly what is in the building."
+    },
+    {
+      "block": 77,
+      "text": "Do it"
+    },
+    {
+      "block": 78,
+      "text": "Exercise MAC"
+    },
+    {
+      "block": 79,
+      "text": "cat ~/Downloads/MEMENTO/memento-native/package.json . Find engines and the dependency list. Count the lines carrying a caret. The answer is one."
+    },
+    {
+      "block": 80,
+      "text": "head -20 ~/Downloads/MEMENTO/memento-native/package-lock.json . Same name, same version, then \"packages\" . The receipt, machine-written."
+    },
+    {
+      "block": 81,
+      "text": "Pick one dependency, say react-native-mmkv . Get the wanted version: grep -n \"react-native-mmkv\" ~/Downloads/MEMENTO/memento-native/package.json ."
+    },
+    {
+      "block": 82,
+      "text": "Get the version that landed: grep -n -A3 '\"node_modules/react-native-mmkv\"' ~/Downloads/MEMENTO/memento-native/package-lock.json . Same number, plus a URL and a hash. Say out loud which file is the wish and which is the fact."
+    },
+    {
+      "block": 83,
+      "text": "ls ~/Downloads/MEMENTO/memento-app/package.json . You get \"No such file or directory\". That is not a mistake, that is the architecture."
+    },
+    {
+      "block": 84,
+      "text": "cd ~/Downloads/CODE-BOOK/sandbox/v1 , then cat secrets.env.example . One line: a name and a fake value."
+    },
+    {
+      "block": 85,
+      "text": "cp secrets.env.example secrets.env , then cat .gitignore , then git status from inside CODE-BOOK. Your new file does not appear. Git sees it and ignores it, because .gitignore line 1 says secrets.env . That is the whole defence."
+    },
+    {
+      "block": 86,
+      "text": "rm secrets.env . It was thirty seconds old and you made it."
+    },
+    {
+      "block": 87,
+      "text": "grep -rn \"ANTHROPIC_API_KEY\" ~/Downloads/MEMENTO/supabase | head . Every hit is a name being looked up. Not one is a value. That is what a clean repo looks like."
+    },
+    {
+      "block": 88,
+      "text": "ASK THE AGENT WHY (paste this into Codex or Fable)"
+    },
+    {
+      "block": 89,
+      "text": "WORDS YOU NOW OWN"
+    },
+    {
+      "block": 90,
+      "text": "Package / dependency"
+    },
+    {
+      "block": 91,
+      "text": "A named, versioned folder of someone else's code that your app needs to run. Published to the npm registry, listed in package.json."
+    },
+    {
+      "block": 92,
+      "text": "package.json"
+    },
+    {
+      "block": 93,
+      "text": "A project's identity card: name, version, commands, and the list of borrowed code with the version ranges it accepts."
+    },
+    {
+      "block": 94,
+      "text": "Lockfile"
+    },
+    {
+      "block": 95,
+      "text": "package-lock.json . Machine-written, committed to git. The exact version, URL and content hash of every package that actually landed, including the ones you never asked for."
+    },
+    {
+      "block": 96,
+      "text": "Semver"
+    },
+    {
+      "block": 97,
+      "text": "major.minor.patch. ^ accepts new minors, ~ accepts patches only, a bare number accepts nothing new. A major bump is the author saying he broke something."
+    },
+    {
+      "block": 98,
+      "text": "Transitive dependency"
+    },
+    {
+      "block": 99,
+      "text": "A package your packages brought with them. You did not choose it and it runs in your app anyway."
+    },
+    {
+      "block": 100,
+      "text": "node_modules"
+    },
+    {
+      "block": 101,
+      "text": "The borrowed code on disk. Derived from the lockfile, enormous, never committed."
+    },
+    {
+      "block": 102,
+      "text": "npm install vs npm ci"
+    },
+    {
+      "block": 103,
+      "text": "Install resolves ranges and may update the lockfile. ci reproduces the lockfile exactly and fails if it disagrees with package.json. Humans install, robots ci."
+    },
+    {
+      "block": 104,
+      "text": "Supply chain risk"
+    },
+    {
+      "block": 105,
+      "text": "A package can run code when it installs, a maintainer's account can be stolen, and a name can be one letter off. Every dependency added is trust extended to a stranger."
+    },
+    {
+      "block": 106,
+      "text": "Vendoring"
+    },
+    {
+      "block": 107,
+      "text": "Copying a dependency into your own repo so you control its contents. Memento does it for one patched package, under a private version number."
+    },
+    {
+      "block": 108,
+      "text": "Secret"
+    },
+    {
+      "block": 109,
+      "text": "A value the code needs and must never contain. It arrives from the environment at run time and lives in the hosting dashboard, not in a file."
+    },
+    {
+      "block": 110,
+      "text": ".env and .gitignore"
+    },
+    {
+      "block": 111,
+      "text": "A local file of NAME=value lines, and the list that tells git to pretend it does not exist. Commit the example, never the real one."
+    },
+    {
+      "block": 112,
+      "text": "Public by prefix"
+    },
+    {
+      "block": 113,
+      "text": "EXPO_PUBLIC_* is baked into the downloaded app on purpose. The prefix is a promise that the value is not secret."
+    },
+    {
+      "block": 114,
+      "text": "Revoke"
+    },
+    {
+      "block": 115,
+      "text": "What you do to a leaked key. Deleting the line does nothing, because the old commit still has it. Revoking makes the string worthless."
+    },
+    {
+      "block": 116,
+      "text": "WHERE TODAY'S ANALOGY BREAKS"
+    },
+    {
+      "block": 117,
+      "text": "Breaks when: you picture subcontractors as people who leave at the end of the day. A dependency never leaves. Its code sits inside your running app, on the same side of every trust boundary you have, with the same access to the same data. A plumber also cannot be replaced overnight by a stranger who bought his van and kept the name painted on the side, which is exactly the supply-chain attack. The receipt leaks too: the lockfile does not only record what arrived, it can cause what arrives, because npm ci reads the lockfile first and the ranges second. Real model: package.json is a set of constraints, the lockfile is one solved solution to those constraints plus a content hash per package, and node_modules is that solution unpacked onto disk. A secret is never part of any of it: it is a value the operating system hands the process at start, which is why it can be rotated without touching a line of code."
+    },
+    {
+      "block": 118,
+      "text": "RABBIT HOLE: why does a tiny package have a thousand folders under it"
+    },
+    {
+      "block": 119,
       "text": "The npm ecosystem grew a culture of very small packages, each doing one thing, each depending on a few others. It made publishing easy and it made trees deep. The famous demonstration was left-pad in 2016: one developer unpublished an eleven-line package over a naming dispute and broke builds across the industry for hours, because thousands of projects depended on it without knowing. npm changed its unpublish rules afterwards. The structural lesson survived: the danger in a dependency tree is almost never the package you chose, it is the fourth-level one you have never heard of, maintained by one unpaid person, that everything quietly rests on."
     }
   ],
-  "wordCount": 2903
+  "wordCount": 3012
 }

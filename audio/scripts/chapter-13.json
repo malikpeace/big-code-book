@@ -36,577 +36,876 @@
     },
     {
       "index": 6,
-      "tag": "summary",
-      "text": "Two names point at the same object and you change it through one. What does the other one see?"
+      "tag": "div",
+      "text": "Writing a function defines it. Nothing runs until something calls it. Defining is the recipe card, calling is handing it to the cook."
     },
     {
       "index": 7,
       "tag": "summary",
-      "text": "What does typeof cost you, and when should you reach for it?"
+      "text": "Two names point at the same object and you change it through one. What does the other one see?"
     },
     {
       "index": 8,
+      "tag": "div",
+      "text": "The change. Assignment copies the reference, not the object. That is chapter 11's aliasing bug and it is behind most \"but I did not touch that\" moments."
+    },
+    {
+      "index": 9,
+      "tag": "summary",
+      "text": "What does typeof cost you, and when should you reach for it?"
+    },
+    {
+      "index": 10,
+      "tag": "div",
+      "text": "Nothing, and immediately. The instant a value behaves strangely, ask it what it is. Text that looks like a number is the most expensive bug in the language."
+    },
+    {
+      "index": 11,
       "tag": "h2",
       "text": "The idea"
     },
     {
-      "index": 9,
+      "index": 12,
       "tag": "p",
       "text": "Three separate things doing three separate jobs, smeared into one word: \"the frontend\"."
     },
     {
-      "index": 10,
+      "index": 13,
       "tag": "p",
       "text": "HTML is the skeleton. What exists, and what is inside what. A heading, a button, a card with three things in it. No colours, no positions, no behaviour."
     },
     {
-      "index": 11,
+      "index": 14,
       "tag": "p",
       "text": "CSS is the skin. Colour, size, spacing, corner radius, blur. It never adds or removes anything, it dresses what HTML already declared."
     },
     {
-      "index": 12,
+      "index": 15,
       "tag": "p",
       "text": "The DOM is what the browser builds when it reads that HTML: a live tree of objects in memory. The file is a one-time instruction for building it. After that the file is history and the tree is the app. JavaScript changes the screen by changing the tree."
     },
     {
-      "index": 13,
+      "index": 16,
       "tag": "div",
       "text": "ANALOGY (TEMPORARY)"
     },
     {
-      "index": 14,
+      "index": 17,
       "tag": "p",
       "text": "HTML is the architect's drawing. The DOM is the actual building, standing up, with people inside. CSS is the paint, the lighting, and the furniture. You cannot renovate a house by editing the drawing after it is built, and you cannot change a page by editing the HTML file while it is open. You walk into the building and move a wall. That is what document.querySelector is: walking in and finding the room."
     },
     {
-      "index": 15,
+      "index": 18,
+      "tag": "figcaption",
+      "text": "Memento's real top few branches. Every element has exactly one parent and any number of children, which is why \"the tree\" is not a metaphor. It is the data structure."
+    },
+    {
+      "index": 19,
       "tag": "h3",
       "text": "The four words you need for HTML"
     },
     {
-      "index": 16,
+      "index": 20,
       "tag": "p",
       "text": "An element is one node in the tree: an opening tag, contents, a closing tag. <button>Save</button> . Putting one element inside another is what makes it a tree. An attribute is extra information inside the opening tag, like type=\"button\" . Two of them matter most. An id is a unique name for one element and it is how JavaScript finds a specific thing. A class is a label you can stick on any number of elements and it is how CSS styles a whole category at once. That is the whole language for our purposes."
     },
     {
-      "index": 17,
+      "index": 21,
       "tag": "h3",
       "text": "CSS in one screenful"
     },
     {
-      "index": 18,
+      "index": 22,
       "tag": "p",
       "text": "A CSS rule has a selector saying who it applies to, then properties saying what to do to them. .chip means every element carrying that class, #app means the one element with that id, and each line inside the braces is one property."
     },
     {
-      "index": 19,
+      "index": 23,
       "tag": "p",
       "text": "Now the part that eats days. Several rules can hit the same element and disagree. The cascade is the tie-break: more specific wins, so an id beats a class and a class beats a tag name, and equal specificity means the later rule wins. This is why \"I set the colour and nothing happened\" is almost never a lie. The colour was set, then something more specific overruled it. A style that refuses to apply is a fight you lost, not a broken property."
     },
     {
-      "index": 20,
+      "index": 24,
       "tag": "p",
       "text": "The last CSS idea is the one Memento runs on. A custom property is a variable: --accent: #3ad9f5; declared once, then var(--accent) read in forty places. Change the one line and forty places move together. People call these design tokens."
     },
     {
-      "index": 21,
+      "index": 25,
       "tag": "h3",
       "text": "How JavaScript touches the screen"
     },
     {
-      "index": 22,
+      "index": 26,
       "tag": "p",
       "text": "Four moves cover most of what you will read."
     },
     {
-      "index": 23,
+      "index": 27,
       "tag": "th",
       "text": "Move"
     },
     {
-      "index": 24,
+      "index": 28,
       "tag": "th",
       "text": "What it does"
     },
     {
-      "index": 25,
+      "index": 29,
       "tag": "td",
       "text": "querySelector ('#streak')"
     },
     {
-      "index": 26,
+      "index": 30,
       "tag": "td",
       "text": "Walks the tree and hands back the first element matching that CSS selector. Your way in."
     },
     {
-      "index": 27,
+      "index": 31,
       "tag": "td",
       "text": "textContent = '7'"
     },
     {
-      "index": 28,
+      "index": 32,
       "tag": "td",
       "text": "Replaces the words inside an element. The safe way to show data, because it can never be read as markup."
     },
     {
-      "index": 29,
+      "index": 33,
       "tag": "td",
       "text": "classList .toggle('done')"
     },
     {
-      "index": 30,
+      "index": 34,
       "tag": "td",
       "text": "Adds or removes a class, which lets CSS decide what that means. Behaviour in JS, appearance in CSS."
     },
     {
-      "index": 31,
+      "index": 35,
       "tag": "td",
       "text": "style.strokeDashoffset = '0'"
     },
     {
-      "index": 32,
+      "index": 36,
       "tag": "td",
       "text": "Sets one property directly on that one element. Wins every cascade fight, which is why it is a last resort."
     },
     {
-      "index": 33,
+      "index": 37,
       "tag": "p",
       "text": "Then events. When you tap, the browser makes an event object and offers it to the deepest element under your finger, then to that element's parent, then its parent, up to the document. That upward trip is bubbling . It is a feature, because one listener on a card can handle everything inside it, and a trap, because a button inside a tappable card fires both and the user gets two things at once. e. stopPropagation () is a handler saying \"I dealt with this, do not pass it up\". Memento's screens are cards inside cards, so it calls that constantly."
     },
     {
-      "index": 34,
+      "index": 38,
       "tag": "h2",
       "text": "See it"
     },
     {
-      "index": 35,
+      "index": 39,
       "tag": "p",
       "text": "These boxes render a real page in a throwaway frame, with console.log printing underneath. Predict, run, poke."
     },
     {
-      "index": 36,
+      "index": 40,
       "tag": "p",
       "text": "Nothing rewrote the HTML. One node got new words and the browser repainted it. Now the same idea with the look left to CSS."
     },
     {
-      "index": 37,
+      "index": 41,
       "tag": "p",
       "text": "The JavaScript never mentions green. It flips a label; the stylesheet decides what the label means. That separation is the whole reason CSS exists. Last one, bubbling:"
     },
     {
-      "index": 38,
+      "index": 42,
       "tag": "p",
       "text": "Tap the inner button and two lines print, button first, then card. One tap, two handlers, because the event walked up. Tap the quiet one and only one line prints. That difference is the bug behind \"why did it open twice\"."
     },
     {
-      "index": 39,
+      "index": 43,
       "tag": "h2",
       "text": "Now in Memento"
     },
     {
-      "index": 40,
+      "index": 44,
       "tag": "div",
       "text": "ANY APP"
     },
     {
-      "index": 41,
+      "index": 45,
       "tag": "p",
       "text": "A web app ships one HTML file: mostly empty containers with ids, plus a list of scripts. The containers are sockets; the scripts fill them at runtime. That file is the skeleton of the whole product, and the script list is what it is made of."
     },
     {
-      "index": 42,
+      "index": 46,
       "tag": "div",
       "text": "MEMENTO"
     },
     {
-      "index": 43,
+      "index": 47,
       "tag": "p",
       "text": "The shell: a root element with an id, a header, and an empty <main> that JavaScript fills."
     },
     {
-      "index": 44,
+      "index": 48,
       "tag": "p",
       "text": "Then the load order: 39 files by number, each tagged with a version so browsers fetch the new copy."
     },
     {
-      "index": 45,
+      "index": 49,
       "tag": "p",
       "text": "Memento's visual laws, the ones in CLAUDE.md that sound like taste, are CSS statements. \"Real glass\" is backdrop-filter: blur(24-40px) saturate(1.3-1.6) . \"Nothing bleeds under the notch\" is one token read from the device:"
     },
     {
-      "index": 46,
+      "index": 50,
       "tag": "p",
       "text": "Safe area insets are numbers the phone reports: how much room the notch and the home indicator steal. The 0px fallback is why a desktop preview can never prove that law. The colours are tokens, declared once, with a comment:"
     },
     {
-      "index": 47,
+      "index": 51,
       "tag": "p",
       "text": "The comment says \"today's exact purple\" and the value is cyan, because the purple was killed in v711 and the comment never got the memo. Comments rot, code does not. Believe the code."
     },
     {
-      "index": 48,
+      "index": 52,
       "tag": "h3",
       "text": "Two ways to hear a tap, both live in Memento"
     },
     {
-      "index": 49,
+      "index": 53,
       "tag": "p",
       "text": "The first is an inline handler : JavaScript written straight into an HTML attribute. Clarity's close button does it twice, click and the faster pointer event, so a tap never waits:"
     },
     {
-      "index": 50,
+      "index": 54,
       "tag": "p",
       "text": "The second is addEventListener , attached from JavaScript after the element exists. These are the summary tabs, and they are the whole chapter in eight lines: find elements, listen, stop the bubble, toggle classes, let CSS do the rest."
     },
     {
-      "index": 51,
+      "index": 55,
       "tag": "p",
       "text": "That e.stopPropagation() is there because the tabs sit inside a fullscreen Clarity surface with its own tap handling. Without it, choosing a tab would also poke the surface behind it."
     },
     {
-      "index": 52,
+      "index": 56,
       "tag": "div",
       "text": "THE ALTERNATIVE, AND WHY MEMENTO CHOSE THIS"
     },
     {
-      "index": 53,
+      "index": 57,
       "tag": "p",
       "text": "Inline onclick is the older style: instantly readable, no wiring, and impossible to remove, replace, or double up later. addEventListener is the modern default, and you can attach several, remove them, and keep logic out of the markup. Memento uses both because the close button is one hard-coded control that will never need a second listener, while the tabs are built at runtime and cannot carry handlers in markup that does not exist yet. The bigger alternative is a framework that wires all of it for you, which is what the native rebuild bought. The cost here is that every listener is hand-attached and hand-removed, and a forgotten removal is a real leak."
     },
     {
-      "index": 54,
+      "index": 58,
       "tag": "h3",
       "text": "Native cameo: no HTML at all"
     },
     {
-      "index": 55,
+      "index": 59,
       "tag": "p",
       "text": "React Native has no browser and no DOM. It draws real iOS views, the same ones Apple's own apps use, so there is no cascade and no stylesheet file. The ideas survive as plain objects:"
     },
     {
-      "index": 56,
+      "index": 60,
       "tag": "p",
       "text": "Same names, same hex values, no CSS. --text-hi became textHi . The design survived a whole platform change because it was tokens, not scattered colours."
     },
     {
-      "index": 57,
+      "index": 61,
       "tag": "h2",
       "text": "Do it"
     },
     {
-      "index": 58,
+      "index": 62,
       "tag": "div",
       "text": "Exercise MAC"
     },
     {
-      "index": 59,
+      "index": 63,
       "tag": "li",
       "text": "Open ~/Downloads/CODE-BOOK/sandbox/v1/index.html in Safari or Chrome. Double-clicking the file is enough, no server needed."
     },
     {
-      "index": 60,
+      "index": 64,
       "tag": "li",
       "text": "Open style.css in your editor. Line 3 holds the tokens. Find --accent: #3fd94e; ."
     },
     {
-      "index": 61,
+      "index": 65,
       "tag": "li",
       "text": "Change it to #3ad9f5 , save, reload. Count what moved: the ring, the input's focus border, the done state. One line, several places."
     },
     {
-      "index": 62,
+      "index": 66,
       "tag": "li",
       "text": "Break it on purpose: add color: red; to the h1 rule, then add .card h1 { color: blue; } underneath it. Reload. Blue wins, because two selectors beat one. That is the cascade, felt rather than read."
     },
     {
-      "index": 63,
+      "index": 67,
       "tag": "div",
       "text": "On a phone instead phone"
     },
     {
-      "index": 64,
+      "index": 68,
       "tag": "li",
       "text": "Change #1fa32d to any hex you like, in both places, and press Run."
     },
     {
-      "index": 65,
+      "index": 69,
       "tag": "li",
       "text": "Then add #chip { background: black !important; } inside the style block and run again. An id plus a shout beats a class."
     },
     {
-      "index": 66,
+      "index": 70,
       "tag": "div",
       "text": "ASK THE AGENT WHY (paste this into Codex or Fable)"
     },
     {
-      "index": 67,
+      "index": 71,
       "tag": "div",
       "text": "WORDS YOU NOW OWN"
     },
     {
-      "index": 68,
+      "index": 72,
       "tag": "dt",
       "text": "HTML"
     },
     {
-      "index": 69,
+      "index": 73,
       "tag": "dd",
       "text": "The skeleton. What exists on the page and what is nested inside what."
     },
     {
-      "index": 70,
+      "index": 74,
       "tag": "dt",
       "text": "Element / attribute"
     },
     {
-      "index": 71,
+      "index": 75,
       "tag": "dd",
       "text": "One node in the tree / extra information written inside its opening tag."
     },
     {
-      "index": 72,
+      "index": 76,
       "tag": "dt",
       "text": "id / class"
     },
     {
-      "index": 73,
+      "index": 77,
       "tag": "dd",
       "text": "A unique name for one element / a reusable label for many. JavaScript usually hunts by id, CSS usually styles by class."
     },
     {
-      "index": 74,
+      "index": 78,
       "tag": "dt",
       "text": "CSS"
     },
     {
-      "index": 75,
+      "index": 79,
       "tag": "dd",
       "text": "The skin. Selectors pick elements, properties say what to do to them."
     },
     {
-      "index": 76,
+      "index": 80,
       "tag": "dt",
       "text": "Cascade"
     },
     {
-      "index": 77,
+      "index": 81,
       "tag": "dd",
       "text": "The tie-break when rules disagree. More specific wins, then later wins. Most \"my style did nothing\" is a lost cascade fight."
     },
     {
-      "index": 78,
+      "index": 82,
       "tag": "dt",
       "text": "Custom property"
     },
     {
-      "index": 79,
+      "index": 83,
       "tag": "dd",
       "text": "A CSS variable, written --name , read with var(--name) . Memento's design tokens are these."
     },
     {
-      "index": 80,
+      "index": 84,
       "tag": "dt",
       "text": "DOM"
     },
     {
-      "index": 81,
+      "index": 85,
       "tag": "dd",
       "text": "The live tree of objects the browser builds from your HTML. The file is the instruction; the tree is the app."
     },
     {
-      "index": 82,
+      "index": 86,
       "tag": "dt",
       "text": "querySelector / textContent / classList"
     },
     {
-      "index": 83,
+      "index": 87,
       "tag": "dd",
       "text": "Find an element / replace its words / add and remove its labels. The three moves behind almost every screen update in Memento."
     },
     {
-      "index": 84,
+      "index": 88,
       "tag": "dt",
       "text": "Event / bubbling"
     },
     {
-      "index": 85,
+      "index": 89,
       "tag": "dd",
       "text": "The object the browser makes when something happens / its trip up the tree from the deepest element to the document."
     },
     {
-      "index": 86,
+      "index": 90,
       "tag": "dt",
       "text": "stopPropagation"
     },
     {
-      "index": 87,
+      "index": 91,
       "tag": "dd",
       "text": "A handler saying \"I dealt with it, do not pass it up\". Memento's defence against one tap firing two things."
     },
     {
-      "index": 88,
+      "index": 92,
       "tag": "dt",
       "text": "Safe area inset"
     },
     {
-      "index": 89,
+      "index": 93,
       "tag": "dd",
       "text": "How much room the notch and home indicator steal, reported by the phone, read in CSS with env() ."
     },
     {
-      "index": 90,
+      "index": 94,
       "tag": "dt",
       "text": "Inline handler / addEventListener"
     },
     {
-      "index": 91,
+      "index": 95,
       "tag": "dd",
       "text": "JavaScript written into an HTML attribute / a listener attached from code. Memento has both, on purpose."
     },
     {
-      "index": 92,
+      "index": 96,
       "tag": "div",
       "text": "WHERE TODAY'S ANALOGY BREAKS"
     },
     {
-      "index": 93,
+      "index": 97,
       "tag": "p",
       "text": "Breaks when: the building rebuilds itself. A house stands still once built. The DOM gets torn down and re-raised constantly, hundreds of nodes at a time, every time a Memento module opens. The picture also implies the HTML file stays the truth. It does not. A second into a page's life the only truth is the tree in memory, and it can look nothing like the file. Real model: the DOM is mutable state that happens to be visible. Which raises the next chapter's question: if the screen is state you can edit directly, and your data is also state, what stops the two from disagreeing? Nothing, automatically. That is chapter 14."
     },
     {
-      "index": 94,
+      "index": 98,
       "tag": "summary",
       "text": "RABBIT HOLE: why touching the tree too often makes a phone stutter"
     },
     {
-      "index": 95,
+      "index": 99,
       "tag": "p",
       "text": "Reading a size out of the DOM, like offsetHeight , forces the browser to work out the layout right now. Writing marks it dirty. Alternate read, write, read, write in a loop and you force a full recalculation every pass. That is layout thrashing. The fix is boring: all the reads, then all the writes. Chapter 25 measures it."
     }
   ],
   "segments": [
     {
-      "blocks": [
-        0,
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7,
-        8,
-        9,
-        10,
-        11,
-        12,
-        13,
-        14,
-        15,
-        16
-      ],
-      "text": "HTML, CSS, and how a screen gets drawn\n\nEvery screen you have ever looked at in Memento is a tree of boxes with a stylesheet painted over it. Once you can see the tree, \"the button is in the wrong place\" stops being magic and becomes a thing with an address.\n\nLAST TIME\n\nJavaScript runs on one thread, so anything slow has to be handed off and waited for. await parks the current job and lets the thread keep serving taps, it does not freeze the phone. The queue is why a slow AI reply never locks the screen, and why the order of your log lines surprises you.\n\nQuick check\n\nYou write a function and nothing happens. Why?\n\nTwo names point at the same object and you change it through one. What does the other one see?\n\nWhat does typeof cost you, and when should you reach for it?\n\nThe idea\n\nThree separate things doing three separate jobs, smeared into one word: \"the frontend\".\n\nHTML is the skeleton. What exists, and what is inside what. A heading, a button, a card with three things in it. No colours, no positions, no behaviour.\n\nCSS is the skin. Colour, size, spacing, corner radius, blur. It never adds or removes anything, it dresses what HTML already declared.\n\nThe DOM is what the browser builds when it reads that HTML: a live tree of objects in memory. The file is a one-time instruction for building it. After that the file is history and the tree is the app. JavaScript changes the screen by changing the tree.\n\nANALOGY (TEMPORARY)\n\nHTML is the architect's drawing. The DOM is the actual building, standing up, with people inside. CSS is the paint, the lighting, and the furniture. You cannot renovate a house by editing the drawing after it is built, and you cannot change a page by editing the HTML file while it is open. You walk into the building and move a wall. That is what document.querySelector is: walking in and finding the room.\n\nThe four words you need for HTML\n\nAn element is one node in the tree: an opening tag, contents, a closing tag. <button>Save</button> . Putting one element inside another is what makes it a tree. An attribute is extra information inside the opening tag, like type=\"button\" . Two of them matter most. An id is a unique name for one element and it is how JavaScript finds a specific thing. A class is a label you can stick on any number of elements and it is how CSS styles a whole category at once. That is the whole language for our purposes."
+      "block": 0,
+      "text": "HTML, CSS, and how a screen gets drawn"
     },
     {
-      "blocks": [
-        17,
-        18,
-        19,
-        20,
-        21,
-        22,
-        23,
-        24,
-        25,
-        26,
-        27,
-        28,
-        29,
-        30,
-        31,
-        32,
-        33,
-        34,
-        35,
-        36
-      ],
-      "text": "CSS in one screenful\n\nA CSS rule has a selector saying who it applies to, then properties saying what to do to them. .chip means every element carrying that class, #app means the one element with that id, and each line inside the braces is one property.\n\nNow the part that eats days. Several rules can hit the same element and disagree. The cascade is the tie-break: more specific wins, so an id beats a class and a class beats a tag name, and equal specificity means the later rule wins. This is why \"I set the colour and nothing happened\" is almost never a lie. The colour was set, then something more specific overruled it. A style that refuses to apply is a fight you lost, not a broken property.\n\nThe last CSS idea is the one Memento runs on. A custom property is a variable: --accent: #3ad9f5; declared once, then var(--accent) read in forty places. Change the one line and forty places move together. People call these design tokens.\n\nHow JavaScript touches the screen\n\nFour moves cover most of what you will read.\n\nMove\n\nWhat it does\n\nquerySelector ('#streak')\n\nWalks the tree and hands back the first element matching that CSS selector. Your way in.\n\ntextContent = '7'\n\nReplaces the words inside an element. The safe way to show data, because it can never be read as markup.\n\nclassList .toggle('done')\n\nAdds or removes a class, which lets CSS decide what that means. Behaviour in JS, appearance in CSS.\n\nstyle.strokeDashoffset = '0'\n\nSets one property directly on that one element. Wins every cascade fight, which is why it is a last resort.\n\nThen events. When you tap, the browser makes an event object and offers it to the deepest element under your finger, then to that element's parent, then its parent, up to the document. That upward trip is bubbling . It is a feature, because one listener on a card can handle everything inside it, and a trap, because a button inside a tappable card fires both and the user gets two things at once. e. stopPropagation () is a handler saying \"I dealt with this, do not pass it up\". Memento's screens are cards inside cards, so it calls that constantly.\n\nSee it\n\nThese boxes render a real page in a throwaway frame, with console.log printing underneath. Predict, run, poke.\n\nNothing rewrote the HTML. One node got new words and the browser repainted it. Now the same idea with the look left to CSS."
+      "block": 1,
+      "text": "Every screen you have ever looked at in Memento is a tree of boxes with a stylesheet painted over it. Once you can see the tree, \"the button is in the wrong place\" stops being magic and becomes a thing with an address."
     },
     {
-      "blocks": [
-        37,
-        38,
-        39,
-        40,
-        41,
-        42,
-        43,
-        44,
-        45,
-        46,
-        47,
-        48,
-        49,
-        50,
-        51,
-        52
-      ],
-      "text": "The JavaScript never mentions green. It flips a label; the stylesheet decides what the label means. That separation is the whole reason CSS exists. Last one, bubbling:\n\nTap the inner button and two lines print, button first, then card. One tap, two handlers, because the event walked up. Tap the quiet one and only one line prints. That difference is the bug behind \"why did it open twice\".\n\nNow in Memento\n\nANY APP\n\nA web app ships one HTML file: mostly empty containers with ids, plus a list of scripts. The containers are sockets; the scripts fill them at runtime. That file is the skeleton of the whole product, and the script list is what it is made of.\n\nMEMENTO\n\nThe shell: a root element with an id, a header, and an empty <main> that JavaScript fills.\n\nThen the load order: 39 files by number, each tagged with a version so browsers fetch the new copy.\n\nMemento's visual laws, the ones in CLAUDE.md that sound like taste, are CSS statements. \"Real glass\" is backdrop-filter: blur(24-40px) saturate(1.3-1.6) . \"Nothing bleeds under the notch\" is one token read from the device:\n\nSafe area insets are numbers the phone reports: how much room the notch and the home indicator steal. The 0px fallback is why a desktop preview can never prove that law. The colours are tokens, declared once, with a comment:\n\nThe comment says \"today's exact purple\" and the value is cyan, because the purple was killed in v711 and the comment never got the memo. Comments rot, code does not. Believe the code.\n\nTwo ways to hear a tap, both live in Memento\n\nThe first is an inline handler : JavaScript written straight into an HTML attribute. Clarity's close button does it twice, click and the faster pointer event, so a tap never waits:\n\nThe second is addEventListener , attached from JavaScript after the element exists. These are the summary tabs, and they are the whole chapter in eight lines: find elements, listen, stop the bubble, toggle classes, let CSS do the rest.\n\nThat e.stopPropagation() is there because the tabs sit inside a fullscreen Clarity surface with its own tap handling. Without it, choosing a tab would also poke the surface behind it.\n\nTHE ALTERNATIVE, AND WHY MEMENTO CHOSE THIS"
+      "block": 2,
+      "text": "LAST TIME"
     },
     {
-      "blocks": [
-        53,
-        54,
-        55,
-        56,
-        57,
-        58,
-        59,
-        60,
-        61,
-        62,
-        63,
-        64,
-        65,
-        66,
-        67,
-        68,
-        69,
-        70,
-        71,
-        72,
-        73,
-        74,
-        75,
-        76,
-        77
-      ],
-      "text": "Inline onclick is the older style: instantly readable, no wiring, and impossible to remove, replace, or double up later. addEventListener is the modern default, and you can attach several, remove them, and keep logic out of the markup. Memento uses both because the close button is one hard-coded control that will never need a second listener, while the tabs are built at runtime and cannot carry handlers in markup that does not exist yet. The bigger alternative is a framework that wires all of it for you, which is what the native rebuild bought. The cost here is that every listener is hand-attached and hand-removed, and a forgotten removal is a real leak.\n\nNative cameo: no HTML at all\n\nReact Native has no browser and no DOM. It draws real iOS views, the same ones Apple's own apps use, so there is no cascade and no stylesheet file. The ideas survive as plain objects:\n\nSame names, same hex values, no CSS. --text-hi became textHi . The design survived a whole platform change because it was tokens, not scattered colours.\n\nDo it\n\nExercise MAC\n\nOpen ~/Downloads/CODE-BOOK/sandbox/v1/index.html in Safari or Chrome. Double-clicking the file is enough, no server needed.\n\nOpen style.css in your editor. Line 3 holds the tokens. Find --accent: #3fd94e; .\n\nChange it to #3ad9f5 , save, reload. Count what moved: the ring, the input's focus border, the done state. One line, several places.\n\nBreak it on purpose: add color: red; to the h1 rule, then add .card h1 { color: blue; } underneath it. Reload. Blue wins, because two selectors beat one. That is the cascade, felt rather than read.\n\nOn a phone instead phone\n\nChange #1fa32d to any hex you like, in both places, and press Run.\n\nThen add #chip { background: black !important; } inside the style block and run again. An id plus a shout beats a class.\n\nASK THE AGENT WHY (paste this into Codex or Fable)\n\nWORDS YOU NOW OWN\n\nHTML\n\nThe skeleton. What exists on the page and what is nested inside what.\n\nElement / attribute\n\nOne node in the tree / extra information written inside its opening tag.\n\nid / class\n\nA unique name for one element / a reusable label for many. JavaScript usually hunts by id, CSS usually styles by class.\n\nCSS\n\nThe skin. Selectors pick elements, properties say what to do to them.\n\nCascade\n\nThe tie-break when rules disagree. More specific wins, then later wins. Most \"my style did nothing\" is a lost cascade fight."
+      "block": 3,
+      "text": "JavaScript runs on one thread, so anything slow has to be handed off and waited for. await parks the current job and lets the thread keep serving taps, it does not freeze the phone. The queue is why a slow AI reply never locks the screen, and why the order of your log lines surprises you."
     },
     {
-      "blocks": [
-        78,
-        79,
-        80,
-        81,
-        82,
-        83,
-        84,
-        85,
-        86,
-        87,
-        88,
-        89,
-        90,
-        91,
-        92,
-        93,
-        94,
-        95
-      ],
-      "text": "Custom property\n\nA CSS variable, written --name , read with var(--name) . Memento's design tokens are these.\n\nDOM\n\nThe live tree of objects the browser builds from your HTML. The file is the instruction; the tree is the app.\n\nquerySelector / textContent / classList\n\nFind an element / replace its words / add and remove its labels. The three moves behind almost every screen update in Memento.\n\nEvent / bubbling\n\nThe object the browser makes when something happens / its trip up the tree from the deepest element to the document.\n\nstopPropagation\n\nA handler saying \"I dealt with it, do not pass it up\". Memento's defence against one tap firing two things.\n\nSafe area inset\n\nHow much room the notch and home indicator steal, reported by the phone, read in CSS with env() .\n\nInline handler / addEventListener\n\nJavaScript written into an HTML attribute / a listener attached from code. Memento has both, on purpose.\n\nWHERE TODAY'S ANALOGY BREAKS\n\nBreaks when: the building rebuilds itself. A house stands still once built. The DOM gets torn down and re-raised constantly, hundreds of nodes at a time, every time a Memento module opens. The picture also implies the HTML file stays the truth. It does not. A second into a page's life the only truth is the tree in memory, and it can look nothing like the file. Real model: the DOM is mutable state that happens to be visible. Which raises the next chapter's question: if the screen is state you can edit directly, and your data is also state, what stops the two from disagreeing? Nothing, automatically. That is chapter 14.\n\nRABBIT HOLE: why touching the tree too often makes a phone stutter\n\nReading a size out of the DOM, like offsetHeight , forces the browser to work out the layout right now. Writing marks it dirty. Alternate read, write, read, write in a loop and you force a full recalculation every pass. That is layout thrashing. The fix is boring: all the reads, then all the writes. Chapter 25 measures it."
+      "block": 4,
+      "text": "Quick check"
+    },
+    {
+      "block": 5,
+      "text": "You write a function and nothing happens. Why?"
+    },
+    {
+      "block": 6,
+      "text": "Writing a function defines it. Nothing runs until something calls it. Defining is the recipe card, calling is handing it to the cook."
+    },
+    {
+      "block": 7,
+      "text": "Two names point at the same object and you change it through one. What does the other one see?"
+    },
+    {
+      "block": 8,
+      "text": "The change. Assignment copies the reference, not the object. That is chapter 11's aliasing bug and it is behind most \"but I did not touch that\" moments."
+    },
+    {
+      "block": 9,
+      "text": "What does typeof cost you, and when should you reach for it?"
+    },
+    {
+      "block": 10,
+      "text": "Nothing, and immediately. The instant a value behaves strangely, ask it what it is. Text that looks like a number is the most expensive bug in the language."
+    },
+    {
+      "block": 11,
+      "text": "The idea"
+    },
+    {
+      "block": 12,
+      "text": "Three separate things doing three separate jobs, smeared into one word: \"the frontend\"."
+    },
+    {
+      "block": 13,
+      "text": "HTML is the skeleton. What exists, and what is inside what. A heading, a button, a card with three things in it. No colours, no positions, no behaviour."
+    },
+    {
+      "block": 14,
+      "text": "CSS is the skin. Colour, size, spacing, corner radius, blur. It never adds or removes anything, it dresses what HTML already declared."
+    },
+    {
+      "block": 15,
+      "text": "The DOM is what the browser builds when it reads that HTML: a live tree of objects in memory. The file is a one-time instruction for building it. After that the file is history and the tree is the app. JavaScript changes the screen by changing the tree."
+    },
+    {
+      "block": 16,
+      "text": "ANALOGY (TEMPORARY)"
+    },
+    {
+      "block": 17,
+      "text": "HTML is the architect's drawing. The DOM is the actual building, standing up, with people inside. CSS is the paint, the lighting, and the furniture. You cannot renovate a house by editing the drawing after it is built, and you cannot change a page by editing the HTML file while it is open. You walk into the building and move a wall. That is what document.querySelector is: walking in and finding the room."
+    },
+    {
+      "block": 18,
+      "text": "Memento's real top few branches. Every element has exactly one parent and any number of children, which is why \"the tree\" is not a metaphor. It is the data structure."
+    },
+    {
+      "block": 19,
+      "text": "The four words you need for HTML"
+    },
+    {
+      "block": 20,
+      "text": "An element is one node in the tree: an opening tag, contents, a closing tag. <button>Save</button> . Putting one element inside another is what makes it a tree. An attribute is extra information inside the opening tag, like type=\"button\" . Two of them matter most. An id is a unique name for one element and it is how JavaScript finds a specific thing. A class is a label you can stick on any number of elements and it is how CSS styles a whole category at once. That is the whole language for our purposes."
+    },
+    {
+      "block": 21,
+      "text": "CSS in one screenful"
+    },
+    {
+      "block": 22,
+      "text": "A CSS rule has a selector saying who it applies to, then properties saying what to do to them. .chip means every element carrying that class, #app means the one element with that id, and each line inside the braces is one property."
+    },
+    {
+      "block": 23,
+      "text": "Now the part that eats days. Several rules can hit the same element and disagree. The cascade is the tie-break: more specific wins, so an id beats a class and a class beats a tag name, and equal specificity means the later rule wins. This is why \"I set the colour and nothing happened\" is almost never a lie. The colour was set, then something more specific overruled it. A style that refuses to apply is a fight you lost, not a broken property."
+    },
+    {
+      "block": 24,
+      "text": "The last CSS idea is the one Memento runs on. A custom property is a variable: --accent: #3ad9f5; declared once, then var(--accent) read in forty places. Change the one line and forty places move together. People call these design tokens."
+    },
+    {
+      "block": 25,
+      "text": "How JavaScript touches the screen"
+    },
+    {
+      "block": 26,
+      "text": "Four moves cover most of what you will read."
+    },
+    {
+      "block": 27,
+      "text": "Move"
+    },
+    {
+      "block": 28,
+      "text": "What it does"
+    },
+    {
+      "block": 29,
+      "text": "querySelector ('#streak')"
+    },
+    {
+      "block": 30,
+      "text": "Walks the tree and hands back the first element matching that CSS selector. Your way in."
+    },
+    {
+      "block": 31,
+      "text": "textContent = '7'"
+    },
+    {
+      "block": 32,
+      "text": "Replaces the words inside an element. The safe way to show data, because it can never be read as markup."
+    },
+    {
+      "block": 33,
+      "text": "classList .toggle('done')"
+    },
+    {
+      "block": 34,
+      "text": "Adds or removes a class, which lets CSS decide what that means. Behaviour in JS, appearance in CSS."
+    },
+    {
+      "block": 35,
+      "text": "style.strokeDashoffset = '0'"
+    },
+    {
+      "block": 36,
+      "text": "Sets one property directly on that one element. Wins every cascade fight, which is why it is a last resort."
+    },
+    {
+      "block": 37,
+      "text": "Then events. When you tap, the browser makes an event object and offers it to the deepest element under your finger, then to that element's parent, then its parent, up to the document. That upward trip is bubbling . It is a feature, because one listener on a card can handle everything inside it, and a trap, because a button inside a tappable card fires both and the user gets two things at once. e. stopPropagation () is a handler saying \"I dealt with this, do not pass it up\". Memento's screens are cards inside cards, so it calls that constantly."
+    },
+    {
+      "block": 38,
+      "text": "See it"
+    },
+    {
+      "block": 39,
+      "text": "These boxes render a real page in a throwaway frame, with console.log printing underneath. Predict, run, poke."
+    },
+    {
+      "block": 40,
+      "text": "Nothing rewrote the HTML. One node got new words and the browser repainted it. Now the same idea with the look left to CSS."
+    },
+    {
+      "block": 41,
+      "text": "The JavaScript never mentions green. It flips a label; the stylesheet decides what the label means. That separation is the whole reason CSS exists. Last one, bubbling:"
+    },
+    {
+      "block": 42,
+      "text": "Tap the inner button and two lines print, button first, then card. One tap, two handlers, because the event walked up. Tap the quiet one and only one line prints. That difference is the bug behind \"why did it open twice\"."
+    },
+    {
+      "block": 43,
+      "text": "Now in Memento"
+    },
+    {
+      "block": 44,
+      "text": "ANY APP"
+    },
+    {
+      "block": 45,
+      "text": "A web app ships one HTML file: mostly empty containers with ids, plus a list of scripts. The containers are sockets; the scripts fill them at runtime. That file is the skeleton of the whole product, and the script list is what it is made of."
+    },
+    {
+      "block": 46,
+      "text": "MEMENTO"
+    },
+    {
+      "block": 47,
+      "text": "The shell: a root element with an id, a header, and an empty <main> that JavaScript fills."
+    },
+    {
+      "block": 48,
+      "text": "Then the load order: 39 files by number, each tagged with a version so browsers fetch the new copy."
+    },
+    {
+      "block": 49,
+      "text": "Memento's visual laws, the ones in CLAUDE.md that sound like taste, are CSS statements. \"Real glass\" is backdrop-filter: blur(24-40px) saturate(1.3-1.6) . \"Nothing bleeds under the notch\" is one token read from the device:"
+    },
+    {
+      "block": 50,
+      "text": "Safe area insets are numbers the phone reports: how much room the notch and the home indicator steal. The 0px fallback is why a desktop preview can never prove that law. The colours are tokens, declared once, with a comment:"
+    },
+    {
+      "block": 51,
+      "text": "The comment says \"today's exact purple\" and the value is cyan, because the purple was killed in v711 and the comment never got the memo. Comments rot, code does not. Believe the code."
+    },
+    {
+      "block": 52,
+      "text": "Two ways to hear a tap, both live in Memento"
+    },
+    {
+      "block": 53,
+      "text": "The first is an inline handler : JavaScript written straight into an HTML attribute. Clarity's close button does it twice, click and the faster pointer event, so a tap never waits:"
+    },
+    {
+      "block": 54,
+      "text": "The second is addEventListener , attached from JavaScript after the element exists. These are the summary tabs, and they are the whole chapter in eight lines: find elements, listen, stop the bubble, toggle classes, let CSS do the rest."
+    },
+    {
+      "block": 55,
+      "text": "That e.stopPropagation() is there because the tabs sit inside a fullscreen Clarity surface with its own tap handling. Without it, choosing a tab would also poke the surface behind it."
+    },
+    {
+      "block": 56,
+      "text": "THE ALTERNATIVE, AND WHY MEMENTO CHOSE THIS"
+    },
+    {
+      "block": 57,
+      "text": "Inline onclick is the older style: instantly readable, no wiring, and impossible to remove, replace, or double up later. addEventListener is the modern default, and you can attach several, remove them, and keep logic out of the markup. Memento uses both because the close button is one hard-coded control that will never need a second listener, while the tabs are built at runtime and cannot carry handlers in markup that does not exist yet. The bigger alternative is a framework that wires all of it for you, which is what the native rebuild bought. The cost here is that every listener is hand-attached and hand-removed, and a forgotten removal is a real leak."
+    },
+    {
+      "block": 58,
+      "text": "Native cameo: no HTML at all"
+    },
+    {
+      "block": 59,
+      "text": "React Native has no browser and no DOM. It draws real iOS views, the same ones Apple's own apps use, so there is no cascade and no stylesheet file. The ideas survive as plain objects:"
+    },
+    {
+      "block": 60,
+      "text": "Same names, same hex values, no CSS. --text-hi became textHi . The design survived a whole platform change because it was tokens, not scattered colours."
+    },
+    {
+      "block": 61,
+      "text": "Do it"
+    },
+    {
+      "block": 62,
+      "text": "Exercise MAC"
+    },
+    {
+      "block": 63,
+      "text": "Open ~/Downloads/CODE-BOOK/sandbox/v1/index.html in Safari or Chrome. Double-clicking the file is enough, no server needed."
+    },
+    {
+      "block": 64,
+      "text": "Open style.css in your editor. Line 3 holds the tokens. Find --accent: #3fd94e; ."
+    },
+    {
+      "block": 65,
+      "text": "Change it to #3ad9f5 , save, reload. Count what moved: the ring, the input's focus border, the done state. One line, several places."
+    },
+    {
+      "block": 66,
+      "text": "Break it on purpose: add color: red; to the h1 rule, then add .card h1 { color: blue; } underneath it. Reload. Blue wins, because two selectors beat one. That is the cascade, felt rather than read."
+    },
+    {
+      "block": 67,
+      "text": "On a phone instead phone"
+    },
+    {
+      "block": 68,
+      "text": "Change #1fa32d to any hex you like, in both places, and press Run."
+    },
+    {
+      "block": 69,
+      "text": "Then add #chip { background: black !important; } inside the style block and run again. An id plus a shout beats a class."
+    },
+    {
+      "block": 70,
+      "text": "ASK THE AGENT WHY (paste this into Codex or Fable)"
+    },
+    {
+      "block": 71,
+      "text": "WORDS YOU NOW OWN"
+    },
+    {
+      "block": 72,
+      "text": "HTML"
+    },
+    {
+      "block": 73,
+      "text": "The skeleton. What exists on the page and what is nested inside what."
+    },
+    {
+      "block": 74,
+      "text": "Element / attribute"
+    },
+    {
+      "block": 75,
+      "text": "One node in the tree / extra information written inside its opening tag."
+    },
+    {
+      "block": 76,
+      "text": "id / class"
+    },
+    {
+      "block": 77,
+      "text": "A unique name for one element / a reusable label for many. JavaScript usually hunts by id, CSS usually styles by class."
+    },
+    {
+      "block": 78,
+      "text": "CSS"
+    },
+    {
+      "block": 79,
+      "text": "The skin. Selectors pick elements, properties say what to do to them."
+    },
+    {
+      "block": 80,
+      "text": "Cascade"
+    },
+    {
+      "block": 81,
+      "text": "The tie-break when rules disagree. More specific wins, then later wins. Most \"my style did nothing\" is a lost cascade fight."
+    },
+    {
+      "block": 82,
+      "text": "Custom property"
+    },
+    {
+      "block": 83,
+      "text": "A CSS variable, written --name , read with var(--name) . Memento's design tokens are these."
+    },
+    {
+      "block": 84,
+      "text": "DOM"
+    },
+    {
+      "block": 85,
+      "text": "The live tree of objects the browser builds from your HTML. The file is the instruction; the tree is the app."
+    },
+    {
+      "block": 86,
+      "text": "querySelector / textContent / classList"
+    },
+    {
+      "block": 87,
+      "text": "Find an element / replace its words / add and remove its labels. The three moves behind almost every screen update in Memento."
+    },
+    {
+      "block": 88,
+      "text": "Event / bubbling"
+    },
+    {
+      "block": 89,
+      "text": "The object the browser makes when something happens / its trip up the tree from the deepest element to the document."
+    },
+    {
+      "block": 90,
+      "text": "stopPropagation"
+    },
+    {
+      "block": 91,
+      "text": "A handler saying \"I dealt with it, do not pass it up\". Memento's defence against one tap firing two things."
+    },
+    {
+      "block": 92,
+      "text": "Safe area inset"
+    },
+    {
+      "block": 93,
+      "text": "How much room the notch and home indicator steal, reported by the phone, read in CSS with env() ."
+    },
+    {
+      "block": 94,
+      "text": "Inline handler / addEventListener"
+    },
+    {
+      "block": 95,
+      "text": "JavaScript written into an HTML attribute / a listener attached from code. Memento has both, on purpose."
+    },
+    {
+      "block": 96,
+      "text": "WHERE TODAY'S ANALOGY BREAKS"
+    },
+    {
+      "block": 97,
+      "text": "Breaks when: the building rebuilds itself. A house stands still once built. The DOM gets torn down and re-raised constantly, hundreds of nodes at a time, every time a Memento module opens. The picture also implies the HTML file stays the truth. It does not. A second into a page's life the only truth is the tree in memory, and it can look nothing like the file. Real model: the DOM is mutable state that happens to be visible. Which raises the next chapter's question: if the screen is state you can edit directly, and your data is also state, what stops the two from disagreeing? Nothing, automatically. That is chapter 14."
+    },
+    {
+      "block": 98,
+      "text": "RABBIT HOLE: why touching the tree too often makes a phone stutter"
+    },
+    {
+      "block": 99,
+      "text": "Reading a size out of the DOM, like offsetHeight , forces the browser to work out the layout right now. Writing marks it dirty. Alternate read, write, read, write in a loop and you force a full recalculation every pass. That is layout thrashing. The fix is boring: all the reads, then all the writes. Chapter 25 measures it."
     }
   ],
-  "wordCount": 1983
+  "wordCount": 2091
 }

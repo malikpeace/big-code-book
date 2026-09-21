@@ -36,570 +36,858 @@
     },
     {
       "index": 6,
-      "tag": "summary",
-      "text": "Why are the files in memento-app/js numbered?"
+      "tag": "div",
+      "text": "The first is absolute and means the same from anywhere. The second is relative and only means something from where you are standing, which pwd tells you."
     },
     {
       "index": 7,
       "tag": "summary",
-      "text": "On the journey map, which stops sit on computers Memento pays rent for?"
+      "text": "Why are the files in memento-app/js numbered?"
     },
     {
       "index": 8,
+      "tag": "div",
+      "text": "The browser runs them in that order and they share one global scope, so the number is the load order. A file in the wrong position is a crash at boot."
+    },
+    {
+      "index": 9,
+      "tag": "summary",
+      "text": "On the journey map, which stops sit on computers Memento pays rent for?"
+    },
+    {
+      "index": 10,
+      "tag": "div",
+      "text": "The edge function and the Postgres database, both rented from Supabase, plus Anthropic's servers, which are billed per call."
+    },
+    {
+      "index": 11,
       "tag": "h2",
       "text": "The idea"
     },
     {
-      "index": 9,
+      "index": 12,
       "tag": "p",
       "text": "The window is not the thing. The thing is a program called a shell , and yours is named zsh. It does four jobs, over and over, forever: read a line, find the program you named, run it with the rest of the line handed over, print what came back. Then it shows the prompt again and waits."
     },
     {
-      "index": 10,
+      "index": 13,
       "tag": "p",
       "text": "So a command is a program plus arguments . In head -20 js/33-action-shim.js , the program is head , and it gets two arguments. The ones starting with a dash are flags , the dials on the program. The rest is usually what to work on. That is the entire grammar. There is no second grammar to learn later."
     },
     {
-      "index": 11,
+      "index": 14,
       "tag": "p",
       "text": "How does the shell find head ? There is a list of folders it searches, in order, and that list lives in a setting called PATH. which head tells you which one it found:"
     },
     {
-      "index": 12,
+      "index": 15,
       "tag": "p",
       "text": "That is where your Node came from. If which prints nothing, the program is not installed, or it is not in any folder on the PATH . This is the whole explanation for \"command not found\", and it is also why a fresh Mac cannot run node until something installs it and puts it on the list."
     },
     {
-      "index": 13,
+      "index": 16,
       "tag": "p",
       "text": "Now the answers. A program talks back on two separate channels. Standard output , stdout, is the answer you asked for. Standard error , stderr, is the complaints. They both land in the same window, which is why nobody notices there are two, until you send one somewhere and the other keeps showing up."
     },
     {
-      "index": 14,
+      "index": 17,
       "tag": "p",
       "text": "And when it finishes, the program hands back a number nobody shows you: the exit code . Zero means it worked. Anything else means it did not, and the number says roughly what went wrong. Ask for the last one with echo $? . This tiny number is what makes automation possible: it is how your deploy robot knows the tests failed, and how && decides whether to run the next command."
     },
     {
-      "index": 15,
+      "index": 18,
       "tag": "div",
       "text": "ANALOGY (TEMPORARY)"
     },
     {
-      "index": 16,
+      "index": 19,
       "tag": "p",
       "text": "A very literal clerk at a counter. You slide a slip across: the name of the form you want, then the details. The clerk does not interpret, does not check whether you meant something else, and does not care that you are in a hurry. He returns the document on one tray and any complaint on a second tray, and stamps the slip with a number: 0 if he did it, something else if he did not. Nothing happens until you slide the slip. Nothing extra ever happens."
     },
     {
-      "index": 17,
+      "index": 20,
+      "tag": "figcaption",
+      "text": "One command, taken apart. Everything in a terminal has this shape."
+    },
+    {
+      "index": 21,
       "tag": "h3",
       "text": "The commands that pay rent"
     },
     {
-      "index": 18,
+      "index": 22,
       "tag": "p",
       "text": "You met six in chapter 5. Here are seven more, and then you are done collecting."
     },
     {
-      "index": 19,
+      "index": 23,
       "tag": "th",
       "text": "You type"
     },
     {
-      "index": 20,
+      "index": 24,
       "tag": "th",
       "text": "It means"
     },
     {
-      "index": 21,
+      "index": 25,
       "tag": "td",
       "text": "head -5 file.js / tail -5 file.js"
     },
     {
-      "index": 22,
+      "index": 26,
       "tag": "td",
       "text": "First five lines. Last five lines. Tail is how you watch a log."
     },
     {
-      "index": 23,
+      "index": 27,
       "tag": "td",
       "text": "grep -n \"streak\" app.js"
     },
     {
-      "index": 24,
+      "index": 28,
       "tag": "td",
       "text": "Print every line containing streak, with its line number."
     },
     {
-      "index": 25,
+      "index": 29,
       "tag": "td",
       "text": "grep -rn \"persistState\" js"
     },
     {
-      "index": 26,
+      "index": 30,
       "tag": "td",
       "text": "The same, recursively through a whole folder. This is the command that reads a codebase."
     },
     {
-      "index": 27,
+      "index": 31,
       "tag": "td",
       "text": "find . -name \"*.css\""
     },
     {
-      "index": 28,
+      "index": 32,
       "tag": "td",
       "text": "Find files by name instead of by contents."
     },
     {
-      "index": 29,
+      "index": 33,
       "tag": "td",
       "text": "echo $HOME"
     },
     {
-      "index": 30,
+      "index": 34,
       "tag": "td",
       "text": "Print something. Mostly used to look inside a setting."
     },
     {
-      "index": 31,
+      "index": 35,
       "tag": "td",
       "text": "ls | wc -l"
     },
     {
-      "index": 32,
+      "index": 36,
       "tag": "td",
       "text": "A pipe . Send the stdout of the left into the right. Here: count the names."
     },
     {
-      "index": 33,
+      "index": 37,
       "tag": "td",
       "text": "ls > files.txt"
     },
     {
-      "index": 34,
+      "index": 38,
       "tag": "td",
       "text": "A redirect . Put the stdout in a file instead of on screen."
     },
     {
-      "index": 35,
+      "index": 39,
       "tag": "p",
       "text": "Two warnings about that last one. > overwrites the target file completely, with no prompt and no undo, so never point it at a file you care about. >> adds to the end instead. And note that only stdout gets redirected, which is why errors still appear on screen when everything else has gone quiet. Send stderr away separately with 2>/dev/null , where 2 is the channel number and /dev/null is the bin."
     },
     {
-      "index": 36,
+      "index": 40,
       "tag": "p",
       "text": "When you do not know a program's flags, ask it. Most answer --help with a short list. man grep opens the full manual, and q quits it. Reading two lines of --help beats guessing every time."
     },
     {
-      "index": 37,
+      "index": 41,
       "tag": "h3",
       "text": "Settings the shell hands down"
     },
     {
-      "index": 38,
+      "index": 42,
       "tag": "p",
       "text": "An environment variable is a named value the shell hands to every program it starts. echo $HOME prints yours, echo $SHELL proves you are in zsh. Set one with export CLARITY_MODE=1 , and every program started from that window can read it."
     },
     {
-      "index": 39,
+      "index": 43,
       "tag": "p",
       "text": "This is exactly how secrets travel. A key never gets typed into code, where it would be saved, committed, pushed and public forever. It gets put in the environment of the one server that needs it, and the code asks for it by name at the moment it runs. Memento's proxy does precisely this, in one line: Deno.env.get('ANTHROPIC_API_KEY') . Chapter 19 does the whole subject."
     },
     {
-      "index": 40,
+      "index": 44,
       "tag": "h3",
       "text": "Break it, twice"
     },
     {
-      "index": 41,
+      "index": 45,
       "tag": "p",
       "text": "First, a failure. Type ls /nope , then echo $? ."
     },
     {
-      "index": 42,
+      "index": 46,
       "tag": "p",
       "text": "The message came out on stderr. The 1 is the exit code. Run ls on a folder that exists, ask again, and you get 0. You have now seen the number your deploy robot reads on every push."
     },
     {
-      "index": 43,
+      "index": 47,
       "tag": "p",
       "text": "Second, a runaway. Type while true; do echo hi; done and watch the window fill up forever, because you told it to and the machine has no opinion about that. Hold control and press C. It stops. Ctrl-C is the stop button , and it is the single most useful key in the Terminal: it interrupts whatever is running and hands you back the prompt."
     },
     {
-      "index": 44,
+      "index": 48,
       "tag": "p",
       "text": "Ctrl-C only reaches the program in front of you. Something running in the background, like a forgotten local server holding onto a port, needs finding first. ps lists running processes with their id numbers, and kill 4821 asks that one to stop. Memento's own launcher does this every time you start it, which you are about to read."
     },
     {
-      "index": 45,
+      "index": 49,
       "tag": "h2",
       "text": "See it"
     },
     {
-      "index": 46,
+      "index": 50,
       "tag": "p",
       "text": "A shell in fifteen lines. It splits a line into a program and arguments, looks the program up, and returns two channels plus an exit code. The real one does more, but not differently."
     },
     {
-      "index": 47,
+      "index": 51,
       "tag": "p",
       "text": "Predict the four blocks before you press Run. Then look at the last one: a name the lookup cannot find comes back 127, which is the real code zsh uses for \"command not found\". Break it yourself by deleting the if (!program) line and running it again. The crash you get is the machine being literal, exactly as in chapter 1."
     },
     {
-      "index": 48,
+      "index": 52,
       "tag": "h2",
       "text": "Now in Memento"
     },
     {
-      "index": 49,
+      "index": 53,
       "tag": "div",
       "text": "ANY APP"
     },
     {
-      "index": 50,
+      "index": 54,
       "tag": "p",
       "text": "Nobody remembers long commands. Two ways to stop trying."
     },
     {
-      "index": 51,
+      "index": 55,
       "tag": "p",
       "text": "Name them in the project. A package.json has a scripts section: short names for long commands, kept next to the code, so every human and every robot runs the same thing."
     },
     {
-      "index": 52,
+      "index": 56,
       "tag": "p",
       "text": "Save them in a file. A file of shell commands is a script. Make it runnable and it is a program like any other, indistinguishable from the built-in ones as far as the shell is concerned."
     },
     {
-      "index": 53,
+      "index": 57,
       "tag": "div",
       "text": "MEMENTO"
     },
     {
-      "index": 54,
+      "index": 58,
       "tag": "p",
       "text": "The native app names its commands:"
     },
     {
-      "index": 55,
+      "index": 59,
       "tag": "p",
       "text": "Read the last one. npm run check is the type checker followed by the tests, and && means \"only if the first one exits 0\". A type error means the tests never run and the whole thing exits non-zero. That is the gate CI reads."
     },
     {
-      "index": 56,
+      "index": 60,
       "tag": "p",
       "text": "And the thing you double-click to see the web app is a saved command:"
     },
     {
-      "index": 57,
+      "index": 61,
       "tag": "p",
       "text": "Everything in there is this chapter. lsof -ti tcp:8090 asks which process is holding that port, and its stdout is captured into a variable. 2>/dev/null throws the complaints away. kill stops the old server so the new one can have the port. That file is not magic, it is five commands somebody got tired of typing."
     },
     {
-      "index": 58,
+      "index": 62,
       "tag": "div",
       "text": "THE ALTERNATIVE, AND WHY MEMENTO CHOSE THIS"
     },
     {
-      "index": 59,
+      "index": 63,
       "tag": "p",
       "text": "The alternative to a launcher script is opening index.html straight from the disk with a double click. It works, until it does not: the browser then keeps serving you yesterday's JavaScript out of its cache, and you spend an hour debugging a bug you already fixed. The launcher exists because that happened, so it starts a tiny local server that sends no-cache headers and kills any stale one first. The cost is a Terminal window you have to leave open. The alternative to named npm scripts is everyone typing tsc --noEmit from memory, where everyone includes two AI agents and a CI robot, and one of them types it slightly differently."
     },
     {
-      "index": 60,
+      "index": 64,
       "tag": "h2",
       "text": "Do it"
     },
     {
-      "index": 61,
+      "index": 65,
       "tag": "div",
       "text": "Exercise MAC"
     },
     {
-      "index": 62,
+      "index": 66,
       "tag": "li",
       "text": "cd ~/Downloads/CODE-BOOK/sandbox/v1 then ls . Five files and a server. That is Memento Jr, the practice app."
     },
     {
-      "index": 63,
+      "index": 67,
       "tag": "li",
       "text": "which node and node --version . If the first prints a path, the second will work. If it prints nothing, Node is not on your PATH."
     },
     {
-      "index": 64,
+      "index": 68,
       "tag": "li",
       "text": "echo $HOME , then echo $SHELL . Two settings the shell hands to every program it starts."
     },
     {
-      "index": 65,
+      "index": 69,
       "tag": "li",
       "text": "Break it: ls /nope , then echo $? . You get 1. Now ls , then echo $? again. You get 0."
     },
     {
-      "index": 66,
+      "index": 70,
       "tag": "li",
       "text": "grep -n \"streak\" app.js . Every line naming the streak, with line numbers. Now head -20 app.js and compare: grep finds, head tastes."
     },
     {
-      "index": 67,
+      "index": 71,
       "tag": "li",
       "text": "ls > files.txt then cat files.txt . The answer went into a file instead of onto the screen. Then rm files.txt , which is safe here and only here, because you made that file thirty seconds ago."
     },
     {
-      "index": 68,
+      "index": 72,
       "tag": "li",
       "text": "Pipe it: ls ~/Downloads/MEMENTO/memento-app/js | wc -l . You should get 38, which is chapter 5's number, counted by a machine."
     },
     {
-      "index": 69,
+      "index": 73,
       "tag": "li",
       "text": "Read Memento without touching it: grep -rn \"persistState\" ~/Downloads/MEMENTO/memento-app/js | head . Every call site, file and line, ten at a time. Look at the shape of it: one name, twenty-five places, and the first five hits all sitting in one file."
     },
     {
-      "index": 70,
+      "index": 74,
       "tag": "li",
       "text": "The runaway: while true; do echo hi; done . Let it fill the screen for two seconds, then press control and C. Say out loud what just happened."
     },
     {
-      "index": 71,
+      "index": 75,
       "tag": "li",
       "text": "Press the up arrow six times. Your whole session is there. history prints it as a numbered list."
     },
     {
-      "index": 72,
+      "index": 76,
       "tag": "div",
       "text": "ASK THE AGENT WHY (paste this into Codex or Fable)"
     },
     {
-      "index": 73,
+      "index": 77,
       "tag": "div",
       "text": "WORDS YOU NOW OWN"
     },
     {
-      "index": 74,
+      "index": 78,
       "tag": "dt",
       "text": "Shell"
     },
     {
-      "index": 75,
+      "index": 79,
       "tag": "dd",
       "text": "The program reading your typed lines. Yours is zsh. It finds the program you named and runs it."
     },
     {
-      "index": 76,
+      "index": 80,
       "tag": "dt",
       "text": "Command, argument, flag"
     },
     {
-      "index": 77,
+      "index": 81,
       "tag": "dd",
       "text": "A program plus what you hand it. The parts starting with a dash are the dials."
     },
     {
-      "index": 78,
+      "index": 82,
       "tag": "dt",
       "text": "PATH"
     },
     {
-      "index": 79,
+      "index": 83,
       "tag": "dd",
       "text": "The ordered list of folders the shell searches for a program. which node shows which one it found."
     },
     {
-      "index": 80,
+      "index": 84,
       "tag": "dt",
       "text": "stdout and stderr"
     },
     {
-      "index": 81,
+      "index": 85,
       "tag": "dd",
       "text": "Two separate channels out: the answer, and the complaints. Redirecting one leaves the other on screen."
     },
     {
-      "index": 82,
+      "index": 86,
       "tag": "dt",
       "text": "Exit code"
     },
     {
-      "index": 83,
+      "index": 87,
       "tag": "dd",
       "text": "The number a program leaves behind. 0 worked, anything else did not. echo $? shows the last one."
     },
     {
-      "index": 84,
+      "index": 88,
       "tag": "dt",
       "text": "Pipe and redirect"
     },
     {
-      "index": 85,
+      "index": 89,
       "tag": "dd",
       "text": "| feeds one program's output into the next. > writes it to a file and overwrites what was there."
     },
     {
-      "index": 86,
+      "index": 90,
       "tag": "dt",
       "text": "Environment variable"
     },
     {
-      "index": 87,
+      "index": 91,
       "tag": "dd",
       "text": "A named value handed to every program the shell starts. How secrets reach code without being written in it."
     },
     {
-      "index": 88,
+      "index": 92,
       "tag": "dt",
       "text": "Ctrl-C, ps, kill"
     },
     {
-      "index": 89,
+      "index": 93,
       "tag": "dd",
       "text": "Stop the thing in front of you. List what is running. Stop one by its id."
     },
     {
-      "index": 90,
+      "index": 94,
       "tag": "div",
       "text": "WHERE TODAY'S ANALOGY BREAKS"
     },
     {
-      "index": 91,
+      "index": 95,
       "tag": "p",
       "text": "Breaks when: you decide the clerk is part of the building. The shell is just another program, with a name and a version, and it can be swapped: zsh is the Mac default now, bash was before it, and servers run either. Its own rules are a full programming language, which is why while true; do echo hi; done is a legal thing to type at a prompt, and why a shell script can have real bugs. The counter is also not one queue: programs can run in the background, and their output arrives in your window while you type something else. Real model: the shell is a program that turns a line of text into a new process with its arguments, its environment, and three streams attached (input, output, errors), then waits for that process to end and keeps its exit code. Everything else, pipes, redirects, loops, scripts, is arrangements of that one move."
     },
     {
-      "index": 92,
+      "index": 96,
       "tag": "summary",
       "text": "RABBIT HOLE: why a script needs the ./"
     },
     {
-      "index": 93,
+      "index": 97,
       "tag": "p",
       "text": "Running a script in the folder you are standing in takes ./launch.sh , not launch.sh , and the reason is security. The current folder is deliberately not on the PATH. If it were, downloading a folder containing a file called ls and then typing ls would run a stranger's program instead of the real one. Making you write ./ forces you to say out loud that you mean this file, here. The same instinct is why chapter 5 told you never to run an unknown command in a folder you are only visiting."
     }
   ],
   "segments": [
     {
-      "blocks": [
-        0,
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7,
-        8,
-        9,
-        10,
-        11,
-        12,
-        13
-      ],
-      "text": "The terminal is a conversation\n\nEvery line you type is the same shape: the name of a program, then what to give it. It answers on one channel, complains on another, and leaves behind a number saying whether it worked. Learn those four facts and the black window stops being a threat.\n\nLAST TIME\n\nAlmost everything is a file, a path is its address, and the Terminal is always standing in one folder. You walked into Memento, read the top of a real file, and mistyped a path on purpose. You also learned which commands never get typed in there.\n\nQuick check\n\nWhat is the difference between /Users/malikpeace/Downloads and Downloads ?\n\nWhy are the files in memento-app/js numbered?\n\nOn the journey map, which stops sit on computers Memento pays rent for?\n\nThe idea\n\nThe window is not the thing. The thing is a program called a shell , and yours is named zsh. It does four jobs, over and over, forever: read a line, find the program you named, run it with the rest of the line handed over, print what came back. Then it shows the prompt again and waits.\n\nSo a command is a program plus arguments . In head -20 js/33-action-shim.js , the program is head , and it gets two arguments. The ones starting with a dash are flags , the dials on the program. The rest is usually what to work on. That is the entire grammar. There is no second grammar to learn later.\n\nHow does the shell find head ? There is a list of folders it searches, in order, and that list lives in a setting called PATH. which head tells you which one it found:\n\nThat is where your Node came from. If which prints nothing, the program is not installed, or it is not in any folder on the PATH . This is the whole explanation for \"command not found\", and it is also why a fresh Mac cannot run node until something installs it and puts it on the list.\n\nNow the answers. A program talks back on two separate channels. Standard output , stdout, is the answer you asked for. Standard error , stderr, is the complaints. They both land in the same window, which is why nobody notices there are two, until you send one somewhere and the other keeps showing up."
+      "block": 0,
+      "text": "The terminal is a conversation"
     },
     {
-      "blocks": [
-        14,
-        15,
-        16,
-        17,
-        18,
-        19,
-        20,
-        21,
-        22,
-        23,
-        24,
-        25,
-        26,
-        27,
-        28,
-        29,
-        30,
-        31,
-        32,
-        33,
-        34,
-        35,
-        36,
-        37
-      ],
-      "text": "And when it finishes, the program hands back a number nobody shows you: the exit code . Zero means it worked. Anything else means it did not, and the number says roughly what went wrong. Ask for the last one with echo $? . This tiny number is what makes automation possible: it is how your deploy robot knows the tests failed, and how && decides whether to run the next command.\n\nANALOGY (TEMPORARY)\n\nA very literal clerk at a counter. You slide a slip across: the name of the form you want, then the details. The clerk does not interpret, does not check whether you meant something else, and does not care that you are in a hurry. He returns the document on one tray and any complaint on a second tray, and stamps the slip with a number: 0 if he did it, something else if he did not. Nothing happens until you slide the slip. Nothing extra ever happens.\n\nThe commands that pay rent\n\nYou met six in chapter 5. Here are seven more, and then you are done collecting.\n\nYou type\n\nIt means\n\nhead -5 file.js / tail -5 file.js\n\nFirst five lines. Last five lines. Tail is how you watch a log.\n\ngrep -n \"streak\" app.js\n\nPrint every line containing streak, with its line number.\n\ngrep -rn \"persistState\" js\n\nThe same, recursively through a whole folder. This is the command that reads a codebase.\n\nfind . -name \"*.css\"\n\nFind files by name instead of by contents.\n\necho $HOME\n\nPrint something. Mostly used to look inside a setting.\n\nls | wc -l\n\nA pipe . Send the stdout of the left into the right. Here: count the names.\n\nls > files.txt\n\nA redirect . Put the stdout in a file instead of on screen.\n\nTwo warnings about that last one. > overwrites the target file completely, with no prompt and no undo, so never point it at a file you care about. >> adds to the end instead. And note that only stdout gets redirected, which is why errors still appear on screen when everything else has gone quiet. Send stderr away separately with 2>/dev/null , where 2 is the channel number and /dev/null is the bin.\n\nWhen you do not know a program's flags, ask it. Most answer --help with a short list. man grep opens the full manual, and q quits it. Reading two lines of --help beats guessing every time.\n\nSettings the shell hands down"
+      "block": 1,
+      "text": "Every line you type is the same shape: the name of a program, then what to give it. It answers on one channel, complains on another, and leaves behind a number saying whether it worked. Learn those four facts and the black window stops being a threat."
     },
     {
-      "blocks": [
-        38,
-        39,
-        40,
-        41,
-        42,
-        43,
-        44,
-        45,
-        46,
-        47,
-        48,
-        49,
-        50,
-        51
-      ],
-      "text": "An environment variable is a named value the shell hands to every program it starts. echo $HOME prints yours, echo $SHELL proves you are in zsh. Set one with export CLARITY_MODE=1 , and every program started from that window can read it.\n\nThis is exactly how secrets travel. A key never gets typed into code, where it would be saved, committed, pushed and public forever. It gets put in the environment of the one server that needs it, and the code asks for it by name at the moment it runs. Memento's proxy does precisely this, in one line: Deno.env.get('ANTHROPIC_API_KEY') . Chapter 19 does the whole subject.\n\nBreak it, twice\n\nFirst, a failure. Type ls /nope , then echo $? .\n\nThe message came out on stderr. The 1 is the exit code. Run ls on a folder that exists, ask again, and you get 0. You have now seen the number your deploy robot reads on every push.\n\nSecond, a runaway. Type while true; do echo hi; done and watch the window fill up forever, because you told it to and the machine has no opinion about that. Hold control and press C. It stops. Ctrl-C is the stop button , and it is the single most useful key in the Terminal: it interrupts whatever is running and hands you back the prompt.\n\nCtrl-C only reaches the program in front of you. Something running in the background, like a forgotten local server holding onto a port, needs finding first. ps lists running processes with their id numbers, and kill 4821 asks that one to stop. Memento's own launcher does this every time you start it, which you are about to read.\n\nSee it\n\nA shell in fifteen lines. It splits a line into a program and arguments, looks the program up, and returns two channels plus an exit code. The real one does more, but not differently.\n\nPredict the four blocks before you press Run. Then look at the last one: a name the lookup cannot find comes back 127, which is the real code zsh uses for \"command not found\". Break it yourself by deleting the if (!program) line and running it again. The crash you get is the machine being literal, exactly as in chapter 1.\n\nNow in Memento\n\nANY APP\n\nNobody remembers long commands. Two ways to stop trying.\n\nName them in the project. A package.json has a scripts section: short names for long commands, kept next to the code, so every human and every robot runs the same thing."
+      "block": 2,
+      "text": "LAST TIME"
     },
     {
-      "blocks": [
-        52,
-        53,
-        54,
-        55,
-        56,
-        57,
-        58,
-        59,
-        60,
-        61,
-        62,
-        63,
-        64,
-        65,
-        66,
-        67
-      ],
-      "text": "Save them in a file. A file of shell commands is a script. Make it runnable and it is a program like any other, indistinguishable from the built-in ones as far as the shell is concerned.\n\nMEMENTO\n\nThe native app names its commands:\n\nRead the last one. npm run check is the type checker followed by the tests, and && means \"only if the first one exits 0\". A type error means the tests never run and the whole thing exits non-zero. That is the gate CI reads.\n\nAnd the thing you double-click to see the web app is a saved command:\n\nEverything in there is this chapter. lsof -ti tcp:8090 asks which process is holding that port, and its stdout is captured into a variable. 2>/dev/null throws the complaints away. kill stops the old server so the new one can have the port. That file is not magic, it is five commands somebody got tired of typing.\n\nTHE ALTERNATIVE, AND WHY MEMENTO CHOSE THIS\n\nThe alternative to a launcher script is opening index.html straight from the disk with a double click. It works, until it does not: the browser then keeps serving you yesterday's JavaScript out of its cache, and you spend an hour debugging a bug you already fixed. The launcher exists because that happened, so it starts a tiny local server that sends no-cache headers and kills any stale one first. The cost is a Terminal window you have to leave open. The alternative to named npm scripts is everyone typing tsc --noEmit from memory, where everyone includes two AI agents and a CI robot, and one of them types it slightly differently.\n\nDo it\n\nExercise MAC\n\ncd ~/Downloads/CODE-BOOK/sandbox/v1 then ls . Five files and a server. That is Memento Jr, the practice app.\n\nwhich node and node --version . If the first prints a path, the second will work. If it prints nothing, Node is not on your PATH.\n\necho $HOME , then echo $SHELL . Two settings the shell hands to every program it starts.\n\nBreak it: ls /nope , then echo $? . You get 1. Now ls , then echo $? again. You get 0.\n\ngrep -n \"streak\" app.js . Every line naming the streak, with line numbers. Now head -20 app.js and compare: grep finds, head tastes.\n\nls > files.txt then cat files.txt . The answer went into a file instead of onto the screen. Then rm files.txt , which is safe here and only here, because you made that file thirty seconds ago."
+      "block": 3,
+      "text": "Almost everything is a file, a path is its address, and the Terminal is always standing in one folder. You walked into Memento, read the top of a real file, and mistyped a path on purpose. You also learned which commands never get typed in there."
     },
     {
-      "blocks": [
-        68,
-        69,
-        70,
-        71,
-        72,
-        73,
-        74,
-        75,
-        76,
-        77,
-        78,
-        79,
-        80,
-        81,
-        82,
-        83,
-        84,
-        85,
-        86,
-        87,
-        88,
-        89,
-        90
-      ],
-      "text": "Pipe it: ls ~/Downloads/MEMENTO/memento-app/js | wc -l . You should get 38, which is chapter 5's number, counted by a machine.\n\nRead Memento without touching it: grep -rn \"persistState\" ~/Downloads/MEMENTO/memento-app/js | head . Every call site, file and line, ten at a time. Look at the shape of it: one name, twenty-five places, and the first five hits all sitting in one file.\n\nThe runaway: while true; do echo hi; done . Let it fill the screen for two seconds, then press control and C. Say out loud what just happened.\n\nPress the up arrow six times. Your whole session is there. history prints it as a numbered list.\n\nASK THE AGENT WHY (paste this into Codex or Fable)\n\nWORDS YOU NOW OWN\n\nShell\n\nThe program reading your typed lines. Yours is zsh. It finds the program you named and runs it.\n\nCommand, argument, flag\n\nA program plus what you hand it. The parts starting with a dash are the dials.\n\nPATH\n\nThe ordered list of folders the shell searches for a program. which node shows which one it found.\n\nstdout and stderr\n\nTwo separate channels out: the answer, and the complaints. Redirecting one leaves the other on screen.\n\nExit code\n\nThe number a program leaves behind. 0 worked, anything else did not. echo $? shows the last one.\n\nPipe and redirect\n\n| feeds one program's output into the next. > writes it to a file and overwrites what was there.\n\nEnvironment variable\n\nA named value handed to every program the shell starts. How secrets reach code without being written in it.\n\nCtrl-C, ps, kill\n\nStop the thing in front of you. List what is running. Stop one by its id.\n\nWHERE TODAY'S ANALOGY BREAKS"
+      "block": 4,
+      "text": "Quick check"
     },
     {
-      "blocks": [
-        91,
-        92,
-        93
-      ],
-      "text": "Breaks when: you decide the clerk is part of the building. The shell is just another program, with a name and a version, and it can be swapped: zsh is the Mac default now, bash was before it, and servers run either. Its own rules are a full programming language, which is why while true; do echo hi; done is a legal thing to type at a prompt, and why a shell script can have real bugs. The counter is also not one queue: programs can run in the background, and their output arrives in your window while you type something else. Real model: the shell is a program that turns a line of text into a new process with its arguments, its environment, and three streams attached (input, output, errors), then waits for that process to end and keeps its exit code. Everything else, pipes, redirects, loops, scripts, is arrangements of that one move.\n\nRABBIT HOLE: why a script needs the ./\n\nRunning a script in the folder you are standing in takes ./launch.sh , not launch.sh , and the reason is security. The current folder is deliberately not on the PATH. If it were, downloading a folder containing a file called ls and then typing ls would run a stranger's program instead of the real one. Making you write ./ forces you to say out loud that you mean this file, here. The same instinct is why chapter 5 told you never to run an unknown command in a folder you are only visiting."
+      "block": 5,
+      "text": "What is the difference between /Users/malikpeace/Downloads and Downloads ?"
+    },
+    {
+      "block": 6,
+      "text": "The first is absolute and means the same from anywhere. The second is relative and only means something from where you are standing, which pwd tells you."
+    },
+    {
+      "block": 7,
+      "text": "Why are the files in memento-app/js numbered?"
+    },
+    {
+      "block": 8,
+      "text": "The browser runs them in that order and they share one global scope, so the number is the load order. A file in the wrong position is a crash at boot."
+    },
+    {
+      "block": 9,
+      "text": "On the journey map, which stops sit on computers Memento pays rent for?"
+    },
+    {
+      "block": 10,
+      "text": "The edge function and the Postgres database, both rented from Supabase, plus Anthropic's servers, which are billed per call."
+    },
+    {
+      "block": 11,
+      "text": "The idea"
+    },
+    {
+      "block": 12,
+      "text": "The window is not the thing. The thing is a program called a shell , and yours is named zsh. It does four jobs, over and over, forever: read a line, find the program you named, run it with the rest of the line handed over, print what came back. Then it shows the prompt again and waits."
+    },
+    {
+      "block": 13,
+      "text": "So a command is a program plus arguments . In head -20 js/33-action-shim.js , the program is head , and it gets two arguments. The ones starting with a dash are flags , the dials on the program. The rest is usually what to work on. That is the entire grammar. There is no second grammar to learn later."
+    },
+    {
+      "block": 14,
+      "text": "How does the shell find head ? There is a list of folders it searches, in order, and that list lives in a setting called PATH. which head tells you which one it found:"
+    },
+    {
+      "block": 15,
+      "text": "That is where your Node came from. If which prints nothing, the program is not installed, or it is not in any folder on the PATH . This is the whole explanation for \"command not found\", and it is also why a fresh Mac cannot run node until something installs it and puts it on the list."
+    },
+    {
+      "block": 16,
+      "text": "Now the answers. A program talks back on two separate channels. Standard output , stdout, is the answer you asked for. Standard error , stderr, is the complaints. They both land in the same window, which is why nobody notices there are two, until you send one somewhere and the other keeps showing up."
+    },
+    {
+      "block": 17,
+      "text": "And when it finishes, the program hands back a number nobody shows you: the exit code . Zero means it worked. Anything else means it did not, and the number says roughly what went wrong. Ask for the last one with echo $? . This tiny number is what makes automation possible: it is how your deploy robot knows the tests failed, and how && decides whether to run the next command."
+    },
+    {
+      "block": 18,
+      "text": "ANALOGY (TEMPORARY)"
+    },
+    {
+      "block": 19,
+      "text": "A very literal clerk at a counter. You slide a slip across: the name of the form you want, then the details. The clerk does not interpret, does not check whether you meant something else, and does not care that you are in a hurry. He returns the document on one tray and any complaint on a second tray, and stamps the slip with a number: 0 if he did it, something else if he did not. Nothing happens until you slide the slip. Nothing extra ever happens."
+    },
+    {
+      "block": 20,
+      "text": "One command, taken apart. Everything in a terminal has this shape."
+    },
+    {
+      "block": 21,
+      "text": "The commands that pay rent"
+    },
+    {
+      "block": 22,
+      "text": "You met six in chapter 5. Here are seven more, and then you are done collecting."
+    },
+    {
+      "block": 23,
+      "text": "You type"
+    },
+    {
+      "block": 24,
+      "text": "It means"
+    },
+    {
+      "block": 25,
+      "text": "head -5 file.js / tail -5 file.js"
+    },
+    {
+      "block": 26,
+      "text": "First five lines. Last five lines. Tail is how you watch a log."
+    },
+    {
+      "block": 27,
+      "text": "grep -n \"streak\" app.js"
+    },
+    {
+      "block": 28,
+      "text": "Print every line containing streak, with its line number."
+    },
+    {
+      "block": 29,
+      "text": "grep -rn \"persistState\" js"
+    },
+    {
+      "block": 30,
+      "text": "The same, recursively through a whole folder. This is the command that reads a codebase."
+    },
+    {
+      "block": 31,
+      "text": "find . -name \"*.css\""
+    },
+    {
+      "block": 32,
+      "text": "Find files by name instead of by contents."
+    },
+    {
+      "block": 33,
+      "text": "echo $HOME"
+    },
+    {
+      "block": 34,
+      "text": "Print something. Mostly used to look inside a setting."
+    },
+    {
+      "block": 35,
+      "text": "ls | wc -l"
+    },
+    {
+      "block": 36,
+      "text": "A pipe . Send the stdout of the left into the right. Here: count the names."
+    },
+    {
+      "block": 37,
+      "text": "ls > files.txt"
+    },
+    {
+      "block": 38,
+      "text": "A redirect . Put the stdout in a file instead of on screen."
+    },
+    {
+      "block": 39,
+      "text": "Two warnings about that last one. > overwrites the target file completely, with no prompt and no undo, so never point it at a file you care about. >> adds to the end instead. And note that only stdout gets redirected, which is why errors still appear on screen when everything else has gone quiet. Send stderr away separately with 2>/dev/null , where 2 is the channel number and /dev/null is the bin."
+    },
+    {
+      "block": 40,
+      "text": "When you do not know a program's flags, ask it. Most answer --help with a short list. man grep opens the full manual, and q quits it. Reading two lines of --help beats guessing every time."
+    },
+    {
+      "block": 41,
+      "text": "Settings the shell hands down"
+    },
+    {
+      "block": 42,
+      "text": "An environment variable is a named value the shell hands to every program it starts. echo $HOME prints yours, echo $SHELL proves you are in zsh. Set one with export CLARITY_MODE=1 , and every program started from that window can read it."
+    },
+    {
+      "block": 43,
+      "text": "This is exactly how secrets travel. A key never gets typed into code, where it would be saved, committed, pushed and public forever. It gets put in the environment of the one server that needs it, and the code asks for it by name at the moment it runs. Memento's proxy does precisely this, in one line: Deno.env.get('ANTHROPIC_API_KEY') . Chapter 19 does the whole subject."
+    },
+    {
+      "block": 44,
+      "text": "Break it, twice"
+    },
+    {
+      "block": 45,
+      "text": "First, a failure. Type ls /nope , then echo $? ."
+    },
+    {
+      "block": 46,
+      "text": "The message came out on stderr. The 1 is the exit code. Run ls on a folder that exists, ask again, and you get 0. You have now seen the number your deploy robot reads on every push."
+    },
+    {
+      "block": 47,
+      "text": "Second, a runaway. Type while true; do echo hi; done and watch the window fill up forever, because you told it to and the machine has no opinion about that. Hold control and press C. It stops. Ctrl-C is the stop button , and it is the single most useful key in the Terminal: it interrupts whatever is running and hands you back the prompt."
+    },
+    {
+      "block": 48,
+      "text": "Ctrl-C only reaches the program in front of you. Something running in the background, like a forgotten local server holding onto a port, needs finding first. ps lists running processes with their id numbers, and kill 4821 asks that one to stop. Memento's own launcher does this every time you start it, which you are about to read."
+    },
+    {
+      "block": 49,
+      "text": "See it"
+    },
+    {
+      "block": 50,
+      "text": "A shell in fifteen lines. It splits a line into a program and arguments, looks the program up, and returns two channels plus an exit code. The real one does more, but not differently."
+    },
+    {
+      "block": 51,
+      "text": "Predict the four blocks before you press Run. Then look at the last one: a name the lookup cannot find comes back 127, which is the real code zsh uses for \"command not found\". Break it yourself by deleting the if (!program) line and running it again. The crash you get is the machine being literal, exactly as in chapter 1."
+    },
+    {
+      "block": 52,
+      "text": "Now in Memento"
+    },
+    {
+      "block": 53,
+      "text": "ANY APP"
+    },
+    {
+      "block": 54,
+      "text": "Nobody remembers long commands. Two ways to stop trying."
+    },
+    {
+      "block": 55,
+      "text": "Name them in the project. A package.json has a scripts section: short names for long commands, kept next to the code, so every human and every robot runs the same thing."
+    },
+    {
+      "block": 56,
+      "text": "Save them in a file. A file of shell commands is a script. Make it runnable and it is a program like any other, indistinguishable from the built-in ones as far as the shell is concerned."
+    },
+    {
+      "block": 57,
+      "text": "MEMENTO"
+    },
+    {
+      "block": 58,
+      "text": "The native app names its commands:"
+    },
+    {
+      "block": 59,
+      "text": "Read the last one. npm run check is the type checker followed by the tests, and && means \"only if the first one exits 0\". A type error means the tests never run and the whole thing exits non-zero. That is the gate CI reads."
+    },
+    {
+      "block": 60,
+      "text": "And the thing you double-click to see the web app is a saved command:"
+    },
+    {
+      "block": 61,
+      "text": "Everything in there is this chapter. lsof -ti tcp:8090 asks which process is holding that port, and its stdout is captured into a variable. 2>/dev/null throws the complaints away. kill stops the old server so the new one can have the port. That file is not magic, it is five commands somebody got tired of typing."
+    },
+    {
+      "block": 62,
+      "text": "THE ALTERNATIVE, AND WHY MEMENTO CHOSE THIS"
+    },
+    {
+      "block": 63,
+      "text": "The alternative to a launcher script is opening index.html straight from the disk with a double click. It works, until it does not: the browser then keeps serving you yesterday's JavaScript out of its cache, and you spend an hour debugging a bug you already fixed. The launcher exists because that happened, so it starts a tiny local server that sends no-cache headers and kills any stale one first. The cost is a Terminal window you have to leave open. The alternative to named npm scripts is everyone typing tsc --noEmit from memory, where everyone includes two AI agents and a CI robot, and one of them types it slightly differently."
+    },
+    {
+      "block": 64,
+      "text": "Do it"
+    },
+    {
+      "block": 65,
+      "text": "Exercise MAC"
+    },
+    {
+      "block": 66,
+      "text": "cd ~/Downloads/CODE-BOOK/sandbox/v1 then ls . Five files and a server. That is Memento Jr, the practice app."
+    },
+    {
+      "block": 67,
+      "text": "which node and node --version . If the first prints a path, the second will work. If it prints nothing, Node is not on your PATH."
+    },
+    {
+      "block": 68,
+      "text": "echo $HOME , then echo $SHELL . Two settings the shell hands to every program it starts."
+    },
+    {
+      "block": 69,
+      "text": "Break it: ls /nope , then echo $? . You get 1. Now ls , then echo $? again. You get 0."
+    },
+    {
+      "block": 70,
+      "text": "grep -n \"streak\" app.js . Every line naming the streak, with line numbers. Now head -20 app.js and compare: grep finds, head tastes."
+    },
+    {
+      "block": 71,
+      "text": "ls > files.txt then cat files.txt . The answer went into a file instead of onto the screen. Then rm files.txt , which is safe here and only here, because you made that file thirty seconds ago."
+    },
+    {
+      "block": 72,
+      "text": "Pipe it: ls ~/Downloads/MEMENTO/memento-app/js | wc -l . You should get 38, which is chapter 5's number, counted by a machine."
+    },
+    {
+      "block": 73,
+      "text": "Read Memento without touching it: grep -rn \"persistState\" ~/Downloads/MEMENTO/memento-app/js | head . Every call site, file and line, ten at a time. Look at the shape of it: one name, twenty-five places, and the first five hits all sitting in one file."
+    },
+    {
+      "block": 74,
+      "text": "The runaway: while true; do echo hi; done . Let it fill the screen for two seconds, then press control and C. Say out loud what just happened."
+    },
+    {
+      "block": 75,
+      "text": "Press the up arrow six times. Your whole session is there. history prints it as a numbered list."
+    },
+    {
+      "block": 76,
+      "text": "ASK THE AGENT WHY (paste this into Codex or Fable)"
+    },
+    {
+      "block": 77,
+      "text": "WORDS YOU NOW OWN"
+    },
+    {
+      "block": 78,
+      "text": "Shell"
+    },
+    {
+      "block": 79,
+      "text": "The program reading your typed lines. Yours is zsh. It finds the program you named and runs it."
+    },
+    {
+      "block": 80,
+      "text": "Command, argument, flag"
+    },
+    {
+      "block": 81,
+      "text": "A program plus what you hand it. The parts starting with a dash are the dials."
+    },
+    {
+      "block": 82,
+      "text": "PATH"
+    },
+    {
+      "block": 83,
+      "text": "The ordered list of folders the shell searches for a program. which node shows which one it found."
+    },
+    {
+      "block": 84,
+      "text": "stdout and stderr"
+    },
+    {
+      "block": 85,
+      "text": "Two separate channels out: the answer, and the complaints. Redirecting one leaves the other on screen."
+    },
+    {
+      "block": 86,
+      "text": "Exit code"
+    },
+    {
+      "block": 87,
+      "text": "The number a program leaves behind. 0 worked, anything else did not. echo $? shows the last one."
+    },
+    {
+      "block": 88,
+      "text": "Pipe and redirect"
+    },
+    {
+      "block": 89,
+      "text": "| feeds one program's output into the next. > writes it to a file and overwrites what was there."
+    },
+    {
+      "block": 90,
+      "text": "Environment variable"
+    },
+    {
+      "block": 91,
+      "text": "A named value handed to every program the shell starts. How secrets reach code without being written in it."
+    },
+    {
+      "block": 92,
+      "text": "Ctrl-C, ps, kill"
+    },
+    {
+      "block": 93,
+      "text": "Stop the thing in front of you. List what is running. Stop one by its id."
+    },
+    {
+      "block": 94,
+      "text": "WHERE TODAY'S ANALOGY BREAKS"
+    },
+    {
+      "block": 95,
+      "text": "Breaks when: you decide the clerk is part of the building. The shell is just another program, with a name and a version, and it can be swapped: zsh is the Mac default now, bash was before it, and servers run either. Its own rules are a full programming language, which is why while true; do echo hi; done is a legal thing to type at a prompt, and why a shell script can have real bugs. The counter is also not one queue: programs can run in the background, and their output arrives in your window while you type something else. Real model: the shell is a program that turns a line of text into a new process with its arguments, its environment, and three streams attached (input, output, errors), then waits for that process to end and keeps its exit code. Everything else, pipes, redirects, loops, scripts, is arrangements of that one move."
+    },
+    {
+      "block": 96,
+      "text": "RABBIT HOLE: why a script needs the ./"
+    },
+    {
+      "block": 97,
+      "text": "Running a script in the folder you are standing in takes ./launch.sh , not launch.sh , and the reason is security. The current folder is deliberately not on the PATH. If it were, downloading a folder containing a file called ls and then typing ls would run a stranger's program instead of the real one. Making you write ./ forces you to say out loud that you mean this file, here. The same instinct is why chapter 5 told you never to run an unknown command in a folder you are only visiting."
     }
   ],
-  "wordCount": 2176
+  "wordCount": 2264
 }

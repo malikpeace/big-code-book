@@ -44,7 +44,7 @@ def main() -> None:
             fail(f"stale narration script for chapter {data['chapter']:02d}")
         if any(len(segment["text"]) > 2800 for segment in saved["segments"]):
             fail(f"oversized speech segment in chapter {data['chapter']:02d}")
-        covered = [block for segment in saved["segments"] for block in segment["blocks"]]
+        covered = [segment["block"] for segment in saved["segments"]]
         if sorted(set(covered)) != list(range(len(saved["blocks"]))):
             fail(f"narration blocks are missing in chapter {data['chapter']:02d}")
     print("scripts: 30 current chapter scripts, code boxes and diagrams excluded")
