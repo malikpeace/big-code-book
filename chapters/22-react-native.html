@@ -156,11 +156,11 @@ render();
 // Phase 3 item 1 preview (sign-in/restore screens on a fake port); see MIGRATION/ENTRY-HANDOFF.md for the router wiring Codex owns.
 const ENTRY_SAMPLE = __DEV__ &amp;&amp; process.env.EXPO_PUBLIC_ENTRY_SAMPLE === '1';
 const entryAvailable = () =&gt; ENTRY_SAMPLE;
-// Phase 3 Clarity preview (fixture port, in-memory account); see MIGRATION/CLARITY-HANDOFF.md. LOCAL, not committed: Codex owns src/app.
-const CLARITY_SAMPLE = __DEV__ &amp;&amp; process.env.EXPO_PUBLIC_CLARITY_SAMPLE === '1';</code></pre>
-  <div class="src">memento-native/src/app/index.tsx:45-50 (native pin 93bfa796)</div>
-  <!-- CODEX: verify src/app/index.tsx has uncommitted local edits in the working tree; confirm these six lines against the pin before publishing. -->
-  <p><code>__DEV__</code> is true only in a dev build, so every one of these previews is gone from anything that ships. The versions underneath are pinned to the number, not a range.</p>
+
+// Text size parity lives in src/ui/text.tsx (explicit allowFontScaling={false} on every element).
+const RUN = (process.env.EXPO_PUBLIC_FEEL_SAMPLE_RUN || '1').replace(/[^A-Za-z0-9_-]/g, '');</code></pre>
+  <div class="src">memento-native/src/app/index.tsx:44-50 (native pin 93bfa796)</div>
+  <p>Two dev-preview gates, entry and feel. <code>__DEV__</code> is true only in a dev build, so both are gone from anything that ships. The versions underneath are pinned to the number, not a range.</p>
   <table>
     <tr><th>Package</th><th>Version</th><th>What it is</th></tr>
     <tr><td><code>expo</code></td><td>57.0.22</td><td>The toolkit and build system.</td></tr>

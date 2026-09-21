@@ -32,7 +32,7 @@
   <p>Every serious codebase has a moment where reading stops and writing starts, and that moment is a permission, not a feeling.</p>
   <p>Memento is under a <dfn data-term="code-freeze">code freeze</dfn>. A freeze is a decision to stop changing something so that a second thing can catch up: here, the web app holds still at v1378 while the React Native rebuild chases it. A freeze is not laziness. It is how you stop the target moving while you copy it, and every change you allow through it is a change the other team has to replay by hand.</p>
   <p>So this chapter has a gate in front of it, and the gate is one sentence from one person.</p>
-  <div class="box expiry"><div class="h">THE GATE. DO NOT PASS IT WITHOUT THIS</div><p>This chapter begins only when Malik has said, <strong>that day, in chat</strong>: "yes, do the graduation change on Memento." Not last week. Not implied by your being on chapter 30. Not an agent saying it is fine. Until that sentence exists the chapter is reading, and the lab from chapter 29 is where anything runs. After it exists, the agent creates a branch and every change lives there. Nothing, ever, happens on <code>main</code>.</p></div>
+  <div class="box expiry"><div class="h">THE GATE. DO NOT PASS IT WITHOUT THIS</div><p>This chapter begins only when Malik has said, <strong>that day, in chat</strong>: "yes, do the graduation change on Memento." Not last week. Not implied by your being on chapter 30. Not an agent saying it is fine. Until that sentence exists the chapter is reading, and the lab from chapter 29 is where anything runs. After it exists, the agent adds an isolated worktree, a second working copy of the same repository on its own branch, and every change lives in there. The shared <code>~/Downloads/MEMENTO</code> checkout is never switched, because another agent is standing in it. Nothing, ever, happens on <code>main</code>.</p></div>
   <p>That is not ceremony. Memento is live, it has paying users, and its rules file tells every agent what the freeze allows:</p>
   <pre><code>- No new features, redesigns, or copy changes in `memento-app/`. Bug fixes
   only, and only for bugs that block a real person or a test account.
@@ -46,7 +46,7 @@ Format: `vNNNN | file | what changed | why it could not wait | approved by`
 
 (none yet)</code></pre>
   <div class="src">MIGRATION/FREEZE-LOG.md:3-6 (native pin 93bfa796)</div>
-  <p>"(none yet)" is the proudest line in the repository: nine days of freeze and nothing urgent enough to break it. If your change touches <code>memento-app/</code>, you write the first line in that file, and you had better be able to defend it.</p>
+  <p>"(none yet)" is the proudest line in the repository: a freeze running since 11 September 2026 and nothing urgent enough to break it. If your change touches <code>memento-app/</code>, you write the first line in that file, and you had better be able to defend it.</p>
   <p>Then the shipping rules, which you now read as git rather than as chores:</p>
   <pre><code>- **Before editing:** `git pull --rebase origin main` (get other agents' latest work).
 - **After a meaningful change:** commit ONLY your own files: `git add &lt;your specific files&gt;
@@ -135,7 +135,7 @@ report(rubric);
   <p>Open tool. AI allowed, internet allowed, book allowed. That is the real job: nobody has ever asked an engineer to work without documentation. What is tested is whether you can drive the tools to a correct answer and know when it is correct. Use Codex or Fable for any of it, then answer the only question that counts: could I have caught it if the agent got it wrong?</p>
   <table>
     <tr><th>Item</th><th>You pass when</th></tr>
-    <tr><td>Trace one function by hand</td><td>You pick <code>persistState()</code> (<code>memento-app/js/01-state-foundation.js:488</code>) or <code>closeToday()</code> (<code>memento-native/src/sample/feelSampleStore.ts:67</code>), write down its inputs, its output, and every side effect it causes, then run it and find nothing you missed.</td></tr>
+    <tr><td>Trace one function by hand</td><td>You pick <code>persistState()</code> (<code>memento-app/js/01-state-foundation.js:488</code>) or Memento Jr's <code>completeToday()</code> (<code>sandbox/v1/state.js</code>), write down its inputs, its output, and every side effect it causes, then run it and find nothing you missed. Both are runnable as they stand, which is the point.</td></tr>
     <tr><td>Find a planted bug from a stack trace</td><td>Given a stack trace from a broken copy in <code>lab/</code> or <code>git-lab/</code>, you name the file and line before opening the file, then explain the fix in one sentence.</td></tr>
     <tr><td>Review a diff and name its problems</td><td>Given a prepared diff, you find both planted problems and say why each is a problem, without being told how many there are.</td></tr>
     <tr><td>Explain one security decision</td><td>You explain, unprompted, why Supabase's anon key sits in public git and the Anthropic key never can, and what Row Level Security has to be doing for the first half to be safe.</td></tr>
@@ -150,9 +150,9 @@ report(rubric);
   <p>The safe shape, in order:</p>
   <ol>
     <li>Read the plan, out loud, before any file opens. One sentence: what changes, in which file, and how you will know it worked.</li>
-    <li><code>git pull --rebase origin main</code>, then create the branch. Your work starts on top of everyone else's, never beside it.</li>
+    <li><code>git -C ~/Downloads/MEMENTO pull --rebase origin main</code>, then make the worktree: <code>git -C ~/Downloads/MEMENTO worktree add ~/Downloads/CODE-BOOK/lab/graduation -b grad/&lt;short-name&gt;</code>. That creates the branch and a separate folder to work in, and leaves the Downloads checkout exactly where it was. Everything after this happens inside <code>~/Downloads/CODE-BOOK/lab/graduation</code>.</li>
     <li>Make the change. Read the diff line by line, chapter 27 style, including the lines you did not expect to see.</li>
-    <li>Verify. Native: <code>npm run check</code> in the lab copy. Web: the console gate, zero errors, and the four-cell screenshot matrix if anything visual moved.</li>
+    <li>Verify inside the worktree, never in the chapter 29 lab copy, which is pinned to an old snapshot and would test the wrong code. Native: <code>npm run check</code> in <code>~/Downloads/CODE-BOOK/lab/graduation/memento-native</code>. Web: the console gate, zero errors, and the four-cell screenshot matrix if anything visual moved.</li>
     <li>Commit the named files with a message that says what changed and why, ending with the co-author line the rules file requires.</li>
     <li>Push the branch and open the pull request: <code>gh pr create</code>, or the button GitHub shows you after a push.</li>
     <li><strong>Stop.</strong> The chapter ends at a reviewed branch. Merging is a separate yes, from the same person, on a different day if he wants.</li>
@@ -161,18 +161,18 @@ report(rubric);
   <h2>Do it</h2>
   <div class="ex" data-device="mac">
     <div class="h">Exercise <span class="tag mac">MAC</span></div>
-    <div class="meta">Where: the rubric anywhere, the change on a branch in ~/Downloads/MEMENTO, everything that runs in ~/Downloads/CODE-BOOK/lab. Expected: six rubric results written down, and one pull request open against a branch. Reset: the rubric has no reset, retakes are the reset. For the change, <code>git switch main</code> leaves the branch sitting there harmlessly, and the pull request can be closed without merging. This cannot touch Memento until the gate sentence exists, and only ever on a branch.</div>
+    <div class="meta">Where: the rubric anywhere, the change in the worktree at ~/Downloads/CODE-BOOK/lab/graduation. Expected: six rubric results written down, and one pull request open against a branch. Reset: the rubric has no reset, retakes are the reset. For the change, close the pull request without merging, then <code>git -C ~/Downloads/MEMENTO worktree remove ~/Downloads/CODE-BOOK/lab/graduation</code>. Never <code>git switch</code> anything in the Downloads checkout. This cannot touch Memento until the gate sentence exists, and only ever on a branch in that worktree.</div>
     <ol>
       <li><strong>The gate.</strong> Do not start until Malik has said, that day, in chat: "yes, do the graduation change on Memento." Write the sentence and the date at the top of your notes. No sentence, no step 5 onward.</li>
       <li>Run the rubric's six items and write PASS or RETAKE next to each, in that order, before you read any answer.</li>
       <li>For every RETAKE, name the chapter it came from and redo that chapter's exercise. Then retake the item.</li>
       <li>Pick the change with the agent, in writing: what, which file, why it passes the freeze, how it gets verified. If it touches <code>memento-app/</code>, draft the <code>FREEZE-LOG.md</code> line now, before the code.</li>
-      <li><code>git -C ~/Downloads/MEMENTO pull --rebase origin main</code>, then the branch. Expected: a clean rebase. <strong>If it reports a conflict</strong>, stop and resolve it by hand. Never force anything.</li>
-      <li>Make the change. Then <code>git diff</code> and read every line aloud. Anything you cannot explain gets removed before it goes further.</li>
-      <li>Verify, and keep the evidence. Paste the command output into your notes. "It works" is not evidence.</li>
+      <li><code>git -C ~/Downloads/MEMENTO pull --rebase origin main</code>, then <code>git -C ~/Downloads/MEMENTO worktree add ~/Downloads/CODE-BOOK/lab/graduation -b grad/&lt;short-name&gt;</code>. Expected: a clean rebase, then a new folder on a new branch. <strong>If it reports a conflict</strong>, stop and resolve it by hand. Never force anything, and never switch the Downloads checkout.</li>
+      <li>Make the change inside the worktree. Then <code>git diff</code> there and read every line aloud. Anything you cannot explain gets removed before it goes further.</li>
+      <li>Verify inside the worktree, and keep the evidence. Paste the command output into your notes. "It works" is not evidence.</li>
       <li><code>git add</code> your named files only. Expected: <code>git status</code> shows exactly the files you meant and nothing else. <strong>If it shows more</strong>, you typed <code>-A</code>. Unstage and start the add again.</li>
-      <li>Commit with the co-author line. Push the branch. Open the pull request.</li>
-      <li>Stop. Post the link. Say out loud that merging is a separate yes, because in six months you will be the one tempted to skip it.</li>
+      <li>Commit with the co-author line, from the worktree. Push the branch. Open the pull request.</li>
+      <li>Stop. Post the link. Say out loud that merging is a separate yes, because in six months you will be the one tempted to skip it. When it is closed or merged, clean up with <code>git -C ~/Downloads/MEMENTO worktree remove ~/Downloads/CODE-BOOK/lab/graduation</code>.</li>
     </ol>
   </div>
 

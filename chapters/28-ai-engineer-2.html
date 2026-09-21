@@ -61,7 +61,7 @@
    opens the real Action flow (js/30) and none of them can ever reach code
    that no longer exists.</code></pre>
   <div class="src">memento-app/js/33-action-shim.js:8-13 (web pin ca8afc8)</div>
-  <p>Eighty call sites: what a duplicate costs by the time you notice. The cheapest fix was a 38-line tombstone that stays for years.</p>
+  <p>Eighty call sites: what a duplicate costs by the time you notice. The cheapest fix was a 37-line tombstone that stays for years.</p>
   <p>Why agents do it: they do not grep first, because writing is what they are good at. They start every session with no memory, so last Tuesday's work is invisible. And adding feels safe, since a new file cannot break an existing test while changing a shared function might. Anthropic names the same failure: lost memory between sessions producing duplicated work and premature declarations of completion (<a href="https://www.anthropic.com/engineering/harness-design-long-running-apps">anthropic.com/engineering/harness-design-long-running-apps</a>).</p>
   <p>Four preventions, the first one free.</p>
   <ol>
@@ -312,7 +312,7 @@ git commit -m "first snapshot"</code></pre></li>
 git add app.js
 git commit -m "an agent improved app.js"</code></pre></li>
       <li><code>git log --oneline</code>, copy the bad commit's hash, then <code>git show &lt;hash&gt;</code>. Read the hunk header out loud.</li>
-      <li><code>git revert &lt;hash&gt;</code>. An editor opens with a message written; save and close. <code>cat app.js</code>: the old line is back, and <code>git log --oneline</code> shows three commits. Nothing was deleted.</li>
+      <li><code>git revert --no-edit &lt;hash&gt;</code>. Git writes the message itself, no editor. <code>cat app.js</code>: the old line is back, and <code>git log --oneline</code> shows three commits. Nothing was deleted.</li>
       <li>Now lose something: <code>git reset --hard HEAD~2</code>. The only place in this book you are told to run it, in an empty practice repo. <code>git log --oneline</code>: the bad commit and the revert are gone.</li>
       <li><code>git reflog</code>. Every position HEAD has been in, with hashes. The commits you lost are all there.</li>
       <li><code>git switch -c rescue &lt;hash of the revert commit&gt;</code>, then <code>cat app.js</code>. Recovered on a new branch.</li>
@@ -336,7 +336,7 @@ most likely do wrong on a task in the Consistency module. Explain, then stop. Do
     <dt>Fresh-context review</dt><dd>A review by a session that has not seen the reasoning and must reconstruct intent from the diff. If it cannot, the change is not explaining itself. Self-review cannot replace it.</dd>
   </dl></div>
 
-  <div class="box expiry"><div class="h">WHERE TODAY'S ANALOGY BREAKS</div><p><strong>Breaks when:</strong> you picture the second drawer as obviously wasteful. Duplicates are usually born for a good reason: the new billing code was correct, and the old paywall could not just be deleted with eighty places calling it. The problem is nobody deciding which drawer is real and writing that down. <strong>Real model:</strong> every capability has one owner, and where a second implementation must exist during a transition, its file says in its first ten lines which one wins and when it dies. Memento's 38-line shim does that. Your decision record, still describing a paywall the code replaced, does not.</p></div>
+  <div class="box expiry"><div class="h">WHERE TODAY'S ANALOGY BREAKS</div><p><strong>Breaks when:</strong> you picture the second drawer as obviously wasteful. Duplicates are usually born for a good reason: the new billing code was correct, and the old paywall could not just be deleted with eighty places calling it. The problem is nobody deciding which drawer is real and writing that down. <strong>Real model:</strong> every capability has one owner, and where a second implementation must exist during a transition, its file says in its first ten lines which one wins and when it dies. Memento's 37-line shim does that. Your decision record, still describing a paywall the code replaced, does not.</p></div>
 
   <details class="hole"><summary>RABBIT HOLE: why "add" feels safer to an agent than "change"</summary><p>Changing a shared function means reading every caller, and if one breaks, the failure appears where the agent is not looking. Adding a function next to it cannot break an existing test and reads as progress. Both end the session successfully from the agent's side; only one leaves two answers to one question. Which is why types and tests change agent behaviour more than instructions do. They make "change" cheap to verify, and therefore rational to choose.</p></details>
 </main>

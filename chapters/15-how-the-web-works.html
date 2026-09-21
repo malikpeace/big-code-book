@@ -91,10 +91,10 @@
 
   <h3>The body and JSON</h3>
   <p>The <dfn data-term="request-body">body</dfn> is the contents. It can be anything, but for an API it is almost always <dfn data-term="json">JSON</dfn>: text that looks exactly like a JavaScript object and is nothing more than that. Braces, keys in quotes, values, commas.</p>
-  <p>Two functions move between the object and the text. <code>JSON.stringify(obj)</code> flattens an object into a string you can post. <code>JSON.parse(text)</code> inflates it back into a real object. Everything on the network is text, always. JSON keeps numbers, strings, booleans, null, arrays and objects, and has no idea what a date or a function is, which is why every API sends dates as strings.</p>
+  <p>Two functions move between the object and the text. <code>JSON.stringify(obj)</code> flattens an object into a string you can post. <code>JSON.parse(text)</code> inflates it back into a real object. JSON crosses the network as text. JSON keeps numbers, strings, booleans, null, arrays and objects, and has no idea what a date or a function is, which is why every API sends dates as strings.</p>
 
   <h3>The status code</h3>
-  <p>The response's first line carries a <dfn data-term="status-code">status code</dfn>: the outcome in three digits, readable before you open anything. The first digit is the headline. 2 worked, 4 your parcel was wrong, 5 the server broke. The ones Memento and Memento Jr actually return:</p>
+  <p>The response's first line carries a <dfn data-term="status-code">status code</dfn>: the outcome in three digits, readable before you open anything. The first digit is the headline. 2 worked, 4 the server refused you, 5 the server broke. The ones Memento and Memento Jr actually return:</p>
   <table>
     <tr><th>Code</th><th>Plain meaning</th><th>Where it shows up</th></tr>
     <tr><td>200</td><td>Fine. Here it is.</td><td>Memento Jr answering <code>GET /api/sync</code>.</td></tr>
@@ -110,7 +110,7 @@
     <tr><td>500</td><td>I broke. Not your fault.</td><td>Any server with a bug in a handler.</td></tr>
     <tr><td>503</td><td>I am not available right now. Come back shortly.</td><td>Memento's proxy when the key is missing, or the limit database is down.</td></tr>
   </table>
-  <p>A 4 means stop and fix the request. A 5 or a 429 means the request was reasonable and retrying later might work. Code that treats every failure the same either hammers a server that just told it to stop, or gives up on something that would have worked in two seconds.</p>
+  <p>A 4 means the server refused: something about the request, your identity, its own policy, a conflict with what it already has, or how fast you are asking. Often that means fixing the payload. Sometimes it does not: a 409 usually wants a reload and a retry with fresh data, and a 429 wants the same request again after a wait. A 5 or a 429 means the request was reasonable and retrying later might work. Code that treats every failure the same either hammers a server that just told it to stop, or gives up on something that would have worked in two seconds.</p>
 
   <h3>API, latency, and the two kinds of answer</h3>
   <p>Put the five parts together and you have an <dfn data-term="api">API</dfn>: a contract. These addresses exist, they take these verbs, they want this JSON with these headers, they hand back that JSON, with these status codes. "The Anthropic API" means a document describing exactly those things.</p>

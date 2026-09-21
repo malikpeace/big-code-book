@@ -134,7 +134,7 @@ commits.forEach(c => console.log(c.id, "parents:", (c.parents || []).join(",") |
       <p>Teams prefix branch names so the label says who owns that line of work. Work happens on a branch, gets reviewed, then joins main, and main is the line allowed to ship. <code>git branch</code> with no arguments lists the labels and marks where you stand. It changes nothing.</p>
     </div>
     <div class="lane mem"><div class="h">MEMENTO</div>
-      <p><code>git -C ~/Downloads/MEMENTO branch</code> lists 59 labels. The protocol is visible in plain text:</p>
+      <p><code>git -C ~/Downloads/MEMENTO branch</code> listed 59 labels on 20 September 2026. Branch labels are not part of a commit, so that count is a snapshot of that day, not a fact about the pin. The protocol is visible in plain text:</p>
       <pre><code>  claude/clarity-luna
   claude/v21-overnight
   codex/ai-spend-guardrails
@@ -142,7 +142,7 @@ commits.forEach(c => console.log(c.id, "parents:", (c.parents || []).join(",") |
   codex/consistency-integration
   codex/memento-core-flow</code></pre>
       <p>The prefixes say which agent owns that line. The <code>+</code> means the branch is checked out in a different worktree, the separate working copy the plan gives Codex so the agents are not editing the same files at once.</p>
-      <div class="src">git branch at native pin 93bfa796</div>
+      <div class="src">git branch in ~/Downloads/MEMENTO, snapshot 2026-09-20</div>
     </div>
   </div>
 

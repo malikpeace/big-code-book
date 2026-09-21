@@ -22,7 +22,7 @@
   <div class="box recap"><div class="h">LAST TIME</div><p>A test is an executable expectation, written once and re-run forever. Unit, integration and end to end answer different questions, and coverage measures how much code ran, not whether it was right. Memento's native side has a runner and a test that uses the frozen web code as the oracle; the web side has no runner at all.</p></div>
 
   <h2>Quick check</h2>
-  <details class="check"><summary>Why is Memento's Supabase anon key sitting in a public file, while the Anthropic key is not?</summary><div class="a">The anon key is an address, not a permission. What protects the data is Row Level Security in the database, which decides per row who may read it. The Anthropic key is a permission: anyone holding it can spend Memento's money. So it lives in the edge function's environment and never reaches a browser.</div></details>
+  <details class="check"><summary>Why is Memento's Supabase anon key sitting in a public file, while the Anthropic key is not?</summary><div class="a">The anon key is a publishable credential whose authority was cut down on purpose. The API accepts it, but the database role behind it has almost no grants, and Row Level Security decides per row who may read what. The Anthropic key is a permission: anyone holding it can spend Memento's money. So it lives in the edge function's environment and never reaches a browser.</div></details>
   <details class="check"><summary>A request comes back with status 429. What does the app now know?</summary><div class="a">Too many requests. The server understood fine and refused on purpose, so retrying immediately is the wrong move. Memento's native transport maps that status to the code <code>rate-limit</code> so the UI can say something human instead of "error".</div></details>
   <details class="check"><summary>What does a migration do that editing the database by hand does not?</summary><div class="a">It is a dated, forward-only file in git. The change is reviewable, repeatable on another machine, and there is a record of when the promise changed. Memento has 33 of them.</div></details>
 
@@ -223,7 +223,7 @@ export const CREDENTIAL_PATHS = [['spotify', 'tokens']] as const;</code></pre>
     <tr><td><code>memento-app/js/08-cards-grid-share.js</code></td><td>10,478 lines</td><td>The biggest script. Parsed on every page load whether or not the user opens a card.</td></tr>
     <tr><td><code>memento-app/js/09-controllers.js</code></td><td>7,064 lines</td><td>Shared wiring, so it also loads every time.</td></tr>
   </table>
-  <p>Memento's caching story is the opposite problem, solved by hand. Every script tag carries <code>?v=v1378</code>, and the app checks the stamp against itself at boot:</p>
+  <p>Memento's caching story is the opposite problem, solved by hand. Every local script tag carries a <code>?v=</code> cache-buster, bumped by hand when that file changes. At the pin the 57 tags hold 14 different versions, and only two of them say <code>v1378</code>. The app checks the stamp against itself at boot:</p>
   <pre><code>/* v980: the JS build stamp. The release sed bump rewrites the version in BOTH
    index.html AND this line; js/11 compares them at boot and force-refreshes
    ONCE on mismatch. Kills the "phone silently runs old cached js under a new
@@ -252,12 +252,10 @@ create or replace function public.consume_rate_limits(p_rules jsonb)</code></pre
         <pre><code>cd ~/Downloads/CODE-BOOK
 diff sandbox/v1/server.js sandbox/v1-secure/server.js | head -60</code></pre>
       </li>
-      <li>Match each hole to its fix in <code>sandbox/v1-secure/server.js</code>. Size limit: line 12 (<code>MAX_BODY_BYTES = 50 * 1024</code>) plus the early refusal at 45-50, a 413 and a destroyed request. Validation: <code>validateState</code> at 88-96, the checks you ran above. Error wall: <code>handle</code> at 148-156. Ownership and conflicts are tagged CHAPTER 25 at lines 112 and 114.</li>
+      <li>Match each hole to its fix in <code>sandbox/v1-secure/server.js</code>. Size limit: line 12 (<code>MAX_BODY_BYTES = 50 * 1024</code>) plus the early refusal at 45-50, a 413 and a destroyed request. Validation: <code>validateState</code> at 88-96, the checks you ran above. Error wall: <code>handle</code> at 148-156. Those three carry a <code>CHAPTER 18</code> tag in the file, because that is where the habit was introduced. Only the owner slot and the revision conflict, at lines 112 and 114, are tagged <code>CHAPTER 25</code>.</li>
       <li>One question to sit with: the fixed server trusts a header called <code>FAKE_TOKEN</code> whose value is written in the file. Which of today's four habits does that break, and which does it satisfy?</li>
     </ol>
   </div>
-  <!-- CODEX: verify tag numbering. In sandbox/v1-secure/server.js the size cap, validateState and the 500 wall are tagged CHAPTER 18; the owner slot and revision conflict are tagged CHAPTER 25. The brief expected the first three under the CHAPTER 25 tag. Either the tags or this paragraph should move. -->
-
   <div class="ex">
     <div class="h">Phone alternative <span class="tag">phone</span></div>
     <div class="meta">Where: the validator sandbox above. Expected: your added check rejects one input the original accepted. Reset: the Reset button. This cannot touch Memento.</div>

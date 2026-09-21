@@ -70,7 +70,7 @@
 
   <h3>Public keys, secret keys, and one flag that means nothing</h3>
   <p>Some keys identify an application. Some authorize spending money. Treating them alike is how founders get four-figure bills.</p>
-  <p>Supabase's <dfn data-term="anon-key">anon key</dfn> is the first kind: a long string inside every copy of the app, visible to anyone who opens the developer tools. It says "requests from the Memento app", not who you are, and it grants nothing, because RLS decides access from the signed-in identity. Public by design, safe only because of the previous chapter.</p>
+  <p>Supabase's <dfn data-term="anon-key">anon key</dfn> is the first kind: a long string inside every copy of the app, visible to anyone who opens the developer tools. It says "requests from the Memento app", not who you are. It is still a real credential the API accepts, so it is not powerless. It is publishable because its power was deliberately cut down: the database role it maps to gets almost no grants, and RLS decides access per row from the signed-in identity. Public by design, safe only because of the previous chapter.</p>
   <p>The Anthropic key is a <dfn data-term="secret-key">secret key</dfn>, the second kind: anyone holding it can spend Memento's money. It lives in the edge function's environment and nowhere else, which is the entire reason the chapter 16 proxy exists.</p>
   <p>Then the flag. An <dfn data-term="entitlement">entitlement</dfn> is what an account has paid for, and a real one lives on a server. Memento's <code>entitlements.isPaid</code> is a boolean on the user's own device, editable in ten seconds. Fine as a hint about which screen to draw, never evidence. A client can say it is paid. Only a server can know.</p>
 
@@ -152,7 +152,7 @@ console.log("no token at all:", goodServer({ isPaid: true }, null));
   <h2>Now in Memento</h2>
 
   <div class="lanes">
-    <div class="lane"><div class="h">ANY APP: the key that is meant to be seen</div><p>A client key identifies the app and grants nothing on its own, safe to publish only because row rules decide access from the signed-in user. Write that next to the key so nobody "fixes" it.</p></div>
+    <div class="lane"><div class="h">ANY APP: the key that is meant to be seen</div><p>A publishable client key identifies the app and maps to a deliberately weak database role: grants stripped back, row rules deciding access from the signed-in user. Publishing it is safe because its authority is small, not because it has none. Write that next to the key so nobody "fixes" it.</p></div>
     <div class="lane mem"><div class="h">MEMENTO: the anon key, with its reason</div><pre><code>   The anon key below is public by design; Row Level Security on the
    user_state table (tools/supabase-setup.sql) is what protects rows.
 ...
@@ -263,7 +263,7 @@ node server.js</code></pre>
     <dt>Token</dt><dd>The string you send with each request that stands for the session. Signed, expiring, refreshable, revocable. Never a password.</dd>
     <dt>Refresh token</dt><dd>A longer-lived second token whose only job is to get you a fresh access token without signing in again.</dd>
     <dt>OAuth</dt><dd>Another service vouching for you. Google authenticates you on its own page and hands back a signed statement. Memento never sees the password.</dd>
-    <dt>Anon key / public key</dt><dd>Identifies the app, grants nothing. Safe to publish only because Row Level Security decides access from the signed-in user.</dd>
+    <dt>Anon key / public key</dt><dd>A publishable credential that identifies the app and carries a deliberately limited database role. Safe to publish because grants and Row Level Security keep its authority small, not because it has none.</dd>
     <dt>Secret key</dt><dd>Spends money or grants power. Lives in a server's environment and nowhere else. Memento's Anthropic key is one.</dd>
     <dt>Entitlement</dt><dd>What a given account has paid for. Real ones live on a server. <code>isPaid</code> on a phone is a drawing hint, not evidence.</dd>
     <dt>Secure store / keychain</dt><dd>The operating system's locked box for credentials. Tokens go there, not in the app's saved data.</dd>

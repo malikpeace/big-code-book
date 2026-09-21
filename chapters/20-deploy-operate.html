@@ -168,7 +168,7 @@ CASES.forEach(function (env) {
       - 'memento-app/**'
   workflow_dispatch: {}   # lets you trigger a manual redeploy from the Actions tab</code></pre>
       <div class="src">.github/workflows/deploy-live.yml:14-19 (web pin ca8afc8)</div>
-      <p>A push to a branch is the deploy. Nobody uploads anything, and a change outside <code>memento-app/</code> triggers nothing at all.</p>
+      <p>A push to <code>main</code> that touches <code>memento-app/**</code> is the deploy, and so is a manual dispatch. Nobody uploads anything. A push to a feature branch deploys nothing, and neither does a change outside <code>memento-app/</code>.</p>
       <p>The gate, first half. Every JavaScript file is parsed before anything moves:</p>
       <pre><code>          for f in memento-app/js/*.js; do
             node --check "$f" || { echo "SYNTAX ERROR in $f"; fail=1; }
@@ -217,7 +217,7 @@ CASES.forEach(function (env) {
    2  ?v=v1378
    ... 9 more, one tag each</code></pre>
       <div class="src">produced by: grep -o '?v=v[0-9]*' memento-app/index.html | sort | uniq -c (web pin ca8afc8)</div>
-      <p>Fifty-seven tags, fourteen different versions. That is not rot, it is a record: a tag is bumped by hand when that file changes, so the numbers show when each file was last touched. Two files changed in v1378:</p>
+      <p>Fifty-seven tags, fourteen different versions. That is not rot, it is a record: a tag is bumped by hand when that file changes, so the numbers show which release each file was last stamped in, not what changed in any one release. Two tags read v1378, <code>js/01-state-foundation.js</code> and <code>js/11-init.js</code>. Put one next to a neighbour and the contrast is the point:</p>
       <pre><code>&lt;script src="js/01-state-foundation.js?v=v1378"&gt;&lt;/script&gt;
 &lt;script src="js/02-clarity-experience.js?v=v1358"&gt;&lt;/script&gt;</code></pre>
       <div class="src">memento-app/index.html:818-819 (web pin ca8afc8)</div>

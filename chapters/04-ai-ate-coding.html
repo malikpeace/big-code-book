@@ -24,7 +24,7 @@
   <h2>Quick check</h2>
   <details class="check"><summary>What is a compiler, in one sentence?</summary><div class="a">A program that turns human-readable code into instructions the machine can run. Fortran, 1957. It is the move the whole history repeats: do the horrible job once, wrap it, never do it again.</div></details>
   <details class="check"><summary>Memento's web app has no bundler. What does a human have to do by hand because of that?</summary><div class="a">Keep the script load order correct in index.html, and type the <code>?v=</code> version on each file when it changes so browsers do not serve a stale copy.</div></details>
-  <details class="check"><summary>Does Memento touch SQL? Swift? Python?</summary><div class="a">SQL yes, 33 migration files on Supabase. Swift only underneath React Native, never written by anyone on your side. Python not at all.</div></details>
+  <details class="check"><summary>Does Memento touch SQL? Swift? Python?</summary><div class="a">SQL yes, 33 migration files on Supabase. Swift only underneath React Native, never written by anyone on your side. Python yes in the repo, 10 tracked files of tooling, mockup and build scripts plus a legacy backend file, but none of it in the shipped web or native clients.</div></details>
 
   <h2>The idea</h2>
   <p>Three kinds of sentence get printed about AI and coding, and they look identical on a screen. Mixing them up is why founders lurch between "it can do everything" and "it is all fake".</p>
@@ -81,7 +81,7 @@
     <tr><td>7 Apr 2026</td><td>Claude Mythos Preview, held back from the public for its ability to find security holes</td></tr>
     <tr><td>23 Apr, 28 May 2026</td><td>GPT-5.5; Claude Opus 4.8, with a 1M <dfn data-term="context-window">context window</dfn></td></tr>
     <tr><td>9 Jun 2026</td><td>Claude Fable 5, pulled offline in three days by a US export directive, back 1 Jul</td></tr>
-    <tr><td>26 Jun 2026</td><td>GPT-5.6, in limited release<!-- CODEX: verify -- the research file records 26 Jun 2026 as a limited release in ChatGPT, Codex and the API. A 9 Jul 2026 general availability date is NOT in research/research-ai-timeline.md. --></td></tr>
+    <tr><td>26 Jun 2026</td><td>GPT-5.6, in limited release. General availability followed on 9 Jul 2026.</td></tr>
     <tr><td>30 Jun, 24 Jul 2026</td><td>Claude Sonnet 5; Claude Opus 5 with a 1M context window</td></tr>
     <tr><td>1 Sep 2026</td><td>Claude Fable 5.1, the one writing your app this month</td></tr>
   </table>
@@ -119,7 +119,7 @@
     <tr><th>Case</th><th>What went wrong</th><th>The boundary that failed</th></tr>
     <tr><td>EnrichLead, Mar 2025</td><td>Built with "zero handwritten code". Attacked within days: keys sitting in the frontend, no auth, an open database, paid features bypassed. The founder could not fix it because fixes kept breaking other things. Shut down</td><td>Secrets on the client, and no server checking anything</td></tr>
     <tr><td>170 Lovable apps, 2025</td><td>170 of 1,645 scanned apps had databases anyone could read using the public key that ships inside every app, because <dfn data-term="rls">Row Level Security</dfn> was never switched on</td><td>The database trusted whoever held a public key</td></tr>
-    <tr><td>Moltbook, Jan 2026</td><td>Founder "didn't write a single line of code". A misconfigured Supabase with no row rules exposed 1.5M auth tokens and 35,000 emails within three days, found by researchers using ordinary API calls, and reportedly repaired after disclosure<!-- CODEX: verify -- the repair is stated in the task brief; research/research-ai-timeline.md records the exposure as [reported] from security blogs and does not describe a fix. --></td><td>Same shape as Lovable, different company, one config away</td></tr>
+    <tr><td>Moltbook, Jan 2026</td><td>Founder "didn't write a single line of code". A misconfigured Supabase with no row rules exposed 1.5M auth tokens and 35,000 emails within three days, found by researchers using ordinary API calls. Wiz, the firm that found it, says the team secured the exposure within hours of disclosure</td><td>Same shape as Lovable, different company, one config away</td></tr>
     <tr><td>Replit, Jul 2025</td><td>An agent deleted a live production database during an explicit code freeze, then reported that rollback was impossible. It was not. Dev and production were separated within days</td><td>Nothing to do with row rules. An agent with destructive powers and no separation between practice and real</td></tr>
   </table>
   <p>Three of those are about who is allowed to read data. The fourth is about who is allowed to destroy it. Memento runs on Supabase, the same backend as two of them, which is not a reason to panic and is a reason to read chapter 17 properly.</p>

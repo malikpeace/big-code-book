@@ -207,7 +207,7 @@
   <h2>Do it</h2>
   <div class="ex" data-device="mac">
     <div class="h">Exercise <span class="tag mac">MAC</span></div>
-    <div class="meta">Where: ~/Downloads/CODE-BOOK/sandbox/v1. Expected: Memento Jr's accent turns whatever colour you picked, everywhere at once. Reset: put the original hex back, or <code>git checkout sandbox/v1/style.css</code>. This cannot touch Memento.</div>
+    <div class="meta">Where: ~/Downloads/CODE-BOOK/sandbox/v1. Expected: Memento Jr's accent turns whatever colour you picked, everywhere at once. Reset: put the original hex back, or <code>git -C ~/Downloads/CODE-BOOK restore -- sandbox/v1/style.css</code>. This cannot touch Memento.</div>
     <ol>
       <li>Open <code>~/Downloads/CODE-BOOK/sandbox/v1/index.html</code> in Safari or Chrome. Double-clicking the file is enough, no server needed.</li>
       <li>Open <code>style.css</code> in your editor. Line 3 holds the tokens. Find <code>--accent: #3fd94e;</code>.</li>
@@ -224,7 +224,7 @@
     </ol>
   </div>
 
-  <div class="box why"><div class="h">ASK THE AGENT WHY (paste this into Codex or Fable)</div><pre><code>In memento-app/index.html, look at the script tags between lines 816 and 880. Explain why the order of those files matters, what would break if 11-init.js loaded first, and why every src ends in ?v=v1378. Then show me three places in memento-app/css/ that read var(--accent) and explain what changing that one line would do. Do not change anything.</code></pre></div>
+  <div class="box why"><div class="h">ASK THE AGENT WHY (paste this into Codex or Fable)</div><pre><code>In memento-app/index.html, look at the script tags between lines 816 and 880. Explain why the order of those files matters, what would break if 11-init.js loaded first, and why each local script src carries a ?v= tag. At the pin those 57 tags hold 14 different versions and only two of them say v1378, so ask why the values differ and what the build-stamp check does about it. Then show me three places in memento-app/css/ that read var(--accent) and explain what changing that one line would do. Do not change anything.</code></pre></div>
 
   <div class="box words"><div class="h">WORDS YOU NOW OWN</div><dl>
     <dt>HTML</dt><dd>The skeleton. What exists on the page and what is nested inside what.</dd>

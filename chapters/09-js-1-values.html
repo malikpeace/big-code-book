@@ -69,7 +69,7 @@
     <tr><td><dfn data-term="array">array</dfn></td><td><code>[]</code>, <code>['health', 'work']</code></td><td>An ordered list. Square brackets.</td></tr>
     <tr><td><dfn data-term="object">object</dfn></td><td><code>{ name: 'Malik', streak: 4 }</code></td><td>A bundle of named values. Curly braces. The workhorse of the language.</td></tr>
   </table>
-  <p>The most expensive type bug in the world is a number that arrived as text. Chapter 1 showed you <code>"7" + 5</code> gluing into <code>"75"</code>. It happens because everything a user types, everything read from storage, and everything that comes back over the network starts as a string. If nobody converts it, a quiet piece of text wanders into your maths. <code>typeof</code> asks a value what it is, and it is the cheapest debugging tool in the language.</p>
+  <p>The most expensive type bug in the world is a number that arrived as text. Chapter 1 showed you <code>"7" + 5</code> gluing into <code>"75"</code>. It happens because a raw form input and a raw <code>localStorage</code> value both come back as a string, every time. Parsing fixes it: <code>JSON.parse</code> hands you real numbers and booleans again. Skip the parse, and a quiet piece of text wanders into your maths. <code>typeof</code> asks a value what it is, and it is the cheapest debugging tool in the language.</p>
 
   <h3>let, const, and what const actually protects</h3>
   <p>You create a name with <code>let</code> or <dfn data-term="const">const</dfn>. <code>let</code> means this name may be pointed elsewhere later. <code>const</code> means it may never be moved once tied. Memento uses <code>const</code> by default, so when you read a diff, a <code>let</code> is a small signal that something changes.</p>
