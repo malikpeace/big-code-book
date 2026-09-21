@@ -1,0 +1,286 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>17. Databases, SQL, migrations, and the trust-boundary bug. BIG CODE BOOK</title>
+<link rel="stylesheet" href="../css/book.css">
+<meta name="theme-color" content="#0b0b0d">
+</head>
+<body data-chapter="17">
+<main>
+  <div class="kicker">Chapter 17 <span class="tag need">NEED</span> <span class="tag">~60 min</span> <span class="tag">phone or Mac</span></div>
+  <h1>Databases, SQL, migrations, and the trust-boundary bug</h1>
+  <p class="lede">The database is the last stop on the journey and the only one that remembers. It is also the one place where a single missing rule hands every user's data to a stranger. That rule has a name, Memento has it switched on, and three of the four incidents from chapter 4 are companies that did not.</p>
+
+  <div class="box recap"><div class="h">LAST TIME</div><p>A server is a program that listens on an address and runs a function for each request. A route is a function attached to an address. Memento's <code>ai-proxy</code> edge function is a server someone else keeps warm: it checks the origin, checks the rate limit, adds the secret key, calls Anthropic, and scrubs the error on the way back.</p></div>
+
+  <h2>Quick check</h2>
+  <details class="check"><summary>What is the difference between a 401 and a 404?</summary><div class="a">401 means "I do not know who you are, and this needs a who." 404 means "there is nothing at this address." A careful server answers 404 for things that exist but are not yours, so the difference teaches an attacker nothing.</div></details>
+  <details class="check"><summary>Why does the <code>ai-proxy</code> read the Anthropic key from the environment instead of the request?</summary><div class="a">Anything in the request came from a stranger's device, and a secret that ships to a phone is not a secret. <code>Deno.env.get('ANTHROPIC_API_KEY')</code> reads a value that exists only on the server.</div></details>
+  <details class="check"><summary>A function returns nothing. What do you get back, and why does that bite?</summary><div class="a"><code>undefined</code>. It bites because the call looks like it worked and nothing throws. You find out three steps later, when something reads a property of <code>undefined</code> and stops.</div></details>
+
+  <h2>The idea</h2>
+  <p>A <dfn data-term="database">database</dfn> is a filing system that answers questions, and everything in it lives in tables. A <dfn data-term="table">table</dfn> is a grid. Every column has a name and a kind of value it may hold, and every <dfn data-term="row">row</dfn> is one thing: one user, one saved state, one payment. Picture a spreadsheet.</p>
+  <p>Two rows must never be confusable, so one column is the <dfn data-term="primary-key">primary key</dfn>: the value that identifies that row and appears nowhere else. In Memento's <code>user_state</code> table it is <code>user_id</code>. One row per person, forever.</p>
+  <p>Tables point at each other with a <dfn data-term="foreign-key">foreign key</dfn>: a column holding another table's primary key. The <code>user_id</code> in <code>user_state</code> also points at the auth row that is you, which is how the database knows the saved blob and the email address belong to one human.</p>
+  <p>The tables, columns, types and keys together are the <dfn data-term="schema">schema</dfn>: a promise. "Every row here has a <code>revision</code>, and it is a whole number." Everything downstream is written against that promise, which is why changing a schema is a bigger deal than changing code.</p>
+
+  <div class="box analogy"><div class="h">ANALOGY (TEMPORARY)</div><p>A filing room. Each table is a cabinet, each row a folder, each column a printed field on its cover. The primary key is the folder number, and a foreign key is that number written on another folder. The schema is the blank form the whole room agreed to use. And on the door there is a clerk who reads your badge and hands you only the folders with your name on them. That clerk is the part everybody forgets to hire.</p></div>
+
+  <figure class="fig-box">
+    <svg class="figure" viewBox="0 0 640 290" role="img" aria-label="Two tables side by side. The users table has columns id, email and created_at, with id marked primary key. The user_state table has columns user_id, state and revision, with user_id marked both primary key and foreign key pointing back at users dot id. Below both tables sits a gate labelled Row Level Security, reading auth dot uid equals user id, with one arrow through the gate to a signed-in user and a blocked arrow to everyone else.">
+      <text class="st lo" x="20" y="20">THE SCHEMA: two tables, related by one column</text>
+      <rect class="bx" x="20" y="32" width="260" height="96" rx="8"/>
+      <text class="st b" x="34" y="54">users</text>
+      <text class="st mono" x="34" y="76">id</text><text class="st lo" x="120" y="76">primary key</text>
+      <text class="st mono" x="34" y="96">email</text><text class="st lo" x="120" y="96">text</text>
+      <text class="st mono" x="34" y="116">created_at</text><text class="st lo" x="120" y="116">timestamp</text>
+      <rect class="bx" x="360" y="32" width="260" height="96" rx="8"/>
+      <text class="st b" x="374" y="54">user_state</text>
+      <text class="st mono" x="374" y="76">user_id</text><text class="st lo" x="470" y="76">primary + foreign key</text>
+      <text class="st mono" x="374" y="96">state</text><text class="st lo" x="470" y="96">jsonb</text>
+      <text class="st mono" x="374" y="116">revision</text><text class="st lo" x="470" y="116">bigint</text>
+      <path class="ln" d="M280 76 H360"/>
+      <text class="st lo" x="320" y="66" text-anchor="middle">same value</text>
+      <rect class="bx acc" x="170" y="176" width="300" height="52" rx="8"/>
+      <text class="st b" x="320" y="198" text-anchor="middle">Row Level Security</text>
+      <text class="st lo mono" x="320" y="217" text-anchor="middle">using (auth.uid() = user_id)</text>
+      <path class="ln acc" d="M490 128 V202 H470"/>
+      <path class="ln acc" d="M170 202 H100 V250"/>
+      <text class="st" x="100" y="268" text-anchor="middle">you: your row</text>
+      <path class="ln" d="M320 228 V256" stroke-dasharray="4 4"/>
+      <text class="st lo" x="330" y="272">everyone else: zero rows, not an error</text>
+    </svg>
+    <figcaption>Two tables, one shared column, and the gate that decides whose rows come back.</figcaption>
+  </figure>
+
+  <h3>SQL: the four sentences</h3>
+  <p><dfn data-term="sql">SQL</dfn> is the language you talk to the database in. It reads almost like English, and for reading purposes there are four sentences, here on a tiny two-table Memento.</p>
+  <table>
+    <tr><th>Statement</th><th>In plain words</th></tr>
+    <tr><td><code>select email from users where id = 'u_2';</code></td><td>Give me the email column, from the users table, only for the row whose id is u_2.</td></tr>
+    <tr><td><code>insert into user_state (user_id, revision) values ('u_2', 1);</code></td><td>Add a new row to user_state with those two columns filled in.</td></tr>
+    <tr><td><code>update user_state set revision = revision + 1 where user_id = 'u_2';</code></td><td>Find that row, add one to its revision, leave everything else alone.</td></tr>
+    <tr><td><code>delete from user_state where user_id = 'u_2';</code></td><td>Remove that row.</td></tr>
+  </table>
+  <p>The important word is <code>where</code>. It is the filter, and it is the difference between "update one row" and "update every row in the company". Leave it off an <code>update</code> or a <code>delete</code> and the database cheerfully does it to all of them, without asking. Chapter 1's intern, still employed.</p>
+  <p>One more word: an <dfn data-term="index">index</dfn>. Without one, "find the row where id is u_2" means reading every row until it matches: fine at a thousand rows, awful at ten million. An index is a pre-sorted lookup kept beside the table so the database jumps straight there. Primary keys get one free.</p>
+
+  <h3>Migrations: the schema has a history</h3>
+  <p>You cannot edit a live database's shape by hand and hope, because other copies exist: local, production, maybe staging. So schema changes are written as files. A <dfn data-term="migration">migration</dfn> is one dated file of SQL moving the schema from the shape it had to the shape it should have, applied in filename order, once each, forward-only.</p>
+  <p>That is why "just add a column" is a migration. Every environment takes the change in the same order, or two databases that should be identical quietly stop being identical, and the bug that follows looks like code and is not.</p>
+  <p>Memento's database is <dfn data-term="postgres">Postgres</dfn>, thirty years old and open source, rented running from <dfn data-term="supabase">Supabase</dfn> with accounts and edge functions on top. Postgres also holds a <dfn data-term="database-function">database function</dfn>: logic that lives and runs inside the database. That matters next.</p>
+
+  <h3>Row Level Security: the clerk on the door</h3>
+  <p>Here is the part everybody gets wrong. Every Supabase app ships with a public key so it can talk to the database at all. That key cannot be a secret, it sits in JavaScript on every phone. So "who may read this table" cannot be answered by the app. The app is the stranger.</p>
+  <p><dfn data-term="rls">Row Level Security</dfn> is Postgres answering it instead. Switch it on for a table, then write a <dfn data-term="policy">policy</dfn>: a rule the database applies to every query by itself, deciding which rows this signed-in user may see or change. On with no policy, nobody gets anything. With the right policy, the exact same <code>select * from user_state</code> returns your row when you run it and their row when they run it. Not an error. Just fewer rows.</p>
+  <p>That is the <dfn data-term="trust-boundary">trust boundary</dfn>: the line past which you stop believing what you are told. Everything on the phone's side is a claim from a stranger. The database is the last place that can still say no.</p>
+
+  <h2>See it</h2>
+  <p>Three simulators, none of them a real database. First, a table and the four sentences, in JavaScript.</p>
+  <div class="sb">
+// A "table": an array of row objects, all the same shape.
+let userState = [
+  { user_id: "u_1", star: "Ship Memento", revision: 4 },
+  { user_id: "u_2", star: "Run a marathon", revision: 1 },
+  { user_id: "u_3", star: "", revision: 0 }
+];
+
+// select ... from ... where ...
+function select(rows, columns, where) {
+  return rows.filter(where).map(row => {
+    const out = {};
+    columns.forEach(c => { out[c] = row[c]; });
+    return out;
+  });
+}
+function insert(rows, row) { rows.push(row); return 1; }
+function update(rows, where, change) {
+  let n = 0;
+  rows.forEach(row => { if (where(row)) { change(row); n++; } });
+  return n;
+}
+
+console.log("select star from user_state where revision > 0");
+console.log(select(userState, ["user_id", "star"], r => r.revision > 0));
+
+console.log("insert 1 row:", insert(userState, { user_id: "u_4", star: "Learn to read code", revision: 1 }));
+
+console.log("update ... where user_id = u_2:", update(userState, r => r.user_id === "u_2", r => { r.revision = r.revision + 1; }));
+console.log("update ... with NO where:", update(userState, r => true, r => { r.revision = 0; }));
+console.log(userState);
+</div>
+  <p>Look at the last two lines: same function, one missing filter, every row reset. Second, migrations, dated files applied in order.</p>
+  <div class="sb">
+// A "schema": just a record of what columns exist.
+let schema = { user_state: ["user_id", "state"] };
+const applied = [];
+
+const migrations = [
+  { name: "20260724113000_add_revision", run: s => s.user_state.push("revision") },
+  { name: "20260724140000_add_rate_limits", run: s => { s.api_rate_limits = ["key", "count"]; } },
+  { name: "20260803010000_add_recovery", run: s => { s.user_state_recovery_snapshots = ["id", "user_id", "state"]; } }
+];
+
+function migrate(list) {
+  list.forEach(m => {
+    if (applied.includes(m.name)) { console.log("skip, already applied:", m.name); return; }
+    m.run(schema);
+    applied.push(m.name);
+    console.log("applied:", m.name);
+  });
+}
+
+migrate(migrations);
+console.log("schema now:", schema);
+
+// Run them again. Nothing happens twice. That is the point of the list.
+migrate(migrations);
+</div>
+  <p>Third, the one to sit with. <strong>SIMULATOR.</strong> Real Row Level Security runs inside Postgres, not a browser. Same idea: one query function, and the only thing changing between calls is who is asking.</p>
+  <div class="sb">
+// SIMULATOR. Real RLS lives in Postgres. This is the shape, not the thing.
+const table = [
+  { user_id: "u_1", star: "Ship Memento" },
+  { user_id: "u_2", star: "Run a marathon" },
+  { user_id: "u_3", star: "Quit drinking" }
+];
+
+// The policy: using (auth.uid() = user_id)
+function policy(row, currentUser) { return row.user_id === currentUser; }
+
+// Every query goes through the gate. The caller does not get to skip it.
+function query(currentUser) {
+  return table.filter(row => policy(row, currentUser));
+}
+
+console.log("same query, user u_1:", query("u_1"));
+console.log("same query, user u_2:", query("u_2"));
+console.log("same query, signed out:", query(null));
+
+// Now the bug: policy missing. This is the Lovable and Moltbook shape.
+function queryWithNoPolicy() { return table; }
+console.log("no policy, anyone at all:", queryWithNoPolicy());
+</div>
+
+  <h2>Now in Memento</h2>
+
+  <div class="lanes">
+    <div class="lane"><div class="h">ANY APP: the schema has a history</div><p>Schema changes live in dated files, applied in order, never edited afterwards. The filenames are the history, and you can read a product's security posture off them.</p></div>
+    <div class="lane mem"><div class="h">MEMENTO: 33 migrations</div><pre><code>20260724113000_safe_user_state_sync.sql
+20260724140000_security_rate_limits.sql
+20260724142000_account_deletion.sql
+20260724146000_least_privilege_boundaries.sql
+20260827130000_ai_spend_guardrails.sql
+20260911150000_notification_goal_sync.sql</code></pre><div class="src">supabase/migrations/ (6 of 33) (web pin ca8afc8)</div><p>Date, time, then what it does. Sorted alphabetically they sort chronologically, the whole reason for the format.</p></div>
+  </div>
+
+  <div class="lanes">
+    <div class="lane"><div class="h">ANY APP: rules in the database</div><p>Some rules are too important to live in the app, because the app runs on a stranger's device. "Never let a blank save wipe real work" is one. Written in the database, it is true for every client.</p></div>
+    <div class="lane mem"><div class="h">MEMENTO: business rules in SQL</div><pre><code>-- Atomic, revision-checked Memento state writes.
+-- A stale or blank device may never overwrite meaningful cloud work.
+
+alter table public.user_state
+  add column if not exists revision bigint not null default 0;
+
+create or replace function public.is_memento_state_meaningful(p_state jsonb)
+returns boolean
+language plpgsql
+immutable
+set search_path = ''
+as $$
+begin
+  if p_state is null or jsonb_typeof(p_state) &lt;&gt; 'object' then
+    return false;
+  end if;
+
+  return
+    nullif(btrim(coalesce(p_state #&gt;&gt; '{profile,name}', '')), '') is not null
+    or coalesce((p_state #&gt;&gt; '{profile,onboarded}')::boolean, false)</code></pre><div class="src">supabase/migrations/20260724113000_safe_user_state_sync.sql:1-20 (web pin ca8afc8)</div><p>Line 5 adds a column. Line 7 starts a database function answering one question: does this blob contain a real life, or is it empty?</p></div>
+  </div>
+
+  <div class="lanes">
+    <div class="lane"><div class="h">ANY APP: the server decides who you are</div><p>The client says "save this for me". It does not get to say who "me" is. The server asks the auth system and uses that answer.</p></div>
+    <div class="lane mem"><div class="h">MEMENTO: auth.uid(), then the revision</div><pre><code>  v_user_id uuid := auth.uid();
+...
+  if v_user_id is null then
+    raise exception 'Authentication required';
+  end if;
+...
+  if coalesce(p_expected_revision, 0) &lt;&gt; v_revision then
+    accepted := false;
+    conflict := true;
+    revision := v_revision;
+    state := v_state;
+    updated_at := v_updated_at;
+    reason := 'stale_revision';</code></pre><div class="src">supabase/migrations/20260724113000_safe_user_state_sync.sql:54, 59-61, 96-102 (web pin ca8afc8)</div><p><code>auth.uid()</code> is the database asking the auth system who is on the line. The client never supplies it. Then: saving on top of a version you have not seen is refused as <code>stale_revision</code>. A few lines later a second refusal, <code>blank_would_overwrite_meaningful_state</code>, catches a fresh phone saving nothing over a real life.</p></div>
+  </div>
+
+  <div class="lanes">
+    <div class="lane"><div class="h">ANY APP: the policy</div><p>Switch RLS on, then write the smallest rule that is true: "you may read the row whose owner column equals you." Reads and writes get separate rules.</p></div>
+    <div class="lane mem"><div class="h">MEMENTO: the read policy</div><pre><code>create policy "Users can read own state"
+  on public.user_state for select
+  to authenticated
+  using (auth.uid() = user_id);</code></pre><div class="src">supabase/migrations/20260724146000_least_privilege_boundaries.sql:12-15 (web pin ca8afc8)</div><p>Four lines. Reads only, signed-in callers only, your row only. The same migration drops the old insert and update policies, because <code>sync_user_state</code> is now the only write path, then revokes broad privileges from <code>anon</code> and <code>authenticated</code> rather than leaning on RLS as the only barrier.</p></div>
+  </div>
+
+  <div class="lanes">
+    <div class="lane"><div class="h">ANY APP: one column or many tables</div><p>Model the data properly, one table per kind of thing, or put the whole app's state in one column as a blob. Both are real choices, trading the same thing in opposite directions.</p></div>
+    <div class="lane mem"><div class="h">MEMENTO: one jsonb column</div><p>Everything a user has ever done is one object in one <code>jsonb</code> column called <code>state</code>. Top-level keys: profile, dev, entitlements, clarity, action, goalProgress, perfectWeek, goalDone, rewards, dayRecords, actionPlan, clarityNotes, streak, flow, mori, lifestats, checkins, reflection, support, spotify, deepwork, distraction, inbox, timeblocks, people, vivere, widgetOrder, hiddenWidgets, introsSeen, meta, ui, prefs, aiCache, proofEvents, analytics.</p><div class="src">memento-app/js/01-state-foundation.js, DEFAULT_STATE from line 35 (web pin ca8afc8)</div><p>Thirty-five keys. Normalised, that would be roughly thirty-five tables with foreign keys back to the user.</p></div>
+  </div>
+
+  <div class="box memento"><div class="h">THE ALTERNATIVE, AND WHY MEMENTO CHOSE THIS</div><p><strong>Firebase</strong> is Google's version: documents, not tables, with its own rules language. It works, it is not SQL, and your data is harder to take elsewhere. <strong>Your own Postgres</strong> gives total control, plus backups, upgrades, patching and a pager at three in the morning. <strong>A plain JSON file</strong> is what the practice sandbox uses: <code>db.json</code>, rewritten whole on every save. Fine for learning, useless the moment two people save at once. <strong>Supabase</strong> won because it is real Postgres, so the data stays portable and the queries ordinary, and because it puts the trust boundary where a client cannot argue with it. The cost is rent and a vendor whose defaults you check yourself. <strong>The one jsonb column</strong> won because state was already one JavaScript object, so phone and cloud hold the identical thing with nothing between them to drift. That bill is real: no counting users who finished Clarity without digging through JSON, and no indexing fields you never declared.</p></div>
+
+  <h3>The incidents, as four separate cases</h3>
+  <p>Chapter 4 listed these. You now have the vocabulary to see that three are one missing clerk and the fourth is something else.</p>
+  <table>
+    <tr><th>Case</th><th>What was missing</th><th>What an attacker did</th><th>What would have stopped it</th></tr>
+    <tr><td>EnrichLead, Mar 2025</td><td>Keys sitting in the frontend, no auth on the server, an open database</td><td>Read and used the keys, called the backend with no identity, bypassed the paid features</td><td>Secrets on the server only, an auth check on every route, and a policy on the tables. Three separate fixes, because it was three separate holes</td></tr>
+    <tr><td>170 Lovable apps, 2025 (CVE-2025-48757)</td><td>Row Level Security never switched on</td><td>Used the public key that ships inside every one of those apps and read whole tables, with no exploit, just ordinary queries</td><td>One <code>alter table ... enable row level security</code> plus a policy, per table. Memento has both, table by table, across its migrations</td></tr>
+    <tr><td>Moltbook, Jan 2026</td><td>Misconfigured Supabase, no row rules</td><td>Researchers pulled 1.5M auth tokens and 35,000 emails inside three days using ordinary API calls. Reportedly repaired after disclosure<!-- CODEX: verify -- research/research-ai-timeline.md records the exposure as [reported] and does not source a repair; the repair is stated in the chapter brief. --></td><td>The same one fix as Lovable. Different company, same missing line</td></tr>
+    <tr><td>Replit, Jul 2025</td><td>Nothing to do with row rules. No separation between practice and real, and an agent with destructive powers</td><td>The agent itself deleted a live production database during an explicit freeze, then reported rollback was impossible. It was not</td><td>Separate development and production databases, and no agent holding a key that can drop a production table. Replit shipped both within days</td></tr>
+  </table>
+  <p>The first three are the same bug wearing different logos, in the one part of the stack Memento shares with them. The fourth is the reminder that a perfect policy does not protect you from your own agent with the wrong key.</p>
+
+  <h2>Do it</h2>
+  <div class="ex">
+    <div class="h">Exercise <span class="tag">phone or Mac</span></div>
+    <div class="meta">Where: this page, in your head and in the third sandbox. Expected: three plain-English sentences, then two different outputs from one query. Reset: press Reset on the sandbox. This cannot touch Memento.</div>
+    <ol>
+      <li>Say out loud what each of these does, then open the answer.
+        <p><code>select user_id, revision from user_state where revision &gt; 10;</code></p>
+        <p><code>update user_state set device = 'iPhone' where user_id = 'u_2';</code></p>
+        <p><code>delete from user_state;</code></p>
+      </li>
+      <li>In the RLS simulator, change <code>query("u_1")</code> to <code>query("u_3")</code> and run it. A different row. Nothing else changed.</li>
+      <li>Break it: change the policy to <code>return true;</code> and run again. Every row, to everybody. That is CVE-2025-48757 in one line.</li>
+      <li>Put it back to <code>row.user_id === currentUser</code>, then read Memento's four-line policy again and notice it says exactly that.</li>
+    </ol>
+    <details class="check"><summary>Answers to step 1</summary><div class="a"><p><strong>One.</strong> Give me the user_id and revision columns from user_state, for every row whose revision is above ten. Reads only.</p><p><strong>Two.</strong> Find the row whose user_id is u_2 and set its device column to "iPhone". One row, because user_id is the primary key.</p><p><strong>Three.</strong> Delete every row in user_state. No <code>where</code>, so all of them, and nothing asks if you are sure. This is the shape behind the Replit incident, and why practice and production must not be the same database.</p></div></details>
+  </div>
+
+  <div class="box why"><div class="h">ASK THE AGENT WHY (paste this into Codex or Fable)</div><pre><code>In memento-app, list every table in supabase/migrations that has Row Level Security enabled, and for each one quote its policies with file and line numbers. Then tell me which tables have NO policy at all and explain, for each, whether that is safe and why. Do not change anything.</code></pre></div>
+
+  <div class="box words"><div class="h">WORDS YOU NOW OWN</div><dl>
+    <dt>Table / row / column</dt><dd>A grid, one thing per row, a named and typed field per column.</dd>
+    <dt>Primary key</dt><dd>The column that identifies a row and repeats nowhere else. Memento's <code>user_state</code> uses <code>user_id</code>.</dd>
+    <dt>Foreign key</dt><dd>A column holding another table's primary key. How rows in different tables know they belong together.</dd>
+    <dt>Schema</dt><dd>The promise about what shape the data has: tables, columns, types, keys.</dd>
+    <dt>SQL</dt><dd>The language for asking and changing. Four sentences do most of it: select, insert, update, delete. <code>where</code> is the filter, and forgetting it is the classic disaster.</dd>
+    <dt>Index</dt><dd>A pre-sorted lookup so the database can jump to a row instead of reading every row. Costs a little on every write.</dd>
+    <dt>Migration</dt><dd>One dated, forward-only file of SQL that changes the schema. Applied in order, once each, in every environment.</dd>
+    <dt>Postgres</dt><dd>The database Memento rents a running copy of from Supabase. Thirty years old, open source, ordinary SQL.</dd>
+    <dt>Database function</dt><dd>Logic living inside the database. Memento's <code>sync_user_state</code> and <code>is_memento_state_meaningful</code> are two.</dd>
+    <dt>Row Level Security</dt><dd>The database deciding, per query, which rows this signed-in user may see or change. Off by default. Three of chapter 4's four incidents are this being off.</dd>
+    <dt>Policy</dt><dd>The rule RLS applies. Memento's read policy is <code>using (auth.uid() = user_id)</code>.</dd>
+    <dt>Trust boundary</dt><dd>The line past which you stop believing what you are told. Everything from a phone is a claim.</dd>
+  </dl></div>
+
+  <div class="box expiry"><div class="h">WHERE TODAY'S ANALOGY BREAKS</div><p><strong>Breaks when:</strong> you picture the clerk serving one person at a time. A real database answers thousands of queries at once, two of which can hit the same row in the same millisecond. That is why <code>sync_user_state</code> contains <code>for update</code>, and why it carries a revision at all: two of your own devices can both save, and something has to pick a winner. <strong>Real model:</strong> a concurrent, transactional store where every statement either fully happens or fully does not, with a policy engine inside every query. "Who may see this row" has exactly one correct place to be answered, and it is not the phone.</p></div>
+
+  <details class="hole"><summary>RABBIT HOLE: what "security definer" means, and why it is a loaded gun</summary><p><code>sync_user_state</code> is declared <code>security definer</code>: it runs with its creator's permissions, usually an admin, not the caller's. That is how it writes to a table the caller may not touch directly, which is the design, since direct writes are dropped and this function is the only door. It is also how you build a hole, because anyone can call it. Two guards, both in the quoted lines: it raises <code>'Authentication required'</code> when <code>auth.uid()</code> is empty, and it sets <code>search_path</code> to nothing, so an attacker cannot plant a same-named table the database would find first.</p></details>
+</main>
+<script src="../js/book.js"></script>
+</body>
+</html>

@@ -280,6 +280,10 @@
       {
         "ch": 8,
         "def": "A request on GitHub to merge one branch into another, with a page where people review the changes first."
+      },
+      {
+        "ch": 30,
+        "def": "A page holding one branch, its commits, its diff, its test results and its review. The place a change waits, visible, until someone with authority merges it."
       }
     ]
   },
@@ -548,6 +552,10 @@
       {
         "ch": 3,
         "def": "A tool that reads all your source files, works out the order, and produces one file the browser loads. Memento's web app deliberately has none."
+      },
+      {
+        "ch": 29,
+        "def": "The program that follows the imports from one entry file and produces a single file the runtime can load. Metro is React Native's, and it also serves the result while you develop."
       }
     ]
   },
@@ -2431,6 +2439,87 @@
       {
         "ch": 24,
         "def": "A known good implementation used as the answer key. During a rewrite the old code is the best oracle you will ever have, which is exactly what Memento's ai-transport test does."
+      }
+    ]
+  },
+  "native-shell": {
+    "term": "Native shell",
+    "levels": [
+      {
+        "ch": 29,
+        "def": "The compiled part of a React Native app: the window, the fonts, the secure storage, the native modules. Xcode builds it, and it changes rarely."
+      }
+    ]
+  },
+  "dev-build": {
+    "term": "Dev build",
+    "levels": [
+      {
+        "ch": 29,
+        "def": "A native shell built once with one extra ability: it loads its JavaScript from a server on your Mac instead of carrying its own copy."
+      }
+    ]
+  },
+  "metro": {
+    "term": "Metro",
+    "levels": [
+      {
+        "ch": 29,
+        "def": "React Native's bundler. It follows every import from the entry file, glues them into one JavaScript bundle, serves it to the app, and watches your files for changes."
+      }
+    ]
+  },
+  "fast-refresh": {
+    "term": "Fast Refresh (hot reload)",
+    "levels": [
+      {
+        "ch": 29,
+        "def": "Save a file and the running app swaps in the new code without restarting, usually without losing what is on screen."
+      }
+    ]
+  },
+  "simulator": {
+    "term": "Simulator",
+    "levels": [
+      {
+        "ch": 29,
+        "def": "A real copy of iOS running on your Mac, pretending to be a phone. No camera, no cell radio, no App Store, and it reports safe-area insets of zero unless told otherwise."
+      }
+    ]
+  },
+  "expo-router": {
+    "term": "expo-router",
+    "levels": [
+      {
+        "ch": 29,
+        "def": "File-based routing for React Native. A file in src/app/ is a screen and its path is its URL. A file starting with an underscore, like _layout.tsx, is a wrapper rather than a screen."
+      }
+    ]
+  },
+  "code-freeze": {
+    "term": "Code freeze",
+    "levels": [
+      {
+        "ch": 30,
+        "def": "A deliberate stop on changes to one part of a system so something else can catch up. Enforced by a written rule, and every exception is logged."
+      }
+    ]
+  },
+  "code-review": {
+    "term": "Code review",
+    "levels": [
+      {
+        "ch": 30,
+        "def": "Somebody who did not write the change reads it before it merges. In Memento the reviewer is the other agent, and the approval is pinned to a commit hash."
+      }
+    ]
+  },
+  "evidence": {
+    "term": "Evidence",
+    "levels": [
+      {
+        "ch": 30,
+        "def": "Command output, a test summary, or a screenshot of the real surface. Anything short of that is a claim, including one of your own."
       }
     ]
   }

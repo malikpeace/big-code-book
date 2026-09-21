@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>18. Auth: who you are and what you may do. BIG CODE BOOK</title>
+<link rel="stylesheet" href="../css/book.css">
+<meta name="theme-color" content="#0b0b0d">
+</head>
+<body data-chapter="18">
+<main>
+  <div class="kicker">Chapter 18 <span class="tag need">NEED</span> <span class="tag">~60 min</span> <span class="tag">phone, exercise is Mac</span></div>
+  <h1>Auth: who you are and what you may do</h1>
+  <p class="lede">Two questions that look like one. Who is this? And is this person allowed to do that? Mixing them up is how a paywall becomes decorative, and Memento's own decision log says its web paywall currently is.</p>
+
+  <div class="box recap"><div class="h">LAST TIME</div><p>A database is tables of rows, related by keys, described by a schema that migrations change one dated file at a time. Row Level Security is Postgres deciding, inside every query, which rows the signed-in user may touch. Three of chapter 4's four incidents are that rule being absent.</p></div>
+
+  <h2>Quick check</h2>
+  <details class="check"><summary>What does <code>using (auth.uid() = user_id)</code> actually do?</summary><div class="a">It is the rule Postgres applies to every query on that table. <code>auth.uid()</code> is the database asking who is calling. If that does not equal the row's <code>user_id</code>, the row is not in your results. Not an error. Just absent.</div></details>
+  <details class="check"><summary>Why can the Supabase public key sit in JavaScript on every phone without that being a disaster?</summary><div class="a">It identifies the app, not a person, and access is not decided from it. RLS decides from who is signed in. With RLS off, the same key is a skeleton key, which is what happened to 170 Lovable apps.</div></details>
+  <details class="check"><summary>A request comes back with 401. What did the server mean?</summary><div class="a">"I do not know who you are, and this route needs to know." Different from 403, which means "I know who you are and you still may not." That difference is this whole chapter.</div></details>
+
+  <h2>The idea</h2>
+  
+  <p><dfn data-term="authentication">Authentication</dfn> is <em>who are you</em>. You prove it once: a code to your email, a password, a face. The answer is an identity, nothing more.</p>
+  <p><dfn data-term="authorization">Authorization</dfn> is <em>what may you do</em>. Given that identity, may you read this row, call this route, use the paid model. Yes or no, per action.</p>
+  <p>Knowing who someone is tells you nothing about what they may do. Every hotel understands this: the desk checks your ID once, and the key card opens your room and the gym and not the wine cellar.</p>
+
+  <div class="box analogy"><div class="h">ANALOGY (TEMPORARY)</div><p>The hotel. You show your passport at the desk once: authentication. They hand you a key card: the <dfn data-term="session">session</dfn>, proof you were checked, valid for your stay. The number on the card is the <dfn data-term="token">token</dfn>. You present it at every door, and the door has no idea what your passport looked like. Cards expire, can be reissued, and can be cancelled while you stand in the lift. The valet gets a different key entirely, one that starts the car and will not open the boot. That valet key is <dfn data-term="oauth">OAuth</dfn>.</p></div>
+
+  <figure class="fig-box">
+    <svg class="figure" viewBox="0 0 640 300" role="img" aria-label="Top half: authentication, a person proving identity once and receiving a session with a token. Bottom half: authorization, that token being presented at three separate doors, read row, call paid AI, and delete account, each door deciding yes or no on its own. Right side: OAuth shown as the app sending you to Google, Google vouching for you, and a token coming back, with the note that the app never sees your Google password.">
+      <text class="st lo" x="20" y="20">AUTHENTICATION: who are you? (once)</text>
+      <rect class="bx" x="20" y="32" width="110" height="46" rx="8"/><text class="st" x="75" y="60" text-anchor="middle">you</text>
+      <rect class="bx cy" x="160" y="32" width="150" height="46" rx="8"/><text class="st" x="235" y="52" text-anchor="middle">prove it</text><text class="st lo" x="235" y="69" text-anchor="middle">email code, Google</text>
+      <rect class="bx acc" x="340" y="32" width="170" height="46" rx="8"/><text class="st" x="425" y="52" text-anchor="middle">session + token</text><text class="st lo" x="425" y="69" text-anchor="middle">expires, refreshable</text>
+      <path class="ln" d="M130 55 H160"/><path class="ln cy" d="M310 55 H340"/>
+      <line class="ln" x1="20" y1="104" x2="620" y2="104" stroke-dasharray="4 4"/>
+      <text class="st lo" x="20" y="130">AUTHORIZATION: what may you do? (every single time)</text>
+      <path class="ln acc" d="M425 78 V148 H120"/><path class="ln acc" d="M425 148 H425"/>
+      <rect class="bx" x="20" y="160" width="180" height="56" rx="8"/><text class="st" x="110" y="182" text-anchor="middle">read this row</text><text class="st lo" x="110" y="200" text-anchor="middle">RLS decides</text>
+      <rect class="bx" x="230" y="160" width="180" height="56" rx="8"/><text class="st" x="320" y="182" text-anchor="middle">call the paid AI</text><text class="st lo" x="320" y="200" text-anchor="middle">the server decides</text>
+      <rect class="bx" x="440" y="160" width="180" height="56" rx="8"/><text class="st" x="530" y="182" text-anchor="middle">delete the account</text><text class="st lo" x="530" y="200" text-anchor="middle">its own function decides</text>
+      <path class="ln acc" d="M320 148 V160"/><path class="ln acc" d="M530 148 V160"/><path class="ln acc" d="M120 148 V160"/>
+      <text class="st lo" x="20" y="252">Three doors. One card. Each door checks for itself.</text>
+      <text class="st lo" x="20" y="276">The card never becomes a master key just because it opened one door.</text>
+    </svg>
+    <figcaption>Prove it once. Get asked again at every door.</figcaption>
+  </figure>
+
+  <h3>The token, properly</h3>
+  <p>A token is a string, sent in a header with every request, usually as <code>Authorization: Bearer &lt;the string&gt;</code>. Four things about it are the model.</p>
+  <table>
+    <tr><th>Property</th><th>Why it exists</th></tr>
+    <tr><td>It is issued by the auth system, not made up by the client</td><td>It is signed, so the server tells a real one from a guess with no lookup.</td></tr>
+    <tr><td>It expires, usually in an hour</td><td>So a stolen one stops working soon. Memento's native session stores <code>expiresAt</code> per session.</td></tr>
+    <tr><td>It can be refreshed</td><td>A second, longer-lived <dfn data-term="refresh-token">refresh token</dfn> quietly trades itself for a new access token, so you are not signed out every hour.</td></tr>
+    <tr><td>It can be revoked</td><td>Signing out, or an admin killing the session, stops it working before it expires.</td></tr>
+  </table>
+  <p>So a token is not a password. It is a temporary, cancellable stand-in, which is why apps hand them around instead of storing passwords anywhere.</p>
+
+  <h3>OAuth, and the key you do not give away</h3>
+  <p>"Continue with Google" is not Memento asking for your Google password. Memento sends you to Google, Google authenticates you on its own page, and Google returns a signed statement saying "this is a real account, here is its id and email". Memento never sees the password, so it could not leak it if it tried. And you can revoke the connection later, which you could not do after typing a password into somebody's form.</p>
+
+  <h3>Public keys, secret keys, and one flag that means nothing</h3>
+  <p>Some keys identify an application. Some authorize spending money. Treating them alike is how founders get four-figure bills.</p>
+  <p>Supabase's <dfn data-term="anon-key">anon key</dfn> is the first kind: a long string inside every copy of the app, visible to anyone who opens the developer tools. It says "requests from the Memento app", not who you are, and it grants nothing, because RLS decides access from the signed-in identity. Public by design, safe only because of the previous chapter.</p>
+  <p>The Anthropic key is a <dfn data-term="secret-key">secret key</dfn>, the second kind: anyone holding it can spend Memento's money. It lives in the edge function's environment and nowhere else, which is the entire reason the chapter 16 proxy exists.</p>
+  <p>Then the flag. An <dfn data-term="entitlement">entitlement</dfn> is what an account has paid for, and a real one lives on a server. Memento's <code>entitlements.isPaid</code> is a boolean on the user's own device, editable in ten seconds. Fine as a hint about which screen to draw, never evidence. A client can say it is paid. Only a server can know.</p>
+
+  <h2>See it</h2>
+  <p>A fake sign-in that issues a token, and a door that checks it. Real tokens are signed so they cannot be forged. These are just objects.</p>
+  <div class="sb">
+const NOW = () => Date.now();
+const sessions = {};   // pretend this lives on the server
+
+// AUTHENTICATION: prove who you are once, get a ticket.
+function signIn(email, code) {
+  if (code !== "123456") return { ok: false, error: "wrong code" };
+  const token = "tok_" + Math.random().toString(36).slice(2, 10);
+  sessions[token] = { user: email, expiresAt: NOW() + 2000 }; // 2 seconds, so you can watch it die
+  return { ok: true, token };
+}
+
+// The door: is this ticket real, and is it still valid?
+function whoIs(token) {
+  const s = sessions[token];
+  if (!s) return { status: 401, error: "no session" };
+  if (s.expiresAt &lt; NOW()) return { status: 401, error: "expired, refresh or sign in again" };
+  return { status: 200, user: s.user };
+}
+
+console.log(signIn("malik@example.com", "000000"));
+const out = signIn("malik@example.com", "123456");
+console.log(out);
+console.log("with the token:", whoIs(out.token));
+console.log("with no token:", whoIs(undefined));
+console.log("with a made-up token:", whoIs("tok_iguessed"));
+</div>
+  <p>Now the second question. Same token, different doors, and authentication passing does not make the answer yes.</p>
+  <div class="sb">
+const user = { id: "u_2", email: "malik@example.com", plan: "free" };
+
+// AUTHENTICATION: who are you. Already answered. Now: what may you do.
+function may(user, action) {
+  if (action === "read-own-state") return true;
+  if (action === "read-other-state") return false;
+  if (action === "use-paid-ai") return user.plan === "paid";
+  if (action === "delete-account") return true;
+  return false;
+}
+
+["read-own-state", "read-other-state", "use-paid-ai", "delete-account", "drop-table"]
+  .forEach(a => console.log(a, "->", may(user, a) ? "allowed" : "DENIED"));
+
+console.log("same person, paid plan:");
+console.log("use-paid-ai ->", may({ ...user, plan: "paid" }, "use-paid-ai"));
+</div>
+  <p>And the bug: the client sends its own <code>isPaid</code> and the server believes it. Run it, then read the fix.</p>
+  <div class="sb">
+// THE BUG: the server trusts a flag that came from the client.
+function badServer(request) {
+  if (request.isPaid) return "expensive AI answer (billed to the founder)";
+  return "paywall";
+}
+
+// A normal user's app sends this:
+console.log("honest client:", badServer({ user: "u_2", isPaid: false }));
+// Anyone who opens the dev tools sends this:
+console.log("edited client:", badServer({ user: "u_2", isPaid: true }));
+
+// THE FIX: the server ignores the claim and asks the system that knows.
+const entitlements = { u_2: false, u_9: true };           // server-side truth
+function goodServer(request, whoTheTokenSays) {
+  if (!whoTheTokenSays) return "401, who are you";
+  if (!entitlements[whoTheTokenSays]) return "402, payment required";
+  return "expensive AI answer";
+}
+
+console.log("edited client, good server:", goodServer({ isPaid: true }, "u_2"));
+console.log("real paid user:", goodServer({ isPaid: false }, "u_9"));
+console.log("no token at all:", goodServer({ isPaid: true }, null));
+</div>
+  <p>The fix is not better validation of <code>isPaid</code>. The field is gone from the decision: the server uses the identity the token proved, and its own records.</p>
+
+  <h2>Now in Memento</h2>
+
+  <div class="lanes">
+    <div class="lane"><div class="h">ANY APP: the key that is meant to be seen</div><p>A client key identifies the app and grants nothing on its own, safe to publish only because row rules decide access from the signed-in user. Write that next to the key so nobody "fixes" it.</p></div>
+    <div class="lane mem"><div class="h">MEMENTO: the anon key, with its reason</div><pre><code>   The anon key below is public by design; Row Level Security on the
+   user_state table (tools/supabase-setup.sql) is what protects rows.
+...
+  // Exposed for the AI proxy path in js/03 (callClaude). The anon key is
+  // public by design; the SECRET Anthropic key lives only in the ai-proxy
+  // Edge Function's environment, never in this codebase.</code></pre><div class="src">memento-app/js/12-cloud-sync.js:9-10, 22-24 (web pin ca8afc8)</div><p>The key itself is on line 21: a long base64 string, in the public repo on purpose. The comment is the important part, because it names what actually protects the data, and it is not the key.</p></div>
+  </div>
+
+  <div class="lanes">
+    <div class="lane"><div class="h">ANY APP: a sign-in method behind a switch</div><p>A new sign-in provider is half configuration in someone else's dashboard. Flag it so the button does not exist until that half is done.</p></div>
+    <div class="lane mem"><div class="h">MEMENTO: Google, flagged then wired</div><pre><code>// Google sign-in toggle. Flip to true after the Google OAuth client is
+// configured in Supabase (Authentication &gt; Providers &gt; Google). Until then
+// the "Continue with Google" button does not render at all.
+const MEMENTO_GOOGLE_AUTH = true;</code></pre><div class="src">memento-app/js/12-cloud-sync.js:12-15 (web pin ca8afc8)</div><pre><code>await client.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: location.origin + location.pathname } });</code></pre><div class="src">memento-app/js/12-cloud-sync.js:1562 (web pin ca8afc8)</div><p>One line does the whole valet-key dance: leave for Google, come back to the same page with a session. <code>redirectTo</code> is the address Google may return you to, and it is checked, or it would be a way to send the token somewhere else.</p></div>
+  </div>
+
+  <div class="lanes">
+    <div class="lane"><div class="h">ANY APP: anonymous work and paid work take different doors</div><p>Free features can be anonymous if the server tightly controls what they do. Paid features carry a real identity, and the code refuses rather than falls back.</p></div>
+    <div class="lane mem"><div class="h">MEMENTO: the header fork</div><pre><code>let proxyToken = supaAnon;
+if (useProxy &amp;&amp; paidAction) {
+  try {
+    proxyToken = window.CloudSync &amp;&amp; CloudSync.accessToken
+      ? String(CloudSync.accessToken() || '')
+      : '';
+  } catch (e) { proxyToken = ''; }
+  if (!proxyToken) {
+    throw new Error('Sign in to use paid Memento AI.');
+  }
+}
+const headers = useProxy
+  ? {
+    'Content-Type': 'application/json',
+    // Paid Action sends the real user session. Free Clarity remains
+    // anonymous and uses the public app key plus strict server prompts.
+    'Authorization': 'Bearer ' + proxyToken,</code></pre><div class="src">memento-app/js/03-ai-integration.js:3083-3099 (web pin ca8afc8)</div><p>Free Clarity sends the public app key as the bearer. Paid Action sends your session token, and with no session it throws instead of quietly sending the public key and hoping. That <code>throw</code> is the most important line here.</p></div>
+  </div>
+
+  <div class="lanes">
+    <div class="lane"><div class="h">ANY APP: do not trust your own sign-in reply</div><p>A sign-in response is data that arrived over a network. Ask the auth server who the token really belongs to and check it matches. And keep "you are rejected" apart from "I could not reach anyone", because they deserve opposite reactions.</p></div>
+    <div class="lane mem"><div class="h">MEMENTO NATIVE: re-verify, then match</div><pre><code>if (!validSession(session)) return { status: 'invalid' };
+const verified = await client.getUser(session.accessToken);
+if (verified.error) return { status: verified.error.status === 401 || verified.error.status === 403 ? 'inactive' : 'unavailable' };
+if (verified.data?.user?.id !== session.owner) return { status: 'invalid' };
+return { status: 'verified', session };</code></pre><div class="src">memento-native/src/auth/emailProvider.ts:24-28 (native pin 93bfa796)</div><p>Four checks in five lines. Shape, a round trip asking who the token is really for, the ids must match, and only then is it a session. Note the split: 401 or 403 means genuinely signed out, anything else means the network failed, which must never erase an offline session.</p></div>
+  </div>
+
+  <div class="lanes">
+    <div class="lane"><div class="h">ANY APP: the receipt is a picture, not a permit</div><p>Cache the entitlement so the interface is right instantly and works offline, then write in the code that the cache is never authority for a server request.</p></div>
+    <div class="lane mem"><div class="h">MEMENTO NATIVE: paidServerAuthority is a literal false</div><pre><code>  /** Always false. Every paid server request must be authenticated and
+   * authorized by the server, even during the five-minute fresh UI window. */
+  paidServerAuthority: false;</code></pre><div class="src">memento-native/src/billing/accessController.ts:10-12 (native pin 93bfa796)</div><pre><code>/** A local UI cache, NOT a signed purchase receipt or server authority. */
+export function validateReceipt(value: unknown, subject: string, environment: Environment, now: number): value is AccessReceipt {
+...
+  // Recompute bounds; a corrupt cache cannot extend its own offline grace.
+  return freshUntil === verifiedAt + ACCESS_TTL_MS &amp;&amp; graceUntil === accessDeadline(verifiedAt, validUntil) &amp;&amp; graceUntil &gt; now;</code></pre><div class="src">memento-native/src/billing/accessPolicy.ts:42-43, 49-50 (native pin 93bfa796)</div><p>That field's type is not <code>boolean</code>. It is the literal <code>false</code>, so the compiler refuses any code that sets it true. And <code>validateReceipt</code> recomputes the receipt's expiry, so a receipt edited to grant itself six more months fails its own arithmetic.</p></div>
+  </div>
+
+  <div class="lanes">
+    <div class="lane"><div class="h">ANY APP: tokens do not live with the data</div><p>Saved app data gets copied, backed up, exported and logged. A token in there is a token in all of those places. Use the operating system's locked store instead.</p></div>
+    <div class="lane mem"><div class="h">MEMENTO NATIVE: the keychain, this device only</div><pre><code>getItemAsync: key =&gt; SecureStore.getItemAsync(key, { keychainService: 'memento.auth.v1', keychainAccessible: SecureStore.WHEN_UNLOCKED_THIS_DEVICE_ONLY }),</code></pre><div class="src">memento-native/src/auth/nativeSessionVault.ts:7 (native pin 93bfa796)</div><p><code>expo-secure-store</code> is the iOS keychain, the operating system's <dfn data-term="secure-store">secure store</dfn>. <code>WHEN_UNLOCKED_THIS_DEVICE_ONLY</code> means readable only while the phone is unlocked, never carried to a new device in a backup. The state blob, which does get copied around, holds no credentials.</p></div>
+  </div>
+
+  <div class="box memento"><div class="h">THE ALTERNATIVE, AND WHY MEMENTO CHOSE THIS</div><p>The alternative is passwords you store yourself: hashing, reset emails, breach notifications, permanent liability, zero product value. Memento does not have one. Web sign-in is a six-digit code to your email plus Google; native is the same code path. The cost is real, since a code email in a spam folder is a failed sign-in and your support ticket. What Memento buys is that it never holds a password, so it can never leak one. <strong>The honest gap.</strong> The web paywall is not enforced anywhere, and Memento's own decision log says so: "The paywall is UI-only today: Unlock sets <code>state.entitlements.isPaid = true</code> on the client (js/13), no payment collected, so the paid gate is currently bypassable. Real billing enforcement is the #1 pre-launch gap." That is <code>DECISIONS.md:18-21</code> (web pin ca8afc8): the third sandbox's bug, in production, written down by the people who built it. The native side is where it gets fixed, which is why <code>paidServerAuthority</code> was born as a literal <code>false</code>.</p></div>
+
+  <h2>Do it</h2>
+  <div class="ex" data-device="mac">
+    <div class="h">Exercise <span class="tag mac">MAC</span></div>
+    <div class="meta">Where: ~/Downloads/CODE-BOOK/sandbox/v1-secure, in Terminal. Expected: a 401, then a 200, then someone else's empty slot, then everyone's data at once. Reset: <code>mv server.js.bak server.js</code>, then <code>rm db.json secrets.env</code>. This cannot touch Memento.</div>
+    <p><strong>FAKE_TOKEN is a stand-in, not real auth.</strong> One word, hardcoded, the same for everybody, never expiring. Real auth issues a signed, expiring, revocable token per person. The sandbox uses a fake one so you see the shape of the check without a login system in the way. Do not ship anything like it.</p>
+    <ol>
+      <li>Start it. Two commands, then leave it running.
+        <pre><code>cd ~/Downloads/CODE-BOOK/sandbox/v1-secure
+cp secrets.env.example secrets.env
+cp server.js server.js.bak
+node server.js</code></pre>
+      </li>
+      <li>Open a second Terminal tab. Knock without a token.
+        <pre><code>curl -i -s -X POST http://localhost:4321/api/sync \
+  -d '{"northStar":"Read my own code","streak":1,"revision":0}'</code></pre>
+        <p><code>401</code>, <code>missing or wrong FAKE_TOKEN or X-Owner</code>. Authentication failed, so authorization never happened.</p>
+      </li>
+      <li>Now with it, as yourself.
+        <pre><code>curl -i -s -X POST http://localhost:4321/api/sync \
+  -H "FAKE_TOKEN: letmein" -H "X-Owner: malik" \
+  -d '{"northStar":"Read my own code","streak":1,"revision":0}'</code></pre>
+        <p><code>200</code> and <code>{"ok": true, "revision": 1}</code>. Run it again and you get <code>409 conflict</code>: you sent revision 0, the server is on 1. Chapter 17's revision check, in miniature.</p>
+      </li>
+      <li>Be somebody else: same token, different owner.
+        <pre><code>curl -s -H "FAKE_TOKEN: letmein" -H "X-Owner: stranger" http://localhost:4321/api/sync</code></pre>
+        <p><code>{}</code>. Their own empty slot. Your north star is right there in <code>db.json</code> and they do not get it, because <code>handleGetSync</code> returns <code>loadDB()[owner]</code>, not <code>loadDB()</code>. One pair of square brackets, the whole idea of row-level access by hand.</p>
+      </li>
+      <li><strong>Break it.</strong> In <code>server.js</code>, delete the line in <code>checkAuth</code> reading <code>if (req.headers["fake_token"] !== FAKE_TOKEN) return null;</code>, then in <code>handleGetSync</code> change <code>loadDB()[owner] || {}</code> to <code>loadDB()</code>. Ctrl-C, start it again.</li>
+      <li>Knock as nobody.
+        <pre><code>curl -s -H "X-Owner: anyone" http://localhost:4321/api/sync</code></pre>
+        <p>Everyone's data, to a caller with no token. Two deletions, two holes: no identity check, no per-user scoping. EnrichLead and the 170 Lovable apps in one command, on your own machine, where it costs nothing.</p>
+      </li>
+      <li>Put it back: <code>mv server.js.bak server.js</code>, restart, run step 6 again, get <code>401</code>. Then <code>rm db.json secrets.env</code>.</li>
+    </ol>
+  </div>
+  <p><strong>On a phone instead:</strong> use the first sandbox. Sign in with the wrong code, then the right one, then call <code>whoIs</code> with the token, with nothing, and with a guess. Then change <code>2000</code> to <code>10</code> and watch a token expire between being issued and being used.</p>
+
+  <div class="box why"><div class="h">ASK THE AGENT WHY (paste this into Codex or Fable)</div><pre><code>In this repo, list every place a server or database decides whether a user is allowed to do something, with file and line numbers, and for each one say what it uses to decide: a session token, auth.uid(), or a value sent by the client. Then tell me which decisions could be faked by someone editing the app in their browser. Do not change anything.</code></pre></div>
+
+  <div class="box words"><div class="h">WORDS YOU NOW OWN</div><dl>
+    <dt>Authentication</dt><dd>Who are you. Proved once, producing an identity.</dd>
+    <dt>Authorization</dt><dd>What may you do. Asked again at every door, per action.</dd>
+    <dt>Session</dt><dd>The record that you were checked, valid for a while. The hotel key card.</dd>
+    <dt>Token</dt><dd>The string you send with each request that stands for the session. Signed, expiring, refreshable, revocable. Never a password.</dd>
+    <dt>Refresh token</dt><dd>A longer-lived second token whose only job is to get you a fresh access token without signing in again.</dd>
+    <dt>OAuth</dt><dd>Another service vouching for you. Google authenticates you on its own page and hands back a signed statement. Memento never sees the password.</dd>
+    <dt>Anon key / public key</dt><dd>Identifies the app, grants nothing. Safe to publish only because Row Level Security decides access from the signed-in user.</dd>
+    <dt>Secret key</dt><dd>Spends money or grants power. Lives in a server's environment and nowhere else. Memento's Anthropic key is one.</dd>
+    <dt>Entitlement</dt><dd>What a given account has paid for. Real ones live on a server. <code>isPaid</code> on a phone is a drawing hint, not evidence.</dd>
+    <dt>Secure store / keychain</dt><dd>The operating system's locked box for credentials. Tokens go there, not in the app's saved data.</dd>
+  </dl></div>
+
+  <div class="box expiry"><div class="h">WHERE TODAY'S ANALOGY BREAKS</div><p><strong>Breaks when:</strong> you picture the door phoning the front desk. Most tokens are signed, so the door verifies the signature itself with no call, which is also why revoking is not instant: a signed token stays valid until it expires unless something extra checks a revocation list. The hotel also has one guest per card, where real sessions live on several devices at once, and signing out on one does not sign out the others. <strong>Real model:</strong> a signed, short-lived, scoped claim about an identity, issued by a party both sides trust, verified independently at each boundary, with a refresh path and a way to revoke. You will not build one. You will decide, over and over, whether a check is asking the client or asking the server.</p></div>
+
+  <details class="hole"><summary>RABBIT HOLE: what is actually inside a token</summary><p>Most of these are JWTs, JSON Web Tokens: three chunks separated by dots. The first two are plain JSON, encoded but not encrypted, holding the algorithm and the claims, which include the subject (your user id), an issuer, an audience, and <code>exp</code>, the expiry. Anyone can read them. The third is a signature over the first two, made with a key only the issuer has. So the contents are not hidden; holding it is what proves you were given it. That is why the database can call <code>auth.uid()</code> with no lookup, and why the native app keeps tokens in the keychain. To see one, sign in on the web and look at the <code>sb-</code> entry in localStorage. Paste it nowhere.</p></details>
+</main>
+<script src="../js/book.js"></script>
+</body>
+</html>
