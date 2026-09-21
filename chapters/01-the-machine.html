@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>1. The machine does exactly what you say. BIG CODE BOOK</title>
+<link rel="stylesheet" href="../css/book.css">
+<meta name="theme-color" content="#0b0b0d">
+</head>
+<body data-chapter="1">
+<main>
+  <div class="kicker">Chapter 1 <span class="tag need">NEED</span> <span class="tag">~45 min</span> <span class="tag">phone or Mac</span></div>
+  <h1>The machine does exactly what you say</h1>
+  <p class="lede">There is no mind inside the computer. It does not know what you meant. It does what you said, one tiny step at a time, at an absurd speed. Everything else in this book sits on that fact.</p>
+
+  <div class="box recap"><div class="h">BEFORE WE START</div><p>You already run a software company. You approve plans, read status lines, and say "push it" every day. What you do not have yet is the picture of what is physically happening when you do. This chapter gives you the bottom layer of that picture. Nothing to install, nothing to type. Just read and press Run a few times.</p></div>
+
+  <h2>Quick check</h2>
+  <p style="color:var(--text-lo)">No earlier chapters yet, so three questions about you.</p>
+  <details class="check"><summary>When you tap a button in Memento, where do you currently think the work happens?</summary><div class="a">Whatever you answered, hold it. By the end of chapter 2 you will be able to say exactly which parts happen on the phone and which parts happen on a computer you have never seen.</div></details>
+  <details class="check"><summary>What do you think a "program" physically is?</summary><div class="a">A file. Text, saved on a disk. When it runs, the text becomes instructions a chip follows. This chapter shows that.</div></details>
+  <details class="check"><summary>Do you think the computer understands what you want?</summary><div class="a">It does not. Not even a little. The AI agent you talk to does guess what you want. The machine underneath it does not. Keeping those two apart is the whole chapter.</div></details>
+
+  <h2>The idea</h2>
+  <p>A computer is three things and a loop.</p>
+  <p>The <dfn data-term="cpu">CPU</dfn> is a chip that can do a small number of stupid things: add two numbers, copy a number from here to there, compare two numbers, jump to a different instruction. That is roughly it. It does one of those things, then the next, then the next. Billions of times a second.</p>
+  <p><dfn data-term="memory">Memory</dfn> is a huge row of numbered slots. Each slot holds a number. The CPU reads from slots and writes to slots. When the power goes, the slots are wiped.</p>
+  <p>The disk is where things survive the power going. A <dfn data-term="file">file</dfn> is a named chunk of bytes on the disk. Your code is a file. A photo is a file. Memento's JavaScript is 38 files.</p>
+  <p>A <dfn data-term="program">program</dfn> is a file full of instructions. When you run it, the instructions get copied into memory, and the CPU starts at the first one and walks forward. A program that is currently running is called a <dfn data-term="process">process</dfn>. Memento open in Safari is one process. The server that answers it, on a computer in a data centre, is a different process.</p>
+
+  <div class="box analogy"><div class="h">ANALOGY (TEMPORARY)</div><p>The CPU is a very fast, very obedient intern who cannot think. Memory is the intern's desk: a row of numbered sticky notes. The disk is the filing cabinet across the room. A program is a to-do list you leave on the desk. The intern reads line 1, does exactly that, reads line 2, does exactly that. If line 7 says "put the coffee in the bin", the coffee goes in the bin. The intern never asks "are you sure?" The intern never notices that you obviously meant the cup.</p></div>
+
+  <figure class="fig-box">
+    <svg class="figure" viewBox="0 0 640 250" role="img" aria-label="Three boxes: CPU on the left, Memory in the middle as a row of numbered slots, Disk on the right holding files. Arrows show the CPU reading and writing memory, and programs being loaded from disk into memory.">
+      <rect class="bx acc" x="20" y="70" width="150" height="110" rx="8"/>
+      <text class="st b" x="95" y="110" text-anchor="middle">CPU</text>
+      <text class="st lo" x="95" y="132" text-anchor="middle">reads one instruction,</text>
+      <text class="st lo" x="95" y="148" text-anchor="middle">does it, reads the next</text>
+      <rect class="bx" x="230" y="50" width="200" height="150" rx="8"/>
+      <text class="st b" x="330" y="78" text-anchor="middle">Memory</text>
+      <g class="st mono">
+        <rect class="bx" x="248" y="92" width="34" height="26" rx="4"/><text class="st mono" x="265" y="110" text-anchor="middle">0</text>
+        <rect class="bx" x="288" y="92" width="34" height="26" rx="4"/><text class="st mono" x="305" y="110" text-anchor="middle">1</text>
+        <rect class="bx" x="328" y="92" width="34" height="26" rx="4"/><text class="st mono" x="345" y="110" text-anchor="middle">2</text>
+        <rect class="bx" x="368" y="92" width="34" height="26" rx="4"/><text class="st mono" x="385" y="110" text-anchor="middle">3</text>
+        <rect class="bx" x="248" y="126" width="34" height="26" rx="4"/><text class="st mono" x="265" y="144" text-anchor="middle">4</text>
+        <rect class="bx" x="288" y="126" width="34" height="26" rx="4"/><text class="st mono" x="305" y="144" text-anchor="middle">5</text>
+        <rect class="bx" x="328" y="126" width="34" height="26" rx="4"/><text class="st mono" x="345" y="144" text-anchor="middle">6</text>
+        <rect class="bx" x="368" y="126" width="34" height="26" rx="4"/><text class="st mono" x="385" y="144" text-anchor="middle">7</text>
+      </g>
+      <text class="st lo" x="330" y="182" text-anchor="middle">numbered slots, wiped on power off</text>
+      <rect class="bx" x="490" y="70" width="130" height="110" rx="8"/>
+      <text class="st b" x="555" y="110" text-anchor="middle">Disk</text>
+      <text class="st lo" x="555" y="132" text-anchor="middle">files, survive</text>
+      <text class="st lo" x="555" y="148" text-anchor="middle">power off</text>
+      <path class="ln acc" d="M170 110 H230" marker-end="url(#a1)"/>
+      <path class="ln acc" d="M230 140 H170"/>
+      <text class="st lo" x="200" y="100" text-anchor="middle">read</text>
+      <text class="st lo" x="200" y="158" text-anchor="middle">write</text>
+      <path class="ln" d="M490 125 H430"/>
+      <text class="st lo" x="460" y="115" text-anchor="middle">load</text>
+      <text class="st lo" x="320" y="232" text-anchor="middle">A program is a file on the disk. Run it, and it gets loaded into memory for the CPU to walk through.</text>
+    </svg>
+    <figcaption>The whole machine, at the level you need. Everything in this book is built on these three boxes.</figcaption>
+  </figure>
+
+  <p>Here is the part that matters. The CPU has no idea what a "goal" or a "streak" or a "user" is. It moves numbers between slots. A streak of 12 days is the number 12 sitting in a slot. "Show the streak on screen" is a few thousand instructions that end with numbers being written into a special region of memory that the screen is wired to read from. Every meaning is in the human's head. The machine has none.</p>
+  <p>This is why software breaks. You wrote "if the streak is bigger than 7, show the badge" but the streak got saved as the text <code>"7"</code> instead of the number <code>7</code>, and comparing text to a number does something you did not expect. You meant one thing. You said another. The machine did the other. Forever. At full speed.</p>
+
+  <h3>Where your AI agents fit</h3>
+  <p>This is the single most important idea in the book for you specifically, so read it twice.</p>
+  <p>When you tell Codex or Fable "make the streak badge show after a week", the agent guesses what you mean. It reads your app, infers "a week" is 7 days, picks a file, writes instructions. That guessing is real and it is often good. But the agent is a writer, not the machine. Once the instructions are written, the machine runs them literally. If the agent guessed wrong, or wrote a typo, or misread a number, the machine does not catch it. The machine does not know what you meant either. There is no layer where intention lives. Only text, and a chip that obeys it.</p>
+  <p>So there are two very different questions, and you have been mixing them:</p>
+  <ul>
+    <li><strong>Did the agent understand me?</strong> A question about a guess. You check it by reading the plan and the change.</li>
+    <li><strong>Does the code do what it says?</strong> A question about literal instructions. You check it by running it and looking.</li>
+  </ul>
+  <p>Vibe coding is skipping both questions. This book is the opposite.</p>
+
+  <h2>See it</h2>
+  <p>Five tiny programs. For each one, <strong>say out loud what you think it will print</strong> before you press Run. Being wrong is the point. Every wrong guess is a place where your model of the machine differs from the real machine, and that is exactly the gap we are closing.</p>
+  <p style="color:var(--text-lo)">You do not need to understand the words yet. <code>console.log</code> means "print this". Chapter 9 teaches the rest.</p>
+
+  <div class="sb">
+// 1. The machine does the steps in order. Nothing else.
+console.log("first");
+console.log("second");
+console.log("third");
+</div>
+
+  <div class="sb">
+// 2. It does not know what you meant. It knows what you said.
+// You meant "add these numbers". What did you say?
+console.log(7 + 5);
+console.log("7" + "5");
+console.log("7" + 5);
+</div>
+
+  <div class="sb">
+// 3. A name tag is not the thing. Change the thing, the tag shows the change.
+let streak = 3;
+console.log(streak);
+streak = streak + 1;
+console.log(streak);
+// Now: what does the NEXT line print? Guess first.
+console.log(streak > 3);
+</div>
+
+  <div class="sb">
+// 4. The machine will happily do something pointless a million times.
+let count = 0;
+for (let i = 0; i < 1000000; i++) {
+  count = count + 1;
+}
+console.log(count);
+console.log("that took almost no time");
+</div>
+
+  <div class="sb">
+// 5. And it will do something wrong forever, at full speed.
+// This loop never ends. The sandbox kills it after 3 seconds.
+// Press Run. Read the message. That message is what a real bug feels like.
+let n = 0;
+while (n < 10) {
+  console.log("n is", n);
+  // the human forgot to change n. The machine does not notice.
+}
+</div>
+
+  <p>Number 2 is the one people remember. <code>7 + 5</code> is 12. <code>"7" + "5"</code> is <code>"75"</code>, because the quotes make them text, and adding text glues it together. <code>"7" + 5</code> is also <code>"75"</code>, because the machine picks a rule and applies it without asking. Real bugs in real apps come from exactly this: a number that arrived as text.</p>
+
+  <h2>Now in Memento</h2>
+  <div class="lanes">
+    <div class="lane"><div class="h">ANY APP</div>
+      <p>Every app is a pile of files on a disk, loaded into memory, walked through by a CPU. A "feature" is a region of that pile. Deleting a feature means deleting files, and every place that still names the deleted thing becomes an instruction the machine cannot follow. The machine does not know the feature is gone. It just hits a name that points at nothing, and stops.</p>
+    </div>
+    <div class="lane mem"><div class="h">MEMENTO</div>
+      <p>The best specimen in the whole codebase is a file that exists only because the machine is literal. In v1319 the old Action module, 6,070 lines, was deleted. About eighty other places in the app still say <code>ActionExperience.open()</code>. If that name vanished, each of those eighty spots would crash the moment a user touched it. So a human left a 38-line file whose only job is to catch the old name and forward it to the new system:</p>
+      <pre><code>const ActionExperience = {
+  // the old module never opens, so nothing may believe it is open
+  isOpen: false,
+  pageWrap: null,
+
+  // every legacy door lands in the real flow
+  open() {
+    try {
+      if (window.ActionFlow &amp;&amp; typeof ActionFlow.start === 'function') return ActionFlow.start();
+    } catch (e) {}
+  },
+
+  // the old surfaces are gone; these exist so old callers stay harmless
+  init() {},
+  close() {},
+  render() {},
+  renderContent() {}
+};</code></pre>
+      <div class="src">memento-app/js/33-action-shim.js:20-37 (web pin ca8afc8)</div>
+      <p>Read the comments above the code in that file some time. Twenty of its 38 lines are a human explaining to future humans why the machine needs this. The machine does not read comments. Only people do.</p>
+    </div>
+  </div>
+  <div class="box memento"><div class="h">THE ALTERNATIVE, AND WHY MEMENTO CHOSE THIS</div><p>The clean alternative is to edit all eighty call sites to say the new name, then delete the shim. That is more correct and more work, and with two agents editing in parallel it risks a half-done rename where forty spots say the new name and forty say the old one. The shim is a deliberate, documented piece of debt: cheap now, a small tax on understanding later. Chapter 26 comes back to it as the textbook example of debt done honestly.</p></div>
+
+  <h2>Do it</h2>
+  <div class="ex">
+    <div class="h">Exercise <span class="tag">phone or Mac</span></div>
+    <div class="meta">Where: right here, in the boxes above. Expected: you get at least one prediction wrong. Reset: the Reset button on each box. This cannot touch Memento.</div>
+    <ol>
+      <li>Go back to sandbox 2. Change the last line to <code>console.log(7 + "5" + 5);</code>. Predict. Run. The machine reads left to right and applies its rule at each step.</li>
+      <li>Go to sandbox 5. Add one line inside the loop: <code>n = n + 1;</code>. Run it. The bug is gone. Notice that you fixed it by saying the thing you meant, not by explaining yourself.</li>
+      <li>Go to sandbox 3 and change <code>let streak = 3;</code> to <code>let streak = "3";</code>. Run. Which lines changed? That is the text-versus-number bug, in your hands.</li>
+    </ol>
+  </div>
+
+  <div class="box why"><div class="h">ASK THE AGENT WHY (paste this into Codex or Fable)</div><pre><code>In memento-app/js/33-action-shim.js, explain why the old name ActionExperience had to survive as a forwarder instead of being deleted, and what would physically happen at runtime if it were deleted. Do not change anything.</code></pre></div>
+
+  <div class="box words"><div class="h">WORDS YOU NOW OWN</div><dl>
+    <dt>CPU</dt><dd>The chip that does the work. Reads one tiny instruction, does exactly that, reads the next. No understanding anywhere in it.</dd>
+    <dt>Memory (RAM)</dt><dd>Numbered slots holding numbers. Fast. Wiped when power goes.</dd>
+    <dt>Disk and file</dt><dd>Where things survive. A file is a named chunk of bytes. Code is files.</dd>
+    <dt>Program and process</dt><dd>A program is a file of instructions. A process is that program while it is running.</dd>
+    <dt>Literal execution</dt><dd>The machine does what the text says, not what the author meant. Every bug lives in that gap.</dd>
+  </dl></div>
+
+  <div class="box expiry"><div class="h">WHERE TODAY'S ANALOGY BREAKS</div><p><strong>Breaks when:</strong> you picture one intern. A phone's CPU has several cores, each walking its own list at the same time, and the screen, the radio, and the disk each have their own small chips doing their own work. Also, a real CPU reorders and predicts instructions for speed, so "one step at a time" is a story the chip tells you, not what it literally does inside. <strong>Real model:</strong> a process is a sequence of instructions executed with the appearance of order; the hardware guarantees the result looks as if it ran one step at a time. For everything in this book, "one obedient step at a time" gives you the right answers. Chapter 12 adds the one place where the order gets interesting: waiting for the network.</p></div>
+
+  <details class="hole"><summary>RABBIT HOLE: what an instruction physically is</summary><p>An instruction is a number. The CPU's designers publish a table: this number means "add", that number means "copy". Your JavaScript never becomes those numbers directly; a program called an engine (V8 in Chrome, JavaScriptCore in Safari) reads your text and produces them on the fly. That is why JavaScript works on an iPhone and a Mac despite the chips being different: the engine on each does the translating. Chapter 3 has the history of how humans stopped writing the numbers by hand.</p></details>
+</main>
+<script src="../js/book.js"></script>
+</body>
+</html>

@@ -1,0 +1,149 @@
+{
+  "cpu": {"term": "CPU", "levels": [
+    {"ch": 1, "def": "The part of the computer that does the actual work. It reads one tiny instruction at a time and does exactly that, billions of times a second."},
+    {"ch": 12, "def": "The processor. It runs one instruction stream per core. JavaScript in a browser gets one main stream, which is why long loops freeze the page."}
+  ]},
+  "memory": {"term": "Memory (RAM)", "levels": [
+    {"ch": 1, "def": "The computer's short-term desk. Fast, small, wiped when the power goes. Programs and the values they are working on live here while running."},
+    {"ch": 11, "def": "Numbered slots. A variable is a name for a slot. Two names can point at the same slot, which is why changing one object can change 'another'."}
+  ]},
+  "file": {"term": "File", "levels": [
+    {"ch": 1, "def": "A named chunk of saved stuff on the disk. Code is files. Photos are files. Your saved Memento data is a file-like thing the browser keeps."},
+    {"ch": 5, "def": "Bytes on disk with a name and a path. On iOS and in databases, 'file' is a looser idea: data is stored in containers you do not see as files."}
+  ]},
+  "program": {"term": "Program", "levels": [
+    {"ch": 1, "def": "A list of instructions the CPU can follow. Written by a human (or an AI), saved as a file, run by the computer."}
+  ]},
+  "process": {"term": "Process", "levels": [
+    {"ch": 1, "def": "A program that is currently running. Memento in Safari is one process. The server answering it is another, on a different computer."},
+    {"ch": 6, "def": "A running program with its own memory and an id number (PID). The terminal can list them and kill them."}
+  ]},
+  "code": {"term": "Code", "levels": [
+    {"ch": 1, "def": "Instructions written in a language a human can read and a computer can be made to follow."}
+  ]},
+  "javascript": {"term": "JavaScript", "levels": [
+    {"ch": 2, "def": "The language that runs inside web browsers. Memento's web app is written in it."},
+    {"ch": 9, "def": "A language with values, variables, functions and objects. Runs in browsers, in Node on servers, and inside React Native on phones."}
+  ]},
+  "state": {"term": "State", "levels": [
+    {"ch": 2, "def": "Everything the app currently remembers. In Memento it is one big object called state."},
+    {"ch": 14, "def": "The single source of truth the screen is drawn from. Events change state; the screen is updated from state, never edited on its own."}
+  ]},
+  "server": {"term": "Server", "levels": [
+    {"ch": 2, "def": "A computer somewhere else that answers requests. You never see it. Memento's servers are rented from Supabase."},
+    {"ch": 16, "def": "A program that listens on an address and runs a function for each request. 'Serverless' still means a server, just one somebody else keeps warm."}
+  ]},
+  "database": {"term": "Database", "levels": [
+    {"ch": 2, "def": "Where saved data lives on the server side, organised so it can be found again."},
+    {"ch": 17, "def": "Tables of rows with keys that relate them, guarded by rules (like Row Level Security) that decide who may see which rows."}
+  ]},
+  "api": {"term": "API", "levels": [
+    {"ch": 2, "def": "An agreed way for two programs to talk to each other."},
+    {"ch": 15, "def": "A contract: these addresses, these verbs, this JSON in, this JSON out, these status codes."},
+    {"ch": 16, "def": "Memento's API is a handful of Supabase edge functions and one Postgres function. The phone never talks to Anthropic or Polar directly."}
+  ]},
+  "network": {"term": "Network", "levels": [
+    {"ch": 2, "def": "The wires and radio between your phone and the server. Slow compared to memory, and it can fail."}
+  ]},
+  "localstorage": {"term": "localStorage", "levels": [
+    {"ch": 2, "def": "A small storage box the browser gives each website. Memento's web app saves your whole state there under one key."},
+    {"ch": 14, "def": "A key-value store, strings only, about 5 MB, per website origin. Can throw when full or in private mode, so every write is wrapped in try/catch."}
+  ]},
+  "frontend": {"term": "Frontend", "levels": [
+    {"ch": 2, "def": "The part of the app you can see and touch. Runs on your device."}
+  ]},
+  "backend": {"term": "Backend", "levels": [
+    {"ch": 2, "def": "The part that runs on servers you never see: accounts, the database, the AI calls."}
+  ]},
+  "supabase": {"term": "Supabase", "levels": [
+    {"ch": 2, "def": "The company Memento rents its backend from: accounts, a database, and small server functions."}
+  ]},
+  "proxy": {"term": "Proxy", "levels": [
+    {"ch": 2, "def": "A middleman. Memento's phone never calls the AI directly; it calls Memento's own small server, which calls the AI with a secret key the phone never sees."}
+  ]},
+  "terminal": {"term": "Terminal", "levels": [
+    {"ch": 5, "def": "A text window where you type commands to the computer instead of clicking. Nothing magic: each line is a program's name plus what to give it."},
+    {"ch": 6, "def": "A shell (zsh on your Mac) reading lines, finding the program named first via PATH, running it with the rest as arguments, and printing what it says."}
+  ]},
+  "path": {"term": "Path", "levels": [
+    {"ch": 5, "def": "The address of a file: the folders you walk through to reach it, joined with slashes."}
+  ]},
+  "git": {"term": "Git", "levels": [
+    {"ch": 3, "def": "The tool that records every change to a codebase, so nothing is ever lost and two people can work on the same files."},
+    {"ch": 7, "def": "A history of snapshots (commits), each pointing at the one before, stored in the hidden .git folder."},
+    {"ch": 8, "def": "A graph of snapshots. Branches are movable labels on it. A merge joins two lines of history."}
+  ]},
+  "commit": {"term": "Commit", "levels": [
+    {"ch": 7, "def": "A saved snapshot of the whole folder, with a message and an id (the hash)."}
+  ]},
+  "branch": {"term": "Branch", "levels": [
+    {"ch": 8, "def": "A label that points at a commit and moves forward as you add commits. Not a copy of the folder."}
+  ]},
+  "merge": {"term": "Merge", "levels": [
+    {"ch": 8, "def": "Joining two lines of history into one. A conflict is two edits to the same line, which a human resolves."}
+  ]},
+  "pull-request": {"term": "Pull request", "levels": [
+    {"ch": 8, "def": "A request on GitHub to merge one branch into another, with a page where people review the changes first."}
+  ]},
+  "variable": {"term": "Variable", "levels": [
+    {"ch": 9, "def": "A name tag on a value. Not a box: the value does not live inside the name."},
+    {"ch": 11, "def": "A name bound to a value. For objects, the value is a reference, so two names can point at one object."}
+  ]},
+  "function": {"term": "Function", "levels": [
+    {"ch": 10, "def": "A named recipe. Define it once, call it whenever. It takes inputs (parameters) and can hand back a result (return)."}
+  ]},
+  "call-stack": {"term": "Call stack", "levels": [
+    {"ch": 10, "def": "The pile of functions currently running. Call one, it goes on top. It returns, it comes off. A stack trace is a photo of this pile."}
+  ]},
+  "object": {"term": "Object", "levels": [
+    {"ch": 9, "def": "A bundle of named values. { name: 'Malik', streak: 4 }."}
+  ]},
+  "async": {"term": "Async", "levels": [
+    {"ch": 12, "def": "Work that finishes later. await means 'come back to this line when the answer arrives', and the app keeps responding meanwhile."}
+  ]},
+  "fetch": {"term": "fetch", "levels": [
+    {"ch": 12, "def": "The JavaScript command that sends a request over the network and gives you a promise of the reply."}
+  ]},
+  "dom": {"term": "DOM", "levels": [
+    {"ch": 13, "def": "The live tree of elements the browser builds from your HTML. JavaScript changes the page by changing this tree."}
+  ]},
+  "http": {"term": "HTTP", "levels": [
+    {"ch": 15, "def": "The rules for a request and a reply on the web: an address, a verb (GET, POST), headers, a body, and a status code back."}
+  ]},
+  "json": {"term": "JSON", "levels": [
+    {"ch": 15, "def": "Text that looks like a JavaScript object. The envelope most APIs use to send data."}
+  ]},
+  "token": {"term": "Token", "levels": [
+    {"ch": 18, "def": "A string that proves who you are for a while, sent with each request. Expires, can be refreshed, can be revoked."}
+  ]},
+  "environment-variable": {"term": "Environment variable", "levels": [
+    {"ch": 6, "def": "A named value the operating system hands to a program when it starts. How secrets get in without being written in the code."}
+  ]},
+  "dependency": {"term": "Dependency", "levels": [
+    {"ch": 19, "def": "Someone else's code your app needs. Listed in package.json with a version, downloaded by npm."}
+  ]},
+  "deploy": {"term": "Deploy", "levels": [
+    {"ch": 20, "def": "Copying a version of the app to the place users reach it. In Memento, a robot does it on every push to main."}
+  ]},
+  "typescript": {"term": "TypeScript", "levels": [
+    {"ch": 21, "def": "JavaScript with a proofreader. You describe shapes (types); the compiler checks them before anything runs."}
+  ]},
+  "react-native": {"term": "React Native", "levels": [
+    {"ch": 22, "def": "A way to write iPhone and Android apps in JavaScript/TypeScript. It draws real native views, not a web page."}
+  ]},
+  "stack-trace": {"term": "Stack trace", "levels": [
+    {"ch": 23, "def": "The list of function calls that were in progress when an error happened. Read it top down: the top line is where it broke."}
+  ]},
+  "test": {"term": "Test", "levels": [
+    {"ch": 24, "def": "Code that runs your code and checks the answer. A failing test is a spec for what should be true."}
+  ]},
+  "rls": {"term": "Row Level Security", "levels": [
+    {"ch": 17, "def": "A database rule that says which rows each signed-in user may see or change. Without it, a public key reads everyone's data."}
+  ]},
+  "hallucination": {"term": "Hallucination", "levels": [
+    {"ch": 4, "def": "When an AI states something that is not true with full confidence: a file that does not exist, a function that was never written, 'tests pass' with no output."}
+  ]},
+  "vibe-coding": {"term": "Vibe coding", "levels": [
+    {"ch": 4, "def": "Accepting whatever the AI produces without reading it. Fine for a toy. Fatal for a product with users."}
+  ]}
+}

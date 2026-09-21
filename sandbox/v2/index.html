@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Memento Jr</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="card">
+    <h1>Memento Jr</h1>
+
+    <label for="north-star">Your north star</label>
+    <input id="north-star" type="text" maxlength="200" placeholder="What are you working toward?" autocomplete="off">
+
+    <button id="hold" class="hold" type="button" aria-label="Hold to complete today">
+      <svg class="ring" viewBox="0 0 100 100" aria-hidden="true">
+        <circle class="ring-track" cx="50" cy="50" r="45"></circle>
+        <circle id="ring-fill" class="ring-fill" cx="50" cy="50" r="45"></circle>
+      </svg>
+      <span id="hold-label">Hold to complete</span>
+    </button>
+
+    <div class="stats">
+      <div class="stat"><span class="num" id="streak">0</span><span class="lbl">day streak</span></div>
+      <div class="stat"><span class="num small" id="last">never</span><span class="lbl">last completed</span></div>
+    </div>
+
+    <div class="extras">
+      <button id="ask" class="ghost" type="button">Ask the (fake) AI</button>
+      <button id="sync" class="ghost" type="button">Sync</button>
+    </div>
+    <p id="message" class="message" aria-live="polite"></p>
+
+    <a href="#" id="reset" class="reset">Reset everything</a>
+  </main>
+
+  <!-- app.js is state.ts + app.ts with the types stripped out. Same behaviour as v1. -->
+  <script src="app.js"></script>
+</body>
+</html>
