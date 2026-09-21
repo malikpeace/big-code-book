@@ -1,3 +1,8 @@
 sandbox/*/secrets.env
 sandbox/*/db.json
 .DS_Store
+/git-lab/.git/
+/git-lab/app.js
+/lab/memento-native/
+/lab/memento-app/
+/lab/supabase/
