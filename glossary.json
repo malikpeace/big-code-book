@@ -1407,5 +1407,266 @@
         "def": "The operating system's locked box for credentials. Memento's native tokens go in expo-secure-store, this-device-only, never in the state blob that gets backed up and copied."
       }
     ]
+  },
+  "html": {
+    "term": "HTML",
+    "levels": [
+      {
+        "ch": 13,
+        "def": "The skeleton of a page: what exists and what is nested inside what. No colours, no behaviour, just structure and words."
+      }
+    ]
+  },
+  "element": {
+    "term": "Element",
+    "levels": [
+      {
+        "ch": 13,
+        "def": "One node in the page's tree, written as an opening tag, contents, and a closing tag. Nesting elements is what makes it a tree."
+      }
+    ]
+  },
+  "attribute": {
+    "term": "Attribute",
+    "levels": [
+      {
+        "ch": 13,
+        "def": "Extra information written inside an element's opening tag, like type=\"button\" or id=\"app\"."
+      }
+    ]
+  },
+  "id": {
+    "term": "id",
+    "levels": [
+      {
+        "ch": 13,
+        "def": "A unique name for one element, used once per page. How JavaScript finds a specific thing."
+      }
+    ]
+  },
+  "class": {
+    "term": "class",
+    "levels": [
+      {
+        "ch": 13,
+        "def": "A reusable label you can stick on any number of elements. How CSS styles a whole category at once."
+      }
+    ]
+  },
+  "css": {
+    "term": "CSS",
+    "levels": [
+      {
+        "ch": 13,
+        "def": "The skin: colour, size, spacing, radius, blur. Selectors pick elements, properties say what to do to them."
+      }
+    ]
+  },
+  "selector": {
+    "term": "Selector",
+    "levels": [
+      {
+        "ch": 13,
+        "def": "The part of a CSS rule that says who it applies to. .chip means every element with that class, #app means the one element with that id."
+      }
+    ]
+  },
+  "cascade": {
+    "term": "Cascade",
+    "levels": [
+      {
+        "ch": 13,
+        "def": "The tie-break when CSS rules disagree: more specific wins, then later wins. Most 'my style did nothing' is a lost cascade fight, not a broken property."
+      }
+    ]
+  },
+  "custom-property": {
+    "term": "Custom property",
+    "levels": [
+      {
+        "ch": 13,
+        "def": "A CSS variable, written --name and read with var(--name). Memento's design tokens are these, which is why one line repaints the whole app."
+      }
+    ]
+  },
+  "queryselector": {
+    "term": "querySelector",
+    "levels": [
+      {
+        "ch": 13,
+        "def": "Walks the DOM and hands back the first element matching a CSS selector. JavaScript's way into the page."
+      }
+    ]
+  },
+  "textcontent": {
+    "term": "textContent",
+    "levels": [
+      {
+        "ch": 13,
+        "def": "Replaces the words inside an element. The safe way to show data, because it can never be read as markup."
+      }
+    ]
+  },
+  "classlist": {
+    "term": "classList",
+    "levels": [
+      {
+        "ch": 13,
+        "def": "Adds and removes an element's classes, which lets CSS decide what they mean. Behaviour stays in JavaScript, appearance stays in CSS."
+      }
+    ]
+  },
+  "event": {
+    "term": "Event",
+    "levels": [
+      {
+        "ch": 13,
+        "def": "The object the browser makes when something happens: a tap, a keystroke, a pointer moving. It is handed to listeners."
+      }
+    ]
+  },
+  "event-bubbling": {
+    "term": "Event bubbling",
+    "levels": [
+      {
+        "ch": 13,
+        "def": "An event's trip up the tree, from the deepest element under your finger to its parent and onward to the document. One tap can fire several handlers."
+      }
+    ]
+  },
+  "stoppropagation": {
+    "term": "stopPropagation",
+    "levels": [
+      {
+        "ch": 13,
+        "def": "A handler saying 'I dealt with this, do not pass it up'. Memento's defence against one tap firing a button and the card behind it."
+      }
+    ]
+  },
+  "safe-area": {
+    "term": "Safe area inset",
+    "levels": [
+      {
+        "ch": 13,
+        "def": "How much room the notch and the home indicator steal, reported by the phone and read in CSS with env(safe-area-inset-top). Zero on a desktop, which is why a desktop preview cannot prove the law."
+      }
+    ]
+  },
+  "inline-handler": {
+    "term": "Inline handler",
+    "levels": [
+      {
+        "ch": 13,
+        "def": "JavaScript written straight into an HTML attribute, like onclick=\"close()\". Readable, wiring-free, and impossible to remove or double up later."
+      }
+    ]
+  },
+  "addeventlistener": {
+    "term": "addEventListener",
+    "levels": [
+      {
+        "ch": 13,
+        "def": "Attaches a handler to an element from JavaScript, after the element exists. Several can be attached and any of them removed, which an inline handler cannot do."
+      }
+    ]
+  },
+  "source-of-truth": {
+    "term": "Single source of truth",
+    "levels": [
+      {
+        "ch": 14,
+        "def": "For any fact, exactly one place is allowed to be right about it. Everything else, including the screen, is a copy."
+      }
+    ]
+  },
+  "render": {
+    "term": "Render",
+    "levels": [
+      {
+        "ch": 14,
+        "def": "Making the screen match state. In Memento's web app it is a few hundred small refresher functions; in the native app, one description per component."
+      }
+    ]
+  },
+  "imperative-rendering": {
+    "term": "Imperative rendering",
+    "levels": [
+      {
+        "ch": 14,
+        "def": "You find the element and change it yourself. Needs no tools, and you can forget a spot, which is how drift gets shipped."
+      }
+    ]
+  },
+  "declarative-rendering": {
+    "term": "Declarative rendering",
+    "levels": [
+      {
+        "ch": 14,
+        "def": "You describe what the screen looks like for a given state and a framework works out what to change. Needs a build step, cannot forget a spot."
+      }
+    ]
+  },
+  "drift": {
+    "term": "Drift",
+    "levels": [
+      {
+        "ch": 14,
+        "def": "Screen and state disagreeing because something edited the screen directly. Silent until the next redraw, then it eats the user's data."
+      }
+    ]
+  },
+  "debounce": {
+    "term": "Debounce",
+    "levels": [
+      {
+        "ch": 14,
+        "def": "Wait a beat, then do it once. Memento's persistState books a save 150ms out and cancels the previous one, so forty keystrokes cost one write."
+      }
+    ]
+  },
+  "reducer": {
+    "term": "Reducer",
+    "levels": [
+      {
+        "ch": 14,
+        "def": "A pure function that takes the current state plus an event and returns the next state. Touches no screen, so the whole flow can be tested with no phone."
+      }
+    ]
+  },
+  "component": {
+    "term": "Component",
+    "levels": [
+      {
+        "ch": 14,
+        "def": "A reusable piece of screen described as a function of its inputs. The unit React and React Native are built out of."
+      }
+    ]
+  },
+  "jsx": {
+    "term": "JSX",
+    "levels": [
+      {
+        "ch": 14,
+        "def": "The markup-shaped syntax used inside React files to describe a screen. Braces are holes where a value is dropped in, like a template literal."
+      }
+    ]
+  },
+  "assertion": {
+    "term": "Assertion",
+    "levels": [
+      {
+        "ch": 14,
+        "def": "A statement in the code that must be true, which complains loudly when it is not. console.assert is the cheapest version."
+      }
+    ]
+  },
+  "boundary-check": {
+    "term": "Boundary check",
+    "levels": [
+      {
+        "ch": 14,
+        "def": "Asking what happens at the edges of a value: empty, zero, negative, enormous. Where most real bugs live."
+      }
+    ]
   }
 }

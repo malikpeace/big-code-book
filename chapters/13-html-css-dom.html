@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>13. HTML, CSS, and how a screen gets drawn. BIG CODE BOOK</title>
+<link rel="stylesheet" href="../css/book.css">
+<meta name="theme-color" content="#0b0b0d">
+</head>
+<body data-chapter="13">
+<main>
+  <div class="kicker">Chapter 13 <span class="tag need">NEED</span> <span class="tag">~45 min</span> <span class="tag">phone or Mac</span></div>
+  <h1>HTML, CSS, and how a screen gets drawn</h1>
+  <p class="lede">Every screen you have ever looked at in Memento is a tree of boxes with a stylesheet painted over it. Once you can see the tree, "the button is in the wrong place" stops being magic and becomes a thing with an address.</p>
+
+  <div class="box recap"><div class="h">LAST TIME</div><p>JavaScript runs on one thread, so anything slow has to be handed off and waited for. <code>await</code> parks the current job and lets the thread keep serving taps, it does not freeze the phone. The queue is why a slow AI reply never locks the screen, and why the order of your log lines surprises you.</p></div>
+
+  <h2>Quick check</h2>
+  <details class="check"><summary>You write a function and nothing happens. Why?</summary><div class="a">Writing a function defines it. Nothing runs until something calls it. Defining is the recipe card, calling is handing it to the cook.</div></details>
+  <details class="check"><summary>Two names point at the same object and you change it through one. What does the other one see?</summary><div class="a">The change. Assignment copies the reference, not the object. That is chapter 11's aliasing bug and it is behind most "but I did not touch that" moments.</div></details>
+  <details class="check"><summary>What does <code>typeof</code> cost you, and when should you reach for it?</summary><div class="a">Nothing, and immediately. The instant a value behaves strangely, ask it what it is. Text that looks like a number is the most expensive bug in the language.</div></details>
+
+  <h2>The idea</h2>
+  <p>Three separate things doing three separate jobs, smeared into one word: "the frontend".</p>
+  <p><dfn data-term="html">HTML</dfn> is the skeleton. What exists, and what is inside what. A heading, a button, a card with three things in it. No colours, no positions, no behaviour.</p>
+  <p><dfn data-term="css">CSS</dfn> is the skin. Colour, size, spacing, corner radius, blur. It never adds or removes anything, it dresses what HTML already declared.</p>
+  <p>The <dfn data-term="dom">DOM</dfn> is what the browser builds when it reads that HTML: a live tree of objects in memory. The file is a one-time instruction for building it. After that the file is history and the tree is the app. JavaScript changes the screen by changing the tree.</p>
+
+  <div class="box analogy"><div class="h">ANALOGY (TEMPORARY)</div><p>HTML is the architect's drawing. The DOM is the actual building, standing up, with people inside. CSS is the paint, the lighting, and the furniture. You cannot renovate a house by editing the drawing after it is built, and you cannot change a page by editing the HTML file while it is open. You walk into the building and move a wall. That is what <code>document.querySelector</code> is: walking in and finding the room.</p></div>
+
+  <figure class="fig-box">
+    <svg class="figure" viewBox="0 0 640 300" role="img" aria-label="A tree diagram. At the top, document. Below it, html. Below that, body. Below body, a box labelled div id equals app, which has two children: header, and main id equals widgetGrid. Header has one child, a button with class close. Arrows point downward from parent to child, showing that everything is nested inside something else.">
+      <rect class="bx" x="240" y="14" width="160" height="30" rx="8"/><text class="st mono" x="320" y="34" text-anchor="middle">document</text>
+      <path class="ln" d="M320 44 V64"/>
+      <rect class="bx" x="240" y="64" width="160" height="30" rx="8"/><text class="st mono" x="320" y="84" text-anchor="middle">&lt;body&gt;</text>
+      <path class="ln" d="M320 94 V114"/>
+      <rect class="bx acc" x="215" y="114" width="210" height="30" rx="8"/><text class="st mono" x="320" y="134" text-anchor="middle">&lt;div id="app"&gt;</text>
+      <path class="ln acc" d="M320 144 V166 H150 V190"/>
+      <path class="ln acc" d="M320 144 V166 H490 V190"/>
+      <rect class="bx" x="50" y="190" width="200" height="30" rx="8"/><text class="st mono" x="150" y="210" text-anchor="middle">&lt;header&gt;</text>
+      <rect class="bx" x="385" y="190" width="210" height="30" rx="8"/><text class="st mono" x="490" y="210" text-anchor="middle">&lt;main id="widgetGrid"&gt;</text>
+      <path class="ln" d="M150 220 V246"/>
+      <rect class="bx cy" x="50" y="246" width="200" height="30" rx="8"/><text class="st mono" x="150" y="266" text-anchor="middle">&lt;button class="close"&gt;</text>
+      <text class="st lo" x="320" y="292" text-anchor="middle">A click on the button travels back UP this tree: button, header, div, body, document.</text>
+    </svg>
+    <figcaption>Memento's real top few branches. Every element has exactly one parent and any number of children, which is why "the tree" is not a metaphor. It is the data structure.</figcaption>
+  </figure>
+
+  <h3>The four words you need for HTML</h3>
+  <p>An <dfn data-term="element">element</dfn> is one node in the tree: an opening tag, contents, a closing tag. <code>&lt;button&gt;Save&lt;/button&gt;</code>. Putting one element inside another is what makes it a tree. An <dfn data-term="attribute">attribute</dfn> is extra information inside the opening tag, like <code>type="button"</code>. Two of them matter most. An <dfn data-term="id">id</dfn> is a unique name for one element and it is how JavaScript finds a specific thing. A <dfn data-term="class">class</dfn> is a label you can stick on any number of elements and it is how CSS styles a whole category at once. That is the whole language for our purposes.</p>
+
+  <h3>CSS in one screenful</h3>
+  <p>A CSS rule has a <dfn data-term="selector">selector</dfn> saying who it applies to, then properties saying what to do to them. <code>.chip</code> means every element carrying that class, <code>#app</code> means the one element with that id, and each line inside the braces is one property.</p>
+  <p>Now the part that eats days. Several rules can hit the same element and disagree. The <dfn data-term="cascade">cascade</dfn> is the tie-break: more specific wins, so an id beats a class and a class beats a tag name, and equal specificity means the later rule wins. This is why "I set the colour and nothing happened" is almost never a lie. The colour was set, then something more specific overruled it. A style that refuses to apply is a fight you lost, not a broken property.</p>
+  <p>The last CSS idea is the one Memento runs on. A <dfn data-term="custom-property">custom property</dfn> is a variable: <code>--accent: #3ad9f5;</code> declared once, then <code>var(--accent)</code> read in forty places. Change the one line and forty places move together. People call these design tokens.</p>
+
+  <h3>How JavaScript touches the screen</h3>
+  <p>Four moves cover most of what you will read.</p>
+  <table>
+    <tr><th>Move</th><th>What it does</th></tr>
+    <tr><td><code><dfn data-term="queryselector">querySelector</dfn>('#streak')</code></td><td>Walks the tree and hands back the first element matching that CSS selector. Your way in.</td></tr>
+    <tr><td><code><dfn data-term="textcontent">textContent</dfn> = '7'</code></td><td>Replaces the words inside an element. The safe way to show data, because it can never be read as markup.</td></tr>
+    <tr><td><code><dfn data-term="classlist">classList</dfn>.toggle('done')</code></td><td>Adds or removes a class, which lets CSS decide what that means. Behaviour in JS, appearance in CSS.</td></tr>
+    <tr><td><code>style.strokeDashoffset = '0'</code></td><td>Sets one property directly on that one element. Wins every cascade fight, which is why it is a last resort.</td></tr>
+  </table>
+  <p>Then events. When you tap, the browser makes an <dfn data-term="event">event</dfn> object and offers it to the deepest element under your finger, then to that element's parent, then its parent, up to the document. That upward trip is <dfn data-term="event-bubbling">bubbling</dfn>. It is a feature, because one listener on a card can handle everything inside it, and a trap, because a button inside a tappable card fires both and the user gets two things at once. <code>e.<dfn data-term="stoppropagation">stopPropagation</dfn>()</code> is a handler saying "I dealt with this, do not pass it up". Memento's screens are cards inside cards, so it calls that constantly.</p>
+
+  <h2>See it</h2>
+  <p>These boxes render a real page in a throwaway frame, with <code>console.log</code> printing underneath. Predict, run, poke.</p>
+
+  <div class="sb" data-dom>
+&lt;h1 id="title"&gt;Streak: 0&lt;/h1&gt;
+&lt;button id="go"&gt;Add a day&lt;/button&gt;
+&lt;script&gt;
+  let streak = 0;
+  var title = document.querySelector("#title");
+  document.querySelector("#go").addEventListener("click", function () {
+    streak = streak + 1;
+    title.textContent = "Streak: " + streak;
+    console.log("changed the tree. streak is now", streak);
+  });
+&lt;/script&gt;
+</div>
+
+  <p>Nothing rewrote the HTML. One node got new words and the browser repainted it. Now the same idea with the look left to CSS.</p>
+
+  <div class="sb" data-dom>
+&lt;style&gt;
+  .chip { display:inline-block; padding:10px 14px; border-radius:8px; border:1px solid #ccc; }
+  .chip.done { background:#1fa32d; color:#fff; border-color:#1fa32d; }
+&lt;/style&gt;
+&lt;div class="chip" id="chip"&gt;Not done&lt;/div&gt;
+&lt;p&gt;&lt;button id="t"&gt;Toggle&lt;/button&gt;&lt;/p&gt;
+&lt;script&gt;
+  var chip = document.querySelector("#chip");
+  document.querySelector("#t").addEventListener("click", function () {
+    chip.classList.toggle("done");
+    chip.textContent = chip.classList.contains("done") ? "Done" : "Not done";
+    console.log("classes are now:", chip.className);
+  });
+&lt;/script&gt;
+</div>
+
+  <p>The JavaScript never mentions green. It flips a label; the stylesheet decides what the label means. That separation is the whole reason CSS exists. Last one, bubbling:</p>
+
+  <div class="sb" data-dom>
+&lt;div id="card" style="padding:16px;border:1px solid #ccc;border-radius:12px"&gt;
+  the card itself (tap the grey area)
+  &lt;p&gt;&lt;button id="inner"&gt;button inside&lt;/button&gt;
+  &lt;button id="quiet"&gt;button that stops it&lt;/button&gt;&lt;/p&gt;
+&lt;/div&gt;
+&lt;script&gt;
+  document.querySelector("#card").addEventListener("click", function () {
+    console.log("CARD heard a click");
+  });
+  document.querySelector("#inner").addEventListener("click", function () {
+    console.log("inner button heard it");
+  });
+  document.querySelector("#quiet").addEventListener("click", function (e) {
+    e.stopPropagation();
+    console.log("quiet button heard it and kept it to itself");
+  });
+&lt;/script&gt;
+</div>
+
+  <p>Tap the inner button and two lines print, button first, then card. One tap, two handlers, because the event walked up. Tap the quiet one and only one line prints. That difference is the bug behind "why did it open twice".</p>
+
+  <h2>Now in Memento</h2>
+  <div class="lanes">
+    <div class="lane"><div class="h">ANY APP</div>
+      <p>A web app ships one HTML file: mostly empty containers with ids, plus a list of scripts. The containers are sockets; the scripts fill them at runtime. That file is the skeleton of the whole product, and the script list is what it is made of.</p>
+    </div>
+    <div class="lane mem"><div class="h">MEMENTO</div>
+      <p>The shell: a root element with an id, a header, and an empty <code>&lt;main&gt;</code> that JavaScript fills.</p>
+      <pre><code>    &lt;section id="dashConsistency" aria-label="Your consistency over time"&gt;&lt;/section&gt;
+    &lt;main class="widget-grid" id="widgetGrid"&gt;&lt;/main&gt;
+  &lt;/div&gt;
+  &lt;!-- footer removed in v5  - replaced by tab bar --&gt;
+&lt;/div&gt;</code></pre>
+      <div class="src">memento-app/index.html:569-573 (web pin ca8afc8)</div>
+      <p>Then the load order: 39 files by number, each tagged with a version so browsers fetch the new copy.</p>
+      <pre><code>&lt;script src="js/00-error-reporting.js?v=v1020"&gt;&lt;/script&gt;
+&lt;script src="js/01-state-foundation.js?v=v1378"&gt;&lt;/script&gt;
+&lt;script src="js/02-clarity-experience.js?v=v1358"&gt;&lt;/script&gt;
+&lt;script src="js/03-ai-integration.js?v=v1358"&gt;&lt;/script&gt;</code></pre>
+      <div class="src">memento-app/index.html:817-819, 824 (of the block at 816-880) (web pin ca8afc8)</div>
+    </div>
+  </div>
+
+  <p>Memento's visual laws, the ones in CLAUDE.md that sound like taste, are CSS statements. "Real glass" is <code>backdrop-filter: blur(24-40px) saturate(1.3-1.6)</code>. "Nothing bleeds under the notch" is one token read from the device:</p>
+  <pre><code>  --safe-t: env(safe-area-inset-top, 0px);
+  --safe-b: env(safe-area-inset-bottom, 0px);</code></pre>
+  <div class="src">memento-app/css/base.css:111-112 (web pin ca8afc8)</div>
+  <p><dfn data-term="safe-area">Safe area insets</dfn> are numbers the phone reports: how much room the notch and the home indicator steal. The <code>0px</code> fallback is why a desktop preview can never prove that law. The colours are tokens, declared once, with a comment:</p>
+  <pre><code>  /* Shared accent (eyebrows, focus rings, command-center / onboarding / sheet
+     accent, primary highlights). Defaults to today's exact purple. A user can
+     retint this from Profile &gt; Preferences; per-module identity colors above
+     are never affected. --accent is the bright link/highlight shade,
+     --accent-rgb feeds rgba() glows/rings, --accent-strong is the deeper fill
+     used by solid accent surfaces (matches the prior #50b9cc). */
+  --accent: #3ad9f5;
+  --accent-rgb: 58, 217, 245;
+  --accent-strong: #50b9cc;</code></pre>
+  <div class="src">memento-app/css/base.css:66-74 (web pin ca8afc8)</div>
+  <p>The comment says "today's exact purple" and the value is cyan, because the purple was killed in v711 and the comment never got the memo. Comments rot, code does not. Believe the code.</p>
+
+  <h3>Two ways to hear a tap, both live in Memento</h3>
+  <p>The first is an <dfn data-term="inline-handler">inline handler</dfn>: JavaScript written straight into an HTML attribute. Clarity's close button does it twice, click and the faster pointer event, so a tap never waits:</p>
+  <pre><code>&lt;button class="clarity-exp__close" id="clarityExpClose" aria-label="Back"
+  onclick="smartCloseClarity(); return false;"
+  onpointerdown="smartCloseClarity(); return false;"&gt;</code></pre>
+  <div class="src">memento-app/index.html:621, one long line re-wrapped, inline chevron SVG cut (web pin ca8afc8)</div>
+  <p>The second is <dfn data-term="addeventlistener">addEventListener</dfn>, attached from JavaScript after the element exists. These are the summary tabs, and they are the whole chapter in eight lines: find elements, listen, stop the bubble, toggle classes, let CSS do the rest.</p>
+  <pre><code>            const tabBtns = scope.querySelectorAll('.ns-summary__tab');
+            const panels = scope.querySelectorAll('.ns-summary__panel');
+            tabBtns.forEach(btn =&gt; {
+              btn.addEventListener('click', (e) =&gt; {
+                e.stopPropagation();
+                const key = btn.getAttribute('data-tab');
+                tabBtns.forEach(b =&gt; b.classList.toggle('is-active', b === btn));
+                panels.forEach(p =&gt; p.classList.toggle('is-active', p.getAttribute('data-panel') === key));</code></pre>
+  <div class="src">memento-app/js/02-clarity-experience.js:472-479 (web pin ca8afc8)</div>
+  <p>That <code>e.stopPropagation()</code> is there because the tabs sit inside a fullscreen Clarity surface with its own tap handling. Without it, choosing a tab would also poke the surface behind it.</p>
+
+  <div class="box memento"><div class="h">THE ALTERNATIVE, AND WHY MEMENTO CHOSE THIS</div><p>Inline <code>onclick</code> is the older style: instantly readable, no wiring, and impossible to remove, replace, or double up later. <code>addEventListener</code> is the modern default, and you can attach several, remove them, and keep logic out of the markup. Memento uses both because the close button is one hard-coded control that will never need a second listener, while the tabs are built at runtime and cannot carry handlers in markup that does not exist yet. The bigger alternative is a framework that wires all of it for you, which is what the native rebuild bought. The cost here is that every listener is hand-attached and hand-removed, and a forgotten removal is a real leak.</p></div>
+
+  <h3>Native cameo: no HTML at all</h3>
+  <p>React Native has no browser and no DOM. It draws real iOS views, the same ones Apple's own apps use, so there is no cascade and no stylesheet file. The ideas survive as plain objects:</p>
+  <pre><code>export const dark: Theme = {
+  scheme: 'dark',
+  bg: '#040606',
+  ink: [255, 255, 255],
+  textHi: rgba([255, 255, 255], 0.96), textMid: rgba([255, 255, 255], 0.62), textLo: rgba([255, 255, 255], 0.40),
+  solidBg: '#ffffff', solidFg: '#0b1112',
+  hairline: rgba([255, 255, 255], 0.12),
+  consistency: '#30D158',
+  accent: '#3ad9f5',</code></pre>
+  <div class="src">memento-native/src/ui/theme.ts:23-31 (native pin 93bfa796)</div>
+  <p>Same names, same hex values, no CSS. <code>--text-hi</code> became <code>textHi</code>. The design survived a whole platform change because it was tokens, not scattered colours.</p>
+
+  <h2>Do it</h2>
+  <div class="ex" data-device="mac">
+    <div class="h">Exercise <span class="tag mac">MAC</span></div>
+    <div class="meta">Where: ~/Downloads/CODE-BOOK/sandbox/v1. Expected: Memento Jr's accent turns whatever colour you picked, everywhere at once. Reset: put the original hex back, or <code>git checkout sandbox/v1/style.css</code>. This cannot touch Memento.</div>
+    <ol>
+      <li>Open <code>~/Downloads/CODE-BOOK/sandbox/v1/index.html</code> in Safari or Chrome. Double-clicking the file is enough, no server needed.</li>
+      <li>Open <code>style.css</code> in your editor. Line 3 holds the tokens. Find <code>--accent: #3fd94e;</code>.</li>
+      <li>Change it to <code>#3ad9f5</code>, save, reload. Count what moved: the ring, the input's focus border, the done state. One line, several places.</li>
+      <li>Break it on purpose: add <code>color: red;</code> to the <code>h1</code> rule, then add <code>.card h1 { color: blue; }</code> underneath it. Reload. Blue wins, because two selectors beat one. That is the cascade, felt rather than read.</li>
+    </ol>
+  </div>
+  <div class="ex">
+    <div class="h">On a phone instead <span class="tag">phone</span></div>
+    <div class="meta">Where: the second sandbox above. Expected: the chip turns your colour. Reset: the Reset button. This cannot touch Memento.</div>
+    <ol>
+      <li>Change <code>#1fa32d</code> to any hex you like, in both places, and press Run.</li>
+      <li>Then add <code>#chip { background: black !important; }</code> inside the style block and run again. An id plus a shout beats a class.</li>
+    </ol>
+  </div>
+
+  <div class="box why"><div class="h">ASK THE AGENT WHY (paste this into Codex or Fable)</div><pre><code>In memento-app/index.html, look at the script tags between lines 816 and 880. Explain why the order of those files matters, what would break if 11-init.js loaded first, and why every src ends in ?v=v1378. Then show me three places in memento-app/css/ that read var(--accent) and explain what changing that one line would do. Do not change anything.</code></pre></div>
+
+  <div class="box words"><div class="h">WORDS YOU NOW OWN</div><dl>
+    <dt>HTML</dt><dd>The skeleton. What exists on the page and what is nested inside what.</dd>
+    <dt>Element / attribute</dt><dd>One node in the tree / extra information written inside its opening tag.</dd>
+    <dt>id / class</dt><dd>A unique name for one element / a reusable label for many. JavaScript usually hunts by id, CSS usually styles by class.</dd>
+    <dt>CSS</dt><dd>The skin. Selectors pick elements, properties say what to do to them.</dd>
+    <dt>Cascade</dt><dd>The tie-break when rules disagree. More specific wins, then later wins. Most "my style did nothing" is a lost cascade fight.</dd>
+    <dt>Custom property</dt><dd>A CSS variable, written <code>--name</code>, read with <code>var(--name)</code>. Memento's design tokens are these.</dd>
+    <dt>DOM</dt><dd>The live tree of objects the browser builds from your HTML. The file is the instruction; the tree is the app.</dd>
+    <dt>querySelector / textContent / classList</dt><dd>Find an element / replace its words / add and remove its labels. The three moves behind almost every screen update in Memento.</dd>
+    <dt>Event / bubbling</dt><dd>The object the browser makes when something happens / its trip up the tree from the deepest element to the document.</dd>
+    <dt>stopPropagation</dt><dd>A handler saying "I dealt with it, do not pass it up". Memento's defence against one tap firing two things.</dd>
+    <dt>Safe area inset</dt><dd>How much room the notch and home indicator steal, reported by the phone, read in CSS with <code>env()</code>.</dd>
+    <dt>Inline handler / addEventListener</dt><dd>JavaScript written into an HTML attribute / a listener attached from code. Memento has both, on purpose.</dd>
+  </dl></div>
+
+  <div class="box expiry"><div class="h">WHERE TODAY'S ANALOGY BREAKS</div><p><strong>Breaks when:</strong> the building rebuilds itself. A house stands still once built. The DOM gets torn down and re-raised constantly, hundreds of nodes at a time, every time a Memento module opens. The picture also implies the HTML file stays the truth. It does not. A second into a page's life the only truth is the tree in memory, and it can look nothing like the file. <strong>Real model:</strong> the DOM is mutable state that happens to be visible. Which raises the next chapter's question: if the screen is state you can edit directly, and your data is also state, what stops the two from disagreeing? Nothing, automatically. That is chapter 14.</p></div>
+
+  <details class="hole"><summary>RABBIT HOLE: why touching the tree too often makes a phone stutter</summary><p>Reading a size out of the DOM, like <code>offsetHeight</code>, forces the browser to work out the layout right now. Writing marks it dirty. Alternate read, write, read, write in a loop and you force a full recalculation every pass. That is layout thrashing. The fix is boring: all the reads, then all the writes. Chapter 25 measures it.</p></details>
+</main>
+<script src="../js/book.js"></script>
+</body>
+</html>

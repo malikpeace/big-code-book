@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>14. State, render, events. BIG CODE BOOK</title>
+<link rel="stylesheet" href="../css/book.css">
+<meta name="theme-color" content="#0b0b0d">
+</head>
+<body data-chapter="14">
+<main>
+  <div class="kicker">Chapter 14 <span class="tag need">NEED</span> <span class="tag">~60 min</span> <span class="tag">phone, then Mac</span></div>
+  <h1>State, render, events: how data flows through a screen</h1>
+  <p class="lede">One rule holds every frontend together: the data is the truth and the screen is a photograph of it. Break that rule in one place and the app starts lying to your users about their own streak.</p>
+
+  <div class="box recap"><div class="h">LAST TIME</div><p>HTML declares what exists, CSS paints it, and the browser turns the file into a live tree called the DOM. JavaScript changes the screen by changing that tree, with <code>querySelector</code>, <code>textContent</code>, and <code>classList</code>. Events travel up the tree, which is why Memento calls <code>e.stopPropagation()</code> when a tappable thing sits inside another tappable thing.</p></div>
+
+  <h2>Quick check</h2>
+  <details class="check"><summary>You tap a button inside a card and two handlers fire. What happened, and how do you stop it?</summary><div class="a">The event bubbled up from the button to the card. <code>e.stopPropagation()</code> in the button's handler stops the trip.</div></details>
+  <details class="check"><summary><code>const state = { streak: 4 }</code>, then <code>state.streak = 5</code>. Legal?</summary><div class="a">Yes. <code>const</code> locks the name, not the object behind it. Only <code>state = somethingElse</code> is refused, and that distinction is about to matter a lot.</div></details>
+  <details class="check"><summary>Why does a slow AI reply not freeze Memento?</summary><div class="a"><code>await</code> parks that job and hands the single thread back, so taps keep being served. The reply is picked up later from the queue.</div></details>
+
+  <h2>The idea</h2>
+  <p>An app is a loop with three stops, and it only ever runs clockwise.</p>
+  <p><dfn data-term="state">State</dfn> is everything the app currently knows: the streak, the north star, whether today is done. One object, one place. The screen is drawn from it, and drawing it is called a <dfn data-term="render">render</dfn>. The user does something, that changes state, that redraws the screen. Every frontend framework ever written is an argument about the third arrow.</p>
+  <p>The rule underneath it has a name: <dfn data-term="source-of-truth">single source of truth</dfn>. For any fact, exactly one place is allowed to be right about it. Everything else is a copy, a view, a photograph. If the streak lives in the state object, then the number on screen is not the streak. It is a picture of the streak, and pictures do not get edited.</p>
+
+  <div class="box analogy"><div class="h">ANALOGY (TEMPORARY)</div><p>A shop with a stockroom and a window display. The stockroom is state: it is the only honest answer to "how many do we have". The window is the screen. When stock changes, you redo the window from the stockroom. What you must never do is walk outside, put an extra box in the window, and feel good about it. Now the window says twelve and the stockroom says eleven, nobody notices until someone tries to sell the twelfth, and the customer is the one who finds out.</p></div>
+
+  <figure class="fig-box">
+    <svg class="figure" viewBox="0 0 640 300" role="img" aria-label="A loop of three boxes. State at the top left flows right into render, which flows right into screen. From screen an arrow curves down and back to the left into events, which flows back up into state. A note in the middle says the render arrow has two styles: imperative, meaning find the element and set it, and declarative, meaning describe the screen and let a framework redraw.">
+      <rect class="bx acc" x="24" y="30" width="150" height="46" rx="8"/><text class="st b" x="99" y="52" text-anchor="middle">STATE</text><text class="st lo" x="99" y="68" text-anchor="middle">the only truth</text>
+      <rect class="bx cy" x="245" y="30" width="150" height="46" rx="8"/><text class="st b" x="320" y="52" text-anchor="middle">RENDER</text><text class="st lo" x="320" y="68" text-anchor="middle">draw from state</text>
+      <rect class="bx" x="466" y="30" width="150" height="46" rx="8"/><text class="st b" x="541" y="52" text-anchor="middle">SCREEN</text><text class="st lo" x="541" y="68" text-anchor="middle">a photograph</text>
+      <path class="ln acc" d="M174 53 H245"/><circle class="dot" cx="245" cy="53" r="3.5"/>
+      <path class="ln cy" d="M395 53 H466"/><circle class="dot cy" cx="466" cy="53" r="3.5"/>
+      <path class="ln" d="M541 76 V224 H395"/><circle class="dot lo" cx="395" cy="224" r="3.5"/>
+      <rect class="bx" x="245" y="201" width="150" height="46" rx="8"/><text class="st b" x="320" y="223" text-anchor="middle">EVENTS</text><text class="st lo" x="320" y="239" text-anchor="middle">tap, type, hold</text>
+      <path class="ln acc" d="M245 224 H99 V76"/><circle class="dot" cx="99" cy="76" r="3.5"/>
+      <text class="st lo" x="320" y="112" text-anchor="middle">two ways to draw this arrow:</text>
+      <text class="st lo" x="320" y="132" text-anchor="middle">IMPERATIVE, find the element and set it (Memento web)</text>
+      <text class="st lo" x="320" y="152" text-anchor="middle">DECLARATIVE, describe the screen, a framework redraws (React)</text>
+      <text class="st lo" x="320" y="180" text-anchor="middle">the arrow from SCREEN straight back to SCREEN is the bug</text>
+    </svg>
+    <figcaption>Clockwise only. Every arrow that skips state is a future bug with a date on it.</figcaption>
+  </figure>
+
+  <h3>The two ways to do the render arrow</h3>
+  <p><dfn data-term="imperative-rendering">Imperative rendering</dfn> means you do the work: find the element, set the text, toggle the class. You are telling the browser the steps. It is what the whole web ran on for twenty years, it needs no tools, and it is exactly what Memento's web app does today.</p>
+  <p><dfn data-term="declarative-rendering">Declarative rendering</dfn> means you write one function saying what the screen looks like for a given state, and a framework works out which bits of the real screen must change. You describe the destination, not the route. React does this, which is why the native rebuild has no <code>querySelector</code> in it anywhere.</p>
+  <table>
+    <tr><th></th><th>Imperative</th><th>Declarative</th></tr>
+    <tr><td>You write</td><td>The steps to change the screen</td><td>What the screen looks like, given state</td></tr>
+    <tr><td>Who updates the DOM</td><td>You, by hand</td><td>The framework, by comparing</td></tr>
+    <tr><td>Needs</td><td>Nothing. A browser.</td><td>A framework and a build step</td></tr>
+    <tr><td>Fails by</td><td>Forgetting a spot, so the screen drifts</td><td>Redrawing too much, so it stutters</td></tr>
+    <tr><td>Scales to</td><td>A few screens, or discipline</td><td>Many screens, at a setup cost</td></tr>
+    <tr><td>In Memento</td><td>The web app, 67,000 lines of it</td><td>The native rebuild</td></tr>
+  </table>
+  <p>Neither is the good one. Imperative is a hammer and declarative is a nail gun, and the nail gun needs a compressor.</p>
+
+  <h3>Drift, the bug this chapter exists to prevent</h3>
+  <p><dfn data-term="drift">Drift</dfn> is when the screen and the state stop agreeing, and it happens one way: somebody changed the screen without changing state. The number goes up, the user is happy, the state object still says four, and nothing looks wrong until the app redraws from state, which it will, on the next page load. Then the streak walks backwards and the user tells you your app ate their progress.</p>
+  <p>Drift never announces itself. No error, no red line, no crash. The only defence is the rule: every handler changes state, then calls render. Never the screen directly.</p>
+
+  <h3>Debounce: wait a beat, then save once</h3>
+  <p>State that only lives in memory dies when the tab closes, so it gets written to storage. But typing fires an event per keystroke, and forty writes to do the work of one is waste. <dfn data-term="debounce">Debouncing</dfn> is the fix: start a short timer instead of saving, and if another change arrives first, cancel and restart it. The save happens once, a beat after the person stops. Memento waits 150 milliseconds. So does Memento Jr, because it was copied from Memento.</p>
+
+  <h2>See it</h2>
+  <p>Three versions of the same tiny app. The first obeys the rule.</p>
+
+  <div class="sb" data-dom>
+&lt;h1 id="streak"&gt;&lt;/h1&gt;
+&lt;button id="go"&gt;Complete today&lt;/button&gt;
+&lt;script&gt;
+  var state = { streak: 0, done: false };            // the only truth
+
+  function render() {                                 // screen drawn FROM state
+    document.querySelector("#streak").textContent = state.streak + " day streak";
+    document.querySelector("#go").textContent = state.done ? "Done" : "Complete today";
+  }
+
+  document.querySelector("#go").addEventListener("click", function () {
+    state.streak = state.streak + 1;                  // 1. change state
+    state.done = true;
+    console.log("state:", JSON.stringify(state));
+    render();                                         // 2. redraw from it
+  });
+
+  render();                                           // first paint
+&lt;/script&gt;
+</div>
+
+  <p>Read the click handler out loud: change state, then render. Two lines, in that order, forever. Now the same button written the way it goes wrong.</p>
+
+  <div class="sb" data-dom>
+&lt;h1 id="streak"&gt;0 day streak&lt;/h1&gt;
+&lt;button id="go"&gt;Complete today&lt;/button&gt;
+&lt;button id="reload"&gt;Pretend to reload the page&lt;/button&gt;
+&lt;script&gt;
+  var state = { streak: 0 };
+  var out = document.querySelector("#streak");
+
+  document.querySelector("#go").addEventListener("click", function () {
+    // THE BUG: the screen is edited, state is never told.
+    var shown = parseInt(out.textContent, 10) + 1;
+    out.textContent = shown + " day streak";
+    console.log("screen says " + shown + ", state.streak is still " + state.streak);
+  });
+
+  document.querySelector("#reload").addEventListener("click", function () {
+    out.textContent = state.streak + " day streak";   // any redraw uses state
+    console.log("redrew from state. every tap you made is gone.");
+  });
+&lt;/script&gt;
+</div>
+
+  <p>Tap the first button five times. It works. It looks perfect. Now tap the second one, which does nothing more than what a real page load does, and watch five days of someone's life disappear. That is drift, and that is why it is worth a whole chapter.</p>
+  <p>The third version never touches an element by hand. It rebuilds the whole screen from state every time, which is the idea a framework is built on.</p>
+
+  <div class="sb" data-dom>
+&lt;div id="root"&gt;&lt;/div&gt;
+&lt;script&gt;
+  var state = { northStar: "ship the native app", streak: 3, done: false };
+  var root = document.querySelector("#root");
+
+  // A pure function: same state in, same HTML out. No side effects.
+  function view(s) {
+    return "&lt;h3&gt;" + s.northStar + "&lt;/h3&gt;" +
+           "&lt;p&gt;" + s.streak + " day streak&lt;/p&gt;" +
+           "&lt;button id='go'&gt;" + (s.done ? "Done" : "Complete today") + "&lt;/button&gt;";
+  }
+
+  function render() {
+    root.innerHTML = view(state);                     // throw it all away, rebuild
+    document.querySelector("#go").addEventListener("click", function () {
+      state = { ...state, streak: state.streak + 1, done: true };  // a NEW state object
+      console.log("new state:", JSON.stringify(state));
+      render();
+    });
+  }
+
+  render();
+&lt;/script&gt;
+</div>
+
+  <p>Two things to notice. <code>view</code> is pure, so you could test it with no browser: hand it a state, check the string. And the handler builds a new object rather than editing the old one, which is how a framework tells what changed by comparing before and after. Real React compares descriptions of the screen, it does not glue HTML strings. Gluing user text into <code>innerHTML</code> like this is also an injection hole, which chapter 25 will make you care about.</p>
+
+  <h2>Now in Memento</h2>
+  <div class="lanes">
+    <div class="lane"><div class="h">ANY APP</div>
+      <p>One object holds everything. One function saves it, debounced. Screen-updating functions read that object and push its values into elements. Nothing else is allowed to be right about the data.</p>
+      <p>Saving is where truth leaves memory and becomes a key in storage, so it is the line that decides what survives a reload.</p>
+    </div>
+    <div class="lane mem"><div class="h">MEMENTO</div>
+      <p>The whole app's truth is one name, declared empty and filled at boot.</p>
+      <pre><code>let state = {};
+let saveTimer = null;</code></pre>
+      <div class="src">memento-app/js/01-state-foundation.js:248-249 (web pin ca8afc8)</div>
+      <p>And the save, debounced in six lines. This is specimen 4 in the research map and it is the most-called function in the app.</p>
+      <pre><code>function persistState() {
+  if (DEMO_MODE || IS_RESETTING) return; // never write demo data, or re-write after a reset wipe
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() =&gt; { writeStateToStorage(); }, 150);
+  try { Backend.pushState(); } catch (_) {} // debounced cloud-sync when logged in
+  try { if (window.CloudSync) CloudSync.schedulePush(); } catch (_) {} // optional Supabase mirror
+}</code></pre>
+      <div class="src">memento-app/js/01-state-foundation.js:488-494 (web pin ca8afc8)</div>
+    </div>
+  </div>
+
+  <p>Line 490 is the debounce: cancel the pending save, book a new one 150ms out. Line 489 is a guard clause from chapter 10, and it is load-bearing, because writing demo data over a real person's state would be the worst bug in the product.</p>
+  <p>Now the render arrow, imperative style. Memento does not have one render function, it has hundreds of small refreshers, each one responsible for a patch of screen. Here is the Clarity one:</p>
+  <pre><code>function refreshAiChatUI() {
+  if (typeof ClarityExperience !== 'undefined' &amp;&amp; ClarityExperience.isOpen) {
+    ClarityExperience.renderPage(ClarityExperience.currentPage);
+    ClarityExperience.bindWizardInFullscreen();
+    ClarityExperience.updateNav();
+    ClarityExperience.updateProgress();
+  }
+}</code></pre>
+  <div class="src">memento-app/js/03-ai-integration.js:4806-4813 (web pin ca8afc8)</div>
+  <p>Four calls, each redrawing a different region from the same state. This is the honest cost of imperative rendering: a new piece of data means remembering every refresher that shows it. Forget one and you have shipped drift.</p>
+
+  <h3>The declarative half: the native rebuild</h3>
+  <p>The native app keeps Clarity's flow in a <dfn data-term="reducer">reducer</dfn>, a pure function that takes the current state and an event and returns the next state. It never touches a screen. It cannot, there is nothing to touch.</p>
+  <pre><code>export function clarityReduce(s: FlowState, e: FlowEvent): FlowState {
+  const st = s.stage;
+  if (st.kind === 'done' &amp;&amp; e.type !== 'intents-drained') return s;
+
+  switch (e.type) {
+    case 'intents-drained': return s.intents.length ? { ...s, intents: s.intents.slice(e.count) } : s;
+
+    case 'chunks': {
+      if (st.kind !== 'tutorial') return s;
+      return { ...s, chunk: { idx: Math.min(s.chunk.idx, Math.max(0, e.total - 1)), total: Math.max(1, e.total) } };</code></pre>
+  <div class="src">memento-native/src/clarity/clarityFlow.ts:414-423 (native pin 93bfa796)</div>
+  <p>Every branch returns <code>{ ...s, something: new }</code>, a fresh object with one part swapped, or returns <code>s</code> unchanged when the event does not apply. Nothing is edited in place. Because it is pure, you can test the entire Clarity journey with no phone, no screen, and no user, which is chapter 24. Then a <dfn data-term="component">component</dfn> describes what that state should look like:</p>
+  <pre><code>      style={[styles.button, { backgroundColor: theme.solidBg, width }]}
+      testID="hold-to-complete"
+    &gt;
+      &lt;View style={styles.row}&gt;
+        {props.icon}
+        &lt;Text style={[styles.label, labelFont, { color: theme.solidFg }]}&gt;{label}&lt;/Text&gt;
+      &lt;/View&gt;</code></pre>
+  <div class="src">memento-native/src/home/HoldToComplete.tsx:85-91 (native pin 93bfa796)</div>
+  <p>That markup-looking thing inside a TypeScript file is <dfn data-term="jsx">JSX</dfn>. <code>{label}</code> is a hole with a value dropped in, exactly like a template literal. When <code>label</code> changes, React redraws that Text and nothing else. Nobody wrote "find the label and set its text", and nobody can forget to.</p>
+
+  <div class="box memento"><div class="h">THE ALTERNATIVE, AND WHY MEMENTO CHOSE THIS</div><p>Memento's web app is imperative because in 2026 it was one person and an agent shipping a screen a night, and a framework is a build step, a bundler, a dependency tree, and a week of setup before the first pixel. Plain files load instantly and can be edited on the Mac with no tooling, which is the whole reason the app exists at all. The bill arrived later: 67,000 lines, hundreds of hand-wired refreshers, and the recurring class of bug where one surface updates and its twin does not. The native rebuild goes declarative for exactly that reason. The cost is real and is being paid right now in the MIGRATION folder: types, a build, a test suite, and two agents re-deriving screens that already worked.</p></div>
+
+  <h3>This book does it too</h3>
+  <p>Your progress through these chapters is state. It lives in <dfn data-term="localstorage">localStorage</dfn> under one key, written through <code>store()</code> at <code>js/book.js:64-69</code>, which wraps every read and write because storage can be full or blocked and throwing there should never break the page. <code>progress()</code> at <code>js/book.js:78</code> reads it and hands back <code>{ done: {}, skipped: {}, checks: {} }</code> when nothing is saved yet. Tick a chapter done and the sidebar is redrawn from that object, imperatively, the same way Memento does it. Run <code>localStorage.getItem('bcb_progress')</code> in this page's console to see your own truth as a string.</p>
+
+  <h2>Do it</h2>
+  <div class="ex" data-device="mac">
+    <div class="h">Exercise: build drift, then kill it <span class="tag mac">MAC</span></div>
+    <div class="meta">Where: ~/Downloads/CODE-BOOK/sandbox/v1. Expected: you make Memento Jr lie about a streak, watch a reload expose it, then fix it. Reset: the "Reset everything" link in the app, or <code>git checkout sandbox/v1</code>. This cannot touch Memento.</div>
+    <ol>
+      <li>Open <code>sandbox/v1/index.html</code> in Safari or Chrome. Hold the button for three seconds. The streak becomes 1.</li>
+      <li>Look at the truth. Open devtools (Safari: Develop, then Show Web Inspector; Chrome: right click, Inspect), find the Application or Storage tab, Local Storage, key <code>mementojr_v1</code>. Or type <code>localStorage.getItem('mementojr_v1')</code> in the Console. That string is your entire app.</li>
+      <li>Read <code>app.js</code> lines 14 to 21. Every line does the same thing: read a field of state, push it into one element. That is the render arrow, written by hand.</li>
+      <li>Read <code>state.js</code> lines 47 to 62. <code>completeToday()</code> changes state and calls <code>persistState()</code>, and never touches the screen. <code>tickHold()</code> calls it, then calls <code>render()</code>. State first, screen second.</li>
+      <li><strong>Break it.</strong> In <code>app.js</code>, inside <code>tickHold()</code>, replace the line <code>completeToday();</code> with <code>el("streak").textContent = String(state.streak + 1);</code> and save. Reload the page, hold the button three or four times, and watch the number climb.</li>
+      <li>Now reload the page again. The number is back to where it started, because <code>render()</code> drew from state and state never heard a thing. You have just reproduced, on purpose, the bug that makes users think an app stole their progress.</li>
+      <li>Fix it: put <code>completeToday();</code> back. Reload, hold, reload. The number survives.</li>
+      <li>Add one <dfn data-term="assertion">assertion</dfn>. At the top of <code>render()</code> in app.js: <code>console.assert(state.streak &gt;= 0, "streak went negative", state);</code>. An assertion is a sentence that must be true, written into the code, which shouts in the console when it is not. Prove it works: type <code>state.streak = -3; render();</code> in the console.</li>
+      <li>The <dfn data-term="boundary-check">boundary check</dfn>: ask what happens at the edges of a value, not in the middle. What if <code>northStar</code> is 5,000 characters? The input has <code>maxlength="200"</code>, so nobody can type it, but nothing stops it arriving from storage or a sync. Run <code>state.northStar = "x".repeat(5000); render();</code> and look at the layout. Then ask where the real limit belongs. Chapter 25 answers that, and the answer is not "the input field".</li>
+    </ol>
+  </div>
+  <div class="ex">
+    <div class="h">On a phone instead <span class="tag">phone</span></div>
+    <div class="meta">Where: the second and third sandboxes above. Expected: you can say out loud which line is the bug. Reset: the Reset button. This cannot touch Memento.</div>
+    <ol>
+      <li>In the drift sandbox, tap Complete five times, then tap Pretend to reload. Find the single line that caused it and say why in one sentence.</li>
+      <li>Fix that sandbox yourself: make the click handler change <code>state.streak</code> and then call a render, so that the reload button changes nothing.</li>
+      <li>In the third sandbox, add <code>console.assert(state.streak &gt;= 0, "streak went negative");</code> at the top of <code>view</code>, then set the streak to a negative number and run.</li>
+    </ol>
+  </div>
+
+  <div class="box why"><div class="h">ASK THE AGENT WHY (paste this into Codex or Fable)</div><pre><code>In memento-app/js/01-state-foundation.js, read persistState at lines 488-494. Explain what the 150ms timer buys, what would break if it were removed, and what would break if it were 5 seconds. Then find three places in memento-app/js that write to state without calling persistState, and tell me for each one whether that is a bug or deliberate. Do not change anything.</code></pre></div>
+
+  <div class="box words"><div class="h">WORDS YOU NOW OWN</div><dl>
+    <dt>State (upgraded)</dt><dd>The single source of truth the screen is drawn from. Events change it; the screen is never edited on its own.</dd>
+    <dt>Single source of truth</dt><dd>For any fact, exactly one place is allowed to be right. Everything else is a copy.</dd>
+    <dt>Render</dt><dd>The act of making the screen match state. In Memento's web app, a few hundred small functions. In the native app, one description per component.</dd>
+    <dt>Imperative rendering</dt><dd>You find the element and change it. No tools needed, and you can forget a spot.</dd>
+    <dt>Declarative rendering</dt><dd>You describe the screen for a given state and a framework works out the changes. Needs a build; cannot forget a spot.</dd>
+    <dt>Drift</dt><dd>Screen and state disagree because something edited the screen directly. Silent until the next redraw, then it eats the user's data.</dd>
+    <dt>Debounce</dt><dd>Wait a beat, then do it once. Memento's saves wait 150ms so forty keystrokes cost one write.</dd>
+    <dt>Reducer</dt><dd>A pure function taking state plus an event and returning the next state. Testable with no screen and no phone.</dd>
+    <dt>Component / JSX</dt><dd>A reusable piece of screen described as a function of its inputs / the markup-shaped syntax used to write that description.</dd>
+    <dt>localStorage (upgraded)</dt><dd>Key-value storage in the browser, strings only, about 5 MB per site. Can throw when full or in private mode, so every write is wrapped.</dd>
+    <dt>Assertion</dt><dd>A statement in the code that must be true, which complains loudly when it is not. Your cheapest early warning.</dd>
+    <dt>Boundary check</dt><dd>Asking what happens at the edges: empty, zero, negative, enormous. Where most real bugs live.</dd>
+  </dl></div>
+
+  <div class="box expiry"><div class="h">WHERE TODAY'S ANALOGY BREAKS</div><p><strong>Breaks when:</strong> there is more than one stockroom. A real app has state in memory, state in <code>localStorage</code>, state on the phone's disk, and state in a Postgres row, and they can all disagree at once, usually because the user has two devices. The shop picture has no answer for that, because a stockroom cannot be in two cities. <strong>Real model:</strong> a chain of copies with rules about which one wins, which is what sync is and why <code>12-cloud-sync.js</code> exists. Memento's database goes as far as refusing a write that would blank a real person's state, because it does not fully trust the client's copy. That is chapter 17. The second break is smaller: the shop's window is drawn only when stock changes, but a real screen also redraws for reasons that have nothing to do with state, like rotating the phone. State is the source of truth, not the only trigger.</p></div>
+
+  <details class="hole"><summary>RABBIT HOLE: why the native reducer never edits state in place</summary><p><code>{ ...s, chunk: ... }</code> builds a new object rather than changing the old one. That is immutability, and it exists for two reasons. Comparing is cheap: React can check whether the object is a different object, which is one comparison instead of walking every field. And chapter 11's aliasing bug becomes impossible, because nothing holds a reference to something that can change underneath it. The cost is a new object per event, thousands of them, which the engine throws away almost for free. This is the trade every modern frontend makes: spend a little memory to delete a whole category of bug.</p></details>
+</main>
+<script src="../js/book.js"></script>
+</body>
+</html>
