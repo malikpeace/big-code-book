@@ -27,8 +27,8 @@
   <details class="check"><summary>On the journey map, which stops sit on computers Memento pays rent for?</summary><div class="a">The edge function and the Postgres database, both rented from Supabase, plus Anthropic's servers, which are billed per call.</div></details>
 
   <h2>The idea</h2>
-  <p>The window is not the thing. The thing is a program called a <dfn data-term="shell">shell</dfn>, and yours is named zsh. It does four jobs, over and over, forever: read a line, find the program you named, run it with the rest of the line handed over, print what came back. Then it shows the prompt again and waits.</p>
-  <p>So a <dfn data-term="command">command</dfn> is a program plus <dfn data-term="argument">arguments</dfn>. In <code>head -20 js/33-action-shim.js</code>, the program is <code>head</code>, and it gets two arguments. The ones starting with a dash are <dfn data-term="flag">flags</dfn>, the dials on the program. The rest is usually what to work on. That is the entire grammar. There is no second grammar to learn later.</p>
+  <p><em>The window is not the thing.</em> The thing is a program called a <dfn data-term="shell">shell</dfn>, and yours is named <strong>zsh</strong>. It does four jobs, over and over, forever: read a line, find the program you named, run it with the rest of the line handed over, print what came back. Then it shows the prompt again and waits.</p>
+  <p>So a <dfn data-term="command">command</dfn> is a program plus <dfn data-term="argument">arguments</dfn>. In <code>head -20 js/33-action-shim.js</code>, the program is <code>head</code>, and it gets two arguments. The ones starting with a dash are <dfn data-term="flag">flags</dfn>, the dials on the program. The rest is usually what to work on. That is the entire <strong>grammar</strong>. <em>There is no second grammar to learn later.</em></p>
   <p>How does the shell find <code>head</code>? There is a list of folders it searches, in order, and that list lives in a setting called PATH. <code>which head</code> tells you which one it found:</p>
   <pre><code>$ which node
 /opt/homebrew/bin/node</code></pre>
@@ -36,7 +36,7 @@
   <p>Now the answers. A program talks back on two separate channels. <dfn data-term="stdout">Standard output</dfn>, stdout, is the answer you asked for. <dfn data-term="stderr">Standard error</dfn>, stderr, is the complaints. They both land in the same window, which is why nobody notices there are two, until you send one somewhere and the other keeps showing up.</p>
   <p>And when it finishes, the program hands back a number nobody shows you: the <dfn data-term="exit-code">exit code</dfn>. Zero means it worked. Anything else means it did not, and the number says roughly what went wrong. Ask for the last one with <code>echo $?</code>. This tiny number is what makes automation possible: it is how your deploy robot knows the tests failed, and how <code>&amp;&amp;</code> decides whether to run the next command.</p>
 
-  <div class="box analogy"><div class="h">ANALOGY (TEMPORARY)</div><p>A very literal clerk at a counter. You slide a slip across: the name of the form you want, then the details. The clerk does not interpret, does not check whether you meant something else, and does not care that you are in a hurry. He returns the document on one tray and any complaint on a second tray, and stamps the slip with a number: 0 if he did it, something else if he did not. Nothing happens until you slide the slip. Nothing extra ever happens.</p></div>
+  <div class="box analogy"><div class="h">ANALOGY (TEMPORARY)</div><p>A very literal clerk at a counter. You slide a slip across: the name of the form you want, then the details. The clerk does not interpret, does not check whether you meant something else, and does not care that you are in a hurry. He returns the document on one tray and any complaint on a second tray, and stamps the slip with a number: 0 if he did it, something else if he did not. Nothing happens until you slide the slip. <em>Nothing extra ever happens.</em></p></div>
 
   <figure class="fig-box">
     <svg class="figure" viewBox="0 0 640 300" role="img" aria-label="The anatomy of one command. The typed line splits into four parts: the program grep, the flag -rn, the argument persistState, and the argument memento-app slash js. Below, the program runs and produces three things: standard output with the answer, standard error with any complaints, and an exit code where zero means it worked.">
@@ -88,11 +88,11 @@ ls: /nope: No such file or directory
 $ echo $?
 1</code></pre>
   <p>The message came out on stderr. The 1 is the exit code. Run <code>ls</code> on a folder that exists, ask again, and you get 0. You have now seen the number your deploy robot reads on every push.</p>
-  <p>Second, a runaway. Type <code>while true; do echo hi; done</code> and watch the window fill up forever, because you told it to and the machine has no opinion about that. Hold control and press C. It stops. <strong>Ctrl-C is the stop button</strong>, and it is the single most useful key in the Terminal: it interrupts whatever is running and hands you back the prompt.</p>
-  <p>Ctrl-C only reaches the program in front of you. Something running in the background, like a forgotten local server holding onto a port, needs finding first. <code>ps</code> lists running <dfn data-term="process">processes</dfn> with their id numbers, and <code>kill 4821</code> asks that one to stop. Memento's own launcher does this every time you start it, which you are about to read.</p>
+  <p>Second, a runaway. Type <code>while true; do echo hi; done</code> and watch the window fill up forever, <em>because you told it to and the machine has no opinion about that.</em> Hold control and press C. It stops. <strong>Ctrl-C is the stop button</strong>, and it is the single most useful key in the Terminal: it interrupts whatever is running and hands you back the prompt.</p>
+  <p>Ctrl-C only reaches the program in front of you. Something running in the background, like a forgotten local server holding onto a <strong>port</strong>, needs finding first. <code>ps</code> lists running <dfn data-term="process">processes</dfn> with their id numbers, and <code>kill 4821</code> asks that one to stop. Memento's own launcher does this every time you start it, which you are about to read.</p>
 
   <h2>See it</h2>
-  <p>A shell in fifteen lines. It splits a line into a program and arguments, looks the program up, and returns two channels plus an exit code. The real one does more, but not differently.</p>
+  <p>A shell in fifteen lines. It splits a line into a program and arguments, looks the program up, and returns two channels plus an exit code. <em>The real one does more, but not differently.</em></p>
   <div class="sb">
 const PROGRAMS = {
   echo: (args) => ({ out: args.join(" "), err: "", code: 0 }),
@@ -123,7 +123,7 @@ for (const line of ["echo hello there", "ls memento-app", "ls /nope", "lz"]) {
     <div class="lane"><div class="h">ANY APP</div>
       <p>Nobody remembers long commands. Two ways to stop trying.</p>
       <p><strong>Name them in the project.</strong> A <code>package.json</code> has a scripts section: short names for long commands, kept next to the code, so every human and every robot runs the same thing.</p>
-      <p><strong>Save them in a file.</strong> A file of shell commands is a script. Make it runnable and it is a program like any other, indistinguishable from the built-in ones as far as the shell is concerned.</p>
+      <p><strong>Save them in a file.</strong> A file of shell commands is a <strong>script</strong>. Make it runnable and it is a program like any other, indistinguishable from the built-in ones as far as the shell is concerned.</p>
     </div>
     <div class="lane mem"><div class="h">MEMENTO</div>
       <p>The native app names its commands:</p>
@@ -144,7 +144,7 @@ if [ -n "$OLD_PID" ]; then
   sleep 1
 fi</code></pre>
       <div class="src">Open Memento (new modular).command:10-14 (repo root, native pin 93bfa796)</div>
-      <p>Everything in there is this chapter. <code>lsof -ti tcp:8090</code> asks which process is holding that port, and its stdout is captured into a variable. <code>2>/dev/null</code> throws the complaints away. <code>kill</code> stops the old server so the new one can have the port. That file is not magic, it is five commands somebody got tired of typing.</p>
+      <p>Everything in there is this chapter. <code>lsof -ti tcp:8090</code> asks which process is holding that port, and its stdout is captured into a variable. <code>2>/dev/null</code> throws the complaints away. <code>kill</code> stops the old server so the new one can have the port. That file is not magic, <em>it is five commands somebody got tired of typing.</em></p>
     </div>
   </div>
   <div class="box memento"><div class="h">THE ALTERNATIVE, AND WHY MEMENTO CHOSE THIS</div><p>The alternative to a launcher script is opening <code>index.html</code> straight from the disk with a double click. It works, until it does not: the browser then keeps serving you yesterday's JavaScript out of its cache, and you spend an hour debugging a bug you already fixed. The launcher exists because that happened, so it starts a tiny local server that sends no-cache headers and kills any stale one first. The cost is a Terminal window you have to leave open. The alternative to named npm scripts is everyone typing <code>tsc --noEmit</code> from memory, where everyone includes two AI agents and a CI robot, and one of them types it slightly differently.</p></div>
@@ -158,7 +158,7 @@ fi</code></pre>
       <li><code>which node</code> and <code>node --version</code>. If the first prints a path, the second will work. If it prints nothing, Node is not on your PATH.</li>
       <li><code>echo $HOME</code>, then <code>echo $SHELL</code>. Two settings the shell hands to every program it starts.</li>
       <li>Break it: <code>ls /nope</code>, then <code>echo $?</code>. You get 1. Now <code>ls</code>, then <code>echo $?</code> again. You get 0.</li>
-      <li><code>grep -n "streak" app.js</code>. Every line naming the streak, with line numbers. Now <code>head -20 app.js</code> and compare: grep finds, head tastes.</li>
+      <li><code>grep -n "streak" app.js</code>. Every line naming the streak, with line numbers. Now <code>head -20 app.js</code> and compare: <em>grep finds, head tastes.</em></li>
       <li><code>ls &gt; files.txt</code> then <code>cat files.txt</code>. The answer went into a file instead of onto the screen. Then <code>rm files.txt</code>, which is safe here and only here, because you made that file thirty seconds ago.</li>
       <li>Pipe it: <code>ls ~/Downloads/MEMENTO/memento-app/js | wc -l</code>. You should get 38, which is chapter 5's number, counted by a machine.</li>
       <li>Read Memento without touching it: <code>grep -rn "persistState" ~/Downloads/MEMENTO/memento-app/js | head</code>. Every call site, file and line, ten at a time. Look at the shape of it: one name, twenty-five places, and the first five hits all sitting in one file.</li>

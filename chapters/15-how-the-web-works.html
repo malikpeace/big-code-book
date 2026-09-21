@@ -27,7 +27,7 @@
   <details class="check"><summary>A command prints on two channels and ends with a number. Name all three.</summary><div class="a">stdout for the output, stderr for complaints, and an exit code: 0 worked, anything else did not. You are about to meet the network's version of that exit code. It has three digits.</div></details>
 
   <h2>The idea</h2>
-  <p>Two computers. One asks, one answers. The asker is the <dfn data-term="client">client</dfn>: your phone, this page, the Memento app. The answerer is the <dfn data-term="server">server</dfn>: a program on a computer elsewhere, sitting awake, waiting. The asking is a <dfn data-term="request">request</dfn>, the answer a <dfn data-term="response">response</dfn>. That is the entire shape of the internet.</p>
+  <p>Two computers. One asks, one answers. The asker is the <dfn data-term="client">client</dfn>: your phone, this page, the Memento app. The answerer is the <dfn data-term="server">server</dfn>: a program on a computer elsewhere, sitting awake, waiting. The asking is a <dfn data-term="request">request</dfn>, the answer a <dfn data-term="response">response</dfn>. <em>That is the entire shape of the internet.</em></p>
   <p>The rules for how those two parcels are written down are called <dfn data-term="http">HTTP</dfn>. Not a program, not a company. An agreement about where the address goes, where your instructions go, and where the contents go, so a server written by one stranger and a phone made by another understand each other with no prior conversation.</p>
 
   <div class="box analogy"><div class="h">ANALOGY (TEMPORARY)</div><p>Posting a parcel to a company's mailroom. On the front, the <strong>address</strong>: which building, which department. On the top line, <strong>what you want done</strong>: "reading copy, return it" or "please file this". Down the side, <strong>labels</strong>: what is inside, who authorised it. Then the <strong>contents</strong>. Later a parcel comes back with a <strong>three digit reference number</strong> on it that tells you, before you open anything, whether it worked, whether you addressed it wrong, or whether their building is on fire.</p></div>
@@ -113,8 +113,8 @@
   <p>A 4 means the server refused: something about the request, your identity, its own policy, a conflict with what it already has, or how fast you are asking. Often that means fixing the payload. Sometimes it does not: a 409 usually wants a reload and a retry with fresh data, and a 429 wants the same request again after a wait. A 5 or a 429 means the request was reasonable and retrying later might work. Code that treats every failure the same either hammers a server that just told it to stop, or gives up on something that would have worked in two seconds.</p>
 
   <h3>API, latency, and the two kinds of answer</h3>
-  <p>Put the five parts together and you have an <dfn data-term="api">API</dfn>: a contract. These addresses exist, they take these verbs, they want this JSON with these headers, they hand back that JSON, with these status codes. "The Anthropic API" means a document describing exactly those things.</p>
-  <p><dfn data-term="latency">Latency</dfn> is the cost. Reading a value out of memory takes nanoseconds. A round trip to a server abroad takes a hundred milliseconds before anyone does any work, and a Clarity question takes a second or two on top because a model has to think. That gap is why chapter 12 exists. Nobody invented promises for fun.</p>
+  <p>Put the five parts together and you have an <dfn data-term="api">API</dfn>: a <strong>contract</strong>. These addresses exist, they take these verbs, they want this JSON with these headers, they hand back that JSON, with these status codes. "The Anthropic API" means a document describing exactly those things.</p>
+  <p><dfn data-term="latency">Latency</dfn> is the cost. Reading a value out of memory takes nanoseconds. A <strong>round trip</strong> to a server abroad takes a hundred milliseconds before anyone does any work, and a Clarity question takes a second or two on top because a model has to think. That gap is why chapter 12 exists. <em>Nobody invented promises for fun.</em></p>
   <p>A server answers in one of two ways. A <dfn data-term="static-file">static file</dfn> is read off disk and handed over unchanged, the same bytes for everybody: Memento's <code>index.html</code>, its CSS, its JavaScript. A <dfn data-term="dynamic-response">dynamic answer</dfn> is computed per request by running code, and differs per caller: the AI proxy's reply. Memento Jr does both, and the next chapter shows the one line where it forks.</p>
 
   <h2>See it</h2>
@@ -169,7 +169,7 @@ function meaning(status) {
 [200, 400, 401, 403, 404, 429, 503, 302].forEach(function (s) { console.log(s, meaning(s)); });
 </div>
 
-  <p>Box 3's last line is the honest one. <code>302</code> is a redirect, a perfectly normal code, and this function has no idea what to do with it. Every status handler has a hole like that. So the question to ask of code that talks to a server is which errors it handles, and what it does with the rest.</p>
+  <p>Box 3's last line is the honest one. <code>302</code> is a redirect, a perfectly normal code, and this function has no idea what to do with it. <em>Every status handler has a hole like that.</em> So the question to ask of code that talks to a server is which errors it handles, and what it does with the rest.</p>
 
   <h2>Now in Memento</h2>
   <div class="lanes">
@@ -269,13 +269,13 @@ Content-Type: application/json
 {
   "error": "bad json"
 }</code></pre>
-        Both are your fault, and they are different faults. 404: no such address. 400: the address is real, the parcel was rubbish.</li>
+        Both are your fault, and they are different faults. 404: no such address. 400: <em>the address is real, the parcel was rubbish</em>.</li>
       <li>Look at the first Terminal window. The server has been printing one line per request the whole time, including the ones that failed:
         <pre><code>10:38:42 PM GET /api/sync
 10:38:42 PM POST /api/ai
 10:38:43 PM GET /api/nope
 10:38:43 PM POST /api/ai</code></pre>
-        That is a log. Chapter 23 reads a real one. Notice the server treated the 404 and the 400 as ordinary events and kept running.</li>
+        That is a <strong>log</strong>. Chapter 23 reads a real one. Notice the server treated the 404 and the 400 as ordinary events and kept running.</li>
       <li><strong>The boundary check.</strong> <code>POST</code> a body of your choosing to <code>/api/sync</code>, <code>GET</code> it back, then run <code>ls</code>. Say where your data went and what that file is pretending to be.</li>
     </ol>
   </div>
@@ -317,9 +317,9 @@ console.log(jrServer("POST", "/api/ai", "not json"));
     <dt>Static file vs dynamic answer</dt><dd>Bytes read off disk unchanged for everybody, versus a reply computed by running code for this one caller.</dd>
   </dl></div>
 
-  <div class="box expiry"><div class="h">WHERE TODAY'S ANALOGY BREAKS</div><p><strong>Breaks when:</strong> you picture one parcel, posted, arriving whole. A response can arrive in pieces over several seconds while the connection stays open, which is how Memento's native app streams an AI answer word by word. A parcel that comes in instalments is not a parcel. And there is no mailroom clerk remembering you between visits: every request arrives with no memory of the last one, which is why a token is re-sent on every single call. <strong>Real model:</strong> a connection opens, bytes go out in an agreed order, bytes come back, the connection closes or is reused. HTTP is stateless by design, and every "logged in" feeling you have had on the web is a token re-presented, silently, dozens of times a minute. Chapter 18 makes that concrete.</p></div>
+  <div class="box expiry"><div class="h">WHERE TODAY'S ANALOGY BREAKS</div><p><strong>Breaks when:</strong> you picture one parcel, posted, arriving whole. A response can arrive in pieces over several seconds while the connection stays open, which is how Memento's native app streams an AI answer word by word. <em>A parcel that comes in instalments is not a parcel.</em> And there is no mailroom clerk remembering you between visits: every request arrives with no memory of the last one, which is why a token is re-sent on every single call. <strong>Real model:</strong> a connection opens, bytes go out in an agreed order, bytes come back, the connection closes or is reused. HTTP is <strong>stateless</strong> by design, and every "logged in" feeling you have had on the web is a token re-presented, silently, dozens of times a minute. Chapter 18 makes that concrete.</p></div>
 
-  <details class="hole"><summary>RABBIT HOLE: what the s in https actually buys you</summary><p>Two things. The contents are encrypted in transit, so the coffee shop Wi-Fi sees that you talked to <code>supabase.co</code> and how much, but not what. And the server proves it really is that host with a certificate your device already trusts, which stops a hostile network handing you a fake. What it does not buy is safety once the parcel arrives. A perfectly encrypted request to a server with no rate limit is a perfectly encrypted disaster.</p></details>
+  <details class="hole"><summary>RABBIT HOLE: what the s in https actually buys you</summary><p>Two things. The contents are encrypted in transit, so the coffee shop Wi-Fi sees that you talked to <code>supabase.co</code> and how much, but not what. And the server proves it really is that host with a certificate your device already trusts, which stops a hostile network handing you a fake. What it does not buy is safety once the parcel arrives. <em>A perfectly encrypted request to a server with no rate limit is a perfectly encrypted disaster.</em></p></details>
 </main>
 <script src="../js/book.js"></script>
 </body>

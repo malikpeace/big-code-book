@@ -17,7 +17,7 @@
 <main>
   <div class="kicker">Chapter 3 <span class="tag eng">ENGINEER</span> <span class="tag">~50 min</span> <span class="tag">phone or Mac</span></div>
   <h1>Seventy years of coding in one hour</h1>
-  <p class="lede">Nothing under Memento was invented for Memento. Every layer it stands on is between six and seventy years old, and each one was built by somebody solving their own problem. The only genuinely new thing in your company is who does the typing.</p>
+  <p class="lede">Nothing under Memento was invented for Memento. Every layer it stands on is between six and seventy years old, and each one was built by somebody solving their own problem. <em>The only genuinely new thing in your company is who does the typing.</em></p>
 
   <div class="box recap"><div class="h">LAST TIME</div><p>One tap in Memento is a relay: phone, JavaScript, state, network, a rented server, the AI company, and back, then saved twice. The top of that map runs on the user's phone and the bottom runs on computers Memento pays rent for. The proxy exists so the secret key never rides along in the app.</p></div>
 
@@ -31,7 +31,7 @@
   <p>The first move was the biggest. In the 1940s and 1950s, a program was a physical thing: wires you moved, or cards with holes punched in them. Every instruction was a number, specific to one machine, and if you wanted the program on a different machine you wrote it again from scratch. This is <dfn data-term="machine-code">machine code</dfn>, and it is still what the CPU actually eats. Nobody writes it any more.</p>
   <p>Then somebody wrote a program that read human-ish text and produced those numbers. That program is a <dfn data-term="compiler">compiler</dfn>. Fortran arrived in 1957 and let scientists write formulas. C arrived in 1972 at Bell Labs and became the language operating systems are written in, which it still is, fifty-four years later. The compiler was written by hand in machine code once, and then never again. That is the shape of every layer that follows.</p>
 
-  <div class="box analogy"><div class="h">ANALOGY (TEMPORARY)</div><p>A building. You work on the ninth floor. Somebody poured the foundation in 1957, somebody framed the third floor in 1995, somebody put the lift in around 2010, and you have met none of them. You do not need to know how the plumbing works to use the tap. But the floors are real, they are load-bearing, and when the basement floods your ninth-floor carpet gets wet. That flood is what a bug at a lower layer feels like from up here.</p></div>
+  <div class="box analogy"><div class="h">ANALOGY (TEMPORARY)</div><p>A building. You work on the ninth floor. Somebody poured the foundation in 1957, somebody framed the third floor in 1995, somebody put the lift in around 2010, and you have met none of them. You do not need to know how the plumbing works to use the tap. But the floors are real, they are load-bearing, and <em>when the basement floods your ninth-floor carpet gets wet.</em> That flood is what a bug at a lower layer feels like from up here.</p></div>
 
   <figure class="fig-box">
     <svg class="figure" viewBox="0 0 640 300" role="img" aria-label="A timeline from 1957 to 2020. Ten markers: Fortran 1957 and C 1972 in grey, then JavaScript 1995, Git 2005, cloud 2006, GitHub and the App Store 2008, npm 2010, TypeScript 2012, React and React Native 2013 and 2015, and Supabase 2020, all marked in green as layers Memento stands on.">
@@ -100,11 +100,11 @@
   </figure>
 
   <h3>The rest of the story, fast</h3>
-  <p>In 1995 Netscape needed pages that could do something when you clicked. A man wrote <dfn data-term="javascript">JavaScript</dfn> in about ten days. It was a rush job for a browser war and it is now the language your entire web app is written in, thirty-one years later. That is not unusual. Most of the load-bearing stuff in software was a rush job that nobody got around to replacing.</p>
+  <p>In 1995 Netscape needed pages that could do something when you clicked. A man wrote <dfn data-term="javascript">JavaScript</dfn> in about ten days. It was a <strong>rush job</strong> for a browser war and it is now the language your entire web app is written in, thirty-one years later. That is not unusual. Most of the <strong>load-bearing</strong> stuff in software was a rush job that nobody got around to replacing.</p>
   <p>Next came the idea that code should be shared instead of sold: <dfn data-term="open-source">open source</dfn>. Linux, Apache, and eventually everything. It means nobody starts from zero. In 2005 Linus Torvalds wrote <dfn data-term="git">Git</dfn> in a couple of weeks because the Linux project lost access to its old tool. Git records every change to a folder of code so nothing is ever lost and two people can work on the same files. In 2008 GitHub put Git online and turned "pull request" into a verb. Your two agents commit through Git and push to GitHub every single day. Chapters 7 and 8 take that apart properly.</p>
   <p>In 2006 Amazon started renting computers by the hour. That is the <dfn data-term="cloud">cloud</dfn>, and it is the reason a solo founder can host anything at all. Before it, you bought a machine, put it in a room, and prayed. Two years later Apple opened the App Store and "an app" became the default shape of a software product, which is the shape you are rebuilding Memento into.</p>
   <p>In 2009 Node.js let JavaScript run outside a browser, so the same language could write servers. In January 2010 <dfn data-term="package-manager">npm</dfn> shipped: a package manager, a way to download other people's JavaScript with one command. That one command is why a small project today pulls in hundreds of strangers' code. Chapter 19 covers what you are agreeing to when you install something.</p>
-  <p>In 2012 Microsoft released TypeScript: JavaScript with a proofreader that checks your work before anything runs. In 2013 Facebook open-sourced React, a <dfn data-term="framework">framework</dfn> for describing a screen as a function of your data instead of poking at the page by hand. In 2015 React Native did the same trick for phones, drawing real iOS and Android views from JavaScript. Expo grew on top as the standard toolkit. That combination is exactly what <code>memento-native/</code> is.</p>
+  <p>In 2012 Microsoft released TypeScript: JavaScript with a <strong>proofreader</strong> that checks your work before anything runs. In 2013 Facebook open-sourced React, a <dfn data-term="framework">framework</dfn> for describing a screen as a function of your data instead of poking at the page by hand. In 2015 React Native did the same trick for phones, drawing real iOS and Android views from JavaScript. Expo grew on top as the standard toolkit. That combination is exactly what <code>memento-native/</code> is.</p>
   <p>Last floor. Firebase, from 2011, sold founders on not running a database server themselves. <dfn data-term="supabase">Supabase</dfn>, founded in January 2020, did the open-source version on top of Postgres, the database the serious people already trusted. It is now what your accounts, sync, and billing sit on.</p>
 
   <h3>Language cameos</h3>
@@ -122,7 +122,7 @@
   </table>
 
   <h2>See it</h2>
-  <p>The abstraction ladder, in one box. Three versions of the same job: add up a week of daily minutes. Level 0 is the machine's view, numbered slots and one finger. Level 1 wraps it in a name. Level 2 uses a wrapper somebody else already wrote. All three print the same number. Each one is shorter, and each one hides more from you.</p>
+  <p>The <strong>abstraction ladder</strong>, in one box. Three versions of the same job: add up a week of daily minutes. Level 0 is the machine's view, numbered slots and one finger. Level 1 wraps it in a name. Level 2 uses a wrapper somebody else already wrote. All three print the same number. Each one is shorter, and each one hides more from you.</p>
   <div class="sb">
 // Level 0: the machine's view. Slots, an index, a running total.
 const slots = [20, 35, 0, 45, 15, 60, 10];
@@ -145,7 +145,7 @@ console.log("level 1:", sumOf(slots));
 // Level 2: somebody already wrote the loop. You describe the job.
 console.log("level 2:", slots.reduce((a, b) => a + b, 0));
 </div>
-  <p>Level 2 is where your agents write. Level 0 is what still runs. Nothing changed in the arithmetic, only in how much of it a human holds in their head.</p>
+  <p>Level 2 is where your agents write. Level 0 is what still runs. <em>Nothing changed in the arithmetic, only in how much of it a human holds in their head.</em></p>
 
   <h2>Now in Memento</h2>
   <div class="lanes">
@@ -161,7 +161,7 @@ console.log("level 2:", slots.reduce((a, b) => a + b, 0));
 &lt;script src="js/06-consistency-mori.js?v=v1358"&gt;&lt;/script&gt;
 &lt;script src="js/07-sheet-templates.js?v=v1358"&gt;&lt;/script&gt;</code></pre>
       <div class="src">memento-app/index.html:823-828 (web pin ca8afc8)</div>
-      <p>That is 1995's idea, unchanged, running your business in 2026. The numbered filenames are the order. The <code>?v=v1358</code> is a human doing by hand what a modern tool does automatically: changing the address so browsers stop serving an old copy. Chapter 20 explains that trick.</p>
+      <p><em>That is 1995's idea, unchanged, running your business in 2026.</em> The numbered filenames are the order. The <code>?v=v1358</code> is a human doing by hand what a modern tool does automatically: changing the address so browsers stop serving an old copy. Chapter 20 explains that trick.</p>
     </div>
   </div>
 
@@ -216,7 +216,7 @@ console.log("level 2:", slots.reduce((a, b) => a + b, 0));
     <dt>SQL</dt><dd>The language for asking a database questions. Memento has 33 SQL migration files.</dd>
   </dl></div>
 
-  <div class="box expiry"><div class="h">WHERE TODAY'S ANALOGY BREAKS</div><p><strong>Breaks when:</strong> you assume the floors are sealed and you never have to look down. Every abstraction leaks. A JavaScript number behaves oddly because of a 1985 floating-point standard. A CSS layout breaks on iOS because of how Safari counts a blurred element's size. An <code>npm install</code> pulls a stranger's code onto your machine. The ninth floor really does get wet. <strong>Real model:</strong> layers are contracts, not walls, and each one is honoured only until the case nobody thought about. The practical version for you: when something makes no sense at your layer, the answer is usually one floor down, and the fastest way to find it is to ask which layer is telling the lie.</p></div>
+  <div class="box expiry"><div class="h">WHERE TODAY'S ANALOGY BREAKS</div><p><strong>Breaks when:</strong> you assume the floors are sealed and you never have to look down. <em>Every abstraction leaks.</em> A JavaScript number behaves oddly because of a 1985 floating-point standard. A CSS layout breaks on iOS because of how Safari counts a blurred element's size. An <code>npm install</code> pulls a stranger's code onto your machine. The ninth floor really does get wet. <strong>Real model:</strong> <em>layers are contracts, not walls</em>, and each one is honoured only until the case nobody thought about. The practical version for you: when something makes no sense at your layer, the answer is usually one floor down, and the fastest way to find it is to ask which layer is telling the lie.</p></div>
 
   <details class="hole"><summary>RABBIT HOLE: what a compiler actually does</summary><p>It reads your text into words, works out the grammar into a tree, checks the tree makes sense, then walks it producing instructions. JavaScript does not do this ahead of time. The engine in your browser reads the text, starts interpreting it immediately, and compiles the hot parts to machine code while the program is already running. That is why a JavaScript file needs no build step to work and why the same file runs on an iPhone and a Mac despite different chips: the engine on each does the translating. TypeScript, meanwhile, compiles to JavaScript and then throws all the type information away, because the browser never sees it. Chapter 21.</p></details>
 </main>

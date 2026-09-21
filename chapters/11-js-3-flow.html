@@ -28,7 +28,7 @@
 
   <h2>The idea</h2>
   <p>Chapter 1 gave you an intern reading a to-do list top to bottom. Everything in this chapter is a way of moving that intern's finger somewhere other than the next line down.</p>
-  <p>There are only three moves, and every program ever written is made of them. Go to the next line. Skip some lines. Go back and do some lines again. That is it. <dfn data-term="control-flow">Control flow</dfn> is the name for which line the finger is on and where it goes next.</p>
+  <p>There are only <strong>three moves</strong>, and every program ever written is made of them. Go to the next line. Skip some lines. Go back and do some lines again. That is it. <dfn data-term="control-flow">Control flow</dfn> is the name for which line the finger is on and where it goes next.</p>
 
   <h3>if / else: skip some lines</h3>
   <p>An <dfn data-term="if-statement">if statement</dfn> asks a yes-or-no question and runs its block only when the answer is yes. An <code>else</code> block is what runs when it is no. The finger takes one path or the other, never both, and then both paths rejoin at the line after.</p>
@@ -42,7 +42,7 @@ console.log("both paths get here");</code></pre>
   <p>That is why chapter 10's guard clause read <code>if (!text || aiChatLoading) return;</code> instead of comparing anything. <code>!text</code> means "text is falsy", which covers empty, never-set, and deliberately-empty in one character.</p>
 
   <h3>Loops: go back and do it again</h3>
-  <p>A <dfn data-term="loop">loop</dfn> repeats a block. The single most important thing to hold in your head is this: <strong>a loop does not run all at once.</strong> It runs its block, finishes it completely, then starts the block again from the top. One pass of the finger, then another. Ten items means ten separate passes, in order, one after the other. Nothing in a loop is simultaneous.</p>
+  <p>A <dfn data-term="loop">loop</dfn> repeats a block. The single most important thing to hold in your head is this: <strong>a loop does not run all at once.</strong> It runs its block, finishes it completely, then starts the block again from the top. One pass of the finger, then another. Ten items means ten separate passes, in order, one after the other. <em>Nothing in a loop is simultaneous.</em></p>
   <p>Three spellings cover everything you will read in Memento.</p>
   <table>
     <tr><th>Spelling</th><th>Reads as</th><th>Use when</th></tr>
@@ -66,9 +66,9 @@ console.log("both paths get here");</code></pre>
 
   <h3>The object trap</h3>
   <p>Now the part that is worth the whole chapter.</p>
-  <p>Chapter 9 said assignment copies the value and the two names are then independent. True for numbers, text and booleans. For objects and arrays it is a trap, because the value a name points at is not the object. It is a <dfn data-term="reference">reference</dfn>: an address of where the object lives in memory. Copying an address gives you a second piece of paper with the same address on it. Both lead to one house.</p>
+  <p>Chapter 9 said assignment copies the value and the two names are then independent. True for numbers, text and booleans. For objects and arrays it is a trap, because the value a name points at is not the object. It is a <dfn data-term="reference">reference</dfn>: an <strong>address</strong> of where the object lives in memory. Copying an address gives you a second piece of paper with the same address on it. <em>Both lead to one house.</em></p>
 
-  <div class="box analogy"><div class="h">ANALOGY (TEMPORARY)</div><p>A shared Google Doc. <code>const backup = state</code> is not printing the document. It is sending someone the link. Now two people have their own link, but there is still one document. When the other person deletes a paragraph, your link shows the deletion, because your link was never a copy of anything. <code>{...state}</code> is File, Make a copy: a real second document that now drifts apart from the first.</p></div>
+  <div class="box analogy"><div class="h">ANALOGY (TEMPORARY)</div><p>A shared Google Doc. <code>const backup = state</code> is not printing the document. It is sending someone the link. Now two people have their own link, but there is still one document. When the other person deletes a paragraph, your link shows the deletion, <em>because your link was never a copy of anything</em>. <code>{...state}</code> is File, Make a copy: a real second document that now drifts apart from the first.</p></div>
 
   <figure class="fig-box">
     <svg class="figure" viewBox="0 0 640 260" role="img" aria-label="On the left, two name tags labelled state and backup. Both have arrows pointing to a single object box on the right, which holds streak colon 4. A note says one object, two names. Changing streak through either name changes the one object, so both names see 5.">
@@ -88,13 +88,13 @@ console.log("both paths get here");</code></pre>
     <figcaption>The aliasing picture. Chapter 9's tags are still tags. What changed is that the suitcase can be opened and repacked while both tags are attached.</figcaption>
   </figure>
 
-  <p>Two names for one object is called <dfn data-term="aliasing">aliasing</dfn>, and it is not a flaw. It is why Memento's 38 files can all say <code>state</code> and all mean the same live object. It becomes a bug only when a human believed they had made a copy and had not.</p>
+  <p>Two names for one object is called <dfn data-term="aliasing">aliasing</dfn>, and it is not a flaw. It is why Memento's 38 files can all say <code>state</code> and all mean the same live object. <em>It becomes a bug only when a human believed they had made a copy and had not.</em></p>
   <p>The cheap fix is the <dfn data-term="spread">spread</dfn>: <code>const copy = {...original}</code> builds a genuinely new object and copies each key across. For arrays it is <code>[...list]</code>. One catch, and it has a name: this is a <dfn data-term="shallow-copy">shallow copy</dfn>. The top level is new, but a nested object inside is still copied as an address, so both still share everything one level down.</p>
   <p>And the third misconception, the one chapter 9 planted deliberately: <code>const</code> does not freeze contents. It only refuses to let the name be re-pointed. <code>const list = []</code> then <code>list.push("a")</code> is legal all day long, because the array is the same array. It just has something in it now.</p>
 
   <h3>try / catch: if this line explodes, do this instead</h3>
   <p>Some lines fail for reasons that have nothing to do with your code being right. The disk is full. A private window blocked storage. The text handed to you is not valid JSON. When a line fails like that it <dfn data-term="throw">throws</dfn>, and by default the throw kills everything up the call stack until the app stops.</p>
-  <p><dfn data-term="try-catch">try / catch</dfn> puts a net under a block. Run these lines. If any throws, abandon the rest of the block, run the catch block instead, then carry on. It is a human deciding in advance what "keep going anyway" looks like at that exact spot.</p>
+  <p><dfn data-term="try-catch">try / catch</dfn> puts a <strong>net</strong> under a block. Run these lines. If any throws, abandon the rest of the block, run the catch block instead, then carry on. It is a human deciding in advance what "keep going anyway" looks like at that exact spot.</p>
 
   <h2>See it</h2>
   <p>Seven boxes. Same rule as always, and it is the only rule in this book that matters: <strong>predict what prints, write it down, then run.</strong></p>
@@ -176,7 +176,7 @@ try {
 console.log("5. the program kept going");
 </div>
 
-  <p>Box 4 is the whole chapter in five lines. Nobody typed <code>state.streak</code> and yet it is 99, because <code>backup</code> was never a backup. Box 5 is the half-fix: <code>copy.streak</code> left the original alone, <code>copy.clarity.theme</code> did not. Box 6 shows a <code>const</code> array is a perfectly editable array. Box 7 shows a program surviving a line that blew up, which is what Memento does every time it saves.</p>
+  <p><em>Box 4 is the whole chapter in five lines.</em> Nobody typed <code>state.streak</code> and yet it is 99, because <code>backup</code> was never a backup. Box 5 is the half-fix: <code>copy.streak</code> left the original alone, <code>copy.clarity.theme</code> did not. Box 6 shows a <code>const</code> array is a perfectly editable array. Box 7 shows a program surviving a line that blew up, which is what Memento does every time it saves.</p>
 
   <h2>Now in Memento</h2>
   <div class="lanes">
@@ -208,7 +208,7 @@ console.log("5. the program kept going");
 
   <div class="lanes">
     <div class="lane"><div class="h">ANY APP: reading a list of events</div>
-      <p>Apps keep a log of what happened: a flat list of small objects with a type and a date. Questions about the user get answered by narrowing that list, then pulling out the one field you care about. Narrow first, then transform. That is filter, then map.</p>
+      <p>Apps keep a log of what happened: a flat list of small objects with a type and a date. Questions about the user get answered by narrowing that list, then pulling out the one field you care about. <em>Narrow first, then transform.</em> That is filter, then map.</p>
     </div>
     <div class="lane mem"><div class="h">MEMENTO: did this user activate?</div>
       <pre><code>      const ev = Array.isArray(a.events) ? a.events : [];
@@ -260,7 +260,7 @@ console.log("theme restored:", saved.clarity.theme);
 console.log("same nested object?", state.clarity === saved.clarity);
 </div>
 
-  <p>Box 2's answer: spread copied the top level, so <code>streak</code> survived. It copied <code>clarity</code> as an address, so both objects still point at one <code>clarity</code>. A copy that goes all the way down is called a deep copy, and the plain way to get one is <code>JSON.parse(JSON.stringify(obj))</code>, which is exactly Memento's save path used as a photocopier.</p>
+  <p>Box 2's answer: spread copied the top level, so <code>streak</code> survived. It copied <code>clarity</code> as an address, so both objects still point at one <code>clarity</code>. A copy that goes all the way down is called a <strong>deep copy</strong>, and the plain way to get one is <code>JSON.parse(JSON.stringify(obj))</code>, which is exactly Memento's save path used as a photocopier.</p>
 
   <div class="box why"><div class="h">ASK THE AGENT WHY (paste this into Codex or Fable)</div><pre><code>In memento-app/js/01-state-foundation.js, read writeStateToStorage() at line 461. Explain why each risky step is wrapped in its own try/catch instead of one try around the whole function, and what would break if they were merged. Then tell me what happens to the user if the empty catch on the backup block swallows a real bug, and how anyone would ever notice. Finally, search memento-app/js for any place where one object is assigned to a second name and then mutated, and tell me whether each one is deliberate aliasing or an accidental shared reference. Do not change anything.</code></pre></div>
 

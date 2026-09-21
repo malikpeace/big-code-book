@@ -231,11 +231,14 @@
           var entry = g[d.getAttribute('data-term')];
           if (!entry) return;
           var lvl = bestDef(entry, chapterNo || 999);
+          var first = entry.levels[0];
           var ahead = entry.levels.filter(function (l) { return l.ch > (chapterNo || 999); }).length;
-          pop = el('div', { class: 'pop', role: 'tooltip' }, [
-            el('div', { class: 't' }, [entry.term]), el('div', {}, [lvl.def]),
-            el('div', { class: 'lvl' }, ['From chapter ' + lvl.ch + (ahead ? '. ' + ahead + ' deeper definition' + (ahead > 1 ? 's' : '') + ' ahead.' : '.')])
-          ]);
+          var kids = [el('div', { class: 't' }, [entry.term])];
+          // Always show the simplest definition first, then the one the reader has earned, if different.
+          kids.push(el('div', { class: 'eli' }, [el('span', { class: 'k' }, ['LIKE YOU ARE 5']), first.def]));
+          if (lvl.ch !== first.ch) kids.push(el('div', { class: 'real' }, [el('span', { class: 'k' }, ['THE REAL THING, CHAPTER ' + lvl.ch]), lvl.def]));
+          kids.push(el('div', { class: 'lvl' }, [ahead ? ahead + ' deeper definition' + (ahead > 1 ? 's' : '') + ' ahead.' : 'This is the deepest definition in the book.']));
+          pop = el('div', { class: 'pop', role: 'tooltip' }, kids);
           document.body.appendChild(pop);
           var r = d.getBoundingClientRect(); var pw = pop.offsetWidth, ph = pop.offsetHeight;
           var left = Math.max(16, Math.min(r.left, window.innerWidth - pw - 16));
@@ -244,6 +247,7 @@
         }
         function hide() { if (pop) { pop.remove(); pop = null; } }
         d.addEventListener('click', function (e) { e.stopPropagation(); if (pop) hide(); else show(); });
+        if (matchMedia('(hover: hover)').matches) { d.addEventListener('mouseenter', show); d.addEventListener('mouseleave', hide); }
         d.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); show(); } if (e.key === 'Escape') hide(); });
       });
       document.addEventListener('click', function () { if (pop) { pop.remove(); pop = null; } });

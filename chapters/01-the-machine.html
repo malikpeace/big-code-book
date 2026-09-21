@@ -28,13 +28,13 @@
   <details class="check"><summary>Do you think the computer understands what you want?</summary><div class="a">It does not. Not even a little. The AI agent you talk to does guess what you want. The machine underneath it does not. Keeping those two apart is the whole chapter.</div></details>
 
   <h2>The idea</h2>
-  <p>A computer is three things and a loop.</p>
+  <p>A computer is three things and a <strong>loop</strong>.</p>
   <p>The <dfn data-term="cpu">CPU</dfn> is a chip that can do a small number of stupid things: add two numbers, copy a number from here to there, compare two numbers, jump to a different instruction. That is roughly it. It does one of those things, then the next, then the next. Billions of times a second.</p>
   <p><dfn data-term="memory">Memory</dfn> is a huge row of numbered slots. Each slot holds a number. The CPU reads from slots and writes to slots. When the power goes, the slots are wiped.</p>
-  <p>The disk is where things survive the power going. A <dfn data-term="file">file</dfn> is a named chunk of bytes on the disk. Your code is a file. A photo is a file. Memento's JavaScript is 38 files.</p>
-  <p>A <dfn data-term="program">program</dfn> is a file full of instructions. When you run it, the instructions get copied into memory, and the CPU starts at the first one and walks forward. A program that is currently running is called a <dfn data-term="process">process</dfn>. Memento open in Safari is one process. The server that answers it, on a computer in a data centre, is a different process.</p>
+  <p>The <strong>disk</strong> is where things survive the power going. A <dfn data-term="file">file</dfn> is a named chunk of bytes on the disk. Your code is a file. A photo is a file. Memento's JavaScript is 38 files.</p>
+  <p>A <dfn data-term="program">program</dfn> is a file full of <strong>instructions</strong>. When you run it, the instructions get copied into memory, and the CPU starts at the first one and walks forward. A program that is currently running is called a <dfn data-term="process">process</dfn>. Memento open in Safari is one process. The server that answers it, on a computer in a data centre, is a different process.</p>
 
-  <div class="box analogy"><div class="h">ANALOGY (TEMPORARY)</div><p>The CPU is a very fast, very obedient intern who cannot think. Memory is the intern's desk: a row of numbered sticky notes. The disk is the filing cabinet across the room. A program is a to-do list you leave on the desk. The intern reads line 1, does exactly that, reads line 2, does exactly that. If line 7 says "put the coffee in the bin", the coffee goes in the bin. The intern never asks "are you sure?" The intern never notices that you obviously meant the cup.</p></div>
+  <div class="box analogy"><div class="h">ANALOGY (TEMPORARY)</div><p>The CPU is a very fast, very obedient intern who cannot think. Memory is the intern's desk: a row of numbered sticky notes. The disk is the filing cabinet across the room. A program is a to-do list you leave on the desk. The intern reads line 1, does exactly that, reads line 2, does exactly that. If line 7 says "put the coffee in the bin", the coffee goes in the bin. The intern never asks "are you sure?" <em>The intern never notices that you obviously meant the cup.</em></p></div>
 
   <figure class="fig-box">
     <svg class="figure" viewBox="0 0 640 250" role="img" aria-label="Three boxes: CPU on the left, Memory in the middle as a row of numbered slots, Disk on the right holding files. Arrows show the CPU reading and writing memory, and programs being loaded from disk into memory.">
@@ -70,21 +70,21 @@
     <figcaption>The whole machine, at the level you need. Everything in this book is built on these three boxes.</figcaption>
   </figure>
 
-  <p>Here is the part that matters. The CPU has no idea what a "goal" or a "streak" or a "user" is. It moves numbers between slots. A streak of 12 days is the number 12 sitting in a slot. "Show the streak on screen" is a few thousand instructions that end with numbers being written into a special region of memory that the screen is wired to read from. Every meaning is in the human's head. The machine has none.</p>
-  <p>This is why software breaks. You wrote "if the streak is bigger than 7, show the badge" but the streak got saved as the text <code>"7"</code> instead of the number <code>7</code>, and comparing text to a number does something you did not expect. You meant one thing. You said another. The machine did the other. Forever. At full speed.</p>
+  <p>Here is the part that matters. The CPU has no idea what a "goal" or a "streak" or a "user" is. It moves numbers between slots. A streak of 12 days is the number 12 sitting in a slot. "Show the streak on screen" is a few thousand instructions that end with numbers being written into a special region of memory that the screen is wired to read from. Every meaning is in the human's head. <em>The machine has none.</em></p>
+  <p>This is why software breaks. You wrote "if the streak is bigger than 7, show the badge" but the streak got saved as the text <code>"7"</code> instead of the number <code>7</code>, and comparing text to a number does something you did not expect. <em>You meant one thing. You said another.</em> The machine did the other. Forever. At full speed.</p>
 
   <h3>Where your AI agents fit</h3>
   <p>This is the single most important idea in the book for you specifically, so read it twice.</p>
-  <p>When you tell Codex or Fable "make the streak badge show after a week", the agent guesses what you mean. It reads your app, infers "a week" is 7 days, picks a file, writes instructions. That guessing is real and it is often good. But the agent is a writer, not the machine. Once the instructions are written, the machine runs them literally. If the agent guessed wrong, or wrote a typo, or misread a number, the machine does not catch it. The machine does not know what you meant either. There is no layer where intention lives. Only text, and a chip that obeys it.</p>
+  <p>When you tell Codex or Fable "make the streak badge show after a week", the agent guesses what you mean. It reads your app, infers "a week" is 7 days, picks a file, writes instructions. That guessing is real and it is often good. But the agent is a writer, not the machine. Once the instructions are written, the machine runs them <strong>literally</strong>. If the agent guessed wrong, or wrote a typo, or misread a number, the machine does not catch it. The machine does not know what you meant either. <em>There is no layer where intention lives.</em> Only text, and a chip that obeys it.</p>
   <p>So there are two very different questions, and you have been mixing them:</p>
   <ul>
     <li><strong>Did the agent understand me?</strong> A question about a guess. You check it by reading the plan and the change.</li>
     <li><strong>Does the code do what it says?</strong> A question about literal instructions. You check it by running it and looking.</li>
   </ul>
-  <p>Vibe coding is skipping both questions. This book is the opposite.</p>
+  <p><strong>Vibe coding</strong> is skipping both questions. This book is the opposite.</p>
 
   <h2>See it</h2>
-  <p>Five tiny programs. For each one, <strong>say out loud what you think it will print</strong> before you press Run. Being wrong is the point. Every wrong guess is a place where your model of the machine differs from the real machine, and that is exactly the gap we are closing.</p>
+  <p>Five tiny programs. For each one, <strong>say out loud what you think it will print</strong> before you press Run. <em>Being wrong is the point.</em> Every wrong guess is a place where your model of the machine differs from the real machine, and that is exactly the gap we are closing.</p>
   <p style="color:var(--text-lo)">You do not need to understand the words yet. <code>console.log</code> means "print this". Chapter 9 teaches the rest.</p>
 
   <div class="sb">
@@ -161,7 +161,7 @@ while (n < 10) {
   renderContent() {}
 };</code></pre>
       <div class="src">memento-app/js/33-action-shim.js:20-37 (web pin ca8afc8)</div>
-      <p>Read the comments above the code in that file some time. Twenty of its 37 lines are a human explaining to future humans why the machine needs this. The machine does not read comments. Only people do.</p>
+      <p>Read the comments above the code in that file some time. Twenty of its 37 lines are a human explaining to future humans why the machine needs this. <em>The machine does not read comments. Only people do.</em></p>
     </div>
   </div>
   <div class="box memento"><div class="h">THE ALTERNATIVE, AND WHY MEMENTO CHOSE THIS</div><p>The clean alternative is to edit all eighty call sites to say the new name, then delete the shim. That is more correct and more work, and with two agents editing in parallel it risks a half-done rename where forty spots say the new name and forty say the old one. The shim is a deliberate, documented piece of debt: cheap now, a small tax on understanding later. Chapter 26 comes back to it as the textbook example of debt done honestly.</p></div>

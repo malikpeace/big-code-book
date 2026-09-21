@@ -180,7 +180,20 @@ input:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
 .sb.dom iframe { display: block; }
 
 /* Glossary chips */
-dfn { font-style: normal; border-bottom: 1px dotted var(--hair-2); cursor: help; }
+dfn { font-style: normal; font-weight: 650; color: var(--text-hi); border-bottom: 1px dotted var(--text-lo); cursor: help; }
+dfn:hover { border-bottom-color: var(--accent); }
+/* Book typography: flush first paragraph, indented run-on paragraphs, tighter gaps. */
+main > p + p, .box p + p, .lane p + p, .ex p + p { text-indent: 1.5em; margin-top: -8px; }
+main > h2 + p, main > h3 + p { text-indent: 0; }
+main > p { margin-bottom: 14px; }
+.box.analogy p { font-style: italic; }
+.box.analogy p em, .box.analogy p strong { font-style: normal; }
+em { font-style: italic; color: var(--text-hi); }
+strong { font-weight: 700; }
+p.lede { text-indent: 0; }
+.pop .eli { color: var(--text-mid); }
+.pop .eli .k, .pop .real .k { display: block; font-size: 11px; font-weight: 700; color: var(--text-lo); margin: 8px 0 2px; letter-spacing: 0.02em; }
+.pop .eli .k { margin-top: 4px; }
 .pop { position: fixed; z-index: 70; max-width: min(340px, calc(100vw - 32px)); background: var(--bg-2); border: 1px solid var(--hair-2); border-radius: var(--r-s); padding: 12px 14px; font-size: 14px; box-shadow: 0 18px 50px rgba(0,0,0,0.45); }
 .pop .t { font-weight: 700; margin-bottom: 4px; }
 .pop .lvl { color: var(--text-lo); font-size: 12px; margin-top: 8px; }

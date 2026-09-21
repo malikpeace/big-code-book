@@ -28,11 +28,11 @@
 
   <h2>The idea</h2>
   <p>Three separate things doing three separate jobs, smeared into one word: "the frontend".</p>
-  <p><dfn data-term="html">HTML</dfn> is the skeleton. What exists, and what is inside what. A heading, a button, a card with three things in it. No colours, no positions, no behaviour.</p>
-  <p><dfn data-term="css">CSS</dfn> is the skin. Colour, size, spacing, corner radius, blur. It never adds or removes anything, it dresses what HTML already declared.</p>
-  <p>The <dfn data-term="dom">DOM</dfn> is what the browser builds when it reads that HTML: a live tree of objects in memory. The file is a one-time instruction for building it. After that the file is history and the tree is the app. JavaScript changes the screen by changing the tree.</p>
+  <p><dfn data-term="html">HTML</dfn> is the <strong>skeleton</strong>. What exists, and what is inside what. A heading, a button, a card with three things in it. No colours, no positions, no behaviour.</p>
+  <p><dfn data-term="css">CSS</dfn> is the <strong>skin</strong>. Colour, size, spacing, corner radius, blur. It never adds or removes anything, it dresses what HTML already declared.</p>
+  <p>The <dfn data-term="dom">DOM</dfn> is what the browser builds when it reads that HTML: a live <strong>tree</strong> of objects in memory. The file is a one-time instruction for building it. <em>After that the file is history and the tree is the app.</em> JavaScript changes the screen by changing the tree.</p>
 
-  <div class="box analogy"><div class="h">ANALOGY (TEMPORARY)</div><p>HTML is the architect's drawing. The DOM is the actual building, standing up, with people inside. CSS is the paint, the lighting, and the furniture. You cannot renovate a house by editing the drawing after it is built, and you cannot change a page by editing the HTML file while it is open. You walk into the building and move a wall. That is what <code>document.querySelector</code> is: walking in and finding the room.</p></div>
+  <div class="box analogy"><div class="h">ANALOGY (TEMPORARY)</div><p>HTML is the architect's drawing. The DOM is the actual building, standing up, with people inside. CSS is the paint, the lighting, and the furniture. You cannot renovate a house by editing the drawing after it is built, and you cannot change a page by editing the HTML file while it is open. <em>You walk into the building and move a wall.</em> That is what <code>document.querySelector</code> is: walking in and finding the room.</p></div>
 
   <figure class="fig-box">
     <svg class="figure" viewBox="0 0 640 300" role="img" aria-label="A tree diagram. At the top, document. Below it, html. Below that, body. Below body, a box labelled div id equals app, which has two children: header, and main id equals widgetGrid. Header has one child, a button with class close. Arrows point downward from parent to child, showing that everything is nested inside something else.">
@@ -57,8 +57,8 @@
 
   <h3>CSS in one screenful</h3>
   <p>A CSS rule has a <dfn data-term="selector">selector</dfn> saying who it applies to, then properties saying what to do to them. <code>.chip</code> means every element carrying that class, <code>#app</code> means the one element with that id, and each line inside the braces is one property.</p>
-  <p>Now the part that eats days. Several rules can hit the same element and disagree. The <dfn data-term="cascade">cascade</dfn> is the tie-break: more specific wins, so an id beats a class and a class beats a tag name, and equal specificity means the later rule wins. This is why "I set the colour and nothing happened" is almost never a lie. The colour was set, then something more specific overruled it. A style that refuses to apply is a fight you lost, not a broken property.</p>
-  <p>The last CSS idea is the one Memento runs on. A <dfn data-term="custom-property">custom property</dfn> is a variable: <code>--accent: #3ad9f5;</code> declared once, then <code>var(--accent)</code> read in forty places. Change the one line and forty places move together. People call these design tokens.</p>
+  <p>Now the part that eats days. Several rules can hit the same element and disagree. The <dfn data-term="cascade">cascade</dfn> is the tie-break: more specific wins, so an id beats a class and a class beats a tag name, and equal specificity means the later rule wins. This is why "I set the colour and nothing happened" is almost never a lie. The colour was set, then something more specific overruled it. <em>A style that refuses to apply is a fight you lost, not a broken property.</em></p>
+  <p>The last CSS idea is the one Memento runs on. A <dfn data-term="custom-property">custom property</dfn> is a variable: <code>--accent: #3ad9f5;</code> declared once, then <code>var(--accent)</code> read in forty places. Change the one line and forty places move together. People call these <strong>design tokens</strong>.</p>
 
   <h3>How JavaScript touches the screen</h3>
   <p>Four moves cover most of what you will read.</p>
@@ -107,7 +107,7 @@
 &lt;/script&gt;
 </div>
 
-  <p>The JavaScript never mentions green. It flips a label; the stylesheet decides what the label means. That separation is the whole reason CSS exists. Last one, bubbling:</p>
+  <p><em>The JavaScript never mentions green.</em> It flips a label; the stylesheet decides what the label means. That separation is the whole reason CSS exists. Last one, bubbling:</p>
 
   <div class="sb" data-dom>
 &lt;div id="card" style="padding:16px;border:1px solid #ccc;border-radius:12px"&gt;
@@ -168,7 +168,7 @@
   --accent-rgb: 58, 217, 245;
   --accent-strong: #50b9cc;</code></pre>
   <div class="src">memento-app/css/base.css:66-74 (web pin ca8afc8)</div>
-  <p>The comment says "today's exact purple" and the value is cyan, because the purple was killed in v711 and the comment never got the memo. Comments rot, code does not. Believe the code.</p>
+  <p>The comment says "today's exact purple" and the value is cyan, because the purple was killed in v711 and the comment never got the memo. Comments rot, code does not. <em>Believe the code.</em></p>
 
   <h3>Two ways to hear a tap, both live in Memento</h3>
   <p>The first is an <dfn data-term="inline-handler">inline handler</dfn>: JavaScript written straight into an HTML attribute. Clarity's close button does it twice, click and the faster pointer event, so a tap never waits:</p>
@@ -202,7 +202,7 @@
   consistency: '#30D158',
   accent: '#3ad9f5',</code></pre>
   <div class="src">memento-native/src/ui/theme.ts:23-31 (native pin 93bfa796)</div>
-  <p>Same names, same hex values, no CSS. <code>--text-hi</code> became <code>textHi</code>. The design survived a whole platform change because it was tokens, not scattered colours.</p>
+  <p>Same names, same hex values, no CSS. <code>--text-hi</code> became <code>textHi</code>. <em>The design survived a whole platform change</em> because it was tokens, not scattered colours.</p>
 
   <h2>Do it</h2>
   <div class="ex" data-device="mac">
@@ -243,7 +243,7 @@
 
   <div class="box expiry"><div class="h">WHERE TODAY'S ANALOGY BREAKS</div><p><strong>Breaks when:</strong> the building rebuilds itself. A house stands still once built. The DOM gets torn down and re-raised constantly, hundreds of nodes at a time, every time a Memento module opens. The picture also implies the HTML file stays the truth. It does not. A second into a page's life the only truth is the tree in memory, and it can look nothing like the file. <strong>Real model:</strong> the DOM is mutable state that happens to be visible. Which raises the next chapter's question: if the screen is state you can edit directly, and your data is also state, what stops the two from disagreeing? Nothing, automatically. That is chapter 14.</p></div>
 
-  <details class="hole"><summary>RABBIT HOLE: why touching the tree too often makes a phone stutter</summary><p>Reading a size out of the DOM, like <code>offsetHeight</code>, forces the browser to work out the layout right now. Writing marks it dirty. Alternate read, write, read, write in a loop and you force a full recalculation every pass. That is layout thrashing. The fix is boring: all the reads, then all the writes. Chapter 25 measures it.</p></details>
+  <details class="hole"><summary>RABBIT HOLE: why touching the tree too often makes a phone stutter</summary><p>Reading a size out of the DOM, like <code>offsetHeight</code>, forces the browser to work out the layout right now. Writing marks it dirty. Alternate read, write, read, write in a loop and you force a full recalculation every pass. That is <strong>layout thrashing</strong>. The fix is boring: all the reads, then all the writes. Chapter 25 measures it.</p></details>
 </main>
 <script src="../js/book.js"></script>
 </body>

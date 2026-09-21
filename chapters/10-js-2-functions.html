@@ -17,7 +17,7 @@
 <main>
   <div class="kicker">Chapter 10 <span class="tag need">NEED</span> <span class="tag">~55 min</span> <span class="tag">phone or Mac</span></div>
   <h1>JavaScript 2: functions and the call stack</h1>
-  <p class="lede">A function is a named recipe. Writing it down does nothing at all. Calling it is what runs it. Once you can see the pile of half-finished recipes a running program is holding, error messages stop being noise and start being directions.</p>
+  <p class="lede">A function is a named <strong>recipe</strong>. Writing it down does nothing at all. Calling it is what runs it. Once you can see the pile of half-finished recipes a running program is holding, error messages stop being noise and start being directions.</p>
 
   <div class="box recap"><div class="h">LAST TIME</div><p>A variable is a name tag tied to one value, never a box. Every value has a type, and text that looks like a number behaves nothing like a number. <code>const</code> locks the name, not the object behind it, and <code>===</code> is the only comparison you should write.</p></div>
 
@@ -27,10 +27,10 @@
   <details class="check"><summary>What is a commit, physically?</summary><div class="a">A snapshot of the whole folder at one moment, with a message, an author, and an id. History is a chain of them, each pointing at the one before.</div></details>
 
   <h2>The idea</h2>
-  <p>A <dfn data-term="function">function</dfn> is a chunk of steps with a name on it. You write the steps once. Then anywhere in the app, any number of times, you say the name followed by brackets and the steps run.</p>
-  <p>Two words do all the work, and mixing them up is the beginner's mistake. <strong>Defining</strong> a function means writing the recipe down. Nothing happens. No step inside it runs. The machine notes the name and moves on. <strong>Calling</strong> it, writing its name followed by <code>()</code>, is what makes the steps run. A file full of definitions and no calls does precisely nothing.</p>
+  <p>A <dfn data-term="function">function</dfn> is a chunk of steps with a name on it. You write the steps once. Then anywhere in the app, any number of times, you say the name followed by <strong>brackets</strong> and the steps run.</p>
+  <p>Two words do all the work, and mixing them up is the beginner's mistake. <strong>Defining</strong> a function means writing the recipe down. Nothing happens. No step inside it runs. The machine notes the name and moves on. <strong>Calling</strong> it, writing its name followed by <code>()</code>, is what makes the steps run. <em>A file full of definitions and no calls does precisely nothing.</em></p>
 
-  <div class="box analogy"><div class="h">ANALOGY (TEMPORARY)</div><p>A recipe card and a cook. The card says "carbonara: boil water, fry the guanciale, mix the eggs". Writing that card feeds nobody. The cook reading the card out loud feeds somebody. <dfn data-term="parameter">Parameters</dfn> are the blanks on the card: "serves N people". <dfn data-term="argument">Arguments</dfn> are the numbers you shout at the cook when you hand the card over: "make it for four". <dfn data-term="return">Return</dfn> is the plate coming back. And the moment the cook hands the plate over, that recipe is finished; anything written after the "hand over the plate" line never gets read.</p></div>
+  <div class="box analogy"><div class="h">ANALOGY (TEMPORARY)</div><p>A recipe card and a cook. The card says "carbonara: boil water, fry the guanciale, mix the eggs". <em>Writing that card feeds nobody.</em> The cook reading the card out loud feeds somebody. <dfn data-term="parameter">Parameters</dfn> are the blanks on the card: "serves N people". <dfn data-term="argument">Arguments</dfn> are the numbers you shout at the cook when you hand the card over: "make it for four". <dfn data-term="return">Return</dfn> is the plate coming back. And the moment the cook hands the plate over, that recipe is finished; anything written after the "hand over the plate" line never gets read.</p></div>
 
   <p>The shape, with every word labelled:</p>
   <pre><code>function greet(name, streak) {     // name and streak are parameters: labels for the inputs
@@ -42,10 +42,10 @@ const message = greet("Malik", 12);  // "Malik" and 12 are the arguments
 </code></pre>
   <p>Parameters are variables, and chapter 9's model applies exactly. They are name tags, tied to the values you passed in, and they only exist while the function is running. <code>name</code> is not a box the string went into. It is a tag on the string you handed over.</p>
   <p><code>return</code> does two things at once and people usually only notice the first. It hands a value back to whoever called, and it stops the function on the spot. Lines below a <code>return</code> that has just run are dead. That second behaviour is what makes guard clauses possible, and Memento is full of them.</p>
-  <p>A function with no <code>return</code> still hands something back: <dfn data-term="undefined">undefined</dfn>, the machine's shrug from chapter 9. This is the most common confusing moment for a beginner. You call a function, it clearly did its job, you print the result, and you get <code>undefined</code>. Nothing is broken. You just never said what to hand back.</p>
+  <p>A function with no <code>return</code> still hands something back: <dfn data-term="undefined">undefined</dfn>, the machine's shrug from chapter 9. This is the most common confusing moment for a beginner. You call a function, it clearly did its job, you print the result, and you get <code>undefined</code>. Nothing is broken. <em>You just never said what to hand back.</em></p>
 
   <h3>The call stack</h3>
-  <p>Now the picture that pays for the whole chapter. While a program runs, it keeps a pile of index cards. Each card is one function currently in progress, and holds that function's own local names and the line it is paused on.</p>
+  <p>Now the picture that pays for the whole chapter. While a program runs, it keeps a pile of <strong>index cards</strong>. Each card is one function currently in progress, and holds that function's own local names and the line it is paused on.</p>
   <p>Call a function: a new card goes on top of the pile. That function calls another: another card on top. A function returns: its card is thrown away, and the machine resumes the card now on top, exactly where it paused. The pile is the <dfn data-term="call-stack">call stack</dfn>, and the only card being worked on is the top one.</p>
 
   <figure class="fig-box">
@@ -150,7 +150,7 @@ console.log(addLong(2, 3), addShort(2, 3));
 console.log(typeof addLong, typeof addShort);
 </div>
 
-  <p>Box 2's second line is a quiet warning: passing <code>"12"</code> as text prints exactly the same sentence as passing <code>12</code>, because gluing text to text looks identical. That is where a type bug hides until the first time someone does maths on it. The third line is the one that teaches outright. Calling <code>describe("Malik")</code> with one argument does not crash. The <code>days</code> parameter simply never gets tied to anything, so it is <code>undefined</code>, and the sentence comes out with the word <code>undefined</code> in it. The machine did exactly what you said, again.</p>
+  <p>Box 2's second line is a quiet warning: passing <code>"12"</code> as text prints exactly the same sentence as passing <code>12</code>, because gluing text to text looks identical. That is where a type bug hides until the first time someone does maths on it. The third line is the one that teaches outright. Calling <code>describe("Malik")</code> with one argument does not crash. The <code>days</code> parameter simply never gets tied to anything, so it is <code>undefined</code>, and the sentence comes out with the word <code>undefined</code> in it. <em>The machine did exactly what you said, again.</em></p>
 
   <h2>Now in Memento</h2>
   <div class="lanes">
@@ -166,7 +166,7 @@ console.log(typeof addLong, typeof addShort);
   try { if (window.CloudSync) CloudSync.schedulePush(); } catch (_) {} // optional Supabase mirror
 }</code></pre>
       <div class="src">memento-app/js/01-state-foundation.js:488-494 (web pin ca8afc8)</div>
-      <p>Six lines, and you can now read every one. Line two is the guard: if this is a demo account or a reset is in progress, return, and the four lines below never run. Line four hands an arrow function to <code>setTimeout</code> as an instruction to carry out in 150 milliseconds. Note that <code>persistState()</code> returns nothing, so it hands back <code>undefined</code>. It was called for what it does, not for what it gives.</p>
+      <p>Six lines, and you can now read every one. Line two is the guard: if this is a demo account or a reset is in progress, return, and the four lines below never run. Line four hands an arrow function to <code>setTimeout</code> as an instruction to carry out in 150 milliseconds. Note that <code>persistState()</code> returns nothing, so it hands back <code>undefined</code>. <em>It was called for what it does, not for what it gives.</em></p>
     </div>
   </div>
 
@@ -181,7 +181,7 @@ console.log(typeof addLong, typeof addShort);
 
   // Pre-flight: catch obvious garbage before burning an API call</code></pre>
       <div class="src">memento-app/js/03-ai-integration.js:4173-4177 (web pin ca8afc8)</div>
-      <p>Read the guard out loud: if there is no text, or a request is already in flight, leave. Two failure cases, one line, zero nesting. The comment underneath says what it is protecting: money.</p>
+      <p>Read the guard out loud: if there is no text, or a request is already in flight, leave. Two failure cases, one line, zero nesting. The comment underneath says what it is protecting: <em>money</em>.</p>
     </div>
   </div>
 
@@ -257,9 +257,9 @@ console.log(typeof summarise("Malik", 30));
     <dt>Arrow function</dt><dd>A shorter spelling, <code>(a, b) =&gt; a + b</code>. Same idea, used most when a function is being handed to something else.</dd>
   </dl></div>
 
-  <div class="box expiry"><div class="h">WHERE TODAY'S ANALOGY BREAKS</div><p><strong>Breaks when:</strong> you try to hand a recipe card to another recipe. In a kitchen you cannot pass carbonara as an ingredient. In JavaScript a function is itself a value, with a type, and it can be stored in a variable, put in an object, passed as an argument, and returned from another function. You already saw it in the Memento lane: the arrow function handed to <code>addEventListener</code> is never called by Memento's code, it is given away and called later by the browser. <strong>Real model:</strong> functions are values. A function passed to something else so it can be called later is a callback, and it is the backbone of every event and every network reply in the app. Chapter 12 takes that idea and builds the whole async story on it. A second, smaller break: the pile is not the only place a paused function can live. An <code>await</code> takes a card off the pile and puts it aside until the answer arrives, which is why the phone stays responsive while waiting on the AI. Also chapter 12.</p></div>
+  <div class="box expiry"><div class="h">WHERE TODAY'S ANALOGY BREAKS</div><p><strong>Breaks when:</strong> you try to hand a recipe card to another recipe. In a kitchen you cannot pass carbonara as an ingredient. In JavaScript a function is itself a value, with a type, and it can be stored in a variable, put in an object, passed as an argument, and returned from another function. You already saw it in the Memento lane: the arrow function handed to <code>addEventListener</code> is never called by Memento's code, it is given away and called later by the browser. <strong>Real model:</strong> functions are values. A function passed to something else so it can be called later is a <strong>callback</strong>, and it is the backbone of every event and every network reply in the app. Chapter 12 takes that idea and builds the whole async story on it. A second, smaller break: the pile is not the only place a paused function can live. An <code>await</code> takes a card off the pile and puts it aside until the answer arrives, which is why the phone stays responsive while waiting on the AI. Also chapter 12.</p></div>
 
-  <details class="hole"><summary>RABBIT HOLE: what a stack overflow actually is</summary><p>The pile has a size limit, a few thousand cards deep in most browsers. If a function calls itself with no way out, cards pile up until the limit, and the machine gives up with "Maximum call stack size exceeded". That message means one specific thing: something called something called something forever. It is the one error where the top of the stack trace is almost never the useful part, because the trace is the same three lines repeated a thousand times.</p></details>
+  <details class="hole"><summary>RABBIT HOLE: what a stack overflow actually is</summary><p>The pile has a size limit, a few thousand cards deep in most browsers. If a function calls itself with no way out, cards pile up until the limit, and the machine gives up with "Maximum call stack size exceeded". That message means one specific thing: <em>something called something called something forever.</em> It is the one error where the top of the stack trace is almost never the useful part, because the trace is the same three lines repeated a thousand times.</p></details>
 </main>
 <script src="../js/book.js"></script>
 </body>

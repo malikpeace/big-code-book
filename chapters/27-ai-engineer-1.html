@@ -27,10 +27,10 @@
   <details class="check"><summary>Why can Memento's Supabase anon key sit in the client while the Anthropic key cannot?</summary><div class="a">The anon key only identifies the project; what it may read is decided by row rules inside the database. The Anthropic key is a bearer credential: whoever holds it can spend your money, so it lives in the edge function's environment and never reaches a browser.</div></details>
 
   <h2>The idea</h2>
-  <p>You cannot read every line an agent writes. Nobody can, which is the point of using one. So the job is putting checkpoints where a mistake is still cheap, and refusing to move past one that has not been passed.</p>
-  <p>Four of them, in a deliberate order. A wrong sentence in a request costs nothing. A wrong plan costs a minute. Wrong code costs a review. Wrong code that shipped costs a customer. Every checkpoint you skip pushes the mistake into a more expensive one.</p>
+  <p>You cannot read every line an agent writes. Nobody can, which is the point of using one. So the job is putting <strong>checkpoints</strong> where a mistake is still cheap, and refusing to move past one that has not been passed.</p>
+  <p>Four of them, in a deliberate order. A wrong sentence in a request costs nothing. A wrong plan costs a minute. Wrong code costs a review. <em>Wrong code that shipped costs a customer.</em> Every checkpoint you skip pushes the mistake into a more expensive one.</p>
 
-  <div class="box analogy"><div class="h">ANALOGY (TEMPORARY)</div><p>Hiring a contractor for a kitchen. You do not stand behind him holding each tile. You agree what the room should look like, you read the quote before work starts, you walk the room before you pay, and you turn the taps on yourself. Four moments. The rest of the week he works and you do not.</p></div>
+  <div class="box analogy"><div class="h">ANALOGY (TEMPORARY)</div><p>Hiring a contractor for a kitchen. You do not stand behind him holding each tile. You agree what the room should look like, you read the quote before work starts, you walk the room before you pay, and you turn the taps on yourself. Four moments. <em>The rest of the week he works and you do not.</em></p></div>
 
   <figure class="fig-box">
     <svg class="figure" viewBox="0 0 640 260" role="img" aria-label="A loop in two rows. Top row left to right: ask, plan, review the plan, implement. An arrow goes down from implement to the bottom row, which runs right to left: read the diff, verify, commit. Three stop exits drop out of the loop: under review the plan, not good enough means back to the ask; under read the diff, files you did not ask for means stop; under verify, no artifact means stop.">
@@ -66,7 +66,7 @@
   </figure>
 
   <h3>1. The five-part ask</h3>
-  <p>An agent guesses. Chapter 1 said it: the machine obeys, the agent interprets. Every gap you leave gets filled with a guess, and the guesses are plausible, which is worse than wrong. A <dfn data-term="five-part-ask">five-part ask</dfn> closes the five gaps that cause damage.</p>
+  <p>An agent guesses. Chapter 1 said it: the machine obeys, the agent interprets. Every gap you leave gets filled with a guess, and the guesses are plausible, which is <em>worse than wrong</em>. A <dfn data-term="five-part-ask">five-part ask</dfn> closes the five gaps that cause damage.</p>
   <table>
     <tr><th>Part</th><th>What it stops</th></tr>
     <tr><td><strong>What.</strong> One change, stated in one sentence.</td><td>Two changes in one diff, which you can no longer review or revert separately.</td></tr>
@@ -109,7 +109,7 @@ bug, list it, do not fix it.</code></pre>
     <li><strong>Does it say what it will not touch?</strong> If it does not, the boundary exists only in your head.</li>
     <li><strong>Does it mention existing code it will reuse?</strong> A plan that names no existing function is about to write a second one. This is the duplicate-system tell, a chapter early.</li>
     <li><strong>Does it say how it will verify?</strong> Not "I will test it". Which command, which screen, which output.</li>
-    <li><strong>Is it smaller than the ask, or bigger?</strong> Bigger means scope creep already started. Smaller sometimes means it found a simpler route, which is good, and sometimes means it misunderstood, which is not. Ask which.</li>
+    <li><strong>Is it smaller than the ask, or bigger?</strong> Bigger means <strong>scope creep</strong> already started. Smaller sometimes means it found a simpler route, which is good, and sometimes means it misunderstood, which is not. Ask which.</li>
     <li><strong>What is the rollback?</strong> One commit you can revert is a rollback. Eleven files across two systems is not.</li>
   </ol>
   <p>Score a plan against those six in code, so the questions stop being vibes:</p>
@@ -143,7 +143,7 @@ console.log("score:", passed, "of 6. Any miss is a send-back, not a warning.");
   <p>Two failures, and they are the expensive two: no verification step, and three steps for a one-step ask.</p>
 
   <h3>3. Inspect what actually changed</h3>
-  <p>The agent's summary is a summary. The <dfn data-term="diff">diff</dfn> is the record. They disagree more often than you would like, and only one of them shipped.</p>
+  <p>The agent's summary is a summary. The <dfn data-term="diff">diff</dfn> is the record. They disagree more often than you would like, and <em>only one of them shipped</em>.</p>
   <table>
     <tr><th>Move</th><th>What it answers</th></tr>
     <tr><td><code>git diff --stat</code></td><td>Which files, how many lines each. The ten-second scan. More files than your ask named is the scope-creep alarm.</td></tr>
@@ -247,7 +247,7 @@ console.log("ask named 1 file. diff touched", files.length + ".");
   <p>Delete the header-skipping line and run it again. The counts go wrong by exactly two per file, in the flattering direction. Every tool that reads a diff knows this, including the one between your ears.</p>
 
   <h3>5. Ask why, not what</h3>
-  <p>Anthropic ran a controlled trial in February 2026: 52 mostly-junior developers learning an unfamiliar library. The AI-assisted group scored about 17 points lower on a comprehension quiz. But the participants who used it for <em>conceptual</em> questions, why this pattern, what does this do, scored 65% or better, level with the people who wrote everything by hand (<a href="https://www.anthropic.com/research/AI-assistance-coding-skills">anthropic.com/research/AI-assistance-coding-skills</a>, summarised in research/research-pedagogy.md section 1.9). Delegation cost comprehension. Inquiry did not. Same tool, opposite result, decided by the grammar of your sentence.</p>
+  <p>Anthropic ran a controlled trial in February 2026: 52 mostly-junior developers learning an unfamiliar library. The AI-assisted group scored about 17 points lower on a comprehension quiz. But the participants who used it for <em>conceptual</em> questions, why this pattern, what does this do, scored 65% or better, level with the people who wrote everything by hand (<a href="https://www.anthropic.com/research/AI-assistance-coding-skills">anthropic.com/research/AI-assistance-coding-skills</a>, summarised in research/research-pedagogy.md section 1.9). <em>Delegation cost comprehension. Inquiry did not.</em> Same tool, opposite result, decided by the grammar of your sentence.</p>
   <table>
     <tr><th>Do-question (costs comprehension)</th><th>Why-question (keeps it)</th></tr>
     <tr><td>Fix the streak</td><td>Why does the streak walk backwards from today instead of forwards from the start?</td></tr>
@@ -257,7 +257,7 @@ console.log("ask named 1 file. diff touched", files.length + ".");
   <p>Two phrases carry the weight. <strong>"Explain, then stop"</strong> removes the assumption that an explanation is a preamble to editing. <strong>"What would break if"</strong> is the fastest way to find out whether it understands the code or is describing what the code looks like it does. Every chapter of this book ends with one of these, and that is not decoration.</p>
 
   <h3>6. Verify a claim</h3>
-  <p>"It works" is a feeling the agent is reporting about itself. <dfn data-term="verification-artifact">Verification</dfn> is something a machine produced that you can look at: pasted output, a test result with assertion names, a screenshot of the actual screen, an exit code. No artifact, nothing verified, however confident the paragraph.</p>
+  <p>"It works" is a feeling the agent is reporting about itself. <dfn data-term="verification-artifact">Verification</dfn> is something a machine produced that you can look at: pasted output, a test result with assertion names, a screenshot of the actual screen, an exit code. No <strong>artifact</strong>, nothing verified, however confident the paragraph.</p>
   <p>You wrote the strictest version of this rule anybody in this book has written. It is law in your own repo:</p>
   <pre><code>00. **THE VISUAL CHANGE CONTRACT (law, v854, enforced by a hook).** Malik has
    now caught the same classes of miss repeatedly (desktop-only breaks, the
@@ -316,12 +316,12 @@ function audit(paths) {
 
 audit(claimed);
 </div>
-  <p>Notice why <code>js/31-streak-utils.js</code> is convincing. The number 31 is free in your mental picture of the file map, the suffix matches the module it claims to serve, the naming style is Memento's. Most plausible continuation. Also not there: 31 is <code>31-stress-runner.js</code>.</p>
+  <p>Notice why <code>js/31-streak-utils.js</code> is convincing. The number 31 is free in your mental picture of the file map, the suffix matches the module it claims to serve, the naming style is Memento's. <em>Most plausible continuation.</em> Also not there: 31 is <code>31-stress-runner.js</code>.</p>
 
   <h2>Now in Memento</h2>
   <div class="lanes">
     <div class="lane"><div class="h">ANY APP</div>
-      <p>None of the four checkpoints survive on willpower. An agent starts every session with no memory, so rules living in your head reach it only when you retype them. The fix the industry converged on in 2026 is a <dfn data-term="harness">harness</dfn>: a rules file read at the start of every session, a map of where things live, and wherever possible a machine that checks the rule instead of a model asked to remember it.</p>
+      <p>None of the four checkpoints survive on willpower. An agent starts every session with <strong>no memory</strong>, so rules living in your head reach it only when you retype them. The fix the industry converged on in 2026 is a <dfn data-term="harness">harness</dfn>: a rules file read at the start of every session, a map of where things live, and wherever possible a machine that checks the rule instead of a model asked to remember it.</p>
       <p>The harness is also what makes reviewing cheap. If the rules file says where a feature lives, "the diff touched a file outside that list" becomes a yes or no question, which is a question you can ask at midnight on a phone.</p>
     </div>
     <div class="lane mem"><div class="h">MEMENTO</div>

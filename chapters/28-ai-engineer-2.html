@@ -29,7 +29,7 @@
   <h2>The idea</h2>
   <p>The loop in chapter 27 catches wrong code. It does not catch <em>extra</em> code, and extra is what agents produce. GitClear measured duplicated blocks rising eightfold across 211 million changed lines in 2024, with copy-paste passing refactoring for the first time on record. Willison said it in one sentence: he can write code a hundred times faster and does not have a hundred times the capacity to stay on top of it.</p>
   <p>Extra comes in two shapes. A <dfn data-term="duplicate-system">duplicate system</dfn> is a second thing doing a job something already does. <dfn data-term="scope-creep">Scope creep</dfn> is a change that grew past the ask. Both are additions, both look like productivity, and both are paid for by whoever later has to work out which one is real.</p>
-  <div class="box analogy"><div class="h">ANALOGY (TEMPORARY)</div><p>A kitchen with two knife drawers. Nobody decided that. Somebody needed a knife, did not find the drawer, and started a second one. Now every cook has to check both, and every new knife goes in whichever drawer was open. Nothing is broken. Everything takes longer, forever.</p></div>
+  <div class="box analogy"><div class="h">ANALOGY (TEMPORARY)</div><p>A kitchen with two knife drawers. Nobody decided that. Somebody needed a knife, did not find the drawer, and started a second one. Now every cook has to check both, and every new knife goes in whichever drawer was open. Nothing is broken. <em>Everything takes longer, forever.</em></p></div>
 
   <h3>1. How duplicate systems get born</h3>
   <p>Three real ones from your own repo.</p>
@@ -61,14 +61,14 @@
    opens the real Action flow (js/30) and none of them can ever reach code
    that no longer exists.</code></pre>
   <div class="src">memento-app/js/33-action-shim.js:8-13 (web pin ca8afc8)</div>
-  <p>Eighty call sites: what a duplicate costs by the time you notice. The cheapest fix was a 37-line tombstone that stays for years.</p>
+  <p>Eighty call sites: what a duplicate costs by the time you notice. The cheapest fix was a 37-line <strong>tombstone</strong> that stays for years.</p>
   <p>Why agents do it: they do not grep first, because writing is what they are good at. They start every session with no memory, so last Tuesday's work is invisible. And adding feels safe, since a new file cannot break an existing test while changing a shared function might. Anthropic names the same failure: lost memory between sessions producing duplicated work and premature declarations of completion (<a href="https://www.anthropic.com/engineering/harness-design-long-running-apps">anthropic.com/engineering/harness-design-long-running-apps</a>).</p>
   <p>Four preventions, the first one free.</p>
   <ol>
     <li><strong>"Does this already exist?" opens every ask.</strong> Before what, before where. It turns a build request into a search request, and the search is cheap.</li>
     <li><strong>Grep before build.</strong> Make the agent show the search it ran. "I did not find one" with the command pasted is an answer. Without it, a guess.</li>
     <li><strong>One owner per file.</strong> Two agents in one file is how you get two implementations of one idea in one place.</li>
-    <li><strong>A file map that is true.</strong> An agent with an accurate map finds the existing thing. With a wrong one, it builds a new thing.</li>
+    <li><strong>A <strong>file map</strong> that is true.</strong> An agent with an accurate map finds the existing thing. With a wrong one, it builds a new thing.</li>
   </ol>
   <p>That last one is not hypothetical for you. <code>CLAUDE.md:10</code> says the app has 21 JavaScript files; it has 38. <code>CLAUDE.md:48</code> says "(No <code>16-*</code>; numbering has a gap.)" while <code>js/16-doors.js</code> is the router you read a diff of last chapter. Lines 40 and 42 list <code>21-descent.js</code> and <code>23-action-states.js</code>; neither exists. A map with a hole in it is an instruction to build something new in the hole.</p>
   <p>A search over an index of what exists, before anything is written:</p>
@@ -95,7 +95,7 @@ alreadyExists("paid");      // two files have an opinion about this
 alreadyExists("streak");    // one place, use it
 alreadyExists("perfectWeek");
 </div>
-  <p>Run it and read the first result carefully. Searching "paid" finds one file. The billing module, which also decides who has paid, calls its function <code>hasVerifiedAccess</code> and does not match at all. That is how a duplicate survives a search: the two systems picked different words for the same idea. Search the concept, not the string, and search more than once.</p>
+  <p>Run it and read the first result carefully. Searching "paid" finds one file. The billing module, which also decides who has paid, calls its function <code>hasVerifiedAccess</code> and does not match at all. That is how a duplicate survives a search: the two systems picked different words for the same idea. <em>Search the concept, not the string</em>, and search more than once.</p>
 
   <h3>2. How scope creep happens, and the sentence that stops it</h3>
   <p>You ask for one fix. The diff has the fix, a renamed variable, a reformatted file, a new helper, and an unrelated bug the agent could not leave alone. Each is defensible alone. Together they are a change you cannot review, cannot revert in one move, and cannot explain to yourself in a week. The tells live in <code>--stat</code>, ten seconds of reading:</p>
@@ -110,7 +110,7 @@ alreadyExists("perfectWeek");
   <p>The guard is one sentence, and it goes at the bottom of every ask:</p>
   <pre><code>Change only X. If you see something else worth fixing, list it, do not fix it.</code></pre>
   <p>It works because it gives the agent somewhere to put the urge. The list it returns arrives as a decision for you instead of lines in a diff.</p>
-  <p>You already run the industrial version. The freeze is scope control as law: <code>CLAUDE.md:54-55</code> allows bug fixes only, and only for bugs blocking a real person or a test account. Everything else is out of scope by default, for every agent, without you typing a word. A good rule moves the default.</p>
+  <p>You already run the industrial version. The freeze is scope control as law: <code>CLAUDE.md:54-55</code> allows bug fixes only, and only for bugs blocking a real person or a test account. Everything else is out of scope by default, for every agent, without you typing a word. <em>A good rule moves the default.</em></p>
   <p>Compare the ask against the diff mechanically:</p>
   <div class="sb">
 const ask  = { files: ["js/06-consistency-mori.js"] };
@@ -145,7 +145,7 @@ console.log(extra.length === 0 ? "scope clean" : "send back. " + extra.length + 
     <tr><td>Deletion: anything that removes a row or a file</td><td>Build config, scripts, one-off tooling</td></tr>
     <tr><td>Anything you will be asked about by a customer</td><td>Anything you could throw away and regenerate</td></tr>
   </table>
-  <p>Money, auth, data, deletion. If a change touches one of those, you read it before it ships and you use "explain, then stop" until you can say what it does in your own words. That is the only reason the loop in chapter 27 has a human in it.</p>
+  <p><em>Money, auth, data, deletion.</em> If a change touches one of those, you read it before it ships and you use "explain, then stop" until you can say what it does in your own words. That is the only reason the loop in chapter 27 has a human in it.</p>
 
   <h3>4. How to test after an AI change</h3>
   <p>A ladder. Each rung is cheap and catches a different failure. Climb in order, stop at the first red.</p>
@@ -231,7 +231,7 @@ console.log("B:", nextCommand({ committed: true, pushed: false }));
 console.log("C:", nextCommand({ committed: true, pushed: true }));
 console.log("D:", nextCommand({ lostCommit: true }));
 </div>
-  <p>Notice what is missing from every branch. No <code>--hard</code>, no <code>clean</code>, no <code>checkout --</code>. A recovery routine that cannot destroy anything is one you can run while upset, which is the only state you will ever run it in.</p>
+  <p>Notice what is missing from every branch. No <code>--hard</code>, no <code>clean</code>, no <code>checkout --</code>. A recovery routine that cannot destroy anything is one you can run while upset, <em>which is the only state you will ever run it in.</em></p>
 
   <h3>6. How to challenge an architectural decision</h3>
   <p>An agent proposes a structure. It sounds reasonable because it is the most common structure in the training data, which says nothing about whether it fits your app. Four questions, none needing you to know the answer first.</p>
@@ -270,8 +270,8 @@ console.log("D:", nextCommand({ lostCommit: true }));
   <h2>Now in Memento</h2>
   <div class="lanes">
     <div class="lane"><div class="h">ANY APP</div>
-      <p>The answer to agents producing extra is not better prompting. It is constraints a machine enforces: tests that fail, types that refuse to compile, linters, hooks, a review gate held by somebody other than the author. Thoughtworks calls these feedback sensors for coding agents. A constraint enforced by memory is one you have already lost.</p>
-      <p>The second answer is a written trail. Everything not in a file is gone when the session ends, so the rules file, the decision record and the commit messages are the memory the agents do not have.</p>
+      <p>The answer to agents producing extra is not better prompting. It is <strong>constraints</strong> a machine enforces: tests that fail, types that refuse to compile, linters, hooks, a review gate held by somebody other than the author. Thoughtworks calls these feedback sensors for coding agents. A constraint enforced by memory is one you have already lost.</p>
+      <p>The second answer is a <strong>written trail</strong>. Everything not in a file is gone when the session ends, so the rules file, the decision record and the commit messages are the memory the agents do not have.</p>
     </div>
     <div class="lane mem"><div class="h">MEMENTO</div>
       <p>Yours is mechanical where it can be, written where it cannot. Mechanical: a hook injects the four-cell requirement after any UI edit rather than trusting an agent to remember. Written: the freeze, the ownership split, the handoff files, approvals pinned to a sha. Plus one control most teams do not have, since the frozen web app quarantines the whole duplicate-and-drift problem in a codebase that is not moving.</p>
@@ -279,7 +279,7 @@ console.log("D:", nextCommand({ lostCommit: true }));
       <div class="src">CLAUDE.md:66 (native pin 93bfa796)</div>
     </div>
   </div>
-  <div class="box memento"><div class="h">THE ALTERNATIVE, AND WHY MEMENTO CHOSE THIS</div><p>The normal alternative is GitHub pull requests with required checks: no merge until tests pass and a reviewer approves, enforced by the button. Strictly better, and Memento needs it the day a second human joins. It was skipped because the two reviewers are agents that cannot click a button and communicate only through files, so the gate is a sentence in a plan and a human relaying between chats. The cost is exact: nothing mechanical stops an unreviewed commit. The gate is you.</p></div>
+  <div class="box memento"><div class="h">THE ALTERNATIVE, AND WHY MEMENTO CHOSE THIS</div><p>The normal alternative is GitHub pull requests with required checks: no merge until tests pass and a reviewer approves, enforced by the button. Strictly better, and Memento needs it the day a second human joins. It was skipped because the two reviewers are agents that cannot click a button and communicate only through files, so the gate is a sentence in a plan and a human relaying between chats. The cost is exact: nothing mechanical stops an unreviewed commit. <em>The gate is you.</em></p></div>
 
   <h2>Do it</h2>
   <div class="ex">

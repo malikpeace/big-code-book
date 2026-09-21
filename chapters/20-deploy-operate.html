@@ -34,12 +34,12 @@
     <tr><td>staging or dev</td><td>You and your testers</td><td>An hour. Fake data only.</td></tr>
     <tr><td><dfn data-term="production">production</dfn></td><td>Real users, real money</td><td>Trust, and sometimes data you cannot get back.</td></tr>
   </table>
-  <p>The separation is the whole point. Production has real people's notes in it, so if the only copy is production, every experiment is an experiment on your customers. The day an agent decides to tidy the database is the day you find out you had no other copy. That is the Replit incident from chapter 4.</p>
+  <p>The separation is the whole point. Production has real people's notes in it, so if the only copy is production, every experiment is an experiment on your customers. <em>The day an agent decides to tidy the database is the day you find out you had no other copy.</em> That is the Replit incident from chapter 4.</p>
   <p>Now the two verbs people mix up. A <dfn data-term="build">build</dfn> turns source into the thing that actually runs: it bundles files, strips comments, shrinks names, and produces an output folder. Running happens afterwards. Not every app needs a build. Memento's web app has none, because a browser reads its files directly. The native app needs one, because a phone cannot read a folder of TypeScript.</p>
-  <p>Between "I finished" and "users have it" sits a robot. <dfn data-term="continuous-integration">Continuous integration</dfn>, CI, is a machine that wakes up on every push, checks out your code on a clean rented computer, and runs your checks. No opinions, no bad days. If a check exits non-zero, it refuses, which is chapter 6's exit code doing the most important job it will ever do.</p>
+  <p>Between "I finished" and "users have it" sits a <strong>robot</strong>. <dfn data-term="continuous-integration">Continuous integration</dfn>, CI, is a machine that wakes up on every push, checks out your code on a clean rented computer, and runs your checks. No opinions, no bad days. If a check exits non-zero, it refuses, which is chapter 6's <strong>exit code</strong> doing the most important job it will ever do.</p>
   <p>If the checks pass, the robot can <dfn data-term="deploy">deploy</dfn>: copy this exact version to the place users reach. That place is <dfn data-term="hosting">hosting</dfn>, a computer somewhere that answers when someone knocks. The knocking works because of <dfn data-term="dns">DNS</dfn>, the internet's phone book, which turns a name like mementoapp.co into the number of a machine. You rent the name, point it at your host, and the phone book spreads the answer around the world over the next few hours.</p>
 
-  <div class="box analogy"><div class="h">ANALOGY (TEMPORARY)</div><p>A newspaper. Your laptop is the reporter's notebook: scribble anything, nobody cares. Staging is the proof copy, printed once, read by two people looking for typos. Production is the print run on the truck. The robot is the sub-editor who will not let a page through with a hole in it. Deploying is the truck leaving. And DNS is the phone book that tells a stranger which address the paper comes from. Once the truck is gone, you cannot un-print. You can only print a correction and send another truck.</p></div>
+  <div class="box analogy"><div class="h">ANALOGY (TEMPORARY)</div><p>A newspaper. Your laptop is the reporter's notebook: scribble anything, nobody cares. Staging is the proof copy, printed once, read by two people looking for typos. Production is the <strong>print run</strong> on the truck. The robot is the sub-editor who will not let a page through with a hole in it. Deploying is the truck leaving. And DNS is the phone book that tells a stranger which address the paper comes from. <em>Once the truck is gone, you cannot un-print.</em> You can only print a correction and send another truck.</p></div>
 
   <figure class="fig-box">
     <svg class="figure" viewBox="0 0 640 300" role="img" aria-label="Three environments in a row: local on your Mac at port 8090, CI on a clean rented computer, and production which is what the phone loads. Under CI sits the gate, a syntax check plus the test scripts, where one red exit code stops everything. At the bottom, the two-repo mirror: the private repo malikpeace slash memento is copied by rsync with delete into the public repo malikpeace slash memento-live, which GitHub Pages serves on the phone URL.">
@@ -82,12 +82,12 @@
   <p>Every version you ship is a commit, so undoing a bad deploy is undoing a commit. <dfn data-term="rollback">Rollback</dfn> is <code>git revert</code> of the offending commit and a push, and the robot deploys the corrected version the same way it deployed the broken one. Note what you do not do: edit production by hand, or force-push history away. A revert is a new commit saying "undo that", which keeps the record, and the record is how you stop it happening twice.</p>
   <p>Then there is the day something is wrong and you do not know what. Three moves, in this order, and the order is the lesson.</p>
   <ol>
-    <li><strong>Stop the bleeding.</strong> Roll back, or flip the feature off. Do not debug a live fire.</li>
+    <li><strong>Stop the bleeding.</strong> Roll back, or flip the feature off. <em>Do not debug a live fire.</em></li>
     <li><strong>Tell the users.</strong> Before they tell you. A short honest line beats silence every time.</li>
     <li><strong>Then find the cause.</strong> Calmly, with the logs, once nobody is being hurt by it.</li>
   </ol>
   <p>Step three needs somewhere to look. A <dfn data-term="log">log</dfn> is the app writing down what it did, and every layer keeps its own: the browser console for the phone, the backend dashboard for the server, the CI run log for the deploy. Knowing which of the three to open is most of the skill.</p>
-  <p>Two more operator facts. A <dfn data-term="backup">backup</dfn> is a scheduled copy of the data, and restoring one puts the database back to a moment in time, throwing away everything after it. A backup you have never restored is a hope. And cost: some vendors bill per month, some per call, and the per-call ones are the ones that surprise you, because a loop with a bug spends money at machine speed.</p>
+  <p>Two more operator facts. A <dfn data-term="backup">backup</dfn> is a scheduled copy of the data, and restoring one puts the database back to a moment in time, throwing away everything after it. <em>A backup you have never restored is a hope.</em> And cost: some vendors bill per month, some per call, and the per-call ones are the ones that surprise you, because a loop with a bug spends money at machine speed.</p>
 
   <h2>See it</h2>
   <p>A CI pipeline, whole, in fifteen lines. Checks in order, stop at the first failure, hand back an exit code. Everything after this is the same idea with more YAML.</p>
@@ -186,7 +186,7 @@ CASES.forEach(function (env) {
           node tools/test-database-boundaries.mjs
           node tools/test-function-auth-config.mjs</code></pre>
       <div class="src">.github/workflows/deploy-live.yml:54-58 (web pin ca8afc8)</div>
-      <p>They run under <code>set -e</code>, so the first non-zero exit kills the job and live never changes. The cost of having no test runner: this list is hand-maintained, and a test file nobody adds to this block is a test that never runs.</p>
+      <p>They run under <code>set -e</code>, so the first non-zero exit kills the job and live never changes. The cost of having no test runner: this list is hand-maintained, and <em>a test file nobody adds to this block is a test that never runs.</em></p>
       <p>The copy. Note the token, by name only:</p>
       <pre><code>          rsync -a --delete --exclude='.git' --exclude='mockups' memento-app/ live/</code></pre>
       <div class="src">.github/workflows/deploy-live.yml:108 (web pin ca8afc8)</div>
@@ -221,7 +221,7 @@ CASES.forEach(function (env) {
       <pre><code>&lt;script src="js/01-state-foundation.js?v=v1378"&gt;&lt;/script&gt;
 &lt;script src="js/02-clarity-experience.js?v=v1358"&gt;&lt;/script&gt;</code></pre>
       <div class="src">memento-app/index.html:818-819 (web pin ca8afc8)</div>
-      <p>A bundler would compute every one of those from the file's contents, so forgetting would be impossible. By hand, forgetting is a Tuesday. Hence a second net, bolted on after it happened:</p>
+      <p>A bundler would compute every one of those from the file's contents, so forgetting would be impossible. <em>By hand, forgetting is a Tuesday.</em> Hence a second net, bolted on after it happened:</p>
       <pre><code>/* v980: the JS build stamp. The release sed bump rewrites the version in BOTH
    index.html AND this line; js/11 compares them at boot and force-refreshes
    ONCE on mismatch. Kills the "phone silently runs old cached js under a new
@@ -254,7 +254,7 @@ window.MEMENTO_JS_BUILD = 'v1378';</code></pre>
       <p>Read the default. Anything unset, misspelled or unrecognised lands on <code>disabled</code>. Turning real payments on is one setting in a dashboard, and turning them off in an incident is the same setting, with no deploy and no waiting. That is what an operations control looks like.</p>
     </div>
   </div>
-  <div class="box memento"><div class="h">THE ALTERNATIVE, AND WHY MEMENTO CHOSE THIS</div><p>The obvious alternative is one repo, made public, served straight from Pages. Simpler, and wrong here: the repo holds migrations, workflow files, internal handoff documents and the whole agent protocol, none of which is anyone's business. So the private repo stays private and a robot mirrors only <code>memento-app/</code> into a public one, which also means the public repo can never hold a file the app does not serve. The second alternative is a real host with a build step, giving automatic cache busting and proper environments, at the cost of a build, an install, and a pipeline that can break on its own. Memento bought the no-build simplicity and pays for it in hand-written <code>?v=</code> tags and a hand-listed test block, with the boot-time build stamp as the net for the one failure mode that trade creates.</p></div>
+  <div class="box memento"><div class="h">THE ALTERNATIVE, AND WHY MEMENTO CHOSE THIS</div><p>The obvious alternative is one repo, made public, served straight from Pages. Simpler, and wrong here: the repo holds migrations, workflow files, internal handoff documents and the whole agent protocol, none of which is anyone's business. So the private repo stays private and a robot <strong>mirrors</strong> only <code>memento-app/</code> into a public one, which also means the public repo can never hold a file the app does not serve. The second alternative is a real host with a build step, giving automatic cache busting and proper environments, at the cost of a build, an install, and a pipeline that can break on its own. Memento bought the no-build simplicity and pays for it in hand-written <code>?v=</code> tags and a hand-listed test block, with the boot-time build stamp as the net for the one failure mode that trade creates.</p></div>
 
   <h2>Do it</h2>
   <div class="ex">

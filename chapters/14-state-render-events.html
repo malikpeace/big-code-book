@@ -29,9 +29,9 @@
   <h2>The idea</h2>
   <p>An app is a loop with three stops, and it only ever runs clockwise.</p>
   <p><dfn data-term="state">State</dfn> is everything the app currently knows: the streak, the north star, whether today is done. One object, one place. The screen is drawn from it, and drawing it is called a <dfn data-term="render">render</dfn>. The user does something, that changes state, that redraws the screen. Every frontend framework ever written is an argument about the third arrow.</p>
-  <p>The rule underneath it has a name: <dfn data-term="source-of-truth">single source of truth</dfn>. For any fact, exactly one place is allowed to be right about it. Everything else is a copy, a view, a photograph. If the streak lives in the state object, then the number on screen is not the streak. It is a picture of the streak, and pictures do not get edited.</p>
+  <p>The rule underneath it has a name: <dfn data-term="source-of-truth">single source of truth</dfn>. For any fact, exactly one place is allowed to be right about it. Everything else is a copy, a view, a <strong>photograph</strong>. If the streak lives in the state object, then the number on screen is not the streak. <em>It is a picture of the streak, and pictures do not get edited.</em></p>
 
-  <div class="box analogy"><div class="h">ANALOGY (TEMPORARY)</div><p>A shop with a stockroom and a window display. The stockroom is state: it is the only honest answer to "how many do we have". The window is the screen. When stock changes, you redo the window from the stockroom. What you must never do is walk outside, put an extra box in the window, and feel good about it. Now the window says twelve and the stockroom says eleven, nobody notices until someone tries to sell the twelfth, and the customer is the one who finds out.</p></div>
+  <div class="box analogy"><div class="h">ANALOGY (TEMPORARY)</div><p>A shop with a stockroom and a window display. The <strong>stockroom</strong> is state: it is the only honest answer to "how many do we have". The window is the screen. When stock changes, you redo the window from the stockroom. What you must never do is walk outside, put an extra box in the window, and feel good about it. Now the window says twelve and the stockroom says eleven, nobody notices until someone tries to sell the twelfth, and <em>the customer is the one who finds out</em>.</p></div>
 
   <figure class="fig-box">
     <svg class="figure" viewBox="0 0 640 300" role="img" aria-label="A loop of three boxes. State at the top left flows right into render, which flows right into screen. From screen an arrow curves down and back to the left into events, which flows back up into state. A note in the middle says the render arrow has two styles: imperative, meaning find the element and set it, and declarative, meaning describe the screen and let a framework redraw.">
@@ -63,11 +63,11 @@
     <tr><td>Scales to</td><td>A few screens, or discipline</td><td>Many screens, at a setup cost</td></tr>
     <tr><td>In Memento</td><td>The web app, 67,000 lines of it</td><td>The native rebuild</td></tr>
   </table>
-  <p>Neither is the good one. Imperative is a hammer and declarative is a nail gun, and the nail gun needs a compressor.</p>
+  <p><em>Neither is the good one.</em> Imperative is a hammer and declarative is a nail gun, and the nail gun needs a compressor.</p>
 
   <h3>Drift, the bug this chapter exists to prevent</h3>
   <p><dfn data-term="drift">Drift</dfn> is when the screen and the state stop agreeing, and it happens one way: somebody changed the screen without changing state. The number goes up, the user is happy, the state object still says four, and nothing looks wrong until the app redraws from state, which it will, on the next page load. Then the streak walks backwards and the user tells you your app ate their progress.</p>
-  <p>Drift never announces itself. No error, no red line, no crash. The only defence is the rule: every handler changes state, then calls render. Never the screen directly.</p>
+  <p><em>Drift never announces itself.</em> No error, no red line, no crash. The only defence is the rule: every handler changes state, then calls render. Never the screen directly.</p>
 
   <h3>Debounce: wait a beat, then save once</h3>
   <p>State that only lives in memory dies when the tab closes, so it gets written to storage. But typing fires an event per keystroke, and forty writes to do the work of one is waste. <dfn data-term="debounce">Debouncing</dfn> is the fix: start a short timer instead of saving, and if another change arrives first, cancel and restart it. The save happens once, a beat after the person stops. Memento waits 150 milliseconds. So does Memento Jr, because it was copied from Memento.</p>
@@ -121,7 +121,7 @@
 &lt;/script&gt;
 </div>
 
-  <p>Tap the first button five times. It works. It looks perfect. Now tap the second one, which does nothing more than what a real page load does, and watch five days of someone's life disappear. That is drift, and that is why it is worth a whole chapter.</p>
+  <p>Tap the first button five times. It works. It looks perfect. Now tap the second one, which does nothing more than what a real page load does, and <em>watch five days of someone's life disappear</em>. That is drift, and that is why it is worth a whole chapter.</p>
   <p>The third version never touches an element by hand. It rebuilds the whole screen from state every time, which is the idea a framework is built on.</p>
 
   <div class="sb" data-dom>
@@ -176,7 +176,7 @@ let saveTimer = null;</code></pre>
   </div>
 
   <p>Line 490 is the debounce: cancel the pending save, book a new one 150ms out. Line 489 is a guard clause from chapter 10, and it is load-bearing, because writing demo data over a real person's state would be the worst bug in the product.</p>
-  <p>Now the render arrow, imperative style. Memento does not have one render function, it has hundreds of small refreshers, each one responsible for a patch of screen. Here is the Clarity one:</p>
+  <p>Now the render arrow, imperative style. Memento does not have one render function, it has hundreds of small <strong>refreshers</strong>, each one responsible for a patch of screen. Here is the Clarity one:</p>
   <pre><code>function refreshAiChatUI() {
   if (typeof ClarityExperience !== 'undefined' &amp;&amp; ClarityExperience.isOpen) {
     ClarityExperience.renderPage(ClarityExperience.currentPage);
@@ -186,10 +186,10 @@ let saveTimer = null;</code></pre>
   }
 }</code></pre>
   <div class="src">memento-app/js/03-ai-integration.js:4806-4813 (web pin ca8afc8)</div>
-  <p>Four calls, each redrawing a different region from the same state. This is the honest cost of imperative rendering: a new piece of data means remembering every refresher that shows it. Forget one and you have shipped drift.</p>
+  <p>Four calls, each redrawing a different region from the same state. This is the honest cost of imperative rendering: a new piece of data means remembering every refresher that shows it. <em>Forget one and you have shipped drift.</em></p>
 
   <h3>The declarative half: the native rebuild</h3>
-  <p>The native app keeps Clarity's flow in a <dfn data-term="reducer">reducer</dfn>, a pure function that takes the current state and an event and returns the next state. It never touches a screen. It cannot, there is nothing to touch.</p>
+  <p>The native app keeps Clarity's flow in a <dfn data-term="reducer">reducer</dfn>, a <strong>pure function</strong> that takes the current state and an event and returns the next state. It never touches a screen. It cannot, there is nothing to touch.</p>
   <pre><code>export function clarityReduce(s: FlowState, e: FlowEvent): FlowState {
   const st = s.stage;
   if (st.kind === 'done' &amp;&amp; e.type !== 'intents-drained') return s;
@@ -262,7 +262,7 @@ let saveTimer = null;</code></pre>
 
   <div class="box expiry"><div class="h">WHERE TODAY'S ANALOGY BREAKS</div><p><strong>Breaks when:</strong> there is more than one stockroom. A real app has state in memory, state in <code>localStorage</code>, state on the phone's disk, and state in a Postgres row, and they can all disagree at once, usually because the user has two devices. The shop picture has no answer for that, because a stockroom cannot be in two cities. <strong>Real model:</strong> a chain of copies with rules about which one wins, which is what sync is and why <code>12-cloud-sync.js</code> exists. Memento's database goes as far as refusing a write that would blank a real person's state, because it does not fully trust the client's copy. That is chapter 17. The second break is smaller: the shop's window is drawn only when stock changes, but a real screen also redraws for reasons that have nothing to do with state, like rotating the phone. State is the source of truth, not the only trigger.</p></div>
 
-  <details class="hole"><summary>RABBIT HOLE: why the native reducer never edits state in place</summary><p><code>{ ...s, chunk: ... }</code> builds a new object rather than changing the old one. That is immutability, and it exists for two reasons. Comparing is cheap: React can check whether the object is a different object, which is one comparison instead of walking every field. And chapter 11's aliasing bug becomes impossible, because nothing holds a reference to something that can change underneath it. The cost is a new object per event, thousands of them, which the engine throws away almost for free. This is the trade every modern frontend makes: spend a little memory to delete a whole category of bug.</p></details>
+  <details class="hole"><summary>RABBIT HOLE: why the native reducer never edits state in place</summary><p><code>{ ...s, chunk: ... }</code> builds a new object rather than changing the old one. That is <strong>immutability</strong>, and it exists for two reasons. Comparing is cheap: React can check whether the object is a different object, which is one comparison instead of walking every field. And chapter 11's aliasing bug becomes impossible, because nothing holds a reference to something that can change underneath it. The cost is a new object per event, thousands of them, which the engine throws away almost for free. This is the trade every modern frontend makes: spend a little memory to delete a whole category of bug.</p></details>
 </main>
 <script src="../js/book.js"></script>
 </body>

@@ -27,10 +27,10 @@
   <details class="check"><summary>Chapter 21: your phone runs the TypeScript you wrote. True or false?</summary><div class="a">False. Types are erased at build time and the phone runs plain JavaScript. They existed only for the proofreader, before shipping.</div></details>
 
   <h2>The idea</h2>
-  <p>A <dfn data-term="component">component</dfn> is a function that takes inputs and returns a description of what should be on screen. Not a class, not a widget, not a magic object. A function.</p>
+  <p>A <dfn data-term="component">component</dfn> is a function that takes inputs and returns a description of what should be on screen. Not a class, not a widget, not a magic object. <em>A function.</em></p>
   <p>Its inputs come from two places. <dfn data-term="props">Props</dfn> are handed down by whoever used the component, and it may not change them: the parent's data, on loan. <dfn data-term="state">State</dfn> is the component's own memory, and when it changes the component runs again and the screen updates. Same props and same state, same screen, every time.</p>
 
-  <div class="box analogy"><div class="h">ANALOGY (TEMPORARY)</div><p>A chef at a station. The ingredients come from the kitchen, already chosen, and the chef cannot change what was sent. That is props. In the chef's pocket is a notebook with tonight's plate count. That is state. Given the same ingredients and the same notebook, the chef plates the identical dish every time. When the notebook changes, the dish is plated again and the new plate replaces the old one.</p></div>
+  <div class="box analogy"><div class="h">ANALOGY (TEMPORARY)</div><p>A chef at a station. The ingredients come from the kitchen, already chosen, and the chef cannot change what was sent. That is props. In the chef's pocket is a notebook with tonight's plate count. That is state. Given the same ingredients and the same notebook, <em>the chef plates the identical dish every time.</em> When the notebook changes, the dish is plated again and the new plate replaces the old one.</p></div>
 
   <figure class="fig-box">
     <svg class="figure" viewBox="0 0 640 280" role="img" aria-label="A tree of components. At the top, RootLayout. Below it, HomeScreen, which passes props down to two children: StreakText and HoldToComplete. HoldToComplete has its own state and three hooks listed beside it: useState for a value plus a setter, useRef for a box that survives a redraw, and useEffect for work after drawing with cleanup. An arrow loops from the state back into the component labelled set state, redraw.">
@@ -53,7 +53,7 @@
   </figure>
 
   <h3>Redrawing, and why nobody touches the screen</h3>
-  <p>Chapter 14 gave you the two styles. Memento's web app is imperative: something happens, code finds the element, code edits it. React is the other one. You never edit the screen. You change state, React calls your component again, compares what it returns with what is on screen, and applies the smallest set of real changes itself. That second run is a <dfn data-term="re-render">re-render</dfn>, cheap because it is mostly comparison. The payoff: the screen cannot drift out of step with the data, because it is only ever produced from the data. The cost: you say what you want, not how to get there, which feels backwards for about a week.</p>
+  <p>Chapter 14 gave you the two styles. Memento's web app is <strong>imperative</strong>: something happens, code finds the element, code edits it. React is the other one. You never edit the screen. You change state, React calls your component again, compares what it returns with what is on screen, and applies the smallest set of real changes itself. That second run is a <dfn data-term="re-render">re-render</dfn>, cheap because it is mostly comparison. The payoff: the screen cannot drift out of step with the data, because it is only ever produced from the data. The cost: you say what you want, not how to get there, which feels backwards for about a week.</p>
 
   <h3>What the function returns</h3>
   <p>Components return <dfn data-term="jsx">JSX</dfn>, HTML-shaped syntax inside JavaScript: <code>&lt;Text&gt;{label}&lt;/Text&gt;</code>. It is not HTML and not a string. The build turns every tag into a function call, so that line becomes roughly <code>createElement(Text, null, label)</code>. Curly braces drop a value into the middle, and a capitalised tag is one of your own components. Nesting them builds the <dfn data-term="component-tree">component tree</dfn>: a screen is a component holding components, down to the ones that actually draw something. Reading an unfamiliar React app means finding the top of that tree and walking down.</p>
@@ -70,7 +70,7 @@
   <p>The one that bites people is <code>useEffect</code>. It takes a job and a list of things to watch, and it may return a <dfn data-term="cleanup-function">cleanup function</dfn>. React runs that cleanup before running the job again, and when the component leaves the screen. Start a timer with no cleanup and it fires into a screen that no longer exists. Half the crashes in a young React app are exactly that.</p>
 
   <h3>React Native: same model, no browser</h3>
-  <p><dfn data-term="react-native">React Native</dfn> keeps all of the above and changes the tags. There is no DOM. <code>&lt;View&gt;</code>, <code>&lt;Text&gt;</code> and <code>&lt;Pressable&gt;</code> become the real native views iOS and Android already have, so scrolling, text selection and the keyboard are the platform's own. Styling is a <dfn data-term="style-object">style object</dfn> in JavaScript instead of a CSS file: same properties, camelCased, no cascade, no selectors, in the component's own file.</p>
+  <p><dfn data-term="react-native">React Native</dfn> keeps all of the above and changes the tags. There is no DOM. <code>&lt;View&gt;</code>, <code>&lt;Text&gt;</code> and <code>&lt;Pressable&gt;</code> become the real <strong>native views</strong> iOS and Android already have, so scrolling, text selection and the keyboard are the platform's own. Styling is a <dfn data-term="style-object">style object</dfn> in JavaScript instead of a CSS file: same properties, camelCased, no cascade, no selectors, in the component's own file.</p>
   <p><dfn data-term="expo">Expo</dfn> is the toolkit around it: build system, native modules, packaging. <dfn data-term="expo-router">expo-router</dfn> turns files into screens, so <code>src/app/index.tsx</code> is the first screen and <code>src/app/_layout.tsx</code> wraps everything. Running on a phone needs a <dfn data-term="dev-build">dev build</dfn>: a real app installed once, holding the project's native pieces, that loads your JavaScript over the network as you edit. On a Mac it runs in the <dfn data-term="simulator">simulator</dfn>, a fake iPhone in a window that belongs to Xcode, which is why Xcode is installed even though nobody opens it. Shipping means Apple's review and a cut of anything bought inside the app.</p>
 
   <h2>See it</h2>
@@ -113,7 +113,7 @@ render();
 &lt;/script&gt;
 </div>
 
-  <p>Nothing there reaches into the page to edit a number. The click changes state, the screen is rebuilt from state. Real React does the same, except it compares old and new trees and touches only what differs. Delete the <code>render()</code> call inside <code>setState</code> and you get the web app's classic bug: the data moves and the screen does not.</p>
+  <p>Nothing there reaches into the page to edit a number. The click changes state, the screen is rebuilt from state. Real React does the same, except it compares old and new trees and touches only what differs. Delete the <code>render()</code> call inside <code>setState</code> and you get the web app's classic bug: <em>the data moves and the screen does not.</em></p>
 
   <h2>Now in Memento</h2>
   <div class="lanes">
@@ -147,8 +147,8 @@ render();
       <div class="src">memento-native/src/app/_layout.tsx:10-32 (native pin 93bfa796)</div>
     </div>
   </div>
-  <p>A list of decisions. <code>useFonts</code> is a hook, so it re-renders this component when the fonts load. The first <code>useEffect</code> has an empty watch list, so it runs once ever; the second watches <code>loaded</code> and <code>error</code>, so it runs again whenever either changes. <code>return null</code> is a component drawing nothing yet, so no screen flashes in the wrong typeface. Then one line of JSX puts <code>&lt;Stack&gt;</code>, the router's navigator, under the whole app.</p>
-  <p>It is the root because of where it sits. <code>src/app/_layout.tsx</code> is a name expo-router recognises. Nothing registers it, nothing imports it. The folder is the configuration.</p>
+  <p>A list of decisions. <code>useFonts</code> is a hook, so it re-renders this component when the fonts load. The first <code>useEffect</code> has an empty <strong>watch list</strong>, so it runs once ever; the second watches <code>loaded</code> and <code>error</code>, so it runs again whenever either changes. <code>return null</code> is a component drawing nothing yet, so no screen flashes in the wrong typeface. Then one line of JSX puts <code>&lt;Stack&gt;</code>, the router's navigator, under the whole app.</p>
+  <p>It is the root because of where it sits. <code>src/app/_layout.tsx</code> is a name expo-router recognises. Nothing registers it, nothing imports it. <em>The folder is the configuration.</em></p>
 
   <h3>The versions, and the doors that only open in development</h3>
   <p>The first screen's file opens by reading switches out of the environment, chapter 19's mechanism exactly.</p>
@@ -198,8 +198,8 @@ const RUN = (process.env.EXPO_PUBLIC_FEEL_SAMPLE_RUN || '1').replace(/[^A-Za-z0-
   // Unmount: nothing may fire afterwards.
   useEffect(() =&gt; () =&gt; { clearTimer(); holding.current = false; }, []);</code></pre>
   <div class="src">memento-native/src/home/HoldToComplete.tsx:22-47 (native pin 93bfa796)</div>
-  <p>The props list is the component's contract, typed by chapter 21. <code>onComplete: () =&gt; void</code> is how a child talks back up: the button does not know what completing means, only who to tell.</p>
-  <p>Then four <code>useRef</code> calls, and why they are refs and not state is the lesson. Whether a finger is down changes many times a second and must never redraw the button. A ref survives every redraw and never triggers one. State is for what the screen shows, refs for what the component must remember.</p>
+  <p>The props list is the component's <strong>contract</strong>, typed by chapter 21. <code>onComplete: () =&gt; void</code> is how a child talks back up: the button does not know what completing means, only who to tell.</p>
+  <p>Then four <code>useRef</code> calls, and why they are refs and not state is the lesson. Whether a finger is down changes many times a second and must never redraw the button. A ref survives every redraw and never triggers one. <em>State is for what the screen shows, refs for what the component must remember.</em></p>
   <p>Two effects, both about cleanup. The first watches <code>props.actionKey</code>: a new action arrives, cancel the animation, re-arm. The second's body is a function, so it does nothing going in and runs that function on the way out. When the button leaves the screen, kill the timer, because a timer firing into a component that no longer exists is a crash.</p>
   <pre><code>  const begin = useCallback(() =&gt; {
     if (finished.current || holding.current || props.completed) return;
@@ -261,7 +261,7 @@ const RUN = (process.env.EXPO_PUBLIC_FEEL_SAMPLE_RUN || '1').replace(/[^A-Za-z0-
       <p>Four explicit instructions to four parts of the screen. Forget one and a corner of the app goes stale. Nothing is wrong with this code. It is a list a human maintains by hand.</p>
     </div>
     <div class="lane mem"><div class="h">THE NATIVE VERSION (declarative)</div>
-      <p>There is no equivalent function, and that is the point. State changes, the components that read it run again, and every part is correct because it was drawn from the new state. Nobody keeps a list of what to refresh. The trade: less control over exactly when a piece of screen updates, in exchange for a guarantee that it cannot be forgotten.</p>
+      <p><em>There is no equivalent function, and that is the point.</em> State changes, the components that read it run again, and every part is correct because it was drawn from the new state. Nobody keeps a list of what to refresh. The trade: less control over exactly when a piece of screen updates, in exchange for a guarantee that it cannot be forgotten.</p>
     </div>
   </div>
 
@@ -311,14 +311,14 @@ const styles = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 },
   label: { fontSize: 15, color: '#0b1112' },
 });</code></pre>
-  <p>Two props, one piece of state, one ref, one cleanup, two callbacks, three tags. The real one adds a typed theme, an animation, haptics, a re-arming key and an inverted twin layer sweeping across the label. Same skeleton.</p>
+  <p>Two props, one piece of state, one ref, one cleanup, two callbacks, three tags. The real one adds a typed theme, an animation, haptics, a re-arming key and an inverted twin layer sweeping across the label. <em>Same skeleton.</em></p>
 
   <div class="box memento"><div class="h">THE ALTERNATIVE, AND WHY MEMENTO CHOSE THIS</div><p>The alternatives: wrap the web app, write Swift for iPhone and Kotlin for Android, or rebuild once in React Native. The decision is on record, in writing, before any code.</p><pre><code>- Platforms for the first release: iPhone + Android.
 - Storefronts: Malik prefers WORLDWIDE if not a headache. Consequence
   (Fable): worldwide means Apple/Google in-app purchase is effectively
   required for in-app buying (US-only external links do not cover other
   storefronts). DECIDED (Malik, 2026-09-11): WORLDWIDE, accept the 15%
-  in-app purchase cut. Section 7's worldwide branch is the plan.</code></pre><div class="src">MIGRATION/01-MIGRATION-PLAN.md:10,15-19 (native pin 93bfa796)</div><p>Two phone platforms from one codebase decided it. Two native codebases would double every screen, every fix and every review round, for a product one founder and two agents maintain. The bill is Apple's 15% under their small business programme, accepted on purpose rather than discovered later. The other cost: React Native sits between you and the platform, so anything new on iOS arrives when the library catches up.</p><p>The same document explains the storage choice. MMKV is used from day one because its reads are synchronous once the app has hydrated, so the first frame is drawn with real data instead of a flash of empty state that corrects itself. Hydration finishes before first render and the splash holds until it does. The same fear <code>_layout.tsx</code> answers with the fonts.</p></div>
+  in-app purchase cut. Section 7's worldwide branch is the plan.</code></pre><div class="src">MIGRATION/01-MIGRATION-PLAN.md:10,15-19 (native pin 93bfa796)</div><p>Two phone platforms from one codebase decided it. Two native codebases would double every screen, every fix and every review round, for a product one founder and two agents maintain. The bill is Apple's 15% under their small business programme, accepted on purpose rather than discovered later. The other cost: React Native sits between you and the platform, so anything new on iOS arrives when the library catches up.</p><p>The same document explains the storage choice. <strong>MMKV</strong> is used from day one because its reads are synchronous once the app has hydrated, so the first frame is drawn with real data instead of a flash of empty state that corrects itself. Hydration finishes before first render and the splash holds until it does. The same fear <code>_layout.tsx</code> answers with the fonts.</p></div>
 
   <h2>Do it</h2>
   <div class="ex" data-device="mac">

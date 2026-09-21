@@ -28,9 +28,9 @@
 
   <h2>The idea, part one: security is a boundary question</h2>
   <p>Every app has a line running through it. On one side is code you control. On the other is everything a stranger can touch: the phone, the browser, the network, the request body, the headers, the URL. That line is a <dfn data-term="trust-boundary">trust boundary</dfn>, and almost every security bug is one sentence: someone believed something that arrived from the far side of it.</p>
-  <p>The far side includes your own app. Memento's JavaScript in Safari feels like yours because you wrote it. It is running on a computer a stranger owns, and they can open the developer tools, edit any value, and send whatever they like to your server. Anything the phone sends can be forged. The button that says "I am a paid user" is a claim, not a fact.</p>
+  <p>The far side includes your own app. Memento's JavaScript in Safari feels like yours because you wrote it. It is running on a computer a stranger owns, and they can open the developer tools, edit any value, and send whatever they like to your server. Anything the phone sends can be forged. The button that says "I am a paid user" is <em>a claim, not a fact.</em></p>
 
-  <div class="box analogy"><div class="h">ANALOGY (TEMPORARY)</div><p>A nightclub. Inside, nobody checks anything, because getting in was the check. The door is the trust boundary. The bouncer does four things and only four: is this person who they say (authentication), are they on the list for this room (authorization), is that bag a reasonable size (validation), and how many people are already inside (rate limit). A bouncer who lets someone in because they said "I was here last week, mate" is not a bouncer. And if the guest list system goes down, a good bouncer stops the queue. He does not wave everyone through.</p></div>
+  <div class="box analogy"><div class="h">ANALOGY (TEMPORARY)</div><p>A nightclub. Inside, nobody checks anything, because getting in was the check. The door is the trust boundary. The <strong>bouncer</strong> does four things and only four: is this person who they say (authentication), are they on the list for this room (authorization), is that bag a reasonable size (validation), and how many people are already inside (rate limit). A bouncer who lets someone in because they said "I was here last week, mate" is not a bouncer. And if the guest list system goes down, a good bouncer stops the queue. <em>He does not wave everyone through.</em></p></div>
 
   <figure class="fig-box">
     <svg class="figure" viewBox="0 0 640 300" role="img" aria-label="A vertical dashed line splits the picture. On the left, labelled untrusted, are the phone, the browser tools, and the request. On the right, labelled your server, a stack of four checks: shape and size, who is asking, what they may do, and how many. Past the checks are the secret key and the database. An arrow crosses the line only through the checks.">
@@ -70,10 +70,10 @@
     <tr><td>Broken auth</td><td>Trusting a flag. The client says "paid" or "admin" and the server believes it.</td><td>The server re-derives the answer from something it owns. A receipt, a session, a row.</td></tr>
     <tr><td>Open database</td><td>The data is reachable by anyone who knows the address, because no rule says who owns which row.</td><td>Row Level Security on, per table, deny by default. This is the exact hole in the incidents from chapter 4.</td></tr>
   </table>
-  <p>One sentence to retire permanently: "nobody would do that." Nobody is not a control. A bored teenager with the network tab open is not nobody, and neither is a script crawling the internet for open Supabase projects. That script is how the 170 Lovable apps in chapter 4 got found.</p>
+  <p>One sentence to retire permanently: "nobody would do that." <em>Nobody is not a control.</em> A bored teenager with the network tab open is not nobody, and neither is a script crawling the internet for open Supabase projects. That script is how the 170 Lovable apps in chapter 4 got found.</p>
 
   <h2>The idea, part two: performance is a measurement question</h2>
-  <p>Slow software is a feeling. Optimising is a change. The gap between them is where engineers waste weeks, because the part you think is slow is almost never the part that is slow. The rule is blunt: measure first, change second, measure again.</p>
+  <p>Slow software is a feeling. Optimising is a change. The gap between them is where engineers waste weeks, because <em>the part you think is slow is almost never the part that is slow.</em> The rule is blunt: measure first, change second, measure again.</p>
   <p>Two words keep you honest. <dfn data-term="latency">Latency</dfn> is how long one thing takes, from the user's finger. <dfn data-term="throughput">Throughput</dfn> is how many fit in a second. They trade against each other: batching raises throughput and can make one person's wait longer.</p>
   <p>After that, the same four suspects turn up over and over.</p>
   <ul>
@@ -82,7 +82,7 @@
     <li><strong><dfn data-term="cache">Caching</dfn>.</strong> Keep the answer so you do not compute or fetch it twice. Caching turns a slow thing into a fast thing and introduces exactly one new problem: knowing when the kept copy is stale.</li>
     <li><strong><dfn data-term="debounce">Debouncing</dfn>.</strong> When something fires constantly, wait for it to stop before acting. Saving on every keystroke is a hundred writes a minute. Wait 150 milliseconds after the last one and save once.</li>
   </ul>
-  <p>The cheap opening move, before any profiler: look at the biggest file. Size is not proof of slowness, but the file that grew to ten thousand lines is where the work accumulated.</p>
+  <p>The cheap opening move, before any <strong>profiler</strong>: look at the biggest file. Size is not proof of slowness, but the file that grew to ten thousand lines is where the work accumulated.</p>
 
   <h2>See it</h2>
   <p>Four small programs: two security habits, two performance habits.</p>
@@ -223,7 +223,7 @@ export const CREDENTIAL_PATHS = [['spotify', 'tokens']] as const;</code></pre>
     <tr><td><code>memento-app/js/08-cards-grid-share.js</code></td><td>10,478 lines</td><td>The biggest script. Parsed on every page load whether or not the user opens a card.</td></tr>
     <tr><td><code>memento-app/js/09-controllers.js</code></td><td>7,064 lines</td><td>Shared wiring, so it also loads every time.</td></tr>
   </table>
-  <p>Memento's caching story is the opposite problem, solved by hand. Every local script tag carries a <code>?v=</code> cache-buster, bumped by hand when that file changes. At the pin the 57 tags hold 14 different versions, and only two of them say <code>v1378</code>. The app checks the stamp against itself at boot:</p>
+  <p>Memento's caching story is the opposite problem, solved by hand. Every local script tag carries a <code>?v=</code> <strong>cache-buster</strong>, bumped by hand when that file changes. At the pin the 57 tags hold 14 different versions, and only two of them say <code>v1378</code>. The app checks the stamp against itself at boot:</p>
   <pre><code>/* v980: the JS build stamp. The release sed bump rewrites the version in BOTH
    index.html AND this line; js/11 compares them at boot and force-refreshes
    ONCE on mismatch. Kills the "phone silently runs old cached js under a new
@@ -231,8 +231,8 @@ export const CREDENTIAL_PATHS = [['spotify', 'tokens']] as const;</code></pre>
    connection; Malik hit this three times in one day). */
 window.MEMENTO_JS_BUILD = 'v1378';</code></pre>
   <div class="src">memento-app/js/01-state-foundation.js:5-10 (web pin ca8afc8)</div>
-  <p>That is caching's one hard problem: the phone kept the answer, the answer changed, nobody told the phone. The version string is the telling.</p>
-  <p>The last control is about money rather than speed, same shape. The AI spend ceiling lives in a dated migration, in the database, not in app code:</p>
+  <p>That is caching's one hard problem: the phone kept the answer, the answer changed, nobody told the phone. <em>The version string is the telling.</em></p>
+  <p>The last control is about money rather than speed, same shape. The AI <strong>spend ceiling</strong> lives in a dated migration, in the database, not in app code:</p>
   <pre><code>-- Allow fixed 31-day windows for server-only AI spend ceilings.
 
 create or replace function public.consume_rate_limits(p_rules jsonb)</code></pre>
@@ -281,9 +281,9 @@ diff sandbox/v1/server.js sandbox/v1-secure/server.js | head -60</code></pre>
     <dt>Debounce</dt><dd>Wait for the storm to stop, then act once. Memento saves 150 milliseconds after the last change.</dd>
   </dl></div>
 
-  <div class="box expiry"><div class="h">WHERE TODAY'S ANALOGY BREAKS</div><p><strong>Breaks when:</strong> you picture one door. A real app has many, and the dangerous ones are the doors nobody drew: a database reachable directly with a public key, a storage bucket, a webhook, an old function still deployed. The bouncer also implies that once you are inside you can go anywhere, which is the assumption Row Level Security exists to destroy: the rule is per row, re-checked on every read. <strong>Real model:</strong> every place data crosses from something you do not control into something you do is its own boundary, with its own four checks. Chapter 26 asks the structural version: where should a rule live so it cannot be bypassed by accident.</p></div>
+  <div class="box expiry"><div class="h">WHERE TODAY'S ANALOGY BREAKS</div><p><strong>Breaks when:</strong> you picture one door. A real app has many, and the dangerous ones are the doors nobody drew: a database reachable directly with a public key, a storage bucket, a webhook, an old function still deployed. The bouncer also implies that once you are inside you can go anywhere, which is the assumption <strong>Row Level Security</strong> exists to destroy: the rule is per row, re-checked on every read. <strong>Real model:</strong> every place data crosses from something you do not control into something you do is its own boundary, with its own four checks. Chapter 26 asks the structural version: where should a rule live so it cannot be bypassed by accident.</p></div>
 
-  <details class="hole"><summary>RABBIT HOLE: why "measure first" is not a slogan</summary><p>Programs spend most of their time in a small part of their code, and humans are terrible at guessing which part. The usual story is that a team spends a week making a function twice as fast, and the function accounted for two percent of the time, so the app got one percent faster and nobody noticed. There is an arithmetic law behind this: the best possible speedup from optimising one part is capped by how much of the total that part was. If a piece is 5% of the runtime, deleting it entirely buys you 5%. That is why the measurement is not a formality, it is the thing that tells you whether the work is worth doing at all. The same law is why the biggest file is a good first guess and a bad conclusion.</p></details>
+  <details class="hole"><summary>RABBIT HOLE: why "measure first" is not a slogan</summary><p>Programs spend most of their time in a small part of their code, and humans are terrible at guessing which part. The usual story is that a team spends a week making a function twice as fast, and the function accounted for two percent of the time, so the app got one percent faster and nobody noticed. There is an arithmetic law behind this: the best possible speedup from optimising one part is capped by how much of the total that part was. If a piece is 5% of the runtime, <em>deleting it entirely buys you 5%.</em> That is why the measurement is not a formality, it is the thing that tells you whether the work is worth doing at all. The same law is why the biggest file is a good first guess and a bad conclusion.</p></details>
 
   <details class="hole"><summary>RABBIT HOLE: what a 500 should say</summary><p>Two audiences, two messages. The user gets "something went wrong on the server", with no detail, because details are a map of your internals: file paths, library versions, table names, sometimes a fragment of a query with data in it. The log gets everything, because it is yours. Memento's native transport takes the same line from the other direction: it catches errors and only surfaces messages from a short allowlist, so an unexpected error message can never be painted onto a screen. Chapter 23 read that allowlist.</p></details>
 </main>

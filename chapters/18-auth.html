@@ -17,7 +17,7 @@
 <main>
   <div class="kicker">Chapter 18 <span class="tag need">NEED</span> <span class="tag">~60 min</span> <span class="tag">phone, exercise is Mac</span></div>
   <h1>Auth: who you are and what you may do</h1>
-  <p class="lede">Two questions that look like one. Who is this? And is this person allowed to do that? Mixing them up is how a paywall becomes decorative, and Memento's own decision log says its web paywall currently is.</p>
+  <p class="lede">Two questions that look like one. Who is this? And is this person allowed to do that? Mixing them up is how a <strong>paywall</strong> becomes decorative, and Memento's own decision log says its web paywall currently is.</p>
 
   <div class="box recap"><div class="h">LAST TIME</div><p>A database is tables of rows, related by keys, described by a schema that migrations change one dated file at a time. Row Level Security is Postgres deciding, inside every query, which rows the signed-in user may touch. Three of chapter 4's four incidents are that rule being absent.</p></div>
 
@@ -28,11 +28,11 @@
 
   <h2>The idea</h2>
   
-  <p><dfn data-term="authentication">Authentication</dfn> is <em>who are you</em>. You prove it once: a code to your email, a password, a face. The answer is an identity, nothing more.</p>
+  <p><dfn data-term="authentication">Authentication</dfn> is <em>who are you</em>. You prove it once: a code to your email, a password, a face. The answer is an <strong>identity</strong>, nothing more.</p>
   <p><dfn data-term="authorization">Authorization</dfn> is <em>what may you do</em>. Given that identity, may you read this row, call this route, use the paid model. Yes or no, per action.</p>
-  <p>Knowing who someone is tells you nothing about what they may do. Every hotel understands this: the desk checks your ID once, and the key card opens your room and the gym and not the wine cellar.</p>
+  <p>Knowing who someone is tells you nothing about what they may do. Every hotel understands this: the desk checks your ID once, and the <strong>key card</strong> opens your room and the gym and not the wine cellar.</p>
 
-  <div class="box analogy"><div class="h">ANALOGY (TEMPORARY)</div><p>The hotel. You show your passport at the desk once: authentication. They hand you a key card: the <dfn data-term="session">session</dfn>, proof you were checked, valid for your stay. The number on the card is the <dfn data-term="token">token</dfn>. You present it at every door, and the door has no idea what your passport looked like. Cards expire, can be reissued, and can be cancelled while you stand in the lift. The valet gets a different key entirely, one that starts the car and will not open the boot. That valet key is <dfn data-term="oauth">OAuth</dfn>.</p></div>
+  <div class="box analogy"><div class="h">ANALOGY (TEMPORARY)</div><p>The hotel. You show your passport at the desk once: authentication. They hand you a key card: the <dfn data-term="session">session</dfn>, proof you were checked, valid for your stay. The number on the card is the <dfn data-term="token">token</dfn>. You present it at every door, <em>and the door has no idea what your passport looked like</em>. Cards expire, can be reissued, and can be cancelled while you stand in the lift. The valet gets a different key entirely, one that starts the car and will not open the boot. That valet key is <dfn data-term="oauth">OAuth</dfn>.</p></div>
 
   <figure class="fig-box">
     <svg class="figure" viewBox="0 0 640 300" role="img" aria-label="Top half: authentication, a person proving identity once and receiving a session with a token. Bottom half: authorization, that token being presented at three separate doors, read row, call paid AI, and delete account, each door deciding yes or no on its own. Right side: OAuth shown as the app sending you to Google, Google vouching for you, and a token coming back, with the note that the app never sees your Google password.">
@@ -63,16 +63,16 @@
     <tr><td>It can be refreshed</td><td>A second, longer-lived <dfn data-term="refresh-token">refresh token</dfn> quietly trades itself for a new access token, so you are not signed out every hour.</td></tr>
     <tr><td>It can be revoked</td><td>Signing out, or an admin killing the session, stops it working before it expires.</td></tr>
   </table>
-  <p>So a token is not a password. It is a temporary, cancellable stand-in, which is why apps hand them around instead of storing passwords anywhere.</p>
+  <p><em>So a token is not a password.</em> It is a temporary, cancellable stand-in, which is why apps hand them around instead of storing passwords anywhere.</p>
 
   <h3>OAuth, and the key you do not give away</h3>
-  <p>"Continue with Google" is not Memento asking for your Google password. Memento sends you to Google, Google authenticates you on its own page, and Google returns a signed statement saying "this is a real account, here is its id and email". Memento never sees the password, so it could not leak it if it tried. And you can revoke the connection later, which you could not do after typing a password into somebody's form.</p>
+  <p>"Continue with Google" is not Memento asking for your Google password. Memento sends you to Google, Google authenticates you on its own page, and Google returns a <strong>signed statement</strong> saying "this is a real account, here is its id and email". Memento never sees the password, so it could not leak it if it tried. And you can <strong>revoke</strong> the connection later, which you could not do after typing a password into somebody's form.</p>
 
   <h3>Public keys, secret keys, and one flag that means nothing</h3>
   <p>Some keys identify an application. Some authorize spending money. Treating them alike is how founders get four-figure bills.</p>
   <p>Supabase's <dfn data-term="anon-key">anon key</dfn> is the first kind: a long string inside every copy of the app, visible to anyone who opens the developer tools. It says "requests from the Memento app", not who you are. It is still a real credential the API accepts, so it is not powerless. It is publishable because its power was deliberately cut down: the database role it maps to gets almost no grants, and RLS decides access per row from the signed-in identity. Public by design, safe only because of the previous chapter.</p>
   <p>The Anthropic key is a <dfn data-term="secret-key">secret key</dfn>, the second kind: anyone holding it can spend Memento's money. It lives in the edge function's environment and nowhere else, which is the entire reason the chapter 16 proxy exists.</p>
-  <p>Then the flag. An <dfn data-term="entitlement">entitlement</dfn> is what an account has paid for, and a real one lives on a server. Memento's <code>entitlements.isPaid</code> is a boolean on the user's own device, editable in ten seconds. Fine as a hint about which screen to draw, never evidence. A client can say it is paid. Only a server can know.</p>
+  <p>Then the flag. An <dfn data-term="entitlement">entitlement</dfn> is what an account has paid for, and a real one lives on a server. Memento's <code>entitlements.isPaid</code> is a boolean on the user's own device, editable in ten seconds. Fine as a hint about which screen to draw, never evidence. A client can say it is paid. <em>Only a server can know.</em></p>
 
   <h2>See it</h2>
   <p>A fake sign-in that issues a token, and a door that checks it. Real tokens are signed so they cannot be forged. These are just objects.</p>
@@ -187,7 +187,7 @@ const headers = useProxy
     'Content-Type': 'application/json',
     // Paid Action sends the real user session. Free Clarity remains
     // anonymous and uses the public app key plus strict server prompts.
-    'Authorization': 'Bearer ' + proxyToken,</code></pre><div class="src">memento-app/js/03-ai-integration.js:3083-3099 (web pin ca8afc8)</div><p>Free Clarity sends the public app key as the bearer. Paid Action sends your session token, and with no session it throws instead of quietly sending the public key and hoping. That <code>throw</code> is the most important line here.</p></div>
+    'Authorization': 'Bearer ' + proxyToken,</code></pre><div class="src">memento-app/js/03-ai-integration.js:3083-3099 (web pin ca8afc8)</div><p>Free Clarity sends the public app key as the bearer. Paid Action sends your session token, and with no session it throws instead of quietly sending the public key and hoping. That <code>throw</code> is <em>the most important line here</em>.</p></div>
   </div>
 
   <div class="lanes">
@@ -215,7 +215,7 @@ export function validateReceipt(value: unknown, subject: string, environment: En
     <div class="lane mem"><div class="h">MEMENTO NATIVE: the keychain, this device only</div><pre><code>getItemAsync: key =&gt; SecureStore.getItemAsync(key, { keychainService: 'memento.auth.v1', keychainAccessible: SecureStore.WHEN_UNLOCKED_THIS_DEVICE_ONLY }),</code></pre><div class="src">memento-native/src/auth/nativeSessionVault.ts:7 (native pin 93bfa796)</div><p><code>expo-secure-store</code> is the iOS keychain, the operating system's <dfn data-term="secure-store">secure store</dfn>. <code>WHEN_UNLOCKED_THIS_DEVICE_ONLY</code> means readable only while the phone is unlocked, never carried to a new device in a backup. The state blob, which does get copied around, holds no credentials.</p></div>
   </div>
 
-  <div class="box memento"><div class="h">THE ALTERNATIVE, AND WHY MEMENTO CHOSE THIS</div><p>The alternative is passwords you store yourself: hashing, reset emails, breach notifications, permanent liability, zero product value. Memento does not have one. Web sign-in is a six-digit code to your email plus Google; native is the same code path. The cost is real, since a code email in a spam folder is a failed sign-in and your support ticket. What Memento buys is that it never holds a password, so it can never leak one. <strong>The honest gap.</strong> The web paywall is not enforced anywhere, and Memento's own decision log says so: "The paywall is UI-only today: Unlock sets <code>state.entitlements.isPaid = true</code> on the client (js/13), no payment collected, so the paid gate is currently bypassable. Real billing enforcement is the #1 pre-launch gap." That is <code>DECISIONS.md:18-21</code> (web pin ca8afc8): the third sandbox's bug, in production, written down by the people who built it. The native side is where it gets fixed, which is why <code>paidServerAuthority</code> was born as a literal <code>false</code>.</p></div>
+  <div class="box memento"><div class="h">THE ALTERNATIVE, AND WHY MEMENTO CHOSE THIS</div><p>The alternative is passwords you store yourself: hashing, reset emails, breach notifications, permanent liability, zero product value. Memento does not have one. Web sign-in is a six-digit code to your email plus Google; native is the same code path. The cost is real, since a code email in a spam folder is a failed sign-in and your support ticket. What Memento buys is that it never holds a password, so it can never leak one. <strong>The honest gap.</strong> The web paywall is not enforced anywhere, and Memento's own decision log says so: "The paywall is UI-only today: Unlock sets <code>state.entitlements.isPaid = true</code> on the client (js/13), no payment collected, so the paid gate is currently bypassable. Real billing enforcement is the #1 pre-launch gap." That is <code>DECISIONS.md:18-21</code> (web pin ca8afc8): the third sandbox's bug, in production, <em>written down by the people who built it</em>. The native side is where it gets fixed, which is why <code>paidServerAuthority</code> was born as a literal <code>false</code>.</p></div>
 
   <h2>Do it</h2>
   <div class="ex" data-device="mac">
@@ -247,7 +247,7 @@ node server.js</code></pre>
       <li><strong>Break it.</strong> In <code>server.js</code>, delete the line in <code>checkAuth</code> reading <code>if (req.headers["fake_token"] !== FAKE_TOKEN) return null;</code>, then in <code>handleGetSync</code> change <code>loadDB()[owner] || {}</code> to <code>loadDB()</code>. Ctrl-C, start it again.</li>
       <li>Knock as nobody.
         <pre><code>curl -s -H "X-Owner: anyone" http://localhost:4321/api/sync</code></pre>
-        <p>Everyone's data, to a caller with no token. Two deletions, two holes: no identity check, no per-user scoping. EnrichLead and the 170 Lovable apps in one command, on your own machine, where it costs nothing.</p>
+        <p>Everyone's data, to a caller with no token. <em>Two deletions, two holes</em>: no identity check, no per-user scoping. EnrichLead and the 170 Lovable apps in one command, on your own machine, where it costs nothing.</p>
       </li>
       <li>Put it back: <code>mv server.js.bak server.js</code>, restart, run step 6 again, get <code>401</code>. Then <code>rm db.json secrets.env</code>.</li>
     </ol>

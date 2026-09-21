@@ -29,10 +29,10 @@
   <details class="check"><summary>You are told "the tests pass." What is missing?</summary><div class="a">The output. A claim with no evidence is a claim. Chapter 27's rule: if you cannot verify it, it did not happen. Ask for the summary lines, or run <code>npm run check</code> yourself in the lab.</div></details>
 
   <h2>The idea: the gate</h2>
-  <p>Every serious codebase has a moment where reading stops and writing starts, and that moment is a permission, not a feeling.</p>
-  <p>Memento is under a <dfn data-term="code-freeze">code freeze</dfn>. A freeze is a decision to stop changing something so that a second thing can catch up: here, the web app holds still at v1378 while the React Native rebuild chases it. A freeze is not laziness. It is how you stop the target moving while you copy it, and every change you allow through it is a change the other team has to replay by hand.</p>
-  <p>So this chapter has a gate in front of it, and the gate is one sentence from one person.</p>
-  <div class="box expiry"><div class="h">THE GATE. DO NOT PASS IT WITHOUT THIS</div><p>This chapter begins only when Malik has said, <strong>that day, in chat</strong>: "yes, do the graduation change on Memento." Not last week. Not implied by your being on chapter 30. Not an agent saying it is fine. Until that sentence exists the chapter is reading, and the lab from chapter 29 is where anything runs. After it exists, the agent adds an isolated worktree, a second working copy of the same repository on its own branch, and every change lives in there. The shared <code>~/Downloads/MEMENTO</code> checkout is never switched, because another agent is standing in it. Nothing, ever, happens on <code>main</code>.</p></div>
+  <p>Every serious codebase has a moment where reading stops and writing starts, and that moment is a <strong>permission</strong>, not a feeling.</p>
+  <p>Memento is under a <dfn data-term="code-freeze">code freeze</dfn>. A freeze is a decision to stop changing something so that a second thing can catch up: here, the web app holds still at v1378 while the React Native rebuild chases it. A freeze is not laziness. <em>It is how you stop the target moving while you copy it</em>, and every change you allow through it is a change the other team has to replay by hand.</p>
+  <p>So this chapter has a gate in front of it, and the <strong>gate</strong> is one sentence from one person.</p>
+  <div class="box expiry"><div class="h">THE GATE. DO NOT PASS IT WITHOUT THIS</div><p>This chapter begins only when Malik has said, <strong>that day, in chat</strong>: "yes, do the graduation change on Memento." Not last week. Not implied by your being on chapter 30. Not an agent saying it is fine. Until that sentence exists the chapter is reading, and the lab from chapter 29 is where anything runs. After it exists, the agent adds an isolated <strong>worktree</strong>, a second working copy of the same repository on its own branch, and every change lives in there. The shared <code>~/Downloads/MEMENTO</code> checkout is never switched, because another agent is standing in it. Nothing, ever, happens on <code>main</code>.</p></div>
   <p>That is not ceremony. Memento is live, it has paying users, and its rules file tells every agent what the freeze allows:</p>
   <pre><code>- No new features, redesigns, or copy changes in `memento-app/`. Bug fixes
   only, and only for bugs that block a real person or a test account.
@@ -46,7 +46,7 @@ Format: `vNNNN | file | what changed | why it could not wait | approved by`
 
 (none yet)</code></pre>
   <div class="src">MIGRATION/FREEZE-LOG.md:3-6 (native pin 93bfa796)</div>
-  <p>"(none yet)" is the proudest line in the repository: a freeze running since 11 September 2026 and nothing urgent enough to break it. If your change touches <code>memento-app/</code>, you write the first line in that file, and you had better be able to defend it.</p>
+  <p>"(none yet)" is <em>the proudest line in the repository</em>: a freeze running since 11 September 2026 and nothing urgent enough to break it. If your change touches <code>memento-app/</code>, you write the first line in that file, and you had better be able to defend it.</p>
   <p>Then the shipping rules, which you now read as git rather than as chores:</p>
   <pre><code>- **Before editing:** `git pull --rebase origin main` (get other agents' latest work).
 - **After a meaningful change:** commit ONLY your own files: `git add &lt;your specific files&gt;
@@ -55,7 +55,7 @@ Format: `vNNNN | file | what changed | why it could not wait | approved by`
   <div class="src">CLAUDE.md:72, 73 and 75, wrapped to fit (native pin 93bfa796)</div>
   <p>Pull with rebase first so your work sits on top of theirs. Name your files so you commit only what you understand. Sign the message so the log says who wrote it. And where that quote says push to <code>main</code>, you do the safer version: push a branch and open a <dfn data-term="pull-request">pull request</dfn>, because a first change by a new engineer gets read before it merges. That reader is not you.</p>
 
-  <div class="box analogy"><div class="h">ANALOGY (TEMPORARY)</div><p>A shooting range. The range is cold by default: you can handle the weapon, dry fire it, walk the line, inspect everything. Live ammunition only when the range officer calls the range hot, and it goes cold again the moment anyone steps forward. Malik is the range officer. The lab is dry fire. The branch is a hot range with one person shooting and one person watching.</p></div>
+  <div class="box analogy"><div class="h">ANALOGY (TEMPORARY)</div><p>A shooting range. The range is cold by default: you can handle the weapon, dry fire it, walk the line, inspect everything. Live ammunition only when the range officer calls the range hot, and it goes cold again the moment anyone steps forward. Malik is the range officer. The lab is dry fire. <em>The branch is a hot range with one person shooting and one person watching.</em></p></div>
 
   <figure class="fig-box">
     <svg class="figure" viewBox="0 0 640 250" role="img" aria-label="A loop of six steps. Malik says yes, then create a branch, then make the change, then verify it with tests or screenshots, then open a pull request, then stop at the reviewed branch. An arrow from stop goes back to Malik says yes, labelled merging is a separate yes. Main sits outside the loop, untouched.">
@@ -90,7 +90,7 @@ Format: `vNNNN | file | what changed | why it could not wait | approved by`
   </figure>
 
   <h2>See it</h2>
-  <p>The rubric, as an object. Run it with everything false, then flip your honest answers and run it again. It will not flatter you.</p>
+  <p>The <strong>rubric</strong>, as an object. Run it with everything false, then flip your honest answers and run it again. It will not flatter you.</p>
 
   <div class="sb">
 const rubric = [
@@ -155,7 +155,7 @@ report(rubric);
     <li>Verify inside the worktree, never in the chapter 29 lab copy, which is pinned to an old snapshot and would test the wrong code. Native: <code>npm run check</code> in <code>~/Downloads/CODE-BOOK/lab/graduation/memento-native</code>. Web: the console gate, zero errors, and the four-cell screenshot matrix if anything visual moved.</li>
     <li>Commit the named files with a message that says what changed and why, ending with the co-author line the rules file requires.</li>
     <li>Push the branch and open the pull request: <code>gh pr create</code>, or the button GitHub shows you after a push.</li>
-    <li><strong>Stop.</strong> The chapter ends at a reviewed branch. Merging is a separate yes, from the same person, on a different day if he wants.</li>
+    <li><strong>Stop.</strong> The chapter ends at a reviewed branch. <em>Merging is a separate yes</em>, from the same person, on a different day if he wants.</li>
   </ol>
 
   <h2>Do it</h2>
@@ -197,11 +197,11 @@ report(rubric);
     <li>Run a ten-minute reconnaissance on a codebase you have never seen.</li>
     <li>Say where the logs, alerts, backups and bills are, and what you do first in an incident.</li>
   </ul>
-  <p>Six weeks ago you could not do one of those. Not one. You could say the words, which is a different thing, and the gap between saying the word and owning the idea is the whole reason this book exists.</p>
+  <p>Six weeks ago you could not do one of those. <em>Not one.</em> You could say the words, which is a different thing, and the gap between saying the word and owning the idea is the whole reason this book exists.</p>
 
   <h3>What comes next</h3>
   <p>Three things, in order of value. Read one Memento file a week, properly, with the agent explaining only what you ask about: fifty-two files a year is most of the app. Do the rabbit holes you skipped when you hit a wall that needs them, and not before, because a rabbit hole taken for its own sake is entertainment. And keep the habit that is worth more than every fact in here: when an agent tells you something, ask why, and do not accept an answer you cannot check.</p>
-  <p>You are not an engineer. Six weeks does not do that, and anyone selling you otherwise is selling something. What you are is the person who can no longer be lied to about his own app, by a vendor, by a contractor, or by a very confident machine. That was the job. It is done. Now go and read something that scares you.</p>
+  <p>You are not an engineer. Six weeks does not do that, and anyone selling you otherwise is selling something. What you are is the person who can <em>no longer be lied to about his own app</em>, by a vendor, by a contractor, or by a very confident machine. That was the job. It is done. Now go and read something that scares you.</p>
 
   <div class="box why"><div class="h">ASK THE AGENT WHY (paste this into Codex or Fable)</div><pre><code>Read CLAUDE.md's MIGRATION FREEZE and GITHUB SYNC sections and MIGRATION/FREEZE-LOG.md.
 Explain what a line in FREEZE-LOG.md costs the native rebuild, why the freeze exists at all,

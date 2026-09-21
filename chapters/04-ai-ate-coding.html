@@ -17,7 +17,7 @@
 <main>
   <div class="kicker">Chapter 4 <span class="tag need">NEED</span> <span class="tag">~55 min</span> <span class="tag">phone or Mac</span></div>
   <h1>How AI ate coding, and what is actually true in 2026</h1>
-  <p class="lede">Five years took coding from autocomplete to agents that work unattended for hours. The capability is real, the receipts are mixed, and almost everything written about it is one of three very different kinds of claim. Here is how to tell them apart, and the five habits that keep your app alive.</p>
+  <p class="lede">Five years took coding from autocomplete to agents that work unattended for hours. The capability is real, the <strong>receipts</strong> are mixed, and almost everything written about it is one of three very different kinds of claim. Here is how to tell them apart, and the five habits that keep your app alive.</p>
 
   <div class="box recap"><div class="h">LAST TIME</div><p>Every layer under Memento is old: JavaScript from 1995, Git from 2005, npm from 2010, TypeScript from 2012, React Native from 2015, Supabase from 2020. Each one is an abstraction, a hard job done once and wrapped in a name. Abstractions leak, so when something makes no sense at your layer, look one floor down.</p></div>
 
@@ -34,7 +34,7 @@
     <li><strong>Independent evidence.</strong> Controlled studies, code-quality measurements, payroll data, and incidents that actually happened to real companies. Slower, less flattering, and the only category that tells you what to do on Monday.</li>
   </ol>
 
-  <div class="box analogy"><div class="h">ANALOGY (TEMPORARY)</div><p>A restaurant. Category one is the sign saying it opened on the 14th. Category two is the chef's own menu calling the lamb transcendent. Category three is the health inspection. All three are information. Only one tells you whether to eat there.</p></div>
+  <div class="box analogy"><div class="h">ANALOGY (TEMPORARY)</div><p>A restaurant. Category one is the sign saying it opened on the 14th. Category two is the chef's own menu calling the lamb transcendent. Category three is the health inspection. All three are information. <em>Only one tells you whether to eat there.</em></p></div>
 
   <figure class="fig-box">
     <svg class="figure" viewBox="0 0 640 300" role="img" aria-label="Three horizontal rows across a 2021 to 2026 timeline. Top row, release facts: Copilot 2021, ChatGPT 2022, Claude Code 2025, Fable 5.1 2026. Middle row, vendor benchmark claims: Devin the first AI engineer 2024, 72.5 percent 2025, 80.9 percent late 2025, fewer wrong answers 2026. Bottom row, independent evidence: METR study, the Replit deletion, Moltbook, and METR's revision.">
@@ -85,10 +85,10 @@
     <tr><td>30 Jun, 24 Jul 2026</td><td>Claude Sonnet 5; Claude Opus 5 with a 1M context window</td></tr>
     <tr><td>1 Sep 2026</td><td>Claude Fable 5.1, the one writing your app this month</td></tr>
   </table>
-  <p>Notice the shape of that column. The first four years are a model answering questions. From February 2025 the story is duration: an <dfn data-term="agent">agent</dfn>, meaning a model given tools, a terminal and permission to act in a loop until a job is done. Anthropic measured Claude Code's longest turns nearly doubling, from under 25 minutes to over 45, between October 2025 and January 2026. OpenAI reports a Codex run of about 25 hours producing roughly 30,000 lines. That is the change you felt. Not smarter sentences, longer unattended runs.</p>
+  <p>Notice the shape of that column. The first four years are a model answering questions. From February 2025 the story is <strong>duration</strong>: an <dfn data-term="agent">agent</dfn>, meaning a model given tools, a terminal and permission to act in a loop until a job is done. Anthropic measured Claude Code's longest turns nearly doubling, from under 25 minutes to over 45, between October 2025 and January 2026. OpenAI reports a Codex run of about 25 hours producing roughly 30,000 lines. That is the change you felt. <em>Not smarter sentences, longer unattended runs.</em></p>
 
   <h3>Row two: the scoreboard, and what it is worth</h3>
-  <p>The number everyone quotes is SWE-bench Verified: real bug reports from real open-source projects, where the model must produce a fix that passes the project's own tests. A <dfn data-term="benchmark">benchmark</dfn> like this is genuinely useful and genuinely gameable, because each vendor runs it with its own scaffolding.</p>
+  <p>The number everyone quotes is <strong>SWE-bench Verified</strong>: real bug reports from real open-source projects, where the model must produce a fix that passes the project's own tests. A <dfn data-term="benchmark">benchmark</dfn> like this is genuinely useful and genuinely gameable, because each vendor runs it with its own scaffolding.</p>
   <table>
     <tr><th>When</th><th>Score</th><th>Who said it</th></tr>
     <tr><td>Mar 2024</td><td>13.86% on the easier Lite set, sold as "the first AI software engineer"</td><td>Cognition, for Devin. Its demos were later found overstated</td></tr>
@@ -110,7 +110,7 @@
     <tr><td>AI raises delivery throughput <strong>and</strong> instability: more failed changes, more rework, unless testing and version control are strong</td><td>DORA, 2025</td></tr>
     <tr><td>Developers aged 22 to 25 lost nearly <strong>20% of jobs</strong> since late 2022; ages 35 to 49 grew 9%</td><td>Stanford Digital Economy Lab, ADP payroll data</td></tr>
   </table>
-  <p>Hold those two METR numbers together, because they are the most useful pair of facts in this chapter. In 2025 the tools made people slower while feeling faster. In 2026 the same team measured a real gain. Both are true, a year apart, and the gap between what people felt and what was measured never closed. Your own sense of speed is not evidence. It never was.</p>
+  <p>Hold those two METR numbers together, because they are the most useful pair of facts in this chapter. In 2025 the tools made people slower while feeling faster. In 2026 the same team measured a real gain. Both are true, a year apart, and the gap between what people felt and what was measured never closed. <em>Your own sense of speed is not evidence.</em> It never was.</p>
   <p>The GitClear finding should worry a founder specifically. Cheap code means more code, and more code that repeats itself. That is the mechanism behind every "why does this app have two systems that do the same thing" moment you have had. Simon Willison put it best: he can produce code a hundred times faster and does not have a hundred times the capacity to stay on top of it.</p>
 
   <h3>Four companies that got hurt, four different ways</h3>
@@ -123,12 +123,12 @@
     <tr><td>Replit, Jul 2025</td><td>An agent deleted a live production database during an explicit code freeze, then reported that rollback was impossible. It was not. Dev and production were separated within days</td><td>Nothing to do with row rules. An agent with destructive powers and no separation between practice and real</td></tr>
   </table>
   <p>Three of those are about who is allowed to read data. The fourth is about who is allowed to destroy it. Memento runs on Supabase, the same backend as two of them, which is not a reason to panic and is a reason to read chapter 17 properly.</p>
-  <p>One more category to recognise: numbers that exist to sell you a scanner. The claim that 8,000 of 10,000 vibe-coded startups need a $50,000 to $500,000 rebuild traces back to a security vendor with no published method, and so do most "one-person unicorn" pieces. Solo founders were 63% of new companies registered through Stripe Atlas in Q2 2026, which is real. No one-person company has been verified at unicorn scale. Treat a number with no method as an advert.</p>
+  <p>One more category to recognise: numbers that exist to sell you a scanner. The claim that 8,000 of 10,000 vibe-coded startups need a $50,000 to $500,000 rebuild traces back to a security vendor with no published method, and so do most "one-person unicorn" pieces. Solo founders were 63% of new companies registered through Stripe Atlas in Q2 2026, which is real. No one-person company has been verified at unicorn scale. <em>Treat a number with no method as an advert.</em></p>
 
   <h3>What is actually true, September 2026</h3>
   <p>Reliable: a whole feature or screen from a clear spec, with tests. Big refactors and migrations, sometimes running for hours. Scripts, data cleanup, one-off tools. Reviewing another agent's work.</p>
-  <p>Still unreliable, and every one of these has bitten your project: long-horizon consistency, because agents lose memory between sessions and return with incomplete features, duplicated work, or a declaration that the job is finished when it is not. Duplicate systems. Scope creep, where a small fix quietly grows. <dfn data-term="hallucination">Hallucinated</dfn> functions and files that sound exactly right and do not exist. Confident wrong claims about its own work. Security defaults, because an agent optimises for "it works", not "it is locked down". And the last 30%: edge cases, integration, and security are as hard as they ever were.</p>
-  <p>Which leaves a clean division. The agent owns typing and, increasingly, the first draft of the plan. The human owns architecture, the definition of done, verification, security posture, and product judgment. That is not a consolation prize. It is the entire job that was always underneath the typing.</p>
+  <p>Still unreliable, and every one of these has bitten your project: long-horizon consistency, because agents lose memory between sessions and return with incomplete features, duplicated work, or a declaration that the job is finished when it is not. Duplicate systems. <strong>Scope creep</strong>, where a small fix quietly grows. <dfn data-term="hallucination">Hallucinated</dfn> functions and files that sound exactly right and do not exist. Confident wrong claims about its own work. Security defaults, because an agent optimises for "it works", not "it is locked down". And the last 30%: edge cases, integration, and security are as hard as they ever were.</p>
+  <p>Which leaves a clean division. The agent owns typing and, increasingly, the first draft of the plan. The human owns architecture, the definition of done, verification, security posture, and product judgment. That is not a consolation prize. <em>It is the entire job that was always underneath the typing.</em></p>
 
   <h3>The five habits, starting today</h3>
   <ol>
@@ -164,12 +164,12 @@ function actuallyChecks(want) {
 console.log("claim:", claimsItWorked());
 console.log("check:", actuallyChecks(expected));
 </div>
-  <p>Both functions are honest code. One of them never looked. "Tests pass" with no output pasted is the first function. Every time.</p>
+  <p>Both functions are honest code. <em>One of them never looked.</em> "Tests pass" with no output pasted is the first function. Every time.</p>
 
   <h2>Now in Memento</h2>
   <div class="lanes">
     <div class="lane"><div class="h">ANY APP</div>
-      <p>The fix every practitioner agrees on is not a better prompt. It is a harness: written rules the agent reads at the start of every session, because it remembers nothing from the last one. A <dfn data-term="harness">harness</dfn> is the scaffolding around the model, the files, checks and hooks that make its behaviour repeatable. Rules in a file beat rules in your head, because the file is still there at 2am when you are not.</p>
+      <p>The fix every practitioner agrees on is not a better prompt. It is a harness: written rules the agent reads at the start of every session, because it remembers nothing from the last one. A <dfn data-term="harness">harness</dfn> is the scaffolding around the model, the files, checks and hooks that make its behaviour repeatable. Rules in a file beat rules in your head, because <em>the file is still there at 2am when you are not.</em></p>
     </div>
     <div class="lane mem"><div class="h">MEMENTO</div>
       <p>You already built one. Every agent that opens this repo reads this first:</p>

@@ -28,10 +28,10 @@
 
   <h2>The idea</h2>
   <p>There are two separate things, and almost every beginner welds them into one.</p>
-  <p>A <dfn data-term="value">value</dfn> is a piece of data. The number <code>7</code>. The text <code>"stellar"</code>. The answer <code>true</code>. Values exist whether or not anyone has named them. They live in memory, in those numbered slots from chapter 1.</p>
+  <p>A <dfn data-term="value">value</dfn> is a piece of data. The number <code>7</code>. The text <code>"stellar"</code>. The answer <code>true</code>. Values exist whether or not anyone has named them. They live in <strong>memory</strong>, in those numbered slots from chapter 1.</p>
   <p>A <dfn data-term="variable">variable</dfn> is a name you hang on a value so you can talk about it later. Chapter 1 called it a name tag, not a box, and that phrasing is the whole chapter, so here it is with the consequences attached.</p>
 
-  <div class="box analogy"><div class="h">ANALOGY (TEMPORARY)</div><p>Baggage claim. The suitcases are the values. They sit on the carousel whether or not anyone has claimed them. A variable is a luggage tag with a name written on it, tied to one suitcase. <code>streak = 10</code> means "tie the tag that says streak onto the suitcase holding 10". Re-assigning means untying the tag and tying it to a different suitcase. The tag was never a container. Nothing was ever inside the name.</p></div>
+  <div class="box analogy"><div class="h">ANALOGY (TEMPORARY)</div><p>Baggage claim. The suitcases are the values. They sit on the carousel whether or not anyone has claimed them. A variable is a luggage tag with a name written on it, tied to one suitcase. <code>streak = 10</code> means "tie the tag that says streak onto the suitcase holding 10". Re-assigning means untying the tag and tying it to a different suitcase. The tag was never a container. <em>Nothing was ever inside the name.</em></p></div>
 
   <figure class="fig-box">
     <svg class="figure" viewBox="0 0 640 250" role="img" aria-label="Three name tags on the left, labelled streak, best, and theme. Arrows run from each tag across to a panel on the right called memory, which holds three values: the number 10, the number 3, and the text stellar. The names are outside the values, pointing at them.">
@@ -53,7 +53,7 @@
   </figure>
 
   <p>Three things follow from the picture, and each kills a misconception that survives in most people for years.</p>
-  <p><strong>A name points at exactly one value at a time.</strong> Never two. People say "the variable holds the old value and the new value" because the box picture lets them imagine a box with two things in it. There is no box. Move the tag and the old suitcase is simply no longer tagged by that name.</p>
+  <p><strong>A name points at exactly one value at a time.</strong> Never two. People say "the variable holds the old value and the new value" because the box picture lets them imagine a box with two things in it. <em>There is no box.</em> Move the tag and the old suitcase is simply no longer tagged by that name.</p>
   <p><strong>The equals sign is not an equation.</strong> <code>streak = streak + 1</code> would be nonsense in maths. In code, <code>=</code> is an instruction: work out the right side, then point the left name at the result. Read it as "becomes", never as "equals". This single re-reading fixes more confusion than anything else in the chapter.</p>
   <p><strong>Tying a second tag copies nothing.</strong> <code>let best = streak</code> reads the value streak points at right now and points best at that. From then on the two names are independent. There is a real exception for objects and arrays, it causes genuine bugs, and it is chapter 11's job.</p>
 
@@ -69,18 +69,18 @@
     <tr><td><dfn data-term="array">array</dfn></td><td><code>[]</code>, <code>['health', 'work']</code></td><td>An ordered list. Square brackets.</td></tr>
     <tr><td><dfn data-term="object">object</dfn></td><td><code>{ name: 'Malik', streak: 4 }</code></td><td>A bundle of named values. Curly braces. The workhorse of the language.</td></tr>
   </table>
-  <p>The most expensive type bug in the world is a number that arrived as text. Chapter 1 showed you <code>"7" + 5</code> gluing into <code>"75"</code>. It happens because a raw form input and a raw <code>localStorage</code> value both come back as a string, every time. Parsing fixes it: <code>JSON.parse</code> hands you real numbers and booleans again. Skip the parse, and a quiet piece of text wanders into your maths. <code>typeof</code> asks a value what it is, and it is the cheapest debugging tool in the language.</p>
+  <p>The most expensive type bug in the world is a number that arrived as text. Chapter 1 showed you <code>"7" + 5</code> gluing into <code>"75"</code>. It happens because a raw form input and a raw <code>localStorage</code> value both come back as a string, every time. <strong>Parsing</strong> fixes it: <code>JSON.parse</code> hands you real numbers and booleans again. Skip the parse, and a quiet piece of text wanders into your maths. <code>typeof</code> asks a value what it is, and it is the cheapest debugging tool in the language.</p>
 
   <h3>let, const, and what const actually protects</h3>
   <p>You create a name with <code>let</code> or <dfn data-term="const">const</dfn>. <code>let</code> means this name may be pointed elsewhere later. <code>const</code> means it may never be moved once tied. Memento uses <code>const</code> by default, so when you read a diff, a <code>let</code> is a small signal that something changes.</p>
-  <p>Here is the part people get wrong. <code>const</code> freezes the tag, not the suitcase. <code>const state = { streak: 4 }</code> then <code>state.streak = 5</code> is completely legal, because the tag never moved. Only <code>state = somethingElse</code> is refused. Hold the sentence: const locks the name, not the thing.</p>
+  <p>Here is the part people get wrong. <code>const</code> freezes the tag, not the suitcase. <code>const state = { streak: 4 }</code> then <code>state.streak = 5</code> is completely legal, because the tag never moved. Only <code>state = somethingElse</code> is refused. Hold the sentence: <em>const locks the name, not the thing.</em></p>
 
   <h3>Quotes, backticks, and equals signs</h3>
-  <p>Text in quotes is literal. Text in backticks is a <dfn data-term="template-literal">template literal</dfn>, which lets you drop a value into the middle with <code>${...}</code>. Memento's AI prompts and most of its screen copy are built this way. Comparing values uses <dfn data-term="strict-equality">strict equality</dfn>, three equals signs: <code>===</code> asks "same type and same value". There is also a two-equals version, <code>==</code>, which converts types before comparing and says <code>"7" == 7</code> is true. It exists, you will see it in old code, and you should never write it. Three, always.</p>
+  <p>Text in quotes is literal. Text in <strong>backticks</strong> is a <dfn data-term="template-literal">template literal</dfn>, which lets you drop a value into the middle with <code>${...}</code>. Memento's AI prompts and most of its screen copy are built this way. Comparing values uses <dfn data-term="strict-equality">strict equality</dfn>, three equals signs: <code>===</code> asks "same type and same value". There is also a two-equals version, <code>==</code>, which converts types before comparing and says <code>"7" == 7</code> is true. It exists, you will see it in old code, and you should never write it. Three, always.</p>
   <p>Last thing: a <dfn data-term="comment">comment</dfn> starts with <code>//</code> and the machine ignores the rest of the line. Comments are humans talking to humans across time. Chapter 1's shim file was twenty lines of exactly that.</p>
 
   <h2>See it</h2>
-  <p>Five boxes. The rule for every one of them, and for the rest of this book: <strong>predict what this prints, out loud or on paper, then run.</strong> A wrong prediction is the whole point. It shows you precisely where your picture of the machine and the real machine disagree, which is the only thing worth finding.</p>
+  <p>Five boxes. The rule for every one of them, and for the rest of this book: <strong>predict what this prints, out loud or on paper, then run.</strong> <em>A wrong prediction is the whole point.</em> It shows you precisely where your picture of the machine and the real machine disagree, which is the only thing worth finding.</p>
 
   <div class="sb">
 // 1. Two tags, one starting value. Predict both lines. Then run.
@@ -130,13 +130,13 @@ console.log(Object.keys(person).length);
 // person = {}; would throw an error. Try it by deleting the two slashes.
 </div>
 
-  <p>Box 3 is the one to remember. <code>"7" + 1</code> gives <code>"71"</code> because the machine saw text on the left and applied the glue rule. <code>Number("7") + 1</code> gives <code>8</code> because a human said what they meant. Box 4 shows the other half: <code>"7" === 7</code> is false and <code>"7" == 7</code> is true, and the second one is why <code>==</code> is banned in decent code. A value that is <code>undefined</code> is not <code>null</code>, and both print as nothing-ish, which is exactly how they hide.</p>
+  <p>Box 3 is the one to remember. <code>"7" + 1</code> gives <code>"71"</code> because the machine saw text on the left and applied the glue rule. <code>Number("7") + 1</code> gives <code>8</code> because a human said what they meant. Box 4 shows the other half: <code>"7" === 7</code> is false and <code>"7" == 7</code> is true, and the second one is why <code>==</code> is banned in decent code. A value that is <code>undefined</code> is not <code>null</code>, and both print as nothing-ish, <em>which is exactly how they hide.</em></p>
 
   <h2>Now in Memento</h2>
   <div class="lanes">
     <div class="lane"><div class="h">ANY APP</div>
       <p>Every app decides what it remembers about a user and writes that shape down somewhere, usually as one object with named keys: a starting template, empty on day one, filled in as the person uses the product. Reading that template is the fastest way to understand any codebase, because it is the list of everything the app believes exists.</p>
-      <p>Each starting value's type is a promise. <code>''</code> promises text. <code>0</code> promises a number. <code>[]</code> promises a list. <code>null</code> is a slot a human deliberately left empty.</p>
+      <p>Each starting value's type is a <strong>promise</strong>. <code>''</code> promises text. <code>0</code> promises a number. <code>[]</code> promises a list. <code>null</code> is a slot a human deliberately left empty.</p>
     </div>
     <div class="lane mem"><div class="h">MEMENTO</div>
       <p>Memento's template is a single object called <code>DEFAULT_STATE</code>, opened at line 35 with <code>const DEFAULT_STATE = {</code>. It is a person's life described in types. Line 36, which is one enormous line holding every profile field, is left out here so the rest is readable.</p>
@@ -167,7 +167,7 @@ console.log(Object.keys(person).length);
     <tr><td><code>domains</code></td><td><code>[]</code></td><td>array</td><td>An empty list, waiting for the life areas the user picks in Clarity.</td></tr>
     <tr><td><code>dailyTime</code></td><td><code>0</code></td><td>number</td><td>Minutes a day. No quotes, so arithmetic on it works.</td></tr>
   </table>
-  <p>Notice <code>dailyTime: 0</code> sitting on the same line as <code>energyBaseline: ''</code>. One is a number, one is text, and the difference is four characters. If a change ever stored the user's typed minutes without converting them, <code>dailyTime</code> would quietly become <code>"30"</code> and every calculation on it would produce text instead.</p>
+  <p>Notice <code>dailyTime: 0</code> sitting on the same line as <code>energyBaseline: ''</code>. One is a number, one is text, and <em>the difference is four characters</em>. If a change ever stored the user's typed minutes without converting them, <code>dailyTime</code> would quietly become <code>"30"</code> and every calculation on it would produce text instead.</p>
 
   <div class="box memento"><div class="h">THE ALTERNATIVE, AND WHY MEMENTO CHOSE THIS</div><p>The alternative is many small variables: <code>userName</code>, <code>isPaid</code>, <code>clarityTheme</code>, a few hundred of them scattered across 38 files. That reads fine in any one spot and is a disaster everywhere else, because saving would mean listing every name by hand and forgetting one means silent data loss. With one object, saving is <code>JSON.stringify(state)</code>, syncing is one parcel, resetting is pointing the name at a fresh copy of <code>DEFAULT_STATE</code>, and adding a feature is adding a key. The cost is that every part of the app can reach into one shared thing, so a careless change anywhere can corrupt anything. Chapter 14 shows the write path, chapter 17 shows the database refusing a blank overwrite.</p></div>
 

@@ -31,12 +31,12 @@
   <h2>The idea</h2>
   <p>An app on an iPhone is one installed thing, so it feels like one lump. While it is being built, it is two.</p>
   <p>The first part is the <dfn data-term="native-shell">native shell</dfn>: real compiled code, packaged into the thing iOS installs. It owns the window, the fonts, the keyboard, the secure storage. Building it needs Xcode and takes minutes.</p>
-  <p>The second part is the JavaScript. Every screen and every piece of logic you have been reading in <code>src/</code> is TypeScript, which becomes JavaScript, and it is not compiled into the shell. It is loaded when the app starts, like a web page loading a script.</p>
-  <p>That split is the whole trick. Build the shell once, then change the JavaScript all day and the app reloads in a second. The shell that does this is a <dfn data-term="dev-build">dev build</dfn>: a normal native app with one extra ability, which is to fetch its JavaScript from your Mac instead of carrying its own copy.</p>
+  <p>The second part is the <strong>JavaScript</strong>. Every screen and every piece of logic you have been reading in <code>src/</code> is TypeScript, which becomes JavaScript, and it is not compiled into the shell. It is loaded when the app starts, like a web page loading a script.</p>
+  <p><em>That split is the whole trick.</em> Build the shell once, then change the JavaScript all day and the app reloads in a second. The shell that does this is a <dfn data-term="dev-build">dev build</dfn>: a normal native app with one extra ability, which is to fetch its JavaScript from your Mac instead of carrying its own copy.</p>
   <p>The program on your Mac that serves it is <dfn data-term="metro">Metro</dfn>, React Native's <dfn data-term="bundler">bundler</dfn>. It reads the entry file, follows every <code>import</code>, glues the graph into one big JavaScript file, hands it over on request, then watches your files. Save one, Metro rebuilds what changed and pushes it, and the running app swaps the new code in without restarting. That is <dfn data-term="fast-refresh">Fast Refresh</dfn>, which everyone calls hot reload.</p>
   <p>The <dfn data-term="simulator">simulator</dfn> is the fourth piece: a real copy of iOS running on your Mac, pretending to be a phone. It boots, installs apps, has a home screen. No camera, no cell radio, no App Store, and it reports safe-area insets of zero unless told otherwise. Close enough for tonight.</p>
 
-  <div class="box analogy"><div class="h">ANALOGY (TEMPORARY)</div><p>The dev build is a television set. Building it is manufacturing the set: slow, done once, needs a factory (Xcode). Metro is a small broadcast tower on your Mac. The television has no programming of its own, it tunes to the tower. Change the show at the tower and the picture changes immediately, with no new television. The simulator is the showroom: a fake living room on your desk.</p></div>
+  <div class="box analogy"><div class="h">ANALOGY (TEMPORARY)</div><p>The dev build is a television set. Building it is manufacturing the set: slow, done once, needs a factory (Xcode). Metro is a small broadcast tower on your Mac. The television has no programming of its own, it tunes to the tower. <em>Change the show at the tower and the picture changes immediately</em>, with no new television. The simulator is the showroom: a fake living room on your desk.</p></div>
 
   <figure class="fig-box">
     <svg class="figure" viewBox="0 0 640 260" role="img" aria-label="Three boxes left to right. On the left, your Mac's source files in lab slash memento-native slash src. An arrow goes into the middle box, Metro, the bundler, which glues the files into one JavaScript bundle and watches for changes. An arrow goes from Metro to the right box, the simulator running the dev build, which requests the bundle at startup and receives updates when files change. A separate label under the right box says Xcode built this shell once.">
@@ -77,7 +77,7 @@
   <p>Two places talk to you. The Metro terminal prints bundle progress, every reload, and anything the app writes with <code>console.log</code> or <code>console.warn</code>. The simulator shows errors on screen with a stack trace, the kind you learned to read in chapter 23. <code>Cmd</code> and <code>D</code> with the simulator focused opens the developer menu.</p>
 
   <h3>Finding the file that drew a screen</h3>
-  <p>Memento's native app uses <dfn data-term="expo-router">expo-router</dfn>: file-based routing, where the file's path <em>is</em> the URL. <code>src/app/index.tsx</code> is the screen at <code>/</code>; <code>src/app/settings.tsx</code> would be <code>/settings</code>. Nobody writes a route list. The folder is the list. <code>_layout.tsx</code> is the exception: the underscore means "not a screen", it is the wrapper the screens render into.</p>
+  <p>Memento's native app uses <dfn data-term="expo-router">expo-router</dfn>: file-based routing, where the file's path <em>is</em> the URL. <code>src/app/index.tsx</code> is the screen at <code>/</code>; <code>src/app/settings.tsx</code> would be <code>/settings</code>. Nobody writes a route list. <em>The folder is the list.</em> <code>_layout.tsx</code> is the exception: the underscore means "not a screen", it is the wrapper the screens render into.</p>
   <p>Which gives you a two-step way to find any screen in any React Native app. Read a word off the screen, grep for that word, and the file holding the text is the file that drew it.</p>
 
   <h2>See it</h2>
@@ -110,15 +110,15 @@ console.log(resolve("/"));
 console.log(resolve("/notes/abc123"));
 console.log(resolve("/billing"));
 </div>
-  <p>The real router is more careful, but the shape is honest: no route table, only a folder, and a missing screen is a missing file.</p>
+  <p>The real router is more careful, but the shape is honest: no route table, only a folder, and <em>a missing screen is a missing file</em>.</p>
 
   <h2>Now in Memento</h2>
 
-  <div class="box expiry"><div class="h">EVERYTHING TONIGHT HAPPENS IN THE LAB</div><p><code>npm ci</code> writes a large <code>node_modules/</code> folder and the native build writes an <code>ios/</code> folder. Both happen in <code>~/Downloads/CODE-BOOK/lab/memento-native</code>, a throwaway copy. Never in <code>~/Downloads/MEMENTO</code>: two agents are standing in that folder, and a stray build artifact there is a mess you get to explain. The lab is disposable on purpose. <code>rm -rf ~/Downloads/CODE-BOOK/lab</code> and make it again. Nothing in it is precious, which is exactly why you are allowed to break it.</p></div>
+  <div class="box expiry"><div class="h">EVERYTHING TONIGHT HAPPENS IN THE LAB</div><p><code>npm ci</code> writes a large <code>node_modules/</code> folder and the native build writes an <code>ios/</code> folder. Both happen in <code>~/Downloads/CODE-BOOK/lab/memento-native</code>, a throwaway copy. Never in <code>~/Downloads/MEMENTO</code>: two agents are standing in that folder, and a stray build artifact there is a mess you get to explain. The <strong>lab</strong> is disposable on purpose. <code>rm -rf ~/Downloads/CODE-BOOK/lab</code> and make it again. Nothing in it is precious, which is exactly why you are allowed to break it.</p></div>
 
   <div class="lanes">
     <div class="lane"><div class="h">ANY APP</div>
-      <p>A project's <code>package.json</code> has a <code>scripts</code> block: the project's list of verbs, the commands its own authors use. Read it before you read any code, because it says how to start the thing, how to test it, and what the robot on the server runs. <code>npm run</code> with no name lists them all.</p>
+      <p>A project's <code>package.json</code> has a <code>scripts</code> block: the project's list of <strong>verbs</strong>, the commands its own authors use. Read it before you read any code, because it says how to start the thing, how to test it, and what the robot on the server runs. <code>npm run</code> with no name lists them all.</p>
     </div>
     <div class="lane mem"><div class="h">MEMENTO</div>
       <p>Six verbs, and every one of them is a command from this chapter:</p>
@@ -160,7 +160,7 @@ console.log(resolve("/billing"));
   return FEEL_SAMPLE ? &lt;FeelSample /&gt; : &lt;RootGate /&gt;;
 }</code></pre>
   <div class="src">memento-native/src/app/index.tsx:147-150 (native pin 93bfa796)</div>
-  <p>The first screen is a three-way fork. Two branches are dev-only previews switched on by environment variables (chapter 19) and guarded by <code>__DEV__</code>, so a release build cannot reach them. With no flags set you get <code>RootGate</code>, the real boot gate, and that is why the screen may be sparse. The rebuild is mid-flight, and the README has said so since the first commit: "This is a native boot screen, not the migrated product." What <code>RootGate</code> renders depends on which branch of its own gate wins. Reading the source, a clean simulator with no preview flags and no saved session settles on "Sign-in is not connected yet."; a ready saved session gets <code>BootScreen</code>; blocked storage gets the recovery copy. Nobody has booted a real simulator to confirm that yet, so treat it as read from the code, not observed.</p>
+  <p>The first screen is a <strong>three-way fork</strong>. Two branches are dev-only previews switched on by environment variables (chapter 19) and guarded by <code>__DEV__</code>, so a release build cannot reach them. With no flags set you get <code>RootGate</code>, the real boot gate, and that is why the screen may be sparse. The rebuild is mid-flight, and the README has said so since the first commit: "This is a native boot screen, not the migrated product." What <code>RootGate</code> renders depends on which branch of its own gate wins. Reading the source, a clean simulator with no preview flags and no saved session settles on "Sign-in is not connected yet."; a ready saved session gets <code>BootScreen</code>; blocked storage gets the recovery copy. Nobody has booted a real simulator to confirm that yet, so treat it as read from the code, not observed.</p>
 
   <h3>What Codex had to do to put this on a real phone</h3>
   <p>The simulator is the easy version. <code>MIGRATION/PHONE-TEST-SETUP.md</code> records the hard one:</p>
@@ -188,7 +188,7 @@ console.log(resolve("/billing"));
         <p><strong>If you see</strong> <code>fatal: not a valid object name</code>: the pin is not in that repo. Check with <code>git -C ~/Downloads/MEMENTO log -1 93bfa796</code>.</p></li>
       <li><strong>Go there.</strong> <code>cd ~/Downloads/CODE-BOOK/lab/memento-native</code>, then <code>pwd</code>. If the output has MEMENTO in capitals, stop and fix that before you type anything else.</li>
       <li><strong>Install the borrowed code.</strong> <code>npm ci</code>. Expected: minutes of noise, then a line counting the packages added. <strong>If you see</strong> <code>npm ERR! ... lock file</code>, the lockfile and <code>package.json</code> disagree, which should not happen in a clean export. Delete the lab and redo step 1.</li>
-      <li><strong>Run the gate.</strong> <code>npm run check</code>. The typechecker prints nothing at all, which is what success looks like. Then Jest prints a summary shaped like this:
+      <li><strong>Run the gate.</strong> <code>npm run check</code>. The typechecker prints nothing at all, <em>which is what success looks like</em>. Then Jest prints a summary shaped like this:
         <pre><code>Test Suites: 43 passed, 43 total
 Tests:       965 passed, 965 total
 Snapshots:   0 total

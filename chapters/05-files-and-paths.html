@@ -27,12 +27,12 @@
   <details class="check"><summary>Chapter 3's punchline was "everything under Memento is old, only the typist is new". Name two of the old things.</summary><div class="a">Files and folders (1960s), the shell (1970s), SQL (1974), JavaScript (1995), git (2005). The AI writes in languages older than you.</div></details>
 
   <h2>The idea</h2>
-  <p>Chapter 1 said a <dfn data-term="file">file</dfn> is a named chunk of bytes on a disk. The working model is that almost everything on a computer is one. Your code, your photos, the settings. Even a <dfn data-term="folder">folder</dfn> (engineers say directory) is a kind of file, one whose contents are a list of other files. Folders sit inside folders, and the whole machine is one nest of them starting at a single top called <code>/</code>, said out loud as "root".</p>
+  <p>Chapter 1 said a <dfn data-term="file">file</dfn> is a named chunk of bytes on a disk. The working model is that almost everything on a computer is one. Your code, your photos, the settings. Even a <dfn data-term="folder">folder</dfn> (engineers say directory) is a kind of file, one whose contents are a list of other files. Folders sit inside folders, and the whole machine is one nest of them starting at a single top called <code>/</code>, said out loud as "<strong>root</strong>".</p>
   <p>A <dfn data-term="path">path</dfn> is the address of a file: the folders you walk through to reach it, joined with slashes.</p>
   <pre><code>/Users/malikpeace/Downloads/MEMENTO/memento-app/js/01-state-foundation.js</code></pre>
-  <p>Read it left to right and you are walking. Top of the disk, into <code>Users</code>, into your account, Downloads, MEMENTO, the web app, js, and there is the file. That is not a picture of the address. That is the address.</p>
+  <p>Read it left to right and you are walking. Top of the disk, into <code>Users</code>, into your account, Downloads, MEMENTO, the web app, js, and there is the file. That is not a picture of the address. <em>That is the address.</em></p>
 
-  <div class="box analogy"><div class="h">ANALOGY (TEMPORARY)</div><p>A path is a postal address written backwards: country, city, street, building, flat. The Terminal is you standing in one room of that building, always somewhere. Commands mean "look around this room", "walk to that room", "read me this page". Finder is the same building with the lights on.</p></div>
+  <div class="box analogy"><div class="h">ANALOGY (TEMPORARY)</div><p>A path is a postal address written backwards: country, city, street, building, flat. The Terminal is you standing in one room of that building, always somewhere. Commands mean "look around this room", "walk to that room", "read me this page". <em>Finder is the same building with the lights on.</em></p></div>
 
   <figure class="fig-box">
     <svg class="figure" viewBox="0 0 640 380" role="img" aria-label="An indented folder tree of the MEMENTO folder. At the top, MEMENTO. Inside it, memento-app which holds index.html, a css folder of 22 files, a js folder of 38 numbered files, and assets. Also inside MEMENTO, memento-native which holds src, which holds folders named ai, auth, billing, clarity, home, storage, sync and ui. Also supabase and CLAUDE.md.">
@@ -70,7 +70,7 @@
   </figure>
 
   <p>Three shortcuts you will see everywhere. <code>~</code> is your <dfn data-term="home-directory">home folder</dfn>, <code>/Users/malikpeace</code>, so <code>~/Downloads</code> is a whole address in one character. <code>.</code> is "the folder I am standing in". <code>..</code> is "the folder above this one".</p>
-  <p>A path starting with <code>/</code> or <code>~</code> is an <dfn data-term="absolute-path">absolute path</dfn> and means the same thing from anywhere. A path starting with a name, like <code>js/01-state-foundation.js</code>, is a <dfn data-term="relative-path">relative path</dfn> and means "from where I am standing right now". Half of all terminal confusion is one of these used where the other was meant.</p>
+  <p>A path starting with <code>/</code> or <code>~</code> is an <dfn data-term="absolute-path">absolute path</dfn> and means the same thing from anywhere. A path starting with a name, like <code>js/01-state-foundation.js</code>, is a <dfn data-term="relative-path">relative path</dfn> and means "from where I am standing right now". <em>Half of all terminal confusion is one of these used where the other was meant.</em></p>
   <p>Files whose name starts with a dot, like <code>.git</code>, are <dfn data-term="hidden-file">hidden files</dfn>. Finder does not show them and neither does a plain <code>ls</code>. Not secret, just marked "tooling, not for browsing", and some of the most important things in a codebase live in them.</p>
 
   <h3>Open the Terminal</h3>
@@ -90,7 +90,7 @@
     <tr><td><code>head -20 file.js</code></td><td>The first 20 lines</td><td>Just the top. This is how you taste a file.</td></tr>
   </table>
 
-  <p>Two habits make this feel less hostile. <strong>Press tab</strong>: type <code>cd Down</code>, hit tab, the shell finishes it. Tab completion is a spellchecker, because if tab will not complete it, the thing does not exist. <strong>Press the up arrow</strong> to bring back the last command and edit it instead of retyping.</p>
+  <p>Two habits make this feel less hostile. <strong>Press tab</strong>: type <code>cd Down</code>, hit tab, the shell finishes it. <strong>Tab completion</strong> is a spellchecker, because if tab will not complete it, the thing does not exist. <strong>Press the up arrow</strong> to bring back the last command and edit it instead of retyping.</p>
   <p>One trap: spaces separate a command from its parts, so a name with a space in it must be quoted. Memento's root holds a launcher called <code>Open Memento (new modular).command</code>, and reading it takes <code>cat "Open Memento (new modular).command"</code>. Without the quotes you get an error about four files that do not exist.</p>
 
   <h3>Break it: mistype a path</h3>
@@ -103,11 +103,11 @@
   <p>Four things an editor gives you that <code>cat</code> cannot:</p>
   <ul>
     <li><strong>The file tree.</strong> The left sidebar is the figure above, live. Clicking a folder is <code>cd</code>, and the shape of an app becomes obvious in ten seconds.</li>
-    <li><strong>Project-wide search.</strong> Cmd+Shift+F searches every file at once. Type <code>persistState</code> and you get all 25 places in Memento's web app that call it. That one feature is most of what reading a codebase is.</li>
+    <li><strong>Project-wide search.</strong> Cmd+Shift+F searches every file at once. Type <code>persistState</code> and you get all 25 places in Memento's web app that call it. <em>That one feature is most of what reading a codebase is.</em></li>
     <li><strong>Go to definition.</strong> Cmd+click a name to jump to where it was created. Find references does the reverse.</li>
     <li><strong>Following a path:line link.</strong> When an agent, a test or an error says <code>js/01-state-foundation.js:488</code>, that is a file and a line number, and an editor turns it into a click. This book cites Memento the same way.</li>
   </ul>
-  <p>Now the routine for any codebase you have never seen. Ten minutes, in order: read the README, read the top-level folder names and guess each one's job, find the entry file that starts everything (<code>index.html</code>, <code>index.js</code>, <code>main.ts</code>, <code>src/app/</code>), read <code>package.json</code>'s scripts and dependencies, open the biggest file because that is where the mess lives, find the tests folder because it is the closest thing to a spec, then search one feature name and read what comes back.</p>
+  <p>Now the routine for any codebase you have never seen. Ten minutes, in order: read the README, read the top-level folder names and guess each one's job, find the <strong>entry file</strong> that starts everything (<code>index.html</code>, <code>index.js</code>, <code>main.ts</code>, <code>src/app/</code>), read <code>package.json</code>'s scripts and dependencies, open the biggest file because that is where the mess lives, find the tests folder because it is the closest thing to a spec, then search one feature name and read what comes back.</p>
 
   <h2>See it</h2>
   <p>A path is text with slashes in it, and the commands you just learned are string operations with a disk behind them. This one runs on your phone.</p>
@@ -156,14 +156,14 @@ console.log("what the shell does with ~:", "~/Downloads/MEMENTO".replace("~", HO
 Styling:
 - A feature's look → `css/&lt;feature&gt;.css` (Notes look → `css/notes.css`; also dashboard, sidebar, misc, vivere, onboarding, clarity, action).</code></pre>
       <div class="src">CLAUDE.md:14-16 (repo root, native pin 93bfa796)</div>
-      <p>It then lists the js folder file by file so an agent knows which one to open. That list has drifted: CLAUDE.md says 21 js files and 16 css files, <code>ls</code> says 38 and 22. The folder is the truth. A map is a document somebody has to maintain.</p>
+      <p>It then lists the js folder file by file so an agent knows which one to open. That list has drifted: CLAUDE.md says 21 js files and 16 css files, <code>ls</code> says 38 and 22. <em>The folder is the truth.</em> A map is a document somebody has to maintain.</p>
       <p>Now <code>ls memento-native/src</code>, the rebuild:</p>
       <pre><code>ai      auth    clarity  home   rules    sample   storage  ui
 app     billing entry    notes  rewards  runtime  star     sync</code></pre>
       <p>Sixteen folders, no numbers, named after jobs. Nothing loads by position; each file names what it needs.</p>
     </div>
   </div>
-  <div class="box memento"><div class="h">THE ALTERNATIVE, AND WHY MEMENTO CHOSE THIS</div><p>The web app could have used modules and a bundler from day one, which is what almost every team does. Not doing it was right for what it was: one founder and an agent shipping several times a day, where a build step is one more thing that breaks at 2am. The bill arrived later. 67,000 lines in one shared global scope, a file numbered 33 that exists to catch a deleted name, two files numbered 20, a map that no longer matches the folder. The rebuild pays the tooling cost up front to get the import graph back. Chapter 26 adds up what each one cost.</p></div>
+  <div class="box memento"><div class="h">THE ALTERNATIVE, AND WHY MEMENTO CHOSE THIS</div><p>The web app could have used modules and a bundler from day one, which is what almost every team does. Not doing it was right for what it was: one founder and an agent shipping several times a day, where a build step is one more thing that breaks at 2am. <em>The bill arrived later.</em> 67,000 lines in one shared global scope, a file numbered 33 that exists to catch a deleted name, two files numbered 20, a map that no longer matches the folder. The rebuild pays the tooling cost up front to get the import graph back. Chapter 26 adds up what each one cost.</p></div>
 
   <div class="box"><div class="h">NEVER TYPE THESE INSIDE ~/Downloads/MEMENTO</div>
     <p>Everything above only reads. These change things, and this folder is a live product two agents work in.</p>
@@ -173,7 +173,7 @@ app     billing entry    notes  rewards  runtime  star     sync</code></pre>
       <li><code>git checkout</code> and <code>git restore</code> can throw away uncommitted work permanently. Chapter 28, with the safety commit that goes first.</li>
       <li><code>npm install</code> downloads and runs other people's code and rewrites the lockfile. Never in a folder you are visiting. Chapter 19.</li>
     </ul>
-    <p>Inside MEMENTO you may use <code>ls</code>, <code>cd</code>, <code>pwd</code>, <code>cat</code>, <code>head</code>, <code>open</code> and later <code>grep</code>. Nothing else. Anything that writes goes in the book's sandbox folder, which exists to be broken.</p>
+    <p>Inside MEMENTO you may use <code>ls</code>, <code>cd</code>, <code>pwd</code>, <code>cat</code>, <code>head</code>, <code>open</code> and later <code>grep</code>. Nothing else. Anything that writes goes in the book's <strong>sandbox folder</strong>, which exists to be broken.</p>
   </div>
 
   <h2>Do it</h2>
@@ -186,7 +186,7 @@ app     billing entry    notes  rewards  runtime  star     sync</code></pre>
       <li><code>cd Downloads/MEMENTO</code>, using tab after a few letters, then <code>pwd</code>. Now <code>ls</code>. That crowd of entries is the real repo root: source next to PDFs next to a screen recording. Chapter 26 has opinions.</li>
       <li>Break it: <code>cd memento-ap</code>. Read the error out loud. Then <code>cd memento-a</code> plus tab, and you are in.</li>
       <li><code>ls js | head -8</code>. There is the numbering.</li>
-      <li><code>head -20 js/33-action-shim.js</code>. That is the file from chapter 1, in your own hands: twenty lines of a human explaining 6,070 deleted ones.</li>
+      <li><code>head -20 js/33-action-shim.js</code>. That is the file from chapter 1, in your own hands: <em>twenty lines of a human explaining 6,070 deleted ones.</em></li>
       <li><code>cd ../memento-native/src</code>, then <code>ls</code>. Same app, sixteen job-named folders, zero numbers.</li>
       <li><code>open .</code>. Finder opens the folder you are standing in. Same place, two windows.</li>
       <li>The editor step: <code>open -a TextEdit ~/Downloads/CODE-BOOK/sandbox/v1/app.js</code>. That is Memento Jr, the practice app, not Memento. Scroll it, close with cmd+W, choose Don't Save. If you have VS Code or Cursor, open the whole CODE-BOOK folder there instead and look at the file tree.</li>

@@ -27,11 +27,11 @@
   <details class="check"><summary>From chapter 2: Memento's sync sends <code>p_expected_revision</code>. What is that for?</summary><div class="a">Two devices overwriting each other. The device says which version it thinks is current so the database can refuse a stale write. Two agents in one git repo have the same problem, solved the same way.</div></details>
 
   <h2>The idea</h2>
-  <p>A <dfn data-term="branch">branch</dfn> is a label that points at one commit. That is the entire definition: a small text file inside <code>.git</code> holding one hash. Making one copies nothing and takes about a millisecond however big the project is.</p>
+  <p>A <dfn data-term="branch">branch</dfn> is a <strong>label</strong> that points at one commit. That is the entire definition: a small text file inside <code>.git</code> holding one hash. Making one copies nothing and takes about a millisecond however big the project is.</p>
   <p>The label moves. When you are standing on a branch and make a commit, the new commit points back at the one the label was on, and the label slides forward onto the new one. So a branch marks the front end of one line of work, and the chain behind it is that line's history.</p>
   <p><dfn data-term="head">HEAD</dfn> is a second label meaning "where you are right now". It points at a branch label, which is how git knows which one to slide forward when you commit. Switching branches moves HEAD and rewrites the files in your working folder to match that snapshot. The folder changes. Nothing is copied.</p>
 
-  <div class="box analogy"><div class="h">ANALOGY (TEMPORARY)</div><p>Bookmarks in one book, not two books. One history, one stack of pages, and you can have fifty bookmarks in it. Moving to another bookmark does not duplicate the book, it turns you to that page. You write a new page after the page your bookmark is on, then move the bookmark forward. Removing a bookmark does not tear out pages.</p></div>
+  <div class="box analogy"><div class="h">ANALOGY (TEMPORARY)</div><p>Bookmarks in one book, not two books. One history, one stack of pages, and you can have fifty bookmarks in it. Moving to another bookmark does not duplicate the book, it turns you to that page. You write a new page after the page your bookmark is on, then move the bookmark forward. <em>Removing a bookmark does not tear out pages.</em></p></div>
 
   <figure class="fig-box">
     <svg class="figure" viewBox="0 0 640 320" role="img" aria-label="A git graph. A line of commit dots runs left to right along the bottom, labelled main. From the second dot a second line branches upward and to the right with two dots, labelled feature. Both lines come back together at a single merge commit on the right, which has two arrows pointing back to two parents. A note says that if both lines changed the same lines a human picks, which is a conflict. A HEAD label points at the main label.">
@@ -70,9 +70,9 @@
   </figure>
 
   <h3>Merging, and the thing everyone panics about</h3>
-  <p>Two lines of work exist and you want one. <dfn data-term="merge">Merging</dfn> is git working out what changed on each since they split and making a new commit with <em>two</em> parents. That commit is where the lines become one, and the graph records forever that they were separate.</p>
+  <p>Two lines of work exist and you want one. <dfn data-term="merge">Merging</dfn> is git working out what changed on each since they split and making a new commit with <em>two</em> parents. That commit is where the lines become one, and the <strong>graph</strong> records forever that they were separate.</p>
   <p>Most of the time git does it without asking: if one line touched the Clarity screen and the other the sync code, nothing needs deciding. Git is not being clever. It compares line by line and notices no line was claimed twice.</p>
-  <p>A <dfn data-term="merge-conflict">conflict</dfn> is a line claimed twice: both lines changed the same lines of one file, differently. Git has no basis for choosing, so it stops, leaves the file with both versions marked out, and waits for a person. Nothing is broken, nothing is lost. A conflict is git refusing to guess. The markers are plain text in the file:</p>
+  <p>A <dfn data-term="merge-conflict">conflict</dfn> is a line claimed twice: both lines changed the same lines of one file, differently. Git has no basis for choosing, so it stops, leaves the file with both versions marked out, and waits for a person. Nothing is broken, nothing is lost. <em>A conflict is git refusing to guess.</em> The <strong>markers</strong> are plain text in the file:</p>
   <pre><code>&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD
 the north star is: ship the native app by November
 =======
@@ -123,7 +123,7 @@ HEAD = "main";    commit("merge feature into main", [branches.main, branches.fea
 console.log("labels now:", JSON.stringify(branches));
 commits.forEach(c => console.log(c.id, "parents:", (c.parents || []).join(",") || "none", "|", c.message));
 </div>
-  <p>Deleting the <code>feature</code> line from <code>branches</code> would remove the label while every commit stays in the array. That is why deleting a branch is not dangerous: you throw away a sticky note, not pages.</p>
+  <p>Deleting the <code>feature</code> line from <code>branches</code> would remove the label while every commit stays in the array. That is why deleting a branch is not dangerous: <em>you throw away a sticky note, not pages.</em></p>
 
   <h2>Now in Memento</h2>
 
@@ -141,7 +141,7 @@ commits.forEach(c => console.log(c.id, "parents:", (c.parents || []).join(",") |
 + codex/billing-monitoring
   codex/consistency-integration
   codex/memento-core-flow</code></pre>
-      <p>The prefixes say which agent owns that line. The <code>+</code> means the branch is checked out in a different worktree, the separate working copy the plan gives Codex so the agents are not editing the same files at once.</p>
+      <p>The prefixes say which agent owns that line. The <code>+</code> means the branch is checked out in a different <strong>worktree</strong>, the separate working copy the plan gives Codex so the agents are not editing the same files at once.</p>
       <div class="src">git branch in ~/Downloads/MEMENTO, snapshot 2026-09-20</div>
     </div>
   </div>
@@ -153,7 +153,7 @@ commits.forEach(c => console.log(c.id, "parents:", (c.parents || []).join(",") |
   files only, no `git add -A`.
 - Cross-agent channel: MIGRATION/*.md only. Malik relays.</code></pre>
   <div class="src">MIGRATION/01-MIGRATION-PLAN.md:42-45 (native pin 93bfa796)</div>
-  <p>Three git ideas are compressed in there. "One owner at a time" is conflict avoidance by agreement, because git will happily let both agents edit <code>package.json</code> and then hand you a conflict where picking the wrong side breaks the build. "Named files only, no <code>git add -A</code>" is the staging area doing its job, from chapter 7. "Cross-agent channel: MIGRATION/*.md only" means the agents cannot talk, so the repository is the medium: files and commit messages are the whole conversation, and you are the cable.</p>
+  <p>Three git ideas are compressed in there. "One owner at a time" is conflict avoidance by agreement, because git will happily let both agents edit <code>package.json</code> and then hand you a conflict where picking the wrong side breaks the build. "Named files only, no <code>git add -A</code>" is the staging area doing its job, from chapter 7. "Cross-agent channel: MIGRATION/*.md only" means the agents cannot talk, so the repository is the medium: files and commit messages are the whole conversation, and <em>you are the cable</em>.</p>
   <p>Three lines further down, the plan states the gate: "Self-review alone cannot close this cross-review gate." Which brings us to the thing you type every week without knowing you were writing git. Memento has no pull request flow between the agents, so the approval is written into the commit subject:</p>
   <pre><code>09d6c008 HANDOFF: Doors fresh-checkout journey verified on device @ b6e148b2,
          package fully approved (gates open)
@@ -162,12 +162,12 @@ commits.forEach(c => console.log(c.id, "parents:", (c.parents || []).join(",") |
 af730079 HANDOFF: Codex Memento view integration f2ecc867 reviewed + approved
          (review 7eb1dcf6)</code></pre>
   <div class="src">git log --oneline (native pin 93bfa796; subjects wrapped here to fit the page)</div>
-  <p>Now that a hash is a fingerprint of a snapshot, read <code>approved @ b6e148b2</code> properly. It does not mean "the Doors work is approved". It means <strong>this exact snapshot of the entire folder, fingerprint b6e148b2, was reviewed and found good.</strong> One snapshot, not the branch. And it cannot be fudged: change one character of one file and the next commit has a different fingerprint, so the old approval visibly does not cover it. That is why the subjects also say what is owed, like "(Codex re-review owed)". Every commit after an approval is unpinned until somebody reviews again and writes a new hash down. Check one, read-only:</p>
+  <p>Now that a hash is a fingerprint of a snapshot, read <code>approved @ b6e148b2</code> properly. It does not mean "the Doors work is approved". It means <strong>this exact snapshot of the entire folder, fingerprint b6e148b2, was reviewed and found good.</strong> One snapshot, not the branch. And it cannot be fudged: change one character of one file and the next commit has a different fingerprint, so the old approval visibly does not cover it. That is why the subjects also say what is owed, like "(Codex re-review owed)". Every commit after an approval is <strong>unpinned</strong> until somebody reviews again and writes a new hash down. Check one, read-only:</p>
   <pre><code>git -C ~/Downloads/MEMENTO log -1 --format='%h %ad %s' --date=short b6e148b2</code></pre>
   <pre><code>b6e148b2 2026-09-14 Fresh checkout journey review of Codex 10256196: verified, integration approved</code></pre>
-  <p>A review commit, naming the commit it reviewed. You have been running a hand-built pull request system in commit subjects, and it works because a hash is a promise about content.</p>
+  <p>A review commit, naming the commit it reviewed. You have been running a hand-built pull request system in commit subjects, and it works because <em>a hash is a promise about content</em>.</p>
 
-  <div class="box memento"><div class="h">THE ALTERNATIVE, AND WHY MEMENTO CHOSE THIS</div><p>The normal alternative is GitHub pull requests: branch, open a PR, get line comments and an approval attached to a commit automatically, merge through a button that can be blocked until the tests pass. It is better at all of that, and Memento will need it the moment a second human touches the code. It was skipped because the reviewers are two AI agents that cannot click a button and communicate only through files in the repo. Writing "approved @ hash" into the log is the cheapest thing carrying the same guarantee. The cost: nothing enforces it, so the gate is you.</p></div>
+  <div class="box memento"><div class="h">THE ALTERNATIVE, AND WHY MEMENTO CHOSE THIS</div><p>The normal alternative is GitHub pull requests: branch, open a PR, get line comments and an approval attached to a commit automatically, merge through a button that can be blocked until the tests pass. It is better at all of that, and Memento will need it the moment a second human touches the code. It was skipped because the reviewers are two AI agents that cannot click a button and communicate only through files in the repo. Writing "approved @ hash" into the log is the cheapest thing carrying the same guarantee. The cost: nothing enforces it, so <em>the gate is you</em>.</p></div>
 
   <h2>Do it</h2>
   <div class="ex" data-device="mac">
@@ -182,7 +182,7 @@ git add north-star.txt app.js
 git commit -m "first snapshot"</code></pre>
         If it already existed, check the file with <code>cat north-star.txt</code>.</li>
       <li><code>git branch</code>. One label, with a star on it. That is where you are standing.</li>
-      <li><code>git switch -c feature</code> makes a branch and moves onto it. <code>git log --oneline</code>: same commits as before. You created a label, not a copy.</li>
+      <li><code>git switch -c feature</code> makes a branch and moves onto it. <code>git log --oneline</code>: same commits as before. <em>You created a label, not a copy.</em></li>
       <li>Work on the branch and snapshot it:
         <pre><code>echo "the north star is: ship the native app, Android too" &gt; north-star.txt
 git add north-star.txt
