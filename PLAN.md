@@ -1,6 +1,6 @@
 # BIG CODE BOOK: the plan
 
-Status: v2, 2026-09-20, by Fable. Merges Codex review findings 1-6, 8-12, 14-19, 21-25 and Malik's answers. Declined: 13 (Malik keeps 30 chapters), 20 (Malik picked diagrams as a learning style), 7 (Malik keeps the paste-able why-question), 5 (Malik deferred sync). Awaiting Malik's approval. No chapter is written until he says go.
+Status: v2 APPROVED by Malik 2026-09-20. By Fable. Merges Codex review findings 1-6, 8-12, 14-19, 21-25 and Malik's answers. Declined: 13 (Malik keeps 30 chapters), 20 (Malik picked diagrams as a learning style), 7 (Malik keeps the paste-able why-question), 5 (Malik deferred sync). Awaiting Malik's approval. No chapter is written until he says go.
 
 Title: **BIG CODE BOOK** (Malik's pick).
 
@@ -22,7 +22,8 @@ Title: **BIG CODE BOOK** (Malik's pick).
 - **Glossary evolves.** A term is defined in one plain sentence the first time it appears, and the definition is upgraded in later chapters.
 - **Analogies are scaffolding.** Every analogy is labelled temporary and the chapter says where it breaks and what the real model is.
 - **Voice:** casual, blunt, swearing allowed, Hormozi-style. Small doses of mindset and business. No "build it all by hand without AI" track.
-- **Split:** Fable owns curriculum and prose (one voice). Codex owns visuals, interactives, the Memento Jr build, and adversarial fact-checking. Handoff via files in this repo. Malik relays.
+- **Split (revised 2026-09-20, Malik's call):** Fable owns curriculum, prose, the website, SVG diagrams, and the Memento Jr build. Codex owns adversarial fact-checking of every chapter, the planted-bug folders, the larger interactives (git playground, diff trainer, SQL simulator, event-loop and request inspectors), and any raster art. Handoff via files in this repo. Malik relays.
+- **Approved by Malik 2026-09-20.** Writing started the same night.
 - **Heavy quizzing later.** For now: a 2-minute recap and a 3-question check per chapter, plus three practical checkpoints (end of weeks 2, 4, 6) that gate graduation.
 - **Hosting:** GitHub Pages from a private repo (the site itself is public by URL). A simple client-side passphrase gate in front, which is obscurity, not security, and the plan says so. No Memento secrets are ever quoted, only code structure.
 - **Progress is local per device** (localStorage). Cross-device highlights and notes are deferred; noted as a later feature.
