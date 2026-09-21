@@ -1,0 +1,397 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>27. The AI-assisted engineer, part 1: asking, plans, diffs, claims. BIG CODE BOOK</title>
+<link rel="stylesheet" href="../css/book.css">
+<meta name="theme-color" content="#0b0b0d">
+</head>
+<body data-chapter="27">
+<main>
+  <div class="kicker">Chapter 27 <span class="tag need">NEED</span> <span class="tag">~60 min</span> <span class="tag">phone or Mac</span></div>
+  <h1>The AI-assisted engineer, part 1: asking, plans, diffs, claims</h1>
+  <p class="lede">Twenty-six chapters were the prerequisites. This is the job. Four moves, in order, every time: ask properly, approve the plan, read the diff, verify the claim. Miss one and you are guessing about your own product.</p>
+
+  <div class="box recap"><div class="h">LAST TIME</div><p>Software gets structured to keep related things together and unrelated things apart, so a change has a small blast radius. Memento's two architectures make opposite bets: 38 numbered global scripts with no import graph, and typed folders with one. Debt is a loan you took to move fast, and the interest is charged on every future change.</p></div>
+
+  <h2>Quick check</h2>
+  <details class="check"><summary>An agent pushed a commit that broke the home page. <code>revert</code> or <code>reset</code>?</summary><div class="a">Revert. It makes a new commit that undoes the bad one, so history grows and nothing is lost, and it is safe on work other people already pulled. Reset moves your branch label backwards and, with <code>--hard</code>, destroys uncommitted work.</div></details>
+  <details class="check"><summary>A change comes back with 90% test coverage. Is it correct?</summary><div class="a">No. Coverage measures which lines a test ran through, not whether anything useful was asserted about them. A test that calls a function and checks nothing gives full coverage and zero information.</div></details>
+  <details class="check"><summary>Why can Memento's Supabase anon key sit in the client while the Anthropic key cannot?</summary><div class="a">The anon key only identifies the project; what it may read is decided by row rules inside the database. The Anthropic key is a bearer credential: whoever holds it can spend your money, so it lives in the edge function's environment and never reaches a browser.</div></details>
+
+  <h2>The idea</h2>
+  <p>You cannot read every line an agent writes. Nobody can, which is the point of using one. So the job is putting checkpoints where a mistake is still cheap, and refusing to move past one that has not been passed.</p>
+  <p>Four of them, in a deliberate order. A wrong sentence in a request costs nothing. A wrong plan costs a minute. Wrong code costs a review. Wrong code that shipped costs a customer. Every checkpoint you skip pushes the mistake into a more expensive one.</p>
+
+  <div class="box analogy"><div class="h">ANALOGY (TEMPORARY)</div><p>Hiring a contractor for a kitchen. You do not stand behind him holding each tile. You agree what the room should look like, you read the quote before work starts, you walk the room before you pay, and you turn the taps on yourself. Four moments. The rest of the week he works and you do not.</p></div>
+
+  <figure class="fig-box">
+    <svg class="figure" viewBox="0 0 640 260" role="img" aria-label="A loop in two rows. Top row left to right: ask, plan, review the plan, implement. An arrow goes down from implement to the bottom row, which runs right to left: read the diff, verify, commit. Three stop exits drop out of the loop: under review the plan, not good enough means back to the ask; under read the diff, files you did not ask for means stop; under verify, no artifact means stop.">
+      <text class="st lo" x="16" y="24">the loop, cheapest checkpoint first</text>
+      <rect class="bx" x="16" y="44" width="96" height="40" rx="8"/>
+      <text class="st" x="64" y="69" text-anchor="middle">ask</text>
+      <rect class="bx" x="132" y="44" width="110" height="40" rx="8"/>
+      <text class="st" x="187" y="69" text-anchor="middle">it plans</text>
+      <rect class="bx acc" x="262" y="44" width="130" height="40" rx="8"/>
+      <text class="st" x="327" y="69" text-anchor="middle">review the plan</text>
+      <rect class="bx" x="412" y="44" width="120" height="40" rx="8"/>
+      <text class="st" x="472" y="69" text-anchor="middle">it implements</text>
+      <path class="ln" d="M112 64 H132"/>
+      <path class="ln" d="M242 64 H262"/>
+      <path class="ln acc" d="M392 64 H412"/>
+      <path class="ln" d="M472 84 V170"/>
+      <rect class="bx acc" x="412" y="170" width="120" height="40" rx="8"/>
+      <text class="st" x="472" y="195" text-anchor="middle">read the diff</text>
+      <rect class="bx acc" x="262" y="170" width="130" height="40" rx="8"/>
+      <text class="st" x="327" y="195" text-anchor="middle">verify the claim</text>
+      <rect class="bx" x="132" y="170" width="110" height="40" rx="8"/>
+      <text class="st" x="187" y="195" text-anchor="middle">commit</text>
+      <path class="ln acc" d="M412 190 H392"/>
+      <path class="ln acc" d="M262 190 H242"/>
+      <path class="ln cy" d="M327 84 V112"/>
+      <text class="st lo" x="327" y="130" text-anchor="middle">too big, or names no files: back to the ask</text>
+      <path class="ln cy" d="M472 210 V232"/>
+      <text class="st lo" x="560" y="248" text-anchor="middle">files you did not ask for: stop</text>
+      <path class="ln cy" d="M327 210 V232"/>
+      <text class="st lo" x="200" y="248" text-anchor="middle">no artifact: stop</text>
+    </svg>
+    <figcaption>Four checkpoints. Green is where you spend your attention. Cyan is where you are allowed to stop the whole thing.</figcaption>
+  </figure>
+
+  <h3>1. The five-part ask</h3>
+  <p>An agent guesses. Chapter 1 said it: the machine obeys, the agent interprets. Every gap you leave gets filled with a guess, and the guesses are plausible, which is worse than wrong. A <dfn data-term="five-part-ask">five-part ask</dfn> closes the five gaps that cause damage.</p>
+  <table>
+    <tr><th>Part</th><th>What it stops</th></tr>
+    <tr><td><strong>What.</strong> One change, stated in one sentence.</td><td>Two changes in one diff, which you can no longer review or revert separately.</td></tr>
+    <tr><td><strong>Where.</strong> Named files.</td><td>The agent hunting, finding a second place that looks similar, and editing both.</td></tr>
+    <tr><td><strong>Symptom or goal.</strong> What you saw, or what you want to be true.</td><td>Fixing the thing you described instead of the thing that is wrong.</td></tr>
+    <tr><td><strong>Done-condition.</strong> How a machine could tell.</td><td>"Done" meaning "I stopped typing".</td></tr>
+    <tr><td><strong>What not to touch.</strong> The files that are off limits.</td><td>Scope creep, which is chapter 28's whole first half.</td></tr>
+  </table>
+  <p>The <dfn data-term="done-condition">done-condition</dfn> is the one people skip and the one that matters most. Anthropic's guidance for Claude Code puts it plainly: give the agent something it can check itself, and if you cannot verify it, do not ship it (<a href="https://code.claude.com/docs/en/best-practices">code.claude.com/docs/en/best-practices</a>). A done-condition is that check, written before the work starts, by the person who will be angry if it is wrong.</p>
+  <p>The same request twice. Consistency is Memento's streak module.</p>
+  <div class="lanes">
+    <div class="lane"><div class="h">THE BAD ASK</div>
+      <pre><code>the streak is broken, fix it</code></pre>
+      <p>Five gaps: which streak, broken how, which file, what would prove it fixed, what is off limits. The agent answers all five confidently, and you find out which answers it picked by reading a diff you did not expect.</p>
+    </div>
+    <div class="lane mem"><div class="h">THE GOOD ASK</div>
+      <pre><code>WHAT: the current streak counts a day twice when the phone
+crosses midnight in a different timezone.
+
+WHERE: memento-app/js/06-consistency-mori.js only.
+
+SYMPTOM: test account flew Toronto to London on 14 Sep.
+Home showed a 7 day streak, then 8, with one day logged.
+
+DONE WHEN: _currentStreakFrom returns 7 for that day list,
+and the existing days-logged number is unchanged.
+
+DO NOT TOUCH: js/01-state-foundation.js, css/base.css, or
+anything outside the Consistency module. If you see another
+bug, list it, do not fix it.</code></pre>
+    </div>
+  </div>
+  <p>The good ask is longer because each line removes one guess, not because longer is better. Note the last sentence. You will write it every time.</p>
+
+  <h3>2. Review the plan before you allow code</h3>
+  <p>A <dfn data-term="implementation-plan">plan</dfn> is the agent's statement of intent before it acts. Anthropic's recommended shape is explore, plan, implement, commit, and OpenAI's Codex guidance is the same shape in different words (<a href="https://developers.openai.com/codex/learn/best-practices">developers.openai.com/codex/learn/best-practices</a>). Reading a plan takes a minute. Reading the code it produced takes twenty.</p>
+  <p>Six questions. Any "no" sends it back.</p>
+  <ol>
+    <li><strong>Does it name the files?</strong> A plan with no file names has not read your codebase yet. It is describing software in general.</li>
+    <li><strong>Does it say what it will not touch?</strong> If it does not, the boundary exists only in your head.</li>
+    <li><strong>Does it mention existing code it will reuse?</strong> A plan that names no existing function is about to write a second one. This is the duplicate-system tell, a chapter early.</li>
+    <li><strong>Does it say how it will verify?</strong> Not "I will test it". Which command, which screen, which output.</li>
+    <li><strong>Is it smaller than the ask, or bigger?</strong> Bigger means scope creep already started. Smaller sometimes means it found a simpler route, which is good, and sometimes means it misunderstood, which is not. Ask which.</li>
+    <li><strong>What is the rollback?</strong> One commit you can revert is a rollback. Eleven files across two systems is not.</li>
+  </ol>
+  <p>Score a plan against those six in code, so the questions stop being vibes:</p>
+  <div class="sb">
+const plan = {
+  files: ["js/06-consistency-mori.js"],
+  wontTouch: ["js/01-state-foundation.js", "css/base.css"],
+  reuses: "_currentStreakFrom, already in that file",
+  verifyBy: "",                       // nothing here. that is the finding.
+  stepsAsked: 1,
+  stepsPlanned: 3,
+  rollback: "revert the single commit"
+};
+
+const questions = [
+  ["names files",      plan.files.length > 0],
+  ["says what is off limits", plan.wontTouch.length > 0],
+  ["reuses existing code",    plan.reuses !== ""],
+  ["says how it verifies",    plan.verifyBy !== ""],
+  ["not bigger than the ask", plan.stepsPlanned &lt;= plan.stepsAsked],
+  ["has a rollback",          plan.rollback !== ""]
+];
+
+let passed = 0;
+questions.forEach(q =&gt; {
+  console.log((q[1] ? "ok   " : "SEND BACK ") + q[0]);
+  if (q[1]) passed++;
+});
+console.log("score:", passed, "of 6. Any miss is a send-back, not a warning.");
+</div>
+  <p>Two failures, and they are the expensive two: no verification step, and three steps for a one-step ask.</p>
+
+  <h3>3. Inspect what actually changed</h3>
+  <p>The agent's summary is a summary. The <dfn data-term="diff">diff</dfn> is the record. They disagree more often than you would like, and only one of them shipped.</p>
+  <table>
+    <tr><th>Move</th><th>What it answers</th></tr>
+    <tr><td><code>git diff --stat</code></td><td>Which files, how many lines each. The ten-second scan. More files than your ask named is the scope-creep alarm.</td></tr>
+    <tr><td><code>git diff</code></td><td>Every changed line, with surrounding context.</td></tr>
+    <tr><td><code>git diff --staged</code></td><td>What is about to go into the commit, which is not always the same thing.</td></tr>
+    <tr><td>The diff pane in your editor or desktop app</td><td>The same information, side by side, easier on a big screen. Same data, nicer window.</td></tr>
+    <tr><td>Asking "what files did you touch, exactly"</td><td>A list you can then check against <code>--stat</code>. When the two disagree, you have learned something important about that session.</td></tr>
+  </table>
+  <p>Read every hunk. Not every file, every hunk. A hunk is small by definition, and the dangerous edits are always small.</p>
+
+  <h3>4. Read a diff, line by line</h3>
+  <p>A diff has four kinds of line and one header, and that is the whole language.</p>
+  <table>
+    <tr><th>Line starts with</th><th>Means</th></tr>
+    <tr><td><code>diff --git a/x b/x</code></td><td>A new file's section begins. <code>a/</code> is the before, <code>b/</code> is the after.</td></tr>
+    <tr><td><code>---</code> and <code>+++</code></td><td>The names of the before and after versions. Header lines, not content. They are the reason a naive line counter always reports one extra addition and one extra removal.</td></tr>
+    <tr><td><code>@@ -210,6 +210,22 @@</code></td><td>A <dfn data-term="hunk">hunk header</dfn>. From the old file, 6 lines starting at line 210. In the new file, 22 lines starting at line 210. So this hunk grew the file by 16 lines.</td></tr>
+    <tr><td>a space</td><td>Context. Unchanged, shown so you can see where you are.</td></tr>
+    <tr><td><code>+</code></td><td>Added.</td></tr>
+    <tr><td><code>-</code></td><td>Removed. A changed line appears as a removal and an addition, next to each other.</td></tr>
+  </table>
+  <p>Now a real one from your own history. A bug you found on your phone, fixed the same evening:</p>
+  <pre><code>git -C ~/Downloads/MEMENTO show --stat 165a5d3e</code></pre>
+  <pre><code>165a5d3e v1370: Build my plan works for free users again. The router
+         adopts a gate redirect instead of healing the paywall away
+
+ HANDOFF.md                            | 20 ++++++++++++++++++++
+ memento-app/index.html                |  6 +++---
+ memento-app/js/01-state-foundation.js |  2 +-
+ memento-app/js/16-doors.js            | 16 ++++++++++++++++
+ 4 files changed, 40 insertions(+), 4 deletions(-)</code></pre>
+  <div class="src">git show --stat 165a5d3e (web pin ca8afc8; subject wrapped here to fit the page)</div>
+  <p>Read the shape before the content. Four files, three of them bookkeeping: a handoff note, the version string, the cache-busting <code>?v=</code> numbers. One file is the fix, 16 added lines with nothing removed. A one-file additive fix is about as low-risk as a change gets, and you knew that before reading a line of code.</p>
+  <p>That file's hunk, verbatim:</p>
+  <pre><code>diff --git a/memento-app/js/16-doors.js b/memento-app/js/16-doors.js
+index 358bc2ba..3842f210 100644
+--- a/memento-app/js/16-doors.js
++++ b/memento-app/js/16-doors.js
+@@ -210,6 +210,22 @@
+
+   function finishTransition(slug, before, target, opts) {
+     return Promise.resolve(target.open(opts)).then(function () {
++      // v1370 (Malik, from his phone: Build my plan did nothing). A surface's
++      // own gate may open a DIFFERENT door instead of itself: Action, for a
++      // free person, opens the paywall. That is the landing, not a stray.
++      // Healing it away closed the paywall the instant it opened and the tap
++      // read as dead. Adopt the redirect; a surface that opened nothing
++      // (a non-door beat such as First 7 Days, or nothing to show) simply
++      // leaves the transition where it was, without throwing.
++      if (slug !== 'home' &amp;&amp; !active(target)) {
++        var landed = activeSlugs();
++        if (landed.length === 1 &amp;&amp; landed[0] !== slug &amp;&amp; resolve(landed[0])) {
++          slug = landed[0];
++          target = resolve(slug);
++        } else if (!landed.length) {
++          return before;
++        }
++      }
+       return assertOneRoot(slug).then(function () {
+         if (slug !== 'home' &amp;&amp; !active(target)) {
+           throw new Error('Doors: target surface did not become active: ' + slug);</code></pre>
+  <div class="src">git show 165a5d3e, memento-app/js/16-doors.js:210 (web pin ca8afc8)</div>
+  <p>Line by line. The <code>@@</code> says old line 210, six lines; new line 210, twenty-two. The three lines with a leading space are context, the function signature and the promise, unchanged, there to orient you. Then sixteen <code>+</code> lines and no <code>-</code> lines, which means nothing was deleted and the old behaviour still sits underneath.</p>
+  <p>Seven of the sixteen are comment, naming the reporter, the symptom and the reasoning. A lot of comment for nine lines of code, and correct: the next reader will wonder why the router tolerates landing somewhere else, and the answer is not guessable from the code.</p>
+  <p>The code: if the door you asked for is not the one that opened, look at what did. If exactly one other door opened and the router knows it, adopt that as the destination. If nothing opened, return quietly instead of throwing. The unchanged context below shows the check that used to throw, still there, now only reached when neither escape applied.</p>
+  <p>Questions worth asking, all of which you can now form: what happens if <em>two</em> doors opened, since this handles exactly one? What is in <code>before</code> when it returns early? Can <code>resolve</code> throw? None are gotchas. They are what a reviewer asks, and asking them is the skill.</p>
+  <p>A parser makes the grammar concrete. Watch the header lines try to trick the counter:</p>
+  <div class="sb">
+const diff = [
+  "diff --git a/js/16-doors.js b/js/16-doors.js",
+  "--- a/js/16-doors.js",
+  "+++ b/js/16-doors.js",
+  "@@ -210,6 +210,22 @@",
+  "   function finishTransition(slug, before, target, opts) {",
+  "+      var landed = activeSlugs();",
+  "+      if (landed.length === 1) { slug = landed[0]; }",
+  "-      var old = true;",
+  "       return assertOneRoot(slug)",
+  "diff --git a/index.html b/index.html",
+  "--- a/index.html",
+  "+++ b/index.html",
+  "@@ -5,7 +5,7 @@",
+  "-window.MEMENTO_VERSION = 'v1369';",
+  "+window.MEMENTO_VERSION = 'v1370';"
+].join("\n");
+
+let added = 0, removed = 0;
+const files = [];
+
+diff.split("\n").forEach(line =&gt; {
+  if (line.indexOf("diff --git") === 0) files.push(line.split(" b/")[1]);
+  else if (line.indexOf("---") === 0 || line.indexOf("+++") === 0) return; // headers, not content
+  else if (line[0] === "+") added++;
+  else if (line[0] === "-") removed++;
+});
+
+console.log("files touched:", files.join(", "));
+console.log("added:", added, "| removed:", removed);
+console.log("ask named 1 file. diff touched", files.length + ".");
+</div>
+  <p>Delete the header-skipping line and run it again. The counts go wrong by exactly two per file, in the flattering direction. Every tool that reads a diff knows this, including the one between your ears.</p>
+
+  <h3>5. Ask why, not what</h3>
+  <p>Anthropic ran a controlled trial in February 2026: 52 mostly-junior developers learning an unfamiliar library. The AI-assisted group scored about 17 points lower on a comprehension quiz. But the participants who used it for <em>conceptual</em> questions, why this pattern, what does this do, scored 65% or better, level with the people who wrote everything by hand (<a href="https://www.anthropic.com/research/AI-assistance-coding-skills">anthropic.com/research/AI-assistance-coding-skills</a>, summarised in research/research-pedagogy.md section 1.9). Delegation cost comprehension. Inquiry did not. Same tool, opposite result, decided by the grammar of your sentence.</p>
+  <table>
+    <tr><th>Do-question (costs comprehension)</th><th>Why-question (keeps it)</th></tr>
+    <tr><td>Fix the streak</td><td>Why does the streak walk backwards from today instead of forwards from the start?</td></tr>
+    <tr><td>Add caching here</td><td>What would break if this ran twice in the same second?</td></tr>
+    <tr><td>Clean up this file</td><td>Which two jobs is this function doing, and which one does not belong?</td></tr>
+  </table>
+  <p>Two phrases carry the weight. <strong>"Explain, then stop"</strong> removes the assumption that an explanation is a preamble to editing. <strong>"What would break if"</strong> is the fastest way to find out whether it understands the code or is describing what the code looks like it does. Every chapter of this book ends with one of these, and that is not decoration.</p>
+
+  <h3>6. Verify a claim</h3>
+  <p>"It works" is a feeling the agent is reporting about itself. <dfn data-term="verification-artifact">Verification</dfn> is something a machine produced that you can look at: pasted output, a test result with assertion names, a screenshot of the actual screen, an exit code. No artifact, nothing verified, however confident the paragraph.</p>
+  <p>You wrote the strictest version of this rule anybody in this book has written. It is law in your own repo:</p>
+  <pre><code>00. **THE VISUAL CHANGE CONTRACT (law, v854, enforced by a hook).** Malik has
+   now caught the same classes of miss repeatedly (desktop-only breaks, the
+   OLED band, white-on-white light mode, inconsistent beat spacing). So the
+   gate is mechanical, not judgment: before ANY visual change is called done,
+   screenshot the CHANGED SURFACE in all four cells: 390x844 dark, 390x844
+   light, 1440x900 dark, 1440x900 light. Computed-style reads are diagnostics,
+   not verification; only looked-at screenshots count.</code></pre>
+  <div class="src">CLAUDE.md:83-89 (native pin 93bfa796)</div>
+  <p>Read the last sentence again. A computed-style read is the agent asking the browser what colour it thinks something is, getting a true answer that proves nothing about whether the screen looks right. The rule sorts evidence into diagnostics and verification and lets only one close a task. That is sharper than most engineering teams manage.</p>
+  <p>The companion law closes the other escape route:</p>
+  <pre><code>1b. **Verify on the REAL surface, never a reconstruction (law, v692).** Drive the
+   actual flow to the actual screen (seed state via the cheat tools if needed) and
+   screenshot THAT. A hand-built DOM that "simulates" the screen misses layers the
+   real one has (a nav fade, a page ::before, a safe-area strip) and produces a
+   false PASS: this exact failure shipped a light band Malik had to catch on-device
+   TWICE.</code></pre>
+  <div class="src">CLAUDE.md:117-122 (native pin 93bfa796)</div>
+  <p>A screenshot of a rebuilt copy of the screen is an artifact of the wrong thing. Both laws exist because the same miss shipped twice, which is the only reason any rule in any repo exists.</p>
+
+  <h3>7. The seven tells of a hallucination</h3>
+  <p>A <dfn data-term="hallucination">hallucination</dfn> is not a lie and not a glitch. It is the most plausible continuation, and a filename that fits your naming convention is extremely plausible. Which is why each one dies to a single line.</p>
+  <table>
+    <tr><th>The tell</th><th>The one-line check</th></tr>
+    <tr><td>A file path that sounds right</td><td><code>ls memento-app/js/31-streak-utils.js</code></td></tr>
+    <tr><td>A function it says it changed</td><td><code>grep -n "getStreakDays" memento-app/js/*.js</code></td></tr>
+    <tr><td>"Tests pass" with no output</td><td>"Paste the exact output, including the summary line."</td></tr>
+    <tr><td>A library API that does not exist</td><td><code>grep -rn "dayjs" memento-app/</code> and check package.json for the native side</td></tr>
+    <tr><td>A confident date, number, or version</td><td>"Where did that number come from? Name the file or the URL."</td></tr>
+    <tr><td>A claim about behaviour with no line number</td><td>"Which file and line proves that?"</td></tr>
+    <tr><td>"I verified it" with no artifact</td><td>"Show me the artifact. Screenshot, output, or exit code."</td></tr>
+  </table>
+  <p>Six of those are one command. The seventh is one sentence. That is the entire defence, and it is why this is a founder-sized skill rather than an engineer-sized one.</p>
+
+  <h2>See it</h2>
+  <p>A hallucination detector: the least glamorous and most useful function in this book. It does what <code>ls</code> does, so you can watch the check happen.</p>
+  <div class="sb">
+// What is really on disk (a few of Memento's real js files).
+const repo = {
+  "js/06-consistency-mori.js": 848,
+  "js/30-action-flow.js": 5459,
+  "js/31-stress-runner.js": 1582
+};
+
+// What the agent said it touched.
+const claimed = ["js/06-consistency-mori.js", "js/31-streak-utils.js"];
+
+function audit(paths) {
+  let bad = 0;
+  paths.forEach(p =&gt; {
+    if (repo[p]) console.log("exists  ", p, "(" + repo[p] + " lines)");
+    else { bad++; console.log("MISSING ", p, "  one ls would have caught this"); }
+  });
+  console.log(bad === 0 ? "every claimed path is real" : bad + " claimed path(s) do not exist");
+}
+
+audit(claimed);
+</div>
+  <p>Notice why <code>js/31-streak-utils.js</code> is convincing. The number 31 is free in your mental picture of the file map, the suffix matches the module it claims to serve, the naming style is Memento's. Most plausible continuation. Also not there: 31 is <code>31-stress-runner.js</code>.</p>
+
+  <h2>Now in Memento</h2>
+  <div class="lanes">
+    <div class="lane"><div class="h">ANY APP</div>
+      <p>None of the four checkpoints survive on willpower. An agent starts every session with no memory, so rules living in your head reach it only when you retype them. The fix the industry converged on in 2026 is a <dfn data-term="harness">harness</dfn>: a rules file read at the start of every session, a map of where things live, and wherever possible a machine that checks the rule instead of a model asked to remember it.</p>
+      <p>The harness is also what makes reviewing cheap. If the rules file says where a feature lives, "the diff touched a file outside that list" becomes a yes or no question, which is a question you can ask at midnight on a phone.</p>
+    </div>
+    <div class="lane mem"><div class="h">MEMENTO</div>
+      <p><code>CLAUDE.md</code> is your harness, doing four jobs. It maps files to features, so an ask can name a file. It freezes the web app, so scope has a default answer. It defines verification mechanically, as above. And it tells agents how to read the codebase at all.</p>
+      <pre><code>1. **One agent per module.** Pick a feature, stay in its files. Different modules in parallel = safe.
+2. **SHARED files need care:** `css/base.css`, `js/01-state-foundation.js`, `js/09-controllers.js`, `js/11-init.js`, `index.html`. Many features touch these. Keep edits to them small, and push promptly so others get them.</code></pre>
+      <div class="src">CLAUDE.md:66-67 (native pin 93bfa796)</div>
+      <pre><code>- No new features, redesigns, or copy changes in `memento-app/`. Bug fixes
+  only, and only for bugs that block a real person or a test account.</code></pre>
+      <div class="src">CLAUDE.md:54-55 (native pin 93bfa796)</div>
+      <p>Line 187, under DON'T, instructs every agent never to read the big js and css files in full and to grep for the relevant part first. That is why the map above it has to be accurate: an agent that cannot read everything navigates by your map.</p>
+      <div class="src">CLAUDE.md:187 (native pin 93bfa796)</div>
+    </div>
+  </div>
+  <div class="box memento"><div class="h">THE ALTERNATIVE, AND WHY MEMENTO CHOSE THIS</div><p>The alternative is a short harness, which several practitioners recommend, because a long rules file competes for the model's attention with the actual task and rules nobody enforces become decoration. Memento went the other way: a long, specific, incident-shaped file where most rules name the exact bug that caused them (v854, v692, v811, the purple box, the OLED band). The bet is that a rule with its own origin story attached gets followed, and the receipts support it, since the repeat failures stopped. The cost is real. The file map at the top has drifted from the files it describes, and chapter 28 opens with what drift like that produces. A harness is a thing you maintain, not a thing you write.</p></div>
+
+  <h2>Do it</h2>
+  <div class="ex">
+    <div class="h">Exercise <span class="tag">phone or Mac</span></div>
+    <div class="meta">Where: right here, on this page. Expected: you find two hallucinations and one unverified claim. Reset: nothing to reset, this is reading. This cannot touch Memento.</div>
+    <p>An agent was given the good ask from earlier in this chapter. It came back with this. Find every problem before you open the answers.</p>
+    <pre><code>Done. The timezone bug is fixed.
+
+I traced it to _currentStreakFrom in memento-app/js/06-consistency-mori.js,
+which compared raw UTC timestamps, so a flight west added a second day key
+for the same day. I normalised both sides with dayjs().startOf('day') so the
+comparison happens in the user's local day, and I applied the same
+normalisation in memento-app/js/31-streak-utils.js so the two streak paths
+cannot drift apart again.
+
+I ran the test suite and everything passes. The home screen now shows 7
+instead of 8. Ready to push.</code></pre>
+    <ol>
+      <li>Write down every sentence you would refuse to accept, and next to each one the single command or question you would use on it.</li>
+      <li>Then open the answers.</li>
+    </ol>
+    <details class="check"><summary>Answers</summary><div class="a">
+      <p><strong>Hallucination 1: <code>js/31-streak-utils.js</code> does not exist.</strong> Memento's <code>js/31</code> is <code>31-stress-runner.js</code>. The name is plausible because it follows your convention exactly. Check: <code>ls ~/Downloads/MEMENTO/memento-app/js/ | grep 31</code>.</p>
+      <p><strong>Hallucination 2: <code>dayjs</code> is not in the web app.</strong> The frozen web app loads classic scripts with no bundler and no package manager, so there is no dayjs to call. That code would throw <code>dayjs is not defined</code> on the first run. Check: <code>grep -rn "dayjs" ~/Downloads/MEMENTO/memento-app/</code> returns nothing.</p>
+      <p><strong>Unverified claim: "I ran the test suite and everything passes."</strong> No output was pasted, and the web app has no test runner at all, only a list of bespoke scripts in the deploy workflow. Check: "Paste the exact command and its full output." Bonus catch: "the home screen now shows 7" is a visual claim with no screenshot, which your own four-cell contract does not accept.</p>
+      <p><strong>Also worth flagging:</strong> the reply edits two files when the ask named one, and it never mentions the freeze. Both are chapter 28.</p>
+    </div></details>
+  </div>
+
+  <div class="ex" data-device="mac">
+    <div class="h">Exercise, the real thing <span class="tag mac">MAC</span></div>
+    <div class="meta">Where: any Terminal window. Expected: you can name every file one real commit touched and one line you would question. Reset: none, both commands are read-only. This cannot touch Memento.</div>
+    <ol>
+      <li><code>git -C ~/Downloads/MEMENTO show --stat HEAD~1</code>. Read the shape first. How many files, how many lines each, and how many of those files are bookkeeping rather than behaviour.</li>
+      <li><code>git -C ~/Downloads/MEMENTO show HEAD~1 | head -80</code>. Now the content. Find the first <code>@@</code> header and say out loud which lines of which file it is describing.</li>
+      <li>Write down every file touched, and one line you would question if this diff arrived in your chat. Not a line you think is wrong. A line you cannot yet explain.</li>
+      <li>Paste that line into your agent with: <code>Explain what this line does and what would break if it were removed. Do not change anything.</code></li>
+    </ol>
+  </div>
+
+  <div class="box why"><div class="h">ASK THE AGENT WHY (paste this into Codex or Fable)</div><pre><code>Read memento-app/js/16-doors.js around finishTransition, and the v1370 comment inside it.
+Explain why the router used to close the paywall the instant it opened, in terms of what
+finishTransition believed about which door should be active. Then tell me what would break if
+the "landed.length === 1" condition were changed to "landed.length &gt;= 1". Explain, then stop.
+Do not change anything.</code></pre></div>
+
+  <div class="box words"><div class="h">WORDS YOU NOW OWN</div><dl>
+    <dt>Five-part ask</dt><dd>What, where, symptom or goal, done-condition, what not to touch. Each part closes one gap the agent would otherwise fill with a plausible guess.</dd>
+    <dt>Done-condition</dt><dd>How a machine could tell the job is finished, written before the work starts. Without one, "done" means "I stopped typing".</dd>
+    <dt>Plan</dt><dd>The agent's statement of intent before it writes code. Six questions decide whether it gets to proceed. Wrong plans are cheap; wrong code is not.</dd>
+    <dt>Hunk</dt><dd>One changed region of one file in a diff, introduced by <code>@@ -old,count +new,count @@</code>. Read every hunk, not every file.</dd>
+    <dt>Diff (upgraded)</dt><dd>The record of what shipped, as opposed to the agent's summary of what it meant to ship. <code>--stat</code> for the shape, the full diff for the content.</dd>
+    <dt>Verification artifact</dt><dd>Something a machine produced that you can look at: command output, a test result, a screenshot of the real surface, an exit code. Confidence is not one.</dd>
+    <dt>Hallucination (upgraded)</dt><dd>The most plausible continuation, stated as fact. Seven common shapes, six of them checkable with one command.</dd>
+    <dt>Harness (upgraded)</dt><dd>The rules file, file map, and mechanical checks an agent reads every session, because it remembers nothing from the last one. <code>CLAUDE.md</code> is Memento's.</dd>
+  </dl></div>
+
+  <div class="box expiry"><div class="h">WHERE TODAY'S ANALOGY BREAKS</div><p><strong>Breaks when:</strong> you treat the contractor as slow and expensive, so you batch work up and check in weekly. An agent is fast and cheap, which inverts the economics: many small asks with a checkpoint after each beat one big one inspected at the end. A contractor also remembers last Tuesday. An agent starts every session with nothing, so anything you have not written into a file, you have not said. <strong>Real model:</strong> a tireless, literal collaborator with amnesia, no stake in the outcome, and a strong bias toward reporting success. The four checkpoints are the only place your judgment still enters the system.</p></div>
+
+  <details class="hole"><summary>RABBIT HOLE: why the plan is easier to review than the code</summary><p>A plan is written in your language, so reviewing it uses what you already know: what the feature is for, which files exist, what is off limits. Code review needs all that plus the language. That gap is why plan review is the highest-leverage habit here for a non-engineer, and why practitioners keep converging on explore, plan, implement, commit. The trap: a plan is also the easiest thing to produce convincingly. One naming no files and no existing functions was written without reading your codebase, and it will read beautifully. The six questions separate a plan from an essay about a plan.</p></details>
+</main>
+<script src="../js/book.js"></script>
+</body>
+</html>

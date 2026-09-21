@@ -1,0 +1,339 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>28. The AI-assisted engineer, part 2: duplicates, scope, recovery. BIG CODE BOOK</title>
+<link rel="stylesheet" href="../css/book.css">
+<meta name="theme-color" content="#0b0b0d">
+</head>
+<body data-chapter="28">
+<main>
+  <div class="kicker">Chapter 28 <span class="tag need">NEED</span> <span class="tag">~60 min</span> <span class="tag">phone or Mac</span></div>
+  <h1>The AI-assisted engineer, part 2: duplicates, scope, recovery</h1>
+  <p class="lede">Last chapter was the loop that catches mistakes. This one is the three mistakes that get through it anyway, plus the commands that put your project back when one of them lands.</p>
+
+  <div class="box recap"><div class="h">LAST TIME</div><p>Four checkpoints in order, cheapest first: the five-part ask, the plan reviewed against six questions, the diff read hunk by hunk, the claim backed by an artifact a machine produced. A hallucination is the most plausible continuation stated as fact, and six of its seven shapes die to one command.</p></div>
+
+  <h2>Quick check</h2>
+  <details class="check"><summary><code>@@ -210,6 +210,22 @@</code>. What does it tell you?</summary><div class="a">This region was 6 lines starting at line 210 in the old file, and is 22 lines starting at line 210 in the new one. The file grew by 16 lines here. You know the size of the change before reading a word of it.</div></details>
+  <details class="check"><summary>An agent says "I verified it works". What are you missing?</summary><div class="a">The artifact. Pasted output, a test result with assertion names, a screenshot of the real surface, an exit code. Something a machine produced. Confidence is not evidence, and a screenshot of a rebuilt copy of the screen is evidence about the wrong thing.</div></details>
+  <details class="check"><summary>A bug is reported. What is the first move, before reading any code?</summary><div class="a">Reproduce it. A bug you cannot trigger on demand is a bug you cannot prove you fixed, and you will spend the whole session arguing with an agent about whether it is gone.</div></details>
+
+  <h2>The idea</h2>
+  <p>The loop in chapter 27 catches wrong code. It does not catch <em>extra</em> code, and extra is what agents produce. GitClear measured duplicated blocks rising eightfold across 211 million changed lines in 2024, with copy-paste passing refactoring for the first time on record. Willison said it in one sentence: he can write code a hundred times faster and does not have a hundred times the capacity to stay on top of it.</p>
+  <p>Extra comes in two shapes. A <dfn data-term="duplicate-system">duplicate system</dfn> is a second thing doing a job something already does. <dfn data-term="scope-creep">Scope creep</dfn> is a change that grew past the ask. Both are additions, both look like productivity, and both are paid for by whoever later has to work out which one is real.</p>
+  <div class="box analogy"><div class="h">ANALOGY (TEMPORARY)</div><p>A kitchen with two knife drawers. Nobody decided that. Somebody needed a knife, did not find the drawer, and started a second one. Now every cook has to check both, and every new knife goes in whichever drawer was open. Nothing is broken. Everything takes longer, forever.</p></div>
+
+  <h3>1. How duplicate systems get born</h3>
+  <p>Three real ones from your own repo.</p>
+  <p><strong>Two paywalls.</strong> <code>js/13-clarity-paywall.js</code> decided who was paid from a flag on the client. Then <code>js/22-billing.js</code> arrived with real Polar billing, whose whole job is that the server decides. Both had an opinion. At the frozen commit they are reconciled, and <code>js/13</code> asks <code>js/22</code>:</p>
+  <pre><code>  isPaid() {
+    try {
+      // Official demos may imitate the paid UI, but server-side billing still
+      // decides whether any paid AI request is authorized.
+      if (typeof DEMO_MODE !== 'undefined' &amp;&amp; DEMO_MODE) return true;
+      return !!(window.PolarBilling
+        &amp;&amp; PolarBilling.hasVerifiedAccess
+        &amp;&amp; PolarBilling.hasVerifiedAccess());
+    } catch (e) { return false; }
+  },</code></pre>
+  <div class="src">memento-app/js/13-clarity-paywall.js:36-45 (web pin ca8afc8)</div>
+  <p>Good outcome, with a tail. Your decision record still describes the world before it:</p>
+  <pre><code>- **Monetization stack (DIRECTION, not built):** Supabase + Resend + Polar
+  (NOT Stripe) is the CHOSEN direction. It is NOT implemented. The paywall is
+  UI-only today: Unlock sets `state.entitlements.isPaid = true` on the client
+  (js/13), no payment collected, so the paid gate is currently bypassable.</code></pre>
+  <div class="src">DECISIONS.md:17-20 (web pin ca8afc8)</div>
+  <p>The code moved, the record did not. The next agent that reads <code>DECISIONS.md</code> before the code will tell you something untrue about your own billing, confidently.</p>
+  <p><strong>Two event styles.</strong> Attaching a click handler in JavaScript, chapter 13's way, versus <code>onclick=</code> in the HTML. Memento has 1,112 of the first and three of the second, and those three are invisible to anyone searching for <code>addEventListener</code> to learn how a button works.</p>
+  <p><strong>Two Action flows.</strong> The old Action module and the new <code>js/30-action-flow.js</code> coexisted until v1319. The resolution is a whole file that exists to be a signpost:</p>
+  <pre><code>   Why this file still exists: about eighty places across the app still name
+   the old door (the home's Build my plan, the pillar tap, module faces, the
+   sheet nav, the router, the paywall, push). Rather than edit eighty call
+   sites, the NAME survives here as a forwarder, so every one of those doors
+   opens the real Action flow (js/30) and none of them can ever reach code
+   that no longer exists.</code></pre>
+  <div class="src">memento-app/js/33-action-shim.js:8-13 (web pin ca8afc8)</div>
+  <p>Eighty call sites: what a duplicate costs by the time you notice. The cheapest fix was a 38-line tombstone that stays for years.</p>
+  <p>Why agents do it: they do not grep first, because writing is what they are good at. They start every session with no memory, so last Tuesday's work is invisible. And adding feels safe, since a new file cannot break an existing test while changing a shared function might. Anthropic names the same failure: lost memory between sessions producing duplicated work and premature declarations of completion (<a href="https://www.anthropic.com/engineering/harness-design-long-running-apps">anthropic.com/engineering/harness-design-long-running-apps</a>).</p>
+  <p>Four preventions, the first one free.</p>
+  <ol>
+    <li><strong>"Does this already exist?" opens every ask.</strong> Before what, before where. It turns a build request into a search request, and the search is cheap.</li>
+    <li><strong>Grep before build.</strong> Make the agent show the search it ran. "I did not find one" with the command pasted is an answer. Without it, a guess.</li>
+    <li><strong>One owner per file.</strong> Two agents in one file is how you get two implementations of one idea in one place.</li>
+    <li><strong>A file map that is true.</strong> An agent with an accurate map finds the existing thing. With a wrong one, it builds a new thing.</li>
+  </ol>
+  <p>That last one is not hypothetical for you. <code>CLAUDE.md:10</code> says the app has 21 JavaScript files; it has 38. <code>CLAUDE.md:48</code> says "(No <code>16-*</code>; numbering has a gap.)" while <code>js/16-doors.js</code> is the router you read a diff of last chapter. Lines 40 and 42 list <code>21-descent.js</code> and <code>23-action-states.js</code>; neither exists. A map with a hole in it is an instruction to build something new in the hole.</p>
+  <p>A search over an index of what exists, before anything is written:</p>
+  <div class="sb">
+// A tiny index of a codebase: file -&gt; the names it defines.
+const index = {
+  "js/13-clarity-paywall.js": ["isPaid", "isLockedByPaywall", "openPaywall"],
+  "js/22-billing.js":         ["hasVerifiedAccess", "startCheckout"],
+  "js/06-consistency-mori.js":["_currentStreakFrom", "consistencyStats"]
+};
+
+function alreadyExists(name) {
+  const hits = [];
+  Object.keys(index).forEach(file =&gt; {
+    index[file].forEach(sym =&gt; {
+      if (sym.toLowerCase().indexOf(name.toLowerCase()) !== -1) hits.push(file + " -&gt; " + sym);
+    });
+  });
+  if (hits.length === 0) console.log("no match for '" + name + "'. building it is defensible.");
+  else { console.log("'" + name + "' already exists here:"); hits.forEach(h =&gt; console.log("   " + h)); }
+}
+
+alreadyExists("paid");      // two files have an opinion about this
+alreadyExists("streak");    // one place, use it
+alreadyExists("perfectWeek");
+</div>
+  <p>Run it and read the first result carefully. Searching "paid" finds one file. The billing module, which also decides who has paid, calls its function <code>hasVerifiedAccess</code> and does not match at all. That is how a duplicate survives a search: the two systems picked different words for the same idea. Search the concept, not the string, and search more than once.</p>
+
+  <h3>2. How scope creep happens, and the sentence that stops it</h3>
+  <p>You ask for one fix. The diff has the fix, a renamed variable, a reformatted file, a new helper, and an unrelated bug the agent could not leave alone. Each is defensible alone. Together they are a change you cannot review, cannot revert in one move, and cannot explain to yourself in a week. The tells live in <code>--stat</code>, ten seconds of reading:</p>
+  <table>
+    <tr><th>What you see</th><th>What it means</th></tr>
+    <tr><td>More files than your ask named</td><td>The agent went somewhere you did not send it.</td></tr>
+    <tr><td>A file with a huge line count and no behaviour change</td><td>A reformat. It hides real edits inside noise and makes the diff unreadable.</td></tr>
+    <tr><td>A rename across many files</td><td>Possibly an improvement. Definitely not what you asked for, and definitely harder to revert.</td></tr>
+    <tr><td>A new file you did not discuss</td><td>Duplicate-system risk, from section 1.</td></tr>
+    <tr><td>A shared file in the list (<code>js/01</code>, <code>js/09</code>, <code>css/base.css</code>)</td><td>The blast radius just went app-wide.</td></tr>
+  </table>
+  <p>The guard is one sentence, and it goes at the bottom of every ask:</p>
+  <pre><code>Change only X. If you see something else worth fixing, list it, do not fix it.</code></pre>
+  <p>It works because it gives the agent somewhere to put the urge. The list it returns arrives as a decision for you instead of lines in a diff.</p>
+  <p>You already run the industrial version. The freeze is scope control as law: <code>CLAUDE.md:54-55</code> allows bug fixes only, and only for bugs blocking a real person or a test account. Everything else is out of scope by default, for every agent, without you typing a word. A good rule moves the default.</p>
+  <p>Compare the ask against the diff mechanically:</p>
+  <div class="sb">
+const ask  = { files: ["js/06-consistency-mori.js"] };
+const diff = {
+  "js/06-consistency-mori.js": { added: 12, removed: 4 },
+  "js/01-state-foundation.js": { added: 2,  removed: 2 },
+  "js/09-controllers.js":      { added: 0,  removed: 0, reformatted: 214 }
+};
+const shared = ["js/01-state-foundation.js", "js/09-controllers.js", "css/base.css", "index.html"];
+
+Object.keys(diff).forEach(file =&gt; {
+  const d = diff[file];
+  const asked = ask.files.indexOf(file) !== -1;
+  let note = asked ? "asked for" : "NOT IN THE ASK";
+  if (!asked &amp;&amp; shared.indexOf(file) !== -1) note += " + SHARED FILE, app-wide blast radius";
+  if (d.reformatted) note += " + " + d.reformatted + " lines reformatted, no behaviour change";
+  console.log(file, "+" + d.added, "-" + d.removed, "|", note);
+});
+
+const extra = Object.keys(diff).filter(f =&gt; ask.files.indexOf(f) === -1);
+console.log(extra.length === 0 ? "scope clean" : "send back. " + extra.length + " file(s) outside the ask.");
+</div>
+
+  <h3>3. Understand, or delegate</h3>
+  <p>Chapter 27 cited Anthropic's February 2026 trial: the AI-assisted group scored about 17 points lower on comprehension, except for those who asked conceptual questions, who matched the hand-coders. Delegation costs understanding. Sometimes a fine trade, sometimes the trade that ends your company.</p>
+  <p>The rule of thumb: <strong>delegate typing, never delegate understanding of anything you will decide about again.</strong> You will decide about pricing again, and about your data model. You will not decide about a button's easing curve again.</p>
+  <table>
+    <tr><th>Understand it first</th><th>Safe to delegate</th></tr>
+    <tr><td>Money: checkout, receipts, entitlement, refunds</td><td>Styling, spacing, copy inside an approved voice</td></tr>
+    <tr><td>Auth: who is signed in, what they may do</td><td>Boilerplate, wiring, repetitive edits across files</td></tr>
+    <tr><td>Data: what is stored, where, who can read it</td><td>Tests for behaviour you have already specified</td></tr>
+    <tr><td>Deletion: anything that removes a row or a file</td><td>Build config, scripts, one-off tooling</td></tr>
+    <tr><td>Anything you will be asked about by a customer</td><td>Anything you could throw away and regenerate</td></tr>
+  </table>
+  <p>Money, auth, data, deletion. If a change touches one of those, you read it before it ships and you use "explain, then stop" until you can say what it does in your own words. That is the only reason the loop in chapter 27 has a human in it.</p>
+
+  <h3>4. How to test after an AI change</h3>
+  <p>A ladder. Each rung is cheap and catches a different failure. Climb in order, stop at the first red.</p>
+  <ol>
+    <li><strong>Zero console errors on load.</strong> Your own rule, <code>CLAUDE.md:79</code>: "After edits, verify in a browser and confirm ZERO console errors before pushing." An error at boot means nothing below is worth checking.</li>
+    <li><strong>Does the specific thing work?</strong> Drive the actual flow to the actual screen, law v692 from chapter 27. Not a rebuilt copy.</li>
+    <li><strong>Does the OLD thing still work?</strong> The rung everyone skips. An agent optimises for what you asked about, so the regression is next door.</li>
+    <li><strong>The four cells, for anything visual.</strong> 390x844 dark, 390x844 light, 1440x900 dark, 1440x900 light, screenshotted and looked at. <code>CLAUDE.md:83-89</code>.</li>
+    <li><strong><code>npm run check</code> on the native side.</strong> Types plus tests in one command. The web app has no test runner, which is why the rungs above carry more weight there.</li>
+    <li><strong>A second agent, fresh context.</strong> Section 7.</li>
+  </ol>
+
+  <h3>5. How to recover when it fucks up</h3>
+  <p>The first move is looking, not typing. <code>git status</code> says what changed and whether it is staged, <code>git diff</code> says what those changes are, <code>git log --oneline -5</code> says what is already snapshotted. Thirty seconds of reading picks which of the next four commands is right. Typing before reading is how a recoverable mess becomes a real one.</p>
+  <figure class="fig-box">
+    <svg class="figure" viewBox="0 0 640 300" role="img" aria-label="A recovery flowchart. At the top, something broke, look before you type. Then four questions down the left with answers on the right. Still uncommitted: make a safety commit, then git restore with an explicit file. Committed but not pushed: git revert the sha. Already pushed: git revert the sha then push. A commit vanished: git reflog to find the sha.">
+      <rect class="bx acc" x="130" y="10" width="380" height="34" rx="8"/>
+      <text class="st b" x="320" y="32" text-anchor="middle">something broke. look before you type.</text>
+      <path class="ln acc" d="M320 44 V66"/>
+
+      <rect class="bx" x="40" y="66" width="230" height="34" rx="8"/>
+      <text class="st" x="155" y="88" text-anchor="middle">still uncommitted?</text>
+      <rect class="bx cy" x="300" y="66" width="320" height="34" rx="8"/>
+      <text class="st mono" x="312" y="88">safety commit, then git restore</text>
+      <path class="ln cy" d="M270 83 H300"/>
+      <path class="ln" d="M155 100 V126"/>
+
+      <rect class="bx" x="40" y="126" width="230" height="34" rx="8"/>
+      <text class="st" x="155" y="148" text-anchor="middle">committed, not pushed?</text>
+      <rect class="bx cy" x="300" y="126" width="320" height="34" rx="8"/>
+      <text class="st mono" x="312" y="148">git revert &lt;sha&gt;</text>
+      <path class="ln cy" d="M270 143 H300"/>
+      <path class="ln" d="M155 160 V186"/>
+
+      <rect class="bx" x="40" y="186" width="230" height="34" rx="8"/>
+      <text class="st" x="155" y="208" text-anchor="middle">already pushed?</text>
+      <rect class="bx cy" x="300" y="186" width="320" height="34" rx="8"/>
+      <text class="st mono" x="312" y="208">git revert &lt;sha&gt;, then push</text>
+      <path class="ln cy" d="M270 203 H300"/>
+      <path class="ln" d="M155 220 V246"/>
+
+      <rect class="bx" x="40" y="246" width="230" height="34" rx="8"/>
+      <text class="st" x="155" y="268" text-anchor="middle">a commit vanished?</text>
+      <rect class="bx cy" x="300" y="246" width="320" height="34" rx="8"/>
+      <text class="st mono" x="312" y="268">git reflog, find the sha</text>
+      <path class="ln cy" d="M270 263 H300"/>
+      <text class="st lo" x="40" y="294">nothing on this map deletes your work.</text>
+    </svg>
+    <figcaption>One question at a time. Every answer here is additive: history grows, nothing is destroyed.</figcaption>
+  </figure>
+  <p>The <dfn data-term="safety-commit">safety commit</dfn> comes first whenever anything is uncommitted. It is not a good commit and nobody will read it. Its job is turning work that can be destroyed into a snapshot with a hash, which moves you off the top row, where every option below is reversible.</p>
+  <pre><code>git add memento-app/js/06-consistency-mori.js
+git commit -m "WIP: before undoing the agent's change"</code></pre>
+  <p>Then the four real moves.</p>
+  <table>
+    <tr><th>Command</th><th>When</th></tr>
+    <tr><td><code>git restore --source=&lt;commit&gt; -- &lt;file&gt;</code></td><td>One file went wrong and you want the version from a known-good commit back. The <code>--</code> and the explicit filename are the point: without a target this command reaches much further than you meant.</td></tr>
+    <tr><td><code>git revert &lt;sha&gt;</code></td><td>A commit is bad. Makes a new commit that undoes it. Safe after pushing, because it adds history rather than rewriting it. This is what "roll back the deploy" means.</td></tr>
+    <tr><td><code>git reflog</code></td><td>"I lost a commit." Every position HEAD has occupied, including ones no branch points at. Find the hash, then restore or branch from it.</td></tr>
+    <tr><td><code>git switch -c rescue-&lt;date&gt;</code></td><td>Before anything experimental. A branch is a label, it costs nothing, and it means the worst case is that you delete a label.</td></tr>
+  </table>
+  <div class="box expiry"><div class="h">DESTRUCTIVE. NEVER YOUR FIRST MOVE</div><p><code>git reset --hard</code>, <code>git checkout -- &lt;file&gt;</code>, and <code>git clean -fd</code> all delete uncommitted work with no undo, and reflog does not help because nothing was ever committed. If an agent proposes any of them while you have uncommitted changes, the answer is the safety commit first, every time. In Memento, where two agents share one tree, these commands can also destroy the other agent's half-finished work, which is why <code>CLAUDE.md:73</code> bans <code>git add -A</code> for the mirror-image reason.</p></div>
+  <p>Now the version git cannot save you from. In July 2025 a Replit agent deleted a live production database during an explicit code freeze, then reported rollback was impossible. It was not, and dev and production were separated within days. That failure is about what an agent is <em>able</em> to do, which you answer before it runs.</p>
+  <p>Memento's controls are boring and written down. Certain territory is view-only, permanently, in the DON'T section of <code>CLAUDE.md</code>. Commits name their files, never <code>-A</code>. And the money path has a named kill switch:</p>
+  <pre><code>1. Set `POLAR_PRODUCTION_MODE=disabled` after Malik approves the emergency change. This stops new checkout while existing access checks, portal access, and signed webhooks continue.</code></pre>
+  <div class="src">BACKEND_EMERGENCY_PLAYBOOK.md:26 (web pin ca8afc8)</div>
+  <p>Read what that avoids: a panicking human shipping code to stop a billing problem. A <dfn data-term="kill-switch">kill switch</dfn> is a lever that already exists, tested, with a known blast radius, so the emergency move is a config change and not a deploy.</p>
+  <p>The chart, as something you run rather than remember:</p>
+  <div class="sb">
+function nextCommand(s) {
+  if (s.uncommitted) {
+    return "SAFETY COMMIT FIRST: git add [your files] &amp;&amp; git commit -m 'WIP'\n" +
+           "then: git restore --source=[good sha] -- [the one file]";
+  }
+  if (s.committed &amp;&amp; !s.pushed) return "git revert [sha]   (history grows, nothing is lost)";
+  if (s.pushed)                  return "git revert [sha], then git push   (never force, others have it)";
+  if (s.lostCommit)              return "git reflog, find the sha, then git switch -c rescue [sha]";
+  return "nothing to recover. read git log and go back to the diff.";
+}
+
+console.log("A:", nextCommand({ uncommitted: true }));
+console.log("B:", nextCommand({ committed: true, pushed: false }));
+console.log("C:", nextCommand({ committed: true, pushed: true }));
+console.log("D:", nextCommand({ lostCommit: true }));
+</div>
+  <p>Notice what is missing from every branch. No <code>--hard</code>, no <code>clean</code>, no <code>checkout --</code>. A recovery routine that cannot destroy anything is one you can run while upset, which is the only state you will ever run it in.</p>
+
+  <h3>6. How to challenge an architectural decision</h3>
+  <p>An agent proposes a structure. It sounds reasonable because it is the most common structure in the training data, which says nothing about whether it fits your app. Four questions, none needing you to know the answer first.</p>
+  <ol>
+    <li><strong>"What is the alternative, and what does it cost?"</strong> A proposal with no alternative is a preference presented as a conclusion. Two options with costs is a decision.</li>
+    <li><strong>"What would the other agent say?"</strong> You have two. Asking one to argue the other's side surfaces the trade-off, and you can go get the real second opinion if it matters.</li>
+    <li><strong>"What is the smallest version?"</strong> Anthropic's advice on agent systems is to use the simplest thing that works and add complexity only when it pays. Same logic, one level up.</li>
+    <li><strong>"What does this couple to?"</strong> Chapter 26's question, and the one that predicts your future pain. Wired into state, auth and the router means you cannot change it alone later.</li>
+  </ol>
+  <p>Then write it down with the date and the reason, because the reason is what evaporates. You already have the file, and per byte it is the repo's most valuable document:</p>
+  <pre><code>- **AI backend:** Anthropic via the Supabase `ai-proxy` edge function (holds
+  the key). Clarity discovery = Sonnet, synthesis = Opus, Action = Sonnet.
+- **Dual-AI dev workflow:** Claude plans/reviews, Codex/GPT implements. One
+  model edits at a time; git is the shared source of truth.</code></pre>
+  <div class="src">DECISIONS.md:23-26 (web pin ca8afc8)</div>
+  <p>Two decisions, each carrying its reason. Section 1 showed the cost when a record drifts, and both stay true: a written decision beats an unwritten one, and one with no date and no owner becomes confident misinformation.</p>
+
+  <h3>7. The protocol you already run</h3>
+  <p>Everything above is per-change. This is the standing arrangement, built before you could explain it.</p>
+  <pre><code>- One owner at a time for: manifests/lockfiles, app config, router, state,
+  auth. Handoffs are recorded in MIGRATION/STATUS.md. Small commits, named
+  files only, no `git add -A`.
+- Cross-agent channel: MIGRATION/*.md only. Malik relays.
+- Before combining each phase, the non-implementing agent reviews its diff,
+  tests and device evidence. Record reviewer, commit, findings and resolution
+  in STATUS.md. Self-review alone cannot close this cross-review gate.
+  Codex reviews Fable's screen work; Fable reviews Codex's foundation.</code></pre>
+  <div class="src">MIGRATION/01-MIGRATION-PLAN.md:42-49 (native pin 93bfa796)</div>
+  <p>Four defences in nine lines. One owner per file kills the duplicate birth from section 1. Named files, never <code>-A</code>, keeps each commit revertible alone. Findings in a file, not a chat, survive the context window that ends every session. And the last sentence is load-bearing: <strong>self-review alone cannot close this cross-review gate.</strong></p>
+  <p>An agent reviewing its own work reviews it with the assumptions that produced it. It finds typos and misses the misunderstanding. A <dfn data-term="fresh-context-review">fresh-context review</dfn> is a different session, ideally a different model, that has not seen the reasoning and must reconstruct intent from the diff. If it cannot, that is the finding. Anthropic recommends this pattern for Claude Code, and OpenAI ships Codex as a pull-request reviewer for the same reason.</p>
+  <p>Chapter 8 gave the last piece. Approvals pin to a hash because a hash fingerprints one snapshot, so "APPROVED @ b6e148b2" means that exact tree was reviewed, and every commit after it is unpinned until somebody writes a new hash down. You have been running a pull-request system by hand, in commit subjects, and it works for cryptographic reasons rather than social ones.</p>
+
+  <h2>See it</h2>
+  <p>Three runnable parts sit above: the existence check before you build, the scope check on a diff, the recovery decision. Run the scope one again with <code>js/01-state-foundation.js</code> added to the ask. The shared-file warning stays, the scope warning goes. Two alarms, two problems, and only one of them is about permission.</p>
+
+  <h2>Now in Memento</h2>
+  <div class="lanes">
+    <div class="lane"><div class="h">ANY APP</div>
+      <p>The answer to agents producing extra is not better prompting. It is constraints a machine enforces: tests that fail, types that refuse to compile, linters, hooks, a review gate held by somebody other than the author. Thoughtworks calls these feedback sensors for coding agents. A constraint enforced by memory is one you have already lost.</p>
+      <p>The second answer is a written trail. Everything not in a file is gone when the session ends, so the rules file, the decision record and the commit messages are the memory the agents do not have.</p>
+    </div>
+    <div class="lane mem"><div class="h">MEMENTO</div>
+      <p>Yours is mechanical where it can be, written where it cannot. Mechanical: a hook injects the four-cell requirement after any UI edit rather than trusting an agent to remember. Written: the freeze, the ownership split, the handoff files, approvals pinned to a sha. Plus one control most teams do not have, since the frozen web app quarantines the whole duplicate-and-drift problem in a codebase that is not moving.</p>
+      <pre><code>1. **One agent per module.** Pick a feature, stay in its files. Different modules in parallel = safe.</code></pre>
+      <div class="src">CLAUDE.md:66 (native pin 93bfa796)</div>
+    </div>
+  </div>
+  <div class="box memento"><div class="h">THE ALTERNATIVE, AND WHY MEMENTO CHOSE THIS</div><p>The normal alternative is GitHub pull requests with required checks: no merge until tests pass and a reviewer approves, enforced by the button. Strictly better, and Memento needs it the day a second human joins. It was skipped because the two reviewers are agents that cannot click a button and communicate only through files, so the gate is a sentence in a plan and a human relaying between chats. The cost is exact: nothing mechanical stops an unreviewed commit. The gate is you.</p></div>
+
+  <h2>Do it</h2>
+  <div class="ex">
+    <div class="h">Exercise <span class="tag">phone or Mac</span></div>
+    <div class="meta">Where: right here. Expected: one command or one sentence per scenario, written before you open the answers. Reset: none, this is reading and writing. This cannot touch Memento.</div>
+    <ol>
+      <li>You asked for a one-line copy fix. The diff reformatted 12 files. Nothing is committed. What now?</li>
+      <li>An agent added a second streak function, in a new file, alongside the one that exists. What do you say?</li>
+      <li>An agent's commit broke the home page. It is pushed and live. What do you run?</li>
+    </ol>
+    <details class="check"><summary>Answers</summary><div class="a">
+      <p><strong>1.</strong> <code>git status</code> and <code>git diff --stat</code>, to see whether the real fix is even in there. Then a safety commit, because uncommitted work is the one state that can be destroyed. Then: "Revert the formatting on the 11 files I did not ask about, keep only the copy change. Change only that file. If you see something else worth fixing, list it, do not fix it."</p>
+      <p><strong>2.</strong> "Which existing function does this duplicate? Paste the grep you ran before writing it." The answer is <code>_currentStreakFrom</code> in <code>js/06-consistency-mori.js</code>. Then delete the new one and call the old one, or write down which is the authority. Two functions computing the same number will disagree, and that day a customer sees two different streaks on one screen.</p>
+      <p><strong>3.</strong> <code>git revert &lt;sha&gt;</code>, then push. It is public, so nothing may be rewritten. Not <code>reset --hard</code>. Find the sha with <code>git log --oneline -5</code> and read its <code>--stat</code> first, so you know what is coming back.</p>
+    </div></details>
+  </div>
+
+  <div class="ex" data-device="mac">
+    <div class="h">Exercise, break it and get it back <span class="tag mac">MAC</span></div>
+    <div class="meta">Where: ~/Downloads/CODE-BOOK/git-lab. Expected: a bad commit, a revert of it, and then finding it again in the reflog. Reset: delete the folder and rebuild it with the commands in step 1. This cannot touch Memento.</div>
+    <ol>
+      <li><code>cd ~/Downloads/CODE-BOOK/git-lab</code>, or rebuild it as in chapter 7:
+        <pre><code>mkdir -p ~/Downloads/CODE-BOOK/git-lab &amp;&amp; cd ~/Downloads/CODE-BOOK/git-lab &amp;&amp; git init
+echo "the north star is: ship the native app" &gt; north-star.txt
+echo "start()" &gt; app.js
+git add north-star.txt app.js
+git commit -m "first snapshot"</code></pre></li>
+      <li>Make a bad change and commit it, the way an agent would:
+        <pre><code>echo "start(); start(); start()" &gt; app.js
+git add app.js
+git commit -m "an agent improved app.js"</code></pre></li>
+      <li><code>git log --oneline</code>, copy the bad commit's hash, then <code>git show &lt;hash&gt;</code>. Read the hunk header out loud.</li>
+      <li><code>git revert &lt;hash&gt;</code>. An editor opens with a message written; save and close. <code>cat app.js</code>: the old line is back, and <code>git log --oneline</code> shows three commits. Nothing was deleted.</li>
+      <li>Now lose something: <code>git reset --hard HEAD~2</code>. The only place in this book you are told to run it, in an empty practice repo. <code>git log --oneline</code>: the bad commit and the revert are gone.</li>
+      <li><code>git reflog</code>. Every position HEAD has been in, with hashes. The commits you lost are all there.</li>
+      <li><code>git switch -c rescue &lt;hash of the revert commit&gt;</code>, then <code>cat app.js</code>. Recovered on a new branch.</li>
+      <li>Write one sentence on what <code>--hard</code> destroyed and what it did not. That distinction is the safety net.</li>
+    </ol>
+  </div>
+
+  <div class="box why"><div class="h">ASK THE AGENT WHY (paste this into Codex or Fable)</div><pre><code>Read CLAUDE.md lines 1-48 and then list the actual files in memento-app/js/. Tell me every place
+the file map disagrees with reality: files it lists that no longer exist, files that exist and are
+not listed, and any count that is wrong. Then explain what an agent that trusted that map would
+most likely do wrong on a task in the Consistency module. Explain, then stop. Do not change anything.</code></pre></div>
+
+  <div class="box words"><div class="h">WORDS YOU NOW OWN</div><dl>
+    <dt>Duplicate system</dt><dd>A second thing doing a job something already does. Born from not searching first, no memory between sessions, and adding feeling safer than changing. Costs are paid by everyone who later has to work out which one is real.</dd>
+    <dt>Scope creep</dt><dd>A change that grew past the ask. Visible in <code>--stat</code> as more files than you named, a reformat with no behaviour change, or a shared file you did not mention.</dd>
+    <dt>Safety commit</dt><dd>A throwaway commit made before undoing anything, whose only job is turning destroyable work into a hash. Always first when anything is uncommitted.</dd>
+    <dt>Restore</dt><dd><code>git restore --source=&lt;commit&gt; -- &lt;file&gt;</code>. Brings one named file back from a known-good snapshot. The explicit target is the safety.</dd>
+    <dt>Revert (upgraded)</dt><dd>The only undo that is safe after pushing, because it adds a commit instead of rewriting history. The rollback move for anything already live.</dd>
+    <dt>Reflog (upgraded)</dt><dd>Every position HEAD has occupied, including ones no branch points at. Finds a commit you thought you lost. It cannot recover work that was never committed, which is why the safety commit comes first.</dd>
+    <dt>Kill switch</dt><dd>A pre-built lever that stops a dangerous system without shipping code. <code>POLAR_PRODUCTION_MODE=disabled</code> stops new checkout while everything else keeps working.</dd>
+    <dt>Fresh-context review</dt><dd>A review by a session that has not seen the reasoning and must reconstruct intent from the diff. If it cannot, the change is not explaining itself. Self-review cannot replace it.</dd>
+  </dl></div>
+
+  <div class="box expiry"><div class="h">WHERE TODAY'S ANALOGY BREAKS</div><p><strong>Breaks when:</strong> you picture the second drawer as obviously wasteful. Duplicates are usually born for a good reason: the new billing code was correct, and the old paywall could not just be deleted with eighty places calling it. The problem is nobody deciding which drawer is real and writing that down. <strong>Real model:</strong> every capability has one owner, and where a second implementation must exist during a transition, its file says in its first ten lines which one wins and when it dies. Memento's 38-line shim does that. Your decision record, still describing a paywall the code replaced, does not.</p></div>
+
+  <details class="hole"><summary>RABBIT HOLE: why "add" feels safer to an agent than "change"</summary><p>Changing a shared function means reading every caller, and if one breaks, the failure appears where the agent is not looking. Adding a function next to it cannot break an existing test and reads as progress. Both end the session successfully from the agent's side; only one leaves two answers to one question. Which is why types and tests change agent behaviour more than instructions do. They make "change" cheap to verify, and therefore rational to choose.</p></details>
+</main>
+<script src="../js/book.js"></script>
+</body>
+</html>
