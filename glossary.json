@@ -1169,6 +1169,10 @@
       {
         "ch": 11,
         "def": "A net under a block. If anything inside try throws, abandon the rest of the block and run catch instead, then carry on. An empty catch hides the failure completely."
+      },
+      {
+        "ch": 23,
+        "def": "A fence around code that can fail, plus the plan for when it does. An exception discards call stack cards one by one until it finds a catch. finally runs on both paths, which is where cleanup goes."
       }
     ]
   },
@@ -1681,6 +1685,10 @@
       {
         "ch": 14,
         "def": "A statement in the code that must be true, which complains loudly when it is not. console.assert is the cheapest version."
+      },
+      {
+        "ch": 24,
+        "def": "The line in a test that does the checking: expected against actual, with a message that names the difference. Everything else in a test is setup."
       }
     ]
   },

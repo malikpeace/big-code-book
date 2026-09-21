@@ -1,0 +1,304 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>24. Testing. BIG CODE BOOK</title>
+<link rel="stylesheet" href="../css/book.css">
+<meta name="theme-color" content="#0b0b0d">
+</head>
+<body data-chapter="24">
+<main>
+  <div class="kicker">Chapter 24 <span class="tag need">NEED</span> <span class="tag">~60 min</span> <span class="tag mac">MAC for the exercise</span></div>
+  <h1>Testing</h1>
+  <p class="lede">A test is a sentence about your app, written in code, that the machine can check in a tenth of a second. Write enough of them and the question "did the agent break something" stops being a feeling and starts being a number.</p>
+
+  <div class="box recap"><div class="h">LAST TIME</div><p>Errors come in three kinds: syntax, caught before anything runs; runtime, caught at the bad moment and printed with a stack trace; and logic, caught by nobody. A stack trace reads top down, and the useful line is the first one naming a file you wrote. The routine is reproduce, isolate, log the thing you assume.</p></div>
+
+  <h2>Quick check</h2>
+  <details class="check"><summary>Which of the three kinds of error will your console never tell you about?</summary><div class="a">Logic. The program ran perfectly and produced the wrong answer, so nothing is red and nothing is thrown. Only a human, or a test, compares the answer to what it should have been. Chapter 23.</div></details>
+  <details class="check"><summary>What is an exit code, and what does 0 mean?</summary><div class="a">The number a program leaves behind when it finishes. 0 means it worked, anything else means it did not. It is what a shell's <code>&amp;&amp;</code> and every CI robot actually read. Chapter 6.</div></details>
+  <details class="check"><summary>What is the difference between <code>npm install</code> and <code>npm ci</code>?</summary><div class="a"><code>install</code> resolves versions and can update the lockfile. <code>ci</code> wipes <code>node_modules</code> and installs exactly what the lockfile says, nothing newer. That is why CI uses <code>ci</code>: the same input every time. Chapter 19.</div></details>
+
+  <h2>The idea</h2>
+  <p>A <dfn data-term="test">test</dfn> is code that runs your code and checks the answer. That is the entire concept. The checking part has a name: an <dfn data-term="assertion">assertion</dfn>, a line that says "this must be true" and complains if it is not.</p>
+  <p>Every test, from a two line one to a monster, has the same three beats. <dfn data-term="arrange-act-assert">Arrange, act, assert</dfn>. Set up the situation, do the one thing, check the one answer. If you cannot see those three beats in a test, it is testing too much and you will not be able to tell what broke when it goes red.</p>
+
+  <pre><code>// arrange: a person who completed yesterday, on a streak of 4
+state = { streak: 4, lastCompleted: yesterday };
+
+// act: they complete today
+completeToday();
+
+// assert: the streak went up by exactly one
+expect(state.streak).toBe(5);</code></pre>
+
+  <div class="box analogy"><div class="h">ANALOGY (TEMPORARY)</div><p>A smoke alarm you install yourself, one per room. Each one watches exactly one thing and screams when that thing is wrong. Adding rooms without adding alarms means the new rooms burn quietly. And a house full of alarms does not stop a fire; it tells you fast, while it is still small and in one room, which is the entire value.</p></div>
+
+  <h3>The flip that makes it click</h3>
+  <p>A failing test is not a problem. It is a specification, written in advance, in a language the machine can read. "The streak restarts at 1 after a gap" is an opinion when you say it in a meeting. Written as a test, it is a rule enforced on every push, forever, by a robot that does not get tired or take your word for it.</p>
+  <p>That is why writing the test first is not a purity thing. Write down what should be true, watch it go red, then make it go green. Red first matters because a test that has never failed has never been proven to check anything, and plenty of tests are quietly broken and pass anyway.</p>
+
+  <h3>Three sizes</h3>
+  <p>A <dfn data-term="unit-test">unit test</dfn> checks one function on its own: fast, precise, and a red one already names the file. An <dfn data-term="integration-test">integration test</dfn> checks pieces working together, this function plus the real storage, and catches the bugs that only exist in the seams. An <dfn data-term="end-to-end-test">end to end test</dfn> drives the real app the way a person does: open it, tap it, look. Slowest, most honest, most likely to fail for reasons unrelated to your change.</p>
+  <p>A lot of the first, some of the second, few of the third. Not because the third is bad, but because a hundred of them take an hour and break on a Tuesday for no reason. Memento already has an end to end layer and it is a human one: the four cell screenshot law, where every visual change gets looked at at phone width and desktop width, dark and light, before it counts as done. The runner is Malik.</p>
+
+  <figure class="fig-box">
+    <svg class="figure" viewBox="0 0 640 300" role="img" aria-label="A pyramid in three layers. The wide bottom layer is unit tests, many and fast, one function alone. The middle layer is integration tests, some, slower, pieces together. The narrow top layer is end to end tests, few and slow, the real app. To the right, three stacked boxes labelled arrange, act and assert.">
+      <text class="st lo" x="20" y="22">TWO PICTURES, ONE HABIT</text>
+      <path class="ln acc" d="M40 250 H300 L235 175 H105 Z"/>
+      <text class="st b" x="170" y="222" text-anchor="middle">unit</text>
+      <text class="st lo" x="170" y="240" text-anchor="middle">many, fast, one function alone</text>
+      <path class="ln" d="M105 170 H235 L200 110 H140 Z"/>
+      <text class="st b" x="170" y="145" text-anchor="middle">integration</text>
+      <text class="st lo" x="170" y="162" text-anchor="middle">some, slower, pieces together</text>
+      <path class="ln cy" d="M140 105 H200 L170 50 Z"/>
+      <text class="st lo" x="215" y="80">end to end: few, slow, the real app</text>
+      <text class="st lo" x="215" y="97">(Memento: the four cell screenshot law)</text>
+      <rect class="bx" x="400" y="120" width="210" height="40" rx="8"/>
+      <text class="st mono" x="416" y="137">arrange</text>
+      <text class="st lo" x="416" y="153">set up the situation</text>
+      <rect class="bx acc" x="400" y="168" width="210" height="40" rx="8"/>
+      <text class="st mono" x="416" y="185">act</text>
+      <text class="st lo" x="416" y="201">do the ONE thing</text>
+      <rect class="bx cy" x="400" y="216" width="210" height="40" rx="8"/>
+      <text class="st mono" x="416" y="233">assert</text>
+      <text class="st lo" x="416" y="249">check the ONE answer</text>
+    </svg>
+    <figcaption>Wide at the bottom on purpose. Every test, at every size, is still those same three beats on the right.</figcaption>
+  </figure>
+
+  <h3>The runner</h3>
+  <p>A <dfn data-term="test-runner">test runner</dfn> finds your tests, runs them all, and reports. Jest, the one Memento's native app uses, finds every file matching <code>*.test.*</code> or sitting in a <code>__tests__</code> folder, runs each assertion, and prints a summary: how many passed, how many failed, and for each failure what it expected against what it got. Then it sets an <dfn data-term="exit-code">exit code</dfn>, and that number is the whole reason CI works. Zero is green, anything else stops the deploy.</p>
+  <p>Two warnings. <dfn data-term="coverage">Coverage</dfn> is the percentage of your lines that ran while the tests ran. Easy to measure, which is why people chase it, and it says nothing about whether you checked the right thing: a test that calls every function and asserts nothing scores 100 percent. Coverage shows where you definitely have no tests. It never shows that you are safe.</p>
+  <p>A <dfn data-term="flaky-test">flaky test</dfn> passes sometimes and fails sometimes with no code change, usually because of time, randomness, network or ordering. It is worse than no test, because a team that re-runs a red build has learned to ignore red. The fix is to stop depending on the real world: hand the function a clock instead of letting it read the wall clock, hand it a fake server instead of the real one.</p>
+
+  <h3>The oracle</h3>
+  <p>Here is the move that makes testing a rewrite possible. If you are rebuilding something that already works, you do not have to decide what the right answer is. The old code knows. Feed both the same input and assert they agree, and the old implementation becomes the <dfn data-term="oracle">oracle</dfn>: the answer key. It is the highest leverage test you can write during a migration, and Memento has one.</p>
+
+  <h2>See it</h2>
+  <p>A note on box 1. Node and browsers give you <code>console.assert</code> for free. This sandbox's console is a small stand in with only <code>log</code>, <code>warn</code> and <code>error</code>, so line 2 builds <code>assert</code> out of them. That one line is genuinely the whole feature.</p>
+
+  <div class="sb">
+// 1. An assertion is one if statement with a good message. Predict. Then run.
+console.assert = function (ok, msg) { if (!ok) console.error("Assertion failed: " + msg); };
+
+function streakAfter(previous, keptTheChain) {
+  return keptTheChain ? previous + 1 : 1;
+}
+console.assert(streakAfter(4, true) === 5, "kept chain: 4 should become 5");
+console.assert(streakAfter(9, false) === 1, "broken chain should restart at 1");
+console.assert(streakAfter(0, false) === 0, "day one should be 0");  // this one is wrong
+console.log("three checks ran. Silence means pass.");
+</div>
+
+  <div class="sb">
+// 2. A test runner, in 14 lines. This is all jest is, minus twenty thousand
+// lines of convenience. Predict the last two lines before you run.
+console.assert = function (ok, msg) { if (!ok) throw new Error(msg); };
+
+function streakAfter(previous, kept) { return kept ? previous + 1 : 1; }
+
+const tests = [
+  { name: "kept chain bumps by one", fn: () =&gt; console.assert(streakAfter(4, true) === 5, "got " + streakAfter(4, true)) },
+  { name: "broken chain restarts at 1", fn: () =&gt; console.assert(streakAfter(9, false) === 1, "got " + streakAfter(9, false)) },
+  { name: "day one counts as one", fn: () =&gt; console.assert(streakAfter(0, false) === 1, "got " + streakAfter(0, false)) },
+  { name: "this one is deliberately wrong", fn: () =&gt; console.assert(streakAfter(1, true) === 7, "got " + streakAfter(1, true)) },
+];
+
+let passed = 0, failed = 0;
+for (const t of tests) {
+  try { t.fn(); passed++; console.log("PASS  " + t.name); }
+  catch (e) { failed++; console.log("FAIL  " + t.name + "  (" + e.message + ")"); }
+}
+console.log("Tests: " + failed + " failed, " + passed + " passed, " + tests.length + " total");
+console.log("exit code: " + (failed ? 1 : 0));
+</div>
+
+  <div class="sb">
+// 3. Red first. The test is written. The function is not. Run it, watch it fail,
+// THEN write the body so it passes. That failure is the spec.
+console.assert = function (ok, msg) { if (!ok) console.error("Assertion failed: " + msg); };
+
+function daysBetween(a, b) {
+  // your job: whole days from date a to date b. Delete this line and write it.
+}
+
+console.assert(daysBetween(new Date("2026-01-01"), new Date("2026-01-02")) === 1, "one day apart");
+console.assert(daysBetween(new Date("2026-01-01"), new Date("2026-01-01")) === 0, "same day");
+console.assert(daysBetween(new Date("2026-01-01"), new Date("2026-02-01")) === 31, "a January apart");
+console.log("done");
+</div>
+
+  <div class="sb">
+// 4. Flaky, then fixed. The first test reads the real clock, so it is a coin
+// flip near midnight and green every other time. The second is handed a clock.
+console.assert = function (ok, msg) { if (!ok) console.error("Assertion failed: " + msg); };
+
+// FLAKY: depends on what time it is when someone runs it.
+function greetingNow() {
+  return new Date(Date.now()).getHours() &lt; 12 ? "morning" : "afternoon";
+}
+console.assert(greetingNow() === "morning", "FLAKY: only true before noon, wherever you are");
+
+// FIXED: the clock is an input, so the test decides what time it is.
+function greetingAt(now) {
+  return now.getHours() &lt; 12 ? "morning" : "afternoon";
+}
+console.assert(greetingAt(new Date("2026-09-20T09:00:00")) === "morning", "9am is morning");
+console.assert(greetingAt(new Date("2026-09-20T19:00:00")) === "afternoon", "7pm is afternoon");
+console.log("run this box five times. Only one line can change its mind.");
+</div>
+
+  <h2>Now in Memento</h2>
+  <div class="lanes">
+    <div class="lane"><div class="h">ANY APP: the smallest useful test</div>
+      <p>Design values get changed by accident more than anything else in a codebase. Somebody adjusts a radius for one screen and moves it for forty. One test stating the agreed numbers turns that from a thing you notice in week three into a red line in nine seconds.</p>
+    </div>
+    <div class="lane mem"><div class="h">MEMENTO: tokens.test.ts, the whole file</div>
+      <pre><code>import { expect, test } from '@jest/globals';
+import { tokens } from '../src/ui/tokens';
+
+test('boot and theme keep the frozen Memento values', () =&gt; {
+  expect(tokens.bootBackground).toBe('#000000');
+  expect(tokens.bootMark).toBe('#f5f5f7');
+  expect(tokens.accent).toBe('#3ad9f5');
+  expect(tokens.radius).toEqual({ small: 8, control: 10, card: 14, pill: 999 });
+});</code></pre>
+      <div class="src">memento-native/__tests__/tokens.test.ts:1-9 (native pin 93bfa796)</div>
+      <p>Nine lines and you can read every one. <code>test(</code> takes a name and a function, and the name is a sentence about the app, which is why a good one reads like English in the failure output. <code>toBe</code> is "the same value"; <code>toEqual</code> is "the same shape and contents", which is why the radius object uses it. Arrange is the import, act is nothing because it checks a constant, assert is four lines.</p>
+    </div>
+  </div>
+
+  <div class="lanes">
+    <div class="lane"><div class="h">ANY APP: pinning a rewrite to the original</div>
+      <p>When you rebuild working software the danger is not a crash. It is a quiet difference: the new version sends a slightly different request, or drops a field, and nobody notices for a month. If the old code still exists, make it the answer key and assert the new one matches.</p>
+    </div>
+    <div class="lane mem"><div class="h">MEMENTO: the frozen web app as the oracle</div>
+      <pre><code>const frozen = readFileSync(resolve(__dirname, '../../memento-app/js/03-ai-integration.js'), 'utf8');
+
+test('voice specification and request oracle are pinned to the frozen website', () =&gt; {
+  expect(createHash('sha256').update(frozen).digest('hex')).toBe('d21295df1060548e59ffe1fd84fc5bbcd09ee8996336794f0f22567a88ed707a');
+  const start = frozen.indexOf('const MALIK_VOICE_SPEC =');
+  expect(runInNewContext(frozen.slice(start, frozen.indexOf('`;', start) + 2) + '\nMALIK_VOICE_SPEC')).toBe(MALIK_VOICE_SPEC);
+});</code></pre>
+      <div class="src">memento-native/__tests__/ai-transport.test.ts:20-26 (native pin 93bfa796)</div>
+      <p>Two moves in five lines. Hash the entire frozen web file and assert the fingerprint, so if anybody edits it during the freeze this test goes red and names the reason. Then reach into that old file, cut out the voice spec, execute the chunk in a sandbox with <code>runInNewContext</code>, and assert the native copy is character for character identical. The test just below does the same for the request body, running the original <code>actionBackgroundRequestBody</code> against the new TypeScript builder for six option sets. <span class="src">memento-native/__tests__/ai-transport.test.ts:28-37 (native pin 93bfa796)</span></p>
+    </div>
+  </div>
+
+  <div class="lanes">
+    <div class="lane"><div class="h">ANY APP: one runner, or a list you maintain by hand</div>
+      <p>A runner finds tests by filename: add a file, it runs. The alternative is naming every test in the deploy script by hand, which works until somebody writes a test and forgets the second edit. Then the test exists, looks reassuring in the folder, and has never run.</p>
+    </div>
+    <div class="lane mem"><div class="h">MEMENTO: both, one on each side</div>
+      <pre><code>"typecheck": "tsc --noEmit",
+"test": "jest --runInBand",
+"check": "npm run typecheck &amp;&amp; npm test"</code></pre>
+      <div class="src">memento-native/package.json:13-15 (native pin 93bfa796)</div>
+      <p>That is the native side: one command, and jest finds everything. The web side has no runner at all. Its tests are standalone scripts, named one by one inside the deploy workflow:</p>
+      <pre><code>          node tools/test-cloud-sync.js
+          node tools/test-backup-security.mjs
+          node --experimental-strip-types tools/test-health-monitor-handler.mjs</code></pre>
+      <div class="src">.github/workflows/deploy-live.yml:54, 55, 60 (web pin ca8afc8)</div>
+    </div>
+  </div>
+
+  <p>The numbers, counted at the pins:</p>
+  <table>
+    <tr><th>&nbsp;</th><th>Native app</th><th>Web app</th></tr>
+    <tr><td>Runner</td><td>jest, one command</td><td>none</td></tr>
+    <tr><td>Test files</td><td>43 in <code>memento-native/__tests__/</code></td><td>47 scripts in <code>tools/test-*</code></td></tr>
+    <tr><td>Declared tests</td><td>377 (307 plain <code>test(</code>, 70 <code>test.each(</code>, which expand to more at run time)</td><td>one script is one run</td></tr>
+    <tr><td>How CI finds them</td><td>by filename</td><td>by a hand written list</td></tr>
+    <tr><td>Actually named in the workflow</td><td>all of them</td><td>29 of the 47</td></tr>
+  </table>
+  <p>That last row is the cost, stated plainly. Eighteen test scripts exist in <code>tools/</code> and are not named in <code>deploy-live.yml</code>, so they never run on a push. Nobody decided that. It is what happens when adding a test takes two edits in two files and the second is easy to forget.</p>
+
+  <div class="box memento"><div class="h">THE ALTERNATIVE, AND WHY MEMENTO CHOSE THIS</div><p>The web app could have had a runner. Jest, or node's own built in one, would have found every <code>tools/test-*</code> file automatically and deleted that whole class of mistake. It does not, for the same reason it has no bundler and no build step: it was built to be edited and deployed in seconds, with zero tooling, by agents working in parallel. Every dependency added is a thing that can break a deploy at the worst moment. That bet bought speed, and the eighteen unrun scripts are part of the bill. The native rebuild took the opposite bet from day one: <code>npm run check</code> is typecheck plus the full suite, it runs in CI, and nothing merges red. Decide which one you would rather be holding the day an agent quietly changes a request body.</p></div>
+
+  <h2>Do it</h2>
+  <div class="ex" data-device="mac">
+    <div class="h">Exercise: run Memento's real test suite, then write three of your own <span class="tag mac">MAC</span></div>
+    <div class="meta">Where: ~/Downloads/CODE-BOOK/lab/memento-native, then ~/Downloads/CODE-BOOK/sandbox/v1. Expected: a green jest summary line, and your own three assertions passing against Memento Jr. Reset: delete <code>lab/</code> and re-export it, and delete <code>sandbox/v1/state.test.js</code>. This cannot touch Memento. Nothing in this exercise runs npm anywhere near ~/Downloads/MEMENTO.</div>
+    <ol>
+      <li>Check the lab exists: <code>ls ~/Downloads/CODE-BOOK/lab/memento-native</code>. If it is not there yet, make it with one line:
+        <pre><code>mkdir -p ~/Downloads/CODE-BOOK/lab &amp;&amp; git -C ~/Downloads/MEMENTO archive 93bfa796 memento-native | tar -x -C ~/Downloads/CODE-BOOK/lab/</code></pre>
+        <code>git archive</code> reads a commit and writes a tar stream. It checks nothing out, moves no branch, and does not write one byte inside MEMENTO. The <code>| tar -x -C</code> half unpacks that stream somewhere else. This is the only sanctioned way to get Memento's code somewhere it can run.</li>
+      <li><code>cd ~/Downloads/CODE-BOOK/lab/memento-native</code> then <code>npm ci</code>. This downloads every dependency in the lockfile into <code>node_modules/</code>: a few minutes, a few hundred megabytes, a wall of text, and warnings along the way are normal. It ends with a line saying how many packages were added.</li>
+      <li><code>npm test</code>. Jest finds all 43 files and runs them. Watch the dots, then read the summary at the bottom. It has a <code>Test Suites:</code> line counting the 43 files and a <code>Tests:</code> line with a much bigger number, because each <code>test.each</code> entry expands into one run per case. Write both numbers down.</li>
+      <li>Make it go red on purpose. Open <code>src/ui/tokens.ts</code>, change the accent hex to <code>#ff0000</code>, save, run <code>npm test</code> again. Read the failure block: test name, expected, received, file and line. Then put it back and confirm green. That red block is the most useful output in this chapter.</li>
+      <li>Open <code>__tests__/tokens.test.ts</code> and <code>__tests__/ai-transport.test.ts</code>. Pick a <code>test(</code> line, read its name, read its body, and say in one sentence what would have to be true in the app for it to go red. Do that three times.</li>
+      <li>Now your own. Create <code>~/Downloads/CODE-BOOK/sandbox/v1/state.test.js</code> with the file below, and run it with <code>node ~/Downloads/CODE-BOOK/sandbox/v1/state.test.js</code>. Silence from the assertions means all three passed.</li>
+      <li>Prove the tests actually check something. Open <code>sandbox/v1/state.js</code>, change <code>state.streak = 1;</code> in the chain broke branch to <code>state.streak = 0;</code>, which is exactly the bug from chapter 23, and run the test file again. Two of the three go red and tell you the number they got. Put it back, run once more, silence. You have just written a spec that catches a logic bug nothing else would have caught.</li>
+    </ol>
+  </div>
+
+  <p>The file for step 6. <code>state.js</code> has no exports and expects a browser, so it gets loaded the plain way: read the text, run it, and ask for a window onto the names inside it.</p>
+  <pre><code>// sandbox/v1/state.test.js
+// Three checks on completeToday(). Run: node sandbox/v1/state.test.js
+const fs = require("fs");
+const path = require("path");
+
+// state.js expects a browser. Give it the one thing it touches, then read it in.
+global.localStorage = { getItem: () =&gt; null, setItem() {}, removeItem() {} };
+const source = fs.readFileSync(path.join(__dirname, "state.js"), "utf8");
+// eval hands back the value of its last expression, so we tack one on:
+// a small window into the file's own names.
+const jr = eval(source + "\n({ dayKey, completeToday, get state() { return state; }, set state(v) { state = v; } })");
+
+const y = new Date();
+y.setDate(y.getDate() - 1);
+const yesterday = jr.dayKey(y);
+
+// 1. Consecutive day: the streak goes up by one.
+jr.state = { northStar: "", streak: 4, lastCompleted: yesterday, history: [] };
+jr.completeToday();
+console.assert(jr.state.streak === 5, "consecutive day should turn 4 into 5, got " + jr.state.streak);
+
+// 2. After a gap: the streak restarts at 1, not at 0 and not at 10.
+jr.state = { northStar: "", streak: 9, lastCompleted: "2020-01-01", history: [] };
+jr.completeToday();
+console.assert(jr.state.streak === 1, "after a gap the streak should restart at 1, got " + jr.state.streak);
+
+// 3. Twice in one day counts once.
+jr.state = { northStar: "", streak: 0, lastCompleted: null, history: [] };
+jr.completeToday();
+jr.completeToday();
+console.assert(jr.state.streak === 1, "a second completion today must not count, got " + jr.state.streak);
+
+console.log("ran 3 checks. Nothing above this line means all three passed.");</code></pre>
+  <p>Three beats each time. Arrange a state object, act by calling <code>completeToday()</code>, assert one number. The only awkward part is the <code>eval</code> line, and that awkwardness is the lesson: code written as loose global scripts is hard to test, which is a large part of why the native rebuild uses modules with real exports.</p>
+
+  <div class="ex">
+    <div class="h">On a phone instead <span class="tag">phone</span></div>
+    <div class="meta">Where: sandbox box 2 above. Expected: three PASS lines, one FAIL, and exit code 1. Reset: the Reset button. This cannot touch Memento.</div>
+    <ol>
+      <li>Run box 2 and read the last two lines. That summary and that number are what CI reads. Everything else is decoration.</li>
+      <li>Fix the deliberately wrong test (the expected value, not the function) and run again. Exit code 0.</li>
+      <li>Now break the function instead: change <code>kept ? previous + 1 : 1</code> to <code>: 0</code>. Run. Which test names go red, and would you have been able to name the bug from those names alone? That is what "a good test name" is for.</li>
+    </ol>
+  </div>
+
+  <div class="box why"><div class="h">ASK THE AGENT WHY (paste this into Codex or Fable)</div><pre><code>In memento-native/__tests__/ai-transport.test.ts, explain the first test at lines 22 to 26. Tell me exactly what the sha256 assertion on line 23 protects against, what would make it fail, and what a developer should do when it does. Then explain what runInNewContext is doing on line 25 and why the test executes the old web app's code instead of just copying the expected string into the test file. Finally, list three things this test would NOT catch. Do not change anything.</code></pre></div>
+
+  <div class="box words"><div class="h">WORDS YOU NOW OWN</div><dl>
+    <dt>Test</dt><dd>Code that runs your code and checks the answer. A failing one is a spec for what should be true.</dd>
+    <dt>Assertion</dt><dd>The line that does the checking. "This must be true, and here is what to say if it is not."</dd>
+    <dt>Arrange, act, assert</dt><dd>The shape of every test: set up the situation, do one thing, check one answer.</dd>
+    <dt>Unit test</dt><dd>One function, alone. Fast, and red means you already know the file.</dd>
+    <dt>Integration test</dt><dd>Several pieces together. Catches the bugs that live in the seams between them.</dd>
+    <dt>End to end test</dt><dd>The real app, driven like a person would. Slowest, most honest. Memento's is the four cell screenshot law.</dd>
+    <dt>Test runner</dt><dd>The program that finds your test files, runs them, prints a summary, and sets an exit code. Jest, here.</dd>
+    <dt>Coverage</dt><dd>The share of lines that ran during the tests. Tells you where you have none. Never tells you that you are safe.</dd>
+    <dt>Flaky test</dt><dd>Passes sometimes, fails sometimes, no code change. Usually time, randomness, network, or order. Worse than no test.</dd>
+    <dt>Oracle</dt><dd>A known good implementation used as the answer key. During a rewrite, the old code is the best one you will ever have.</dd>
+  </dl></div>
+
+  <div class="box expiry"><div class="h">WHERE TODAY'S ANALOGY BREAKS</div><p><strong>Breaks when:</strong> you start believing the alarms cover the house. A smoke alarm is passive: it watches whatever actually happens in that room. A test is not. It checks only the exact situation you thought to arrange, so a green suite proves one thing precisely: none of the cases you imagined are broken. The cases nobody imagined are invisible, and a full green run feels identical either way. <strong>Real model:</strong> tests are a ratchet. Each one locks in a behaviour you have already reasoned about so it cannot silently reverse, which is exactly the shape of risk you carry when two AI agents edit the same codebase. They stop regressions. They do not find the bug you have not met yet, and they say nothing about whether the thing was worth building.</p></div>
+
+  <details class="hole"><summary>RABBIT HOLE: mocks, and how a test lies to the code under test</summary><p>Look again at the native tests and you will see <code>jest.mock('react-native-mmkv', ...)</code> and hand built <code>ports</code> objects with a fake <code>http.post</code>. Those are mocks: stand ins handed to the code so it never touches the real storage or the real network. Two reasons. Speed, because a real request is a thousand times slower than a fake one. And control, because you can make the fake fail with a 429 on demand and check what the app does, which is impossible to arrange with a real server. The catch is that a mock is your belief about how the real thing behaves, written down. When that belief is wrong, the test passes and the app breaks, and it is the most confusing failure in testing. It is also why the integration layer exists: something, somewhere, has to touch the real thing.</p></details>
+</main>
+<script src="../js/book.js"></script>
+</body>
+</html>
