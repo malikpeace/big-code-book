@@ -250,11 +250,14 @@
   }
 
   /* ---------- 11. Sandbox runner ---------- */
+  // The worker streams every console line back as it happens, so logs from
+  // timers and promises (chapters 2 and 12) arrive too. After the synchronous
+  // part finishes it says so; the page then keeps listening for a short window.
   var WORKER_SRC = [
-    'var __logs=[];',
     'function __fmt(a){return Array.prototype.map.call(a,function(x){try{return typeof x==="string"?x:JSON.stringify(x,null,1)}catch(e){return String(x)}}).join(" ")}',
-    'var console={log:function(){__logs.push(["log",__fmt(arguments)])},error:function(){__logs.push(["err",__fmt(arguments)])},warn:function(){__logs.push(["log",__fmt(arguments)])}};',
-    'self.onmessage=function(e){__logs=[];try{var r=(0,eval)(e.data);if(r!==undefined)__logs.push(["ret","→ "+__fmt([r])])}catch(x){__logs.push(["err",(x&&x.name?x.name+": ":"")+(x&&x.message?x.message:String(x))])}self.postMessage(__logs)};'
+    'var console={log:function(){self.postMessage(["log",__fmt(arguments)])},error:function(){self.postMessage(["err",__fmt(arguments)])},warn:function(){self.postMessage(["log",__fmt(arguments)])},assert:function(c){if(!c)self.postMessage(["err","Assertion failed: "+__fmt(Array.prototype.slice.call(arguments,1))])}};',
+    'self.onunhandledrejection=function(e){var r=e.reason;self.postMessage(["err","Unhandled promise rejection: "+(r&&r.message?r.message:String(r))])};',
+    'self.onmessage=function(e){try{var r=(0,eval)(e.data);if(r!==undefined&&!(r&&typeof r.then==="function"))self.postMessage(["ret","→ "+__fmt([r])])}catch(x){self.postMessage(["err",(x&&x.name?x.name+": ":"")+(x&&x.message?x.message:String(x))])}self.postMessage(["sync-done"])};'
   ].join('\n');
   function sandbox(box) {
     var isDom = box.hasAttribute('data-dom');
@@ -270,14 +273,29 @@
     function kill() { if (worker) { worker.terminate(); worker = null; } if (timer) { clearTimeout(timer); timer = null; } }
     function runJs() {
       kill();
-      out.innerHTML = '<span class="empty">running…</span>';
+      out.innerHTML = '';
+      var lines = [], syncDone = false;
       try {
         var blob = new Blob([WORKER_SRC], { type: 'text/javascript' });
         worker = new Worker(URL.createObjectURL(blob));
       } catch (e) { print([['err', 'This browser blocked the sandbox. Try Safari or Chrome.']]); return; }
-      worker.onmessage = function (e) { kill(); print(e.data); };
-      worker.onerror = function (e) { kill(); print([['err', e.message || 'Error']]); };
-      timer = setTimeout(function () { kill(); print([['err', 'Stopped after 3 seconds. Probably a loop that never ends. That is a real bug, and you just met it safely.']]); }, 3000);
+      function paint() { print(lines); }
+      worker.onmessage = function (e) {
+        var m = e.data;
+        if (m[0] === 'sync-done') {
+          syncDone = true;
+          // Give timers and promises a window to finish, then close quietly.
+          clearTimeout(timer);
+          timer = setTimeout(function () { kill(); if (!lines.length) paint(); }, 3500);
+          return;
+        }
+        lines.push(m); paint();
+      };
+      worker.onerror = function (e) { lines.push(['err', e.message || 'Error']); paint(); kill(); };
+      timer = setTimeout(function () {
+        kill();
+        if (!syncDone) { lines.push(['err', 'Stopped after 3 seconds. Probably a loop that never ends. That is a real bug, and you just met it safely.']); paint(); }
+      }, 3000);
       worker.postMessage(ta.value);
     }
     function runDom() {

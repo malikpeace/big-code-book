@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>11. JavaScript 3: control flow, loops, objects, references. BIG CODE BOOK</title>
+<link rel="stylesheet" href="../css/book.css">
+<meta name="theme-color" content="#0b0b0d">
+</head>
+<body data-chapter="11">
+<main>
+  <div class="kicker">Chapter 11 <span class="tag need">NEED</span> <span class="tag">~60 min</span> <span class="tag">phone or Mac</span></div>
+  <h1>JavaScript 3: control flow, loops, objects, references</h1>
+  <p class="lede">One finger, one line at a time. That finger can skip, it can go round in circles, and it can be handed the same object under two different names. The last one is where "but I never touched that" bugs are born.</p>
+
+  <div class="box recap"><div class="h">LAST TIME</div><p>A function is a recipe: writing it does nothing, calling it runs it. <code>return</code> hands a value back and stops the function on the spot, which is what makes guard clauses work. The call stack is a pile of index cards, one per function in progress, and only the top card is running.</p></div>
+
+  <h2>Quick check</h2>
+  <details class="check"><summary>A function does its job but printing its result gives <code>undefined</code>. What is wrong?</summary><div class="a">Nothing is broken. It has no <code>return</code>, so the caller gets the machine's shrug. You never said what to hand back.</div></details>
+  <details class="check"><summary><code>const goal = { days: 30 };</code> then <code>goal.days = 60;</code>. Legal or not?</summary><div class="a">Legal. <code>const</code> locks the name tag, not the object behind it. Only <code>goal = somethingElse</code> is refused. Today is the chapter where that distinction starts costing money.</div></details>
+  <details class="check"><summary>Why does Memento's <code>CLAUDE.md</code> ban <code>git add -A</code>?</summary><div class="a">Two agents work in one tree. A blanket add scoops up somebody else's half-finished work into your commit. You add your own files by name.</div></details>
+
+  <h2>The idea</h2>
+  <p>Chapter 1 gave you an intern reading a to-do list top to bottom. Everything in this chapter is a way of moving that intern's finger somewhere other than the next line down.</p>
+  <p>There are only three moves, and every program ever written is made of them. Go to the next line. Skip some lines. Go back and do some lines again. That is it. <dfn data-term="control-flow">Control flow</dfn> is the name for which line the finger is on and where it goes next.</p>
+
+  <h3>if / else: skip some lines</h3>
+  <p>An <dfn data-term="if-statement">if statement</dfn> asks a yes-or-no question and runs its block only when the answer is yes. An <code>else</code> block is what runs when it is no. The finger takes one path or the other, never both, and then both paths rejoin at the line after.</p>
+  <pre><code>if (streak &gt; 7) {
+  showBadge();          // only when the answer is yes
+} else {
+  showEncouragement();  // only when the answer is no
+}
+console.log("both paths get here");</code></pre>
+  <p>The question inside the brackets does not have to be a true or false. JavaScript will accept any value and decide for itself. A value that counts as yes is called <dfn data-term="truthy">truthy</dfn>; one that counts as no is <dfn data-term="falsy">falsy</dfn>. There are exactly six falsy values worth memorising: <code>false</code>, <code>0</code>, <code>""</code> (empty text), <code>null</code>, <code>undefined</code>, and <code>NaN</code>. Everything else is truthy, including the empty array <code>[]</code> and the empty object <code>{}</code>, which trips up nearly everyone the first time.</p>
+  <p>That is why chapter 10's guard clause read <code>if (!text || aiChatLoading) return;</code> instead of comparing anything. <code>!text</code> means "text is falsy", which covers empty, never-set, and deliberately-empty in one character.</p>
+
+  <h3>Loops: go back and do it again</h3>
+  <p>A <dfn data-term="loop">loop</dfn> repeats a block. The single most important thing to hold in your head is this: <strong>a loop does not run all at once.</strong> It runs its block, finishes it completely, then starts the block again from the top. One pass of the finger, then another. Ten items means ten separate passes, in order, one after the other. Nothing in a loop is simultaneous.</p>
+  <p>Three spellings cover everything you will read in Memento.</p>
+  <table>
+    <tr><th>Spelling</th><th>Reads as</th><th>Use when</th></tr>
+    <tr><td><code>for (let i = 0; i &lt; 5; i++)</code></td><td>"start at 0, keep going while under 5, add one each pass"</td><td>You need the position number.</td></tr>
+    <tr><td><code>for (const item of list)</code></td><td>"for each thing in this list, one at a time"</td><td>You just want the items. The common case.</td></tr>
+    <tr><td><code>while (condition)</code></td><td>"keep going as long as this stays true"</td><td>You do not know how many passes there will be.</td></tr>
+  </table>
+  <p>The classic <code>for</code> has three parts separated by semicolons: where to start, when to keep going, what to change each pass. Chapter 1's sandbox 5 forgot the third part, so the condition never changed and the finger went round forever. That is the ordinary failure, not an exotic one.</p>
+
+  <h3>Arrays and the five methods you will actually read</h3>
+  <p>An array is an ordered list. Its positions are numbered from zero, not one, so <code>list[0]</code> is the first item, and <code>list.length</code> is how many there are. Loops and arrays go together so often that the language ships with shortcuts: methods that run a small function once per item and hand you something back.</p>
+  <table>
+    <tr><th>Method</th><th>What it hands back</th></tr>
+    <tr><td><code>push(x)</code></td><td>Nothing useful. It adds <code>x</code> to the end of the array itself.</td></tr>
+    <tr><td><code>filter(fn)</code></td><td>A new array holding only the items where your function said true.</td></tr>
+    <tr><td><code>map(fn)</code></td><td>A new array, same length, each item replaced by whatever your function returned.</td></tr>
+    <tr><td><code>find(fn)</code></td><td>The first item where your function said true, or <code>undefined</code> if there is none.</td></tr>
+    <tr><td><code>forEach(fn)</code></td><td>Nothing. It runs your function once per item for the side effect.</td></tr>
+  </table>
+  <p>The function you hand over is chapter 10's arrow function, and the ones that hand back a new array can be chained. Reading a chain out loud, left to right, is how you decode the dense Memento lines below.</p>
+
+  <h3>The object trap</h3>
+  <p>Now the part that is worth the whole chapter.</p>
+  <p>Chapter 9 said assignment copies the value and the two names are then independent. True for numbers, text and booleans. For objects and arrays it is a trap, because the value a name points at is not the object. It is a <dfn data-term="reference">reference</dfn>: an address of where the object lives in memory. Copying an address gives you a second piece of paper with the same address on it. Both lead to one house.</p>
+
+  <div class="box analogy"><div class="h">ANALOGY (TEMPORARY)</div><p>A shared Google Doc. <code>const backup = state</code> is not printing the document. It is sending someone the link. Now two people have their own link, but there is still one document. When the other person deletes a paragraph, your link shows the deletion, because your link was never a copy of anything. <code>{...state}</code> is File, Make a copy: a real second document that now drifts apart from the first.</p></div>
+
+  <figure class="fig-box">
+    <svg class="figure" viewBox="0 0 640 260" role="img" aria-label="On the left, two name tags labelled state and backup. Both have arrows pointing to a single object box on the right, which holds streak colon 4. A note says one object, two names. Changing streak through either name changes the one object, so both names see 5.">
+      <text class="st lo" x="20" y="24">TWO NAMES</text>
+      <rect class="bx acc" x="20" y="60" width="130" height="36" rx="8"/><text class="st mono" x="85" y="83" text-anchor="middle">state</text>
+      <rect class="bx acc" x="20" y="150" width="130" height="36" rx="8"/><text class="st mono" x="85" y="173" text-anchor="middle">backup</text>
+      <text class="st lo" x="330" y="24">ONE OBJECT (in memory)</text>
+      <rect class="bx cy" x="330" y="76" width="280" height="80" rx="8"/>
+      <text class="st mono" x="470" y="108" text-anchor="middle">{ streak: 4 }</text>
+      <text class="st lo" x="470" y="134" text-anchor="middle">there is only ever one of these</text>
+      <path class="ln acc" d="M150 78 C 240 78, 250 110, 330 112"/><circle class="dot" cx="330" cy="112" r="3.5"/>
+      <path class="ln acc" d="M150 168 C 240 168, 250 126, 330 120"/><circle class="dot" cx="330" cy="120" r="3.5"/>
+      <text class="st lo" x="240" y="60">holds an address,</text>
+      <text class="st lo" x="240" y="196">not a copy</text>
+      <text class="st lo" x="320" y="236" text-anchor="middle">backup.streak = 5 and state.streak = 5 are the same instruction written two ways.</text>
+    </svg>
+    <figcaption>The aliasing picture. Chapter 9's tags are still tags. What changed is that the suitcase can be opened and repacked while both tags are attached.</figcaption>
+  </figure>
+
+  <p>Two names for one object is called <dfn data-term="aliasing">aliasing</dfn>, and it is not a flaw. It is why Memento's 38 files can all say <code>state</code> and all mean the same live object. It becomes a bug only when a human believed they had made a copy and had not.</p>
+  <p>The cheap fix is the <dfn data-term="spread">spread</dfn>: <code>const copy = {...original}</code> builds a genuinely new object and copies each key across. For arrays it is <code>[...list]</code>. One catch, and it has a name: this is a <dfn data-term="shallow-copy">shallow copy</dfn>. The top level is new, but a nested object inside is still copied as an address, so both still share everything one level down.</p>
+  <p>And the third misconception, the one chapter 9 planted deliberately: <code>const</code> does not freeze contents. It only refuses to let the name be re-pointed. <code>const list = []</code> then <code>list.push("a")</code> is legal all day long, because the array is the same array. It just has something in it now.</p>
+
+  <h3>try / catch: if this line explodes, do this instead</h3>
+  <p>Some lines fail for reasons that have nothing to do with your code being right. The disk is full. A private window blocked storage. The text handed to you is not valid JSON. When a line fails like that it <dfn data-term="throw">throws</dfn>, and by default the throw kills everything up the call stack until the app stops.</p>
+  <p><dfn data-term="try-catch">try / catch</dfn> puts a net under a block. Run these lines. If any throws, abandon the rest of the block, run the catch block instead, then carry on. It is a human deciding in advance what "keep going anyway" looks like at that exact spot.</p>
+
+  <h2>See it</h2>
+  <p>Seven boxes. Same rule as always, and it is the only rule in this book that matters: <strong>predict what prints, write it down, then run.</strong></p>
+
+  <div class="sb">
+// 1. A loop is passes, not magic. Predict the EXACT order of all 7 lines.
+console.log("before the loop");
+for (let i = 0; i &lt; 3; i++) {
+  console.log("  pass " + i + ": start");
+  console.log("  pass " + i + ": end");
+}
+console.log("after the loop");
+</div>
+
+  <div class="sb">
+// 2. Three spellings, one idea. Predict all of it. Then run.
+const domains = ["health", "work", "money"];
+for (const d of domains) console.log("of:", d);
+
+let n = 0;
+while (n &lt; 3) { console.log("while:", n); n = n + 1; }
+
+console.log(domains.length, domains[0], domains[3]);
+</div>
+
+  <div class="sb">
+// 3. filter, map, find. Predict all four lines, including the last one.
+const goals = [
+  { title: "ship native", days: 30, done: false },
+  { title: "sleep", days: 7, done: true },
+  { title: "raise", days: 90, done: false }
+];
+console.log(goals.filter(g =&gt; !g.done).length);
+console.log(goals.map(g =&gt; g.title));
+console.log(goals.find(g =&gt; g.days &gt; 60).title);
+console.log(goals.find(g =&gt; g.days &gt; 900));
+</div>
+
+  <div class="sb">
+// 4. THE SURPRISE. Predict both lines before you run. Most people get this wrong.
+const state = { streak: 4, name: "Malik" };
+const backup = state;
+backup.streak = 99;
+console.log(state.streak);
+console.log(state === backup);
+</div>
+
+  <div class="sb">
+// 5. Spread makes a real copy. But only one level deep. Predict all three.
+const original = { streak: 4, clarity: { theme: "stellar" } };
+const copy = { ...original };
+copy.streak = 99;
+copy.clarity.theme = "ember";
+console.log(original.streak);
+console.log(original.clarity.theme);
+console.log(original === copy, original.clarity === copy.clarity);
+</div>
+
+  <div class="sb">
+// 6. const locks the name, never the contents. Predict. Then run.
+const domains = [];
+domains.push("health");
+domains.push("work");
+console.log(domains, domains.length);
+// Now delete the two slashes on the next line and run again. Read the error.
+// domains = ["something else"];
+</div>
+
+  <div class="sb">
+// 7. A net under a block. Predict the order of all four lines.
+console.log("1. starting");
+try {
+  console.log("2. inside try");
+  const parsed = JSON.parse("this is not json");
+  console.log("3. this line never runs");
+} catch (e) {
+  console.log("4. caught it:", e.name);
+}
+console.log("5. the program kept going");
+</div>
+
+  <p>Box 4 is the whole chapter in five lines. Nobody typed <code>state.streak</code> and yet it is 99, because <code>backup</code> was never a backup. Box 5 is the half-fix: <code>copy.streak</code> left the original alone, <code>copy.clarity.theme</code> did not. Box 6 shows a <code>const</code> array is a perfectly editable array. Box 7 shows a program surviving a line that blew up, which is what Memento does every time it saves.</p>
+
+  <h2>Now in Memento</h2>
+  <div class="lanes">
+    <div class="lane"><div class="h">ANY APP: saving without dying</div>
+      <p>Writing to the browser's storage box can fail for reasons no developer controls: the box is full, or a private window refused it. If a failed save crashes the app, the user loses the thing they were typing plus everything else. So each risky step gets its own net, and a failure in one does not cancel the others.</p>
+      <p>Then, occasionally, keep a copy of the previous save under a second name. If the newest save is ever written half-broken, yesterday's copy is still sitting there.</p>
+    </div>
+    <div class="lane mem"><div class="h">MEMENTO: writeStateToStorage()</div>
+      <pre><code>  try {
+    const now = Date.now();
+    if (now - _lastBackupAt &gt; 30000) {
+      const prev = localStorage.getItem(APP_KEY);
+      if (prev) { localStorage.setItem(APP_KEY + '_backup', prev); _lastBackupAt = now; }
+    }
+  } catch (e) {}
+  try {
+    localStorage.setItem(APP_KEY, JSON.stringify(state));
+  } catch (e) {
+    const quota = e &amp;&amp; (e.name === 'QuotaExceededError' || e.code === 22);
+    if (quota &amp;&amp; !_quotaWarned) {
+      _quotaWarned = true;</code></pre>
+      <div class="src">memento-app/js/01-state-foundation.js:468-480 (web pin ca8afc8)</div>
+    </div>
+  </div>
+
+  <p>Read it as control flow and it decodes in about thirty seconds.</p>
+  <p>The first <code>try</code> is the backup. <code>if (now - _lastBackupAt &gt; 30000)</code> means "has it been thirty seconds", so the block skips itself almost every time. <code>if (prev)</code> is a truthiness check: only copy the previous save if there was one. The <code>catch (e) {}</code> is an empty net on purpose, because a failed backup must never stop a real save.</p>
+  <p>The second <code>try</code> is the real save, and its catch is not empty. It asks what kind of failure this was: <code>e.name === 'QuotaExceededError' || e.code === 22</code> means "storage is full", written two ways because different browsers report it differently. Then <code>if (quota &amp;&amp; !_quotaWarned)</code> shows the warning once and only once, because a toast on every keystroke would be worse than the bug. Two conditions, two truthiness checks, one flag flipped so the second pass takes the other path.</p>
+
+  <div class="lanes">
+    <div class="lane"><div class="h">ANY APP: reading a list of events</div>
+      <p>Apps keep a log of what happened: a flat list of small objects with a type and a date. Questions about the user get answered by narrowing that list, then pulling out the one field you care about. Narrow first, then transform. That is filter, then map.</p>
+    </div>
+    <div class="lane mem"><div class="h">MEMENTO: did this user activate?</div>
+      <pre><code>      const ev = Array.isArray(a.events) ? a.events : [];
+      const actionDays = new Set(ev.filter(x =&gt; x &amp;&amp; x.e === 'action_done').map(x =&gt; x.day));
+      const openDays = new Set(ev.filter(x =&gt; x &amp;&amp; x.e === 'app_open').map(x =&gt; x.day));</code></pre>
+      <div class="src">memento-app/js/01-state-foundation.js:656-658 (web pin ca8afc8)</div>
+      <p>Left to right: take every event, keep the ones that exist and are an <code>action_done</code>, replace each with just its day, then put the days in a <code>Set</code>, which throws away duplicates. Three days of work on one day counts once. The answer is a number of distinct days.</p>
+    </div>
+  </div>
+
+  <div class="box memento"><div class="h">THE ALTERNATIVE, AND WHY MEMENTO CHOSE THIS</div><p>The alternative to wrapping each step in its own <code>try</code> is one big <code>try</code> around the whole function. Shorter, and wrong here: a failed backup would abandon the real save, so a rare thirty-second housekeeping job could silently cost a user their actual data. Separate nets mean the important line still runs. The cost is that empty <code>catch (e) {}</code> blocks hide failures completely, and a genuine bug inside one of them is invisible forever. Memento accepts that on the backup and refuses it on the save, which is why only the second catch inspects what went wrong. Chapter 23 comes back to swallowed errors as a debugging problem.</p></div>
+
+  <h2>Do it</h2>
+  <div class="ex">
+    <div class="h">Exercise <span class="tag">phone or Mac</span></div>
+    <div class="meta">Where: the two boxes below. Expected: box 1 prints a "backup" that is not a backup, and after your fix it prints the real old value. Reset: the Reset button on each box. This cannot touch Memento.</div>
+    <ol>
+      <li>Read box 1 without running it. Write down what you think the three printed lines say.</li>
+      <li>Run it. The restore does nothing, because the safety copy and the live object are one object. Say out loud, in one sentence, which line was the lie.</li>
+      <li>Fix it. Change one line so <code>saved</code> is a real copy, then run again and watch the restore work. There are two ways to spell the fix and one of them is shorter.</li>
+      <li>Box 2 is the nested trap. Fix it the same way and watch it still fail. Then say why, in one sentence, before reading the last paragraph of the chapter.</li>
+    </ol>
+  </div>
+
+  <div class="sb">
+// 1. BREAK IT. This "backup" protects nothing. Find the lying line, then fix it.
+const state = { streak: 12, theme: "stellar" };
+
+const saved = state;              // the "safety copy"
+
+state.streak = 0;                 // something goes wrong
+console.log("after the wipe:", state.streak);
+
+state.streak = saved.streak;      // restore from the backup
+console.log("after the restore:", state.streak);
+console.log("was it ever a copy?", state === saved);
+</div>
+
+  <div class="sb">
+// 2. Now with a spread. One level is protected. One level is not.
+const state = { streak: 12, clarity: { theme: "stellar", completed: true } };
+const saved = { ...state };
+
+state.streak = 0;
+state.clarity.theme = "wiped";
+
+console.log("streak restored:", saved.streak);
+console.log("theme restored:", saved.clarity.theme);
+console.log("same nested object?", state.clarity === saved.clarity);
+</div>
+
+  <p>Box 2's answer: spread copied the top level, so <code>streak</code> survived. It copied <code>clarity</code> as an address, so both objects still point at one <code>clarity</code>. A copy that goes all the way down is called a deep copy, and the plain way to get one is <code>JSON.parse(JSON.stringify(obj))</code>, which is exactly Memento's save path used as a photocopier.</p>
+
+  <div class="box why"><div class="h">ASK THE AGENT WHY (paste this into Codex or Fable)</div><pre><code>In memento-app/js/01-state-foundation.js, read writeStateToStorage() at line 461. Explain why each risky step is wrapped in its own try/catch instead of one try around the whole function, and what would break if they were merged. Then tell me what happens to the user if the empty catch on the backup block swallows a real bug, and how anyone would ever notice. Finally, search memento-app/js for any place where one object is assigned to a second name and then mutated, and tell me whether each one is deliberate aliasing or an accidental shared reference. Do not change anything.</code></pre></div>
+
+  <div class="box words"><div class="h">WORDS YOU NOW OWN</div><dl>
+    <dt>Control flow</dt><dd>Which line the machine is on and where it goes next. Three moves only: next line, skip lines, go back.</dd>
+    <dt>if / else</dt><dd>Take one path or the other, never both, then rejoin.</dd>
+    <dt>Truthy / falsy</dt><dd>What a non-boolean counts as in a yes-or-no question. Six things are falsy: <code>false</code>, <code>0</code>, <code>""</code>, <code>null</code>, <code>undefined</code>, <code>NaN</code>. Empty arrays and empty objects are truthy.</dd>
+    <dt>Loop</dt><dd>Run a block, finish it, run it again. Passes in order, never all at once.</dd>
+    <dt>for / for...of / while</dt><dd>Counted passes / one pass per item in a list / keep going while something stays true.</dd>
+    <dt>filter / map / find / forEach / push</dt><dd>Keep some / change each / get the first match / do something per item / add to the end. The first three hand back something new; the last two do not.</dd>
+    <dt>Reference</dt><dd>What a name actually holds when the value is an object: an address, not the object. Assignment copies the address.</dd>
+    <dt>Aliasing</dt><dd>Two names for one object. Deliberate almost everywhere in Memento, a bug the moment somebody thought it was a copy.</dd>
+    <dt>Spread</dt><dd><code>{...obj}</code> or <code>[...list]</code>. Builds a genuinely new top level.</dd>
+    <dt>Shallow copy</dt><dd>A copy whose nested objects are still shared with the original. What spread gives you.</dd>
+    <dt>throw</dt><dd>A line giving up and killing everything above it on the stack until something catches it.</dd>
+    <dt>try / catch</dt><dd>A net under a block. If anything in try throws, abandon the rest of the block and run catch instead.</dd>
+  </dl></div>
+
+  <div class="box expiry"><div class="h">WHERE TODAY'S ANALOGY BREAKS</div><p><strong>Breaks when:</strong> you ask who is allowed to edit the shared document. Google Docs has permissions, a history, and a name next to every change. Memory has none of that. Any code holding the reference can change the object instantly, with no record of who did it and no way to ask afterwards. That is why the "which line wrote this" bug is so expensive, and why chapter 14 puts every write behind one path. <strong>Real model:</strong> a variable holding an object holds a number, and that number is an address. Two variables holding the same number are indistinguishable: no original, no copy, no owner, no audit trail. A second, smaller break: the finger does not always stay on one line for long. Chapter 12 shows it walking away from a half-finished function and coming back later.</p></div>
+
+  <details class="hole"><summary>RABBIT HOLE: what JSON.stringify silently drops</summary><p><code>JSON.stringify(state)</code> walks the whole object turning it into one long piece of text, because storage only holds text. Two things get quietly lost. Functions vanish: a key whose value is a function is dropped entirely, no error. And <code>undefined</code> vanishes while <code>null</code> survives, which is one practical reason chapter 9 found <code>paidAt: null</code> rather than <code>undefined</code>. A key set to <code>undefined</code> is there in memory and gone after a save and reload, a bug that only appears to users who close the app.</p></details>
+</main>
+<script src="../js/book.js"></script>
+</body>
+</html>

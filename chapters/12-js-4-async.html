@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>12. JavaScript 4: async, promises, the event loop. BIG CODE BOOK</title>
+<link rel="stylesheet" href="../css/book.css">
+<meta name="theme-color" content="#0b0b0d">
+</head>
+<body data-chapter="12">
+<main>
+  <div class="kicker">Chapter 12 <span class="tag eng">ENGINEER</span> <span class="tag">~60 min</span> <span class="tag">phone or Mac</span></div>
+  <h1>JavaScript 4: async, promises, the event loop</h1>
+  <p class="lede">Memento waits about two seconds for the AI and the screen never freezes. That is not speed. It is one cook who refuses to stand and watch the oven, and once you can see the timer board on the wall, out-of-order log lines stop being spooky.</p>
+
+  <div class="box recap"><div class="h">LAST TIME</div><p>Control flow is where the finger goes next: down, skip, or back. A loop is separate passes in order, never all at once. Two names can hold the same object because a name holds an address, which is why <code>const backup = state</code> backs up nothing and <code>try / catch</code> is a net under a block that might explode.</p></div>
+
+  <h2>Quick check</h2>
+  <details class="check"><summary><code>const copy = {...state}</code> then <code>copy.clarity.theme = "ember"</code>. Did the original change?</summary><div class="a">Yes. Spread copies the top level only. The nested <code>clarity</code> was copied as an address, so both objects point at one <code>clarity</code>. Shallow copy.</div></details>
+  <details class="check"><summary>Which of these are falsy: <code>0</code>, <code>[]</code>, <code>""</code>, <code>{}</code>, <code>null</code>?</summary><div class="a"><code>0</code>, <code>""</code> and <code>null</code>. The empty array and the empty object are truthy, which is why <code>if (list)</code> is true even when the list has nothing in it. Check <code>list.length</code> instead.</div></details>
+  <details class="check"><summary>What does <code>return</code> do, both halves?</summary><div class="a">It hands a value back to the caller and it stops the function immediately. The second half is what makes a guard clause work, and it is about to matter again.</div></details>
+
+  <h2>The idea</h2>
+  <p>Chapter 10's pile of index cards had a hole in it. If a program is one finger walking one line at a time, and a line says "ask a server in another country for an answer", the finger stands there for two seconds. No scrolling, no typing, no animation, no redraw. The app looks dead.</p>
+  <p>That is exactly what would happen, and it is why the language has the machinery this chapter is about.</p>
+
+  <h3>One thread, a queue, and a waiting list</h3>
+  <p>JavaScript runs your code on one <dfn data-term="main-thread">main thread</dfn>. One finger. There is no second finger running your functions beside the first, ever.</p>
+  <p>Next to it sit two more things. A <dfn data-term="task-queue">queue</dfn>: a line of jobs waiting their turn on the thread, first in, first out. And a waiting list: work handed off to something that is not JavaScript and is not ready yet. A timer counting down. A network request in flight. Your thread does not run those. The browser does, in the background.</p>
+  <p>The <dfn data-term="event-loop">event loop</dfn> is one rule, repeated forever: <strong>when the thread is empty, take the next job from the queue and run it to completion.</strong> When something on the waiting list finishes, it does not barge in. It gets put on the end of the queue and waits its turn like everything else.</p>
+
+  <div class="box analogy"><div class="h">ANALOGY (TEMPORARY)</div><p>A restaurant kitchen with one cook. The cook does one thing at a time, start to finish, and never stops halfway. On the wall is a timer board: the oven, the sous-vide, the driver who is out fetching the fish. None of those are the cook. The cook puts the tray in, sets the timer, and starts the next order. When a timer dings, the ding does not interrupt the cook mid-plate. The order joins the end of the ticket rail. Every "why did that print in the wrong order" question is answered by the ticket rail.</p></div>
+
+  <figure class="fig-box">
+    <svg class="figure" viewBox="0 0 640 300" role="img" aria-label="A diagram in three parts. On the left, a box labelled main thread with a note saying one job at a time, run to completion. In the middle, a queue of three waiting jobs feeding into the thread. On the right, a waiting list holding a timer and a network request, with an arrow going down and round to the back of the queue. A caption says finished work joins the back of the queue, it never interrupts.">
+      <rect class="bx acc" x="20" y="60" width="150" height="86" rx="8"/>
+      <text class="st b" x="95" y="92" text-anchor="middle">MAIN THREAD</text>
+      <text class="st lo" x="95" y="112" text-anchor="middle">one job at a time,</text>
+      <text class="st lo" x="95" y="128" text-anchor="middle">run to completion</text>
+
+      <text class="st lo" x="215" y="44">QUEUE (waiting their turn)</text>
+      <rect class="bx" x="215" y="60" width="86" height="34" rx="8"/><text class="st mono" x="258" y="82" text-anchor="middle">job</text>
+      <rect class="bx" x="215" y="102" width="86" height="34" rx="8"/><text class="st mono" x="258" y="124" text-anchor="middle">job</text>
+      <rect class="bx" x="215" y="144" width="86" height="34" rx="8"/><text class="st mono" x="258" y="166" text-anchor="middle">job</text>
+      <path class="ln acc" d="M215 77 H170"/><circle class="dot" cx="170" cy="77" r="3.5"/>
+      <text class="st lo" x="190" y="196" text-anchor="middle">next up</text>
+
+      <text class="st lo" x="360" y="44">WAITING LIST (not your thread)</text>
+      <rect class="bx cy" x="360" y="60" width="255" height="34" rx="8"/><text class="st mono" x="487" y="82" text-anchor="middle">setTimeout, 800ms left</text>
+      <rect class="bx cy" x="360" y="102" width="255" height="34" rx="8"/><text class="st mono" x="487" y="124" text-anchor="middle">fetch, reply in flight</text>
+      <text class="st lo" x="487" y="158" text-anchor="middle">the browser runs these, not you</text>
+
+      <path class="ln cy" d="M487 172 V212 H258 V178"/><circle class="dot cy" cx="258" cy="178" r="3.5"/>
+      <text class="st lo" x="320" y="236" text-anchor="middle">when one finishes it joins the BACK of the queue</text>
+      <text class="st lo" x="320" y="276" text-anchor="middle">The thread is never interrupted. That is the whole rule, and it explains every ordering puzzle below.</text>
+    </svg>
+    <figcaption>The event loop. One cook, one ticket rail, one timer board. Chapter 23 reads stack traces that come out of this machinery.</figcaption>
+  </figure>
+
+  <h3>Callbacks, the thing chapter 10 promised</h3>
+  <p>A <dfn data-term="callback">callback</dfn> is a function you hand to something else so that it can run it later. You do not call it. You give it away. <code>setTimeout(() =&gt; { save(); }, 150)</code> hands an arrow function to the browser's timer, and the browser calls it back when the time is up. <code>addEventListener('click', fn)</code> hands a function to the browser, which calls it whenever a finger lands. You read both in chapter 10 without having the word. That is the whole idea, and everything below is built on it.</p>
+
+  <h3>A promise is a receipt</h3>
+  <p>Callbacks alone get ugly fast: a reply that needs another request that needs another one becomes functions nested inside functions five deep. So the language added an object for "a value that is not here yet".</p>
+  <p>A <dfn data-term="promise">promise</dfn> is a receipt. You hand over your order and get a slip of paper back immediately. The slip is not the food. It is a claim ticket that ends up as exactly one of two things: <strong>resolved</strong>, the value is ready, or <strong>rejected</strong>, it went wrong and here is why. Never both. <dfn data-term="fetch">fetch</dfn> hands you a receipt on the spot and the reply lands on it later.</p>
+
+  <h3>async / await: pause this function, not the app</h3>
+  <p>Working with receipts by hand is still fiddly, so there is a spelling that makes it read like ordinary top-to-bottom code. Mark a function <dfn data-term="async">async</dfn> and you may use <dfn data-term="await">await</dfn> inside it.</p>
+  <p><code>await</code> means one precise thing, and getting it exactly right is the point of this chapter: <strong>take this function's card off the pile, put it aside with a note saying which line it was on, and let the thread go do everything else. When the receipt is paid, put the card back on the queue and carry on from that line.</strong></p>
+  <p>Read that again against chapter 10's picture. The card leaves the stack. It does not sit on top blocking. The thread is free the instant <code>await</code> is reached, which is why the screen keeps redrawing, the scroll keeps scrolling, and the spinner keeps spinning while Memento waits on the AI. Nothing is frozen because nothing is being held.</p>
+  <p>Two consequences. An <code>async</code> function always hands back a promise, even if you wrote <code>return 5</code>: the caller gets a receipt, not a 5. And calling one without <code>await</code>ing it, <dfn data-term="fire-and-forget">fire and forget</dfn>, starts the work and moves straight on, which is sometimes what you want and sometimes the bug.</p>
+  <p>Errors are the easy part. If the awaited thing rejects, the <code>await</code> line <dfn data-term="throw">throws</dfn>, exactly like chapter 11's bad JSON. So the net is the same net: wrap it in <code>try / catch</code>. A network failure and a syntax explosion land in the same place, handled by the same four lines.</p>
+  <p>One thing <code>await</code> does not do: make your own code interruptible. A million-pass loop has no <code>await</code> in it, so nothing else runs and the page genuinely freezes. That is <dfn data-term="blocking">blocking</dfn>, and chapter 1's sandbox 5 was its purest form.</p>
+
+  <h2>See it</h2>
+  <p>Six boxes, and the first four are pure ordering puzzles. <strong>Write down the order of the lines before you press Run.</strong> Being wrong here is normal and useful; this is the topic where every engineer was once confidently wrong.</p>
+
+  <div class="sb">
+// 1. Zero milliseconds is not "now". Predict the order of all three.
+console.log("first");
+setTimeout(() =&gt; { console.log("second"); }, 0);
+console.log("third");
+</div>
+
+  <div class="sb">
+// 2. Delays do not decide the order on their own. Predict all five.
+console.log("A: top of the program");
+setTimeout(() =&gt; console.log("B: timer 20ms"), 20);
+setTimeout(() =&gt; console.log("C: timer 0ms"), 0);
+Promise.resolve().then(() =&gt; console.log("D: settled promise"));
+console.log("E: bottom of the program");
+</div>
+
+  <div class="sb">
+// 3. await parks the card. Predict the order of all five lines.
+async function run() {
+  console.log("2. inside run, before await");
+  await null;
+  console.log("4. inside run, after await");
+}
+console.log("1. before calling run");
+run();
+console.log("3. after calling run");
+setTimeout(() =&gt; console.log("5. last"), 0);
+</div>
+
+  <div class="sb">
+// 4. Two awaits, and an async function called without await. Predict all six.
+async function slow(label, ms) {
+  await new Promise(done =&gt; setTimeout(done, ms));
+  console.log("done:", label);
+  return label;
+}
+async function main() {
+  console.log("main: start");
+  slow("fire-and-forget", 30);   // no await: started, then we move on
+  const a = await slow("awaited", 10);
+  console.log("main: got", a);
+}
+main();
+console.log("program: bottom");
+</div>
+
+  <div class="sb">
+// 5. A fake network call. A receipt now, a value later.
+function fakeFetch(what) {
+  return new Promise((resolve) =&gt; {
+    setTimeout(() =&gt; resolve({ question: "What would make this year worth it?" }), 400);
+  });
+}
+const receipt = fakeFetch("clarity");
+console.log("what fetch hands back immediately:", typeof receipt, receipt instanceof Promise);
+
+async function ask() {
+  console.log("sending...");
+  const reply = await fakeFetch("clarity");
+  console.log("arrived:", reply.question);
+}
+ask();
+console.log("the app is still responsive here");
+</div>
+
+  <div class="sb">
+// 6. A failing promise lands in catch, same as any other throw. Predict all four.
+function fakeFetchThatFails() {
+  return new Promise((resolve, reject) =&gt; {
+    setTimeout(() =&gt; reject(new Error("rate-limit")), 200);
+  });
+}
+async function ask() {
+  console.log("1. sending");
+  try {
+    await fakeFetchThatFails();
+    console.log("2. this never runs");
+  } catch (e) {
+    console.log("3. caught:", e.message);
+  }
+  console.log("4. the app carried on");
+}
+ask();
+</div>
+
+  <p>Box 1's answer is first, third, second, and it is the whole model in three lines. <code>0</code> does not mean now. It means "put this on the waiting list with no delay", and the waiting list cannot run until the thread has finished the current job, which includes the rest of your file. Box 2 adds a wrinkle: D beats C because settled promises get a faster lane than timers. Box 3 is the important one. It prints 1, 2, 3, 4, 5, so <code>run()</code> got halfway, handed the thread back at the <code>await</code>, let line 3 run, and only then finished itself.</p>

@@ -549,6 +549,10 @@
       {
         "ch": 3,
         "def": "The language for asking a database questions and changing what it stores. Memento has 33 SQL migration files."
+      },
+      {
+        "ch": 17,
+        "def": "Four sentences do most of it: select, insert, update, delete. 'where' is the filter, and forgetting it on an update or a delete hits every row in the table."
       }
     ]
   },
@@ -1046,6 +1050,361 @@
       {
         "ch": 10,
         "def": "Where a name is visible. Names made inside a function live on that function's stack card and are thrown away when it returns."
+      }
+    ]
+  },
+  "control-flow": {
+    "term": "Control flow",
+    "levels": [
+      {
+        "ch": 11,
+        "def": "Which line the machine is on and where it goes next. Three moves exist: the next line, skip some lines, go back and repeat some lines."
+      }
+    ]
+  },
+  "if-statement": {
+    "term": "if / else",
+    "levels": [
+      {
+        "ch": 11,
+        "def": "Ask a yes-or-no question and run one block or the other, never both. Both paths rejoin at the line after."
+      }
+    ]
+  },
+  "truthy": {
+    "term": "Truthy",
+    "levels": [
+      {
+        "ch": 11,
+        "def": "A value that counts as yes inside an if. Everything that is not one of the six falsy values, including the empty array and the empty object."
+      }
+    ]
+  },
+  "falsy": {
+    "term": "Falsy",
+    "levels": [
+      {
+        "ch": 11,
+        "def": "A value that counts as no inside an if. There are six: false, 0, empty text, null, undefined, NaN. Memento's guard clauses lean on this constantly."
+      }
+    ]
+  },
+  "loop": {
+    "term": "Loop",
+    "levels": [
+      {
+        "ch": 11,
+        "def": "Run a block, finish it, then run it again. Separate passes in order. Nothing in a loop happens at the same time as anything else in it."
+      }
+    ]
+  },
+  "reference": {
+    "term": "Reference",
+    "levels": [
+      {
+        "ch": 11,
+        "def": "What a name really holds when the value is an object or an array: an address of where the object lives, not the object. Assignment copies the address."
+      }
+    ]
+  },
+  "aliasing": {
+    "term": "Aliasing",
+    "levels": [
+      {
+        "ch": 11,
+        "def": "Two names pointing at one object, so a change through either is visible through both. Deliberate all over Memento, and a bug the moment someone thought they had made a copy."
+      }
+    ]
+  },
+  "spread": {
+    "term": "Spread",
+    "levels": [
+      {
+        "ch": 11,
+        "def": "{...obj} or [...list]. Builds a genuinely new top level with the same keys or items copied across."
+      }
+    ]
+  },
+  "shallow-copy": {
+    "term": "Shallow copy",
+    "levels": [
+      {
+        "ch": 11,
+        "def": "A copy whose nested objects are still shared with the original. What spread gives you. A copy that goes all the way down is a deep copy."
+      }
+    ]
+  },
+  "throw": {
+    "term": "throw",
+    "levels": [
+      {
+        "ch": 11,
+        "def": "A line giving up. It stops that function and keeps killing functions up the call stack until something catches it or the program stops."
+      },
+      {
+        "ch": 12,
+        "def": "A rejected promise makes its await line throw, so a network failure lands in the same try / catch as any other explosion."
+      }
+    ]
+  },
+  "try-catch": {
+    "term": "try / catch",
+    "levels": [
+      {
+        "ch": 11,
+        "def": "A net under a block. If anything inside try throws, abandon the rest of the block and run catch instead, then carry on. An empty catch hides the failure completely."
+      }
+    ]
+  },
+  "main-thread": {
+    "term": "Main thread",
+    "levels": [
+      {
+        "ch": 12,
+        "def": "The one finger that runs your JavaScript. Two of your functions never run at the same instant. Other threads exist in the browser, but they are not running your code."
+      }
+    ]
+  },
+  "task-queue": {
+    "term": "Queue (task queue)",
+    "levels": [
+      {
+        "ch": 12,
+        "def": "The line of jobs waiting for the main thread. First in, first out. Finished timers and network replies join the back of it and never interrupt what is running."
+      }
+    ]
+  },
+  "event-loop": {
+    "term": "Event loop",
+    "levels": [
+      {
+        "ch": 12,
+        "def": "One rule repeated forever: when the thread is empty, take the next job from the queue and run it to completion. It is why log lines print out of order."
+      }
+    ]
+  },
+  "callback": {
+    "term": "Callback",
+    "levels": [
+      {
+        "ch": 12,
+        "def": "A function you hand to something else so it can run it later. Every timer and every event listener in Memento is one."
+      }
+    ]
+  },
+  "promise": {
+    "term": "Promise",
+    "levels": [
+      {
+        "ch": 12,
+        "def": "A receipt for a value that arrives later. It ends up resolved (here it is) or rejected (here is why not). Never both, never a third thing."
+      }
+    ]
+  },
+  "await": {
+    "term": "await",
+    "levels": [
+      {
+        "ch": 12,
+        "def": "Park this function, hand the thread back, resume from this line when the receipt is paid. It pauses one function, not the app, which is why the screen keeps moving."
+      }
+    ]
+  },
+  "blocking": {
+    "term": "Blocking",
+    "levels": [
+      {
+        "ch": 12,
+        "def": "Holding the main thread so nothing else can run. A long loop blocks and the page freezes. An await does not block."
+      }
+    ]
+  },
+  "fire-and-forget": {
+    "term": "Fire and forget",
+    "levels": [
+      {
+        "ch": 12,
+        "def": "Calling an async function without awaiting it. The work starts, the code moves on, and nobody is watching whether it succeeded."
+      }
+    ]
+  },
+  "table": {
+    "term": "Table",
+    "levels": [
+      {
+        "ch": 17,
+        "def": "A grid in a database. Every column has a name and a type; every row is one thing. If you can picture a spreadsheet you can picture a table."
+      }
+    ]
+  },
+  "row": {
+    "term": "Row",
+    "levels": [
+      {
+        "ch": 17,
+        "def": "One thing in a table: one user, one saved state, one payment. Row Level Security decides which of them you are allowed to see."
+      }
+    ]
+  },
+  "primary-key": {
+    "term": "Primary key",
+    "levels": [
+      {
+        "ch": 17,
+        "def": "The column that identifies a row and repeats nowhere else in the table. Memento's user_state uses user_id, so there is one row per person."
+      }
+    ]
+  },
+  "foreign-key": {
+    "term": "Foreign key",
+    "levels": [
+      {
+        "ch": 17,
+        "def": "A column holding another table's primary key. It is how rows in different tables know they belong to the same thing."
+      }
+    ]
+  },
+  "schema": {
+    "term": "Schema",
+    "levels": [
+      {
+        "ch": 17,
+        "def": "The promise about what shape the data has: which tables exist, which columns, which types, which keys. Code downstream is written against that promise."
+      }
+    ]
+  },
+  "index": {
+    "term": "Index",
+    "levels": [
+      {
+        "ch": 17,
+        "def": "A pre-sorted lookup the database keeps beside a table so it can jump to a row instead of reading every row. Costs disk and a little on every write."
+      }
+    ]
+  },
+  "migration": {
+    "term": "Migration",
+    "levels": [
+      {
+        "ch": 17,
+        "def": "One dated, forward-only file of SQL that changes the schema. Applied in order, once each, in every environment. This is why 'just add a column' is a migration."
+      }
+    ]
+  },
+  "postgres": {
+    "term": "Postgres",
+    "levels": [
+      {
+        "ch": 17,
+        "def": "The database Memento rents a running copy of from Supabase. Thirty years old, open source, ordinary SQL, and the place Row Level Security lives."
+      }
+    ]
+  },
+  "database-function": {
+    "term": "Database function",
+    "levels": [
+      {
+        "ch": 17,
+        "def": "Business rules living inside the database instead of the app, so they are true for every client. Memento's sync_user_state and is_memento_state_meaningful are two."
+      }
+    ]
+  },
+  "policy": {
+    "term": "Policy",
+    "levels": [
+      {
+        "ch": 17,
+        "def": "The rule Row Level Security applies to every query on a table. Memento's read policy is: using (auth.uid() = user_id)."
+      }
+    ]
+  },
+  "trust-boundary": {
+    "term": "Trust boundary",
+    "levels": [
+      {
+        "ch": 17,
+        "def": "The line past which you stop believing what you are told. Everything arriving from a phone is a claim from a stranger, including the claim about who sent it."
+      }
+    ]
+  },
+  "authentication": {
+    "term": "Authentication",
+    "levels": [
+      {
+        "ch": 18,
+        "def": "Who are you. Proved once, with an email code or Google, producing an identity and nothing else."
+      }
+    ]
+  },
+  "authorization": {
+    "term": "Authorization",
+    "levels": [
+      {
+        "ch": 18,
+        "def": "What may you do. Asked again at every door, per action. Knowing who someone is tells you nothing about what they are allowed to do."
+      }
+    ]
+  },
+  "session": {
+    "term": "Session",
+    "levels": [
+      {
+        "ch": 18,
+        "def": "The record that you were checked, valid for a while. The hotel key card: no passport needed again until it expires."
+      }
+    ]
+  },
+  "refresh-token": {
+    "term": "Refresh token",
+    "levels": [
+      {
+        "ch": 18,
+        "def": "A longer-lived second token whose only job is to trade itself for a fresh access token, so you are not signed out every hour."
+      }
+    ]
+  },
+  "oauth": {
+    "term": "OAuth",
+    "levels": [
+      {
+        "ch": 18,
+        "def": "Another service vouching for you. Google signs you in on its own page and hands back a signed statement. The app never sees your Google password, and you can revoke it later."
+      }
+    ]
+  },
+  "anon-key": {
+    "term": "Anon key (public key)",
+    "levels": [
+      {
+        "ch": 18,
+        "def": "A key that identifies the app, not a person, and grants nothing on its own. Safe to publish only because Row Level Security decides access from the signed-in user."
+      }
+    ]
+  },
+  "secret-key": {
+    "term": "Secret key",
+    "levels": [
+      {
+        "ch": 18,
+        "def": "A key that spends money or grants power. Lives in a server's environment and nowhere else. Memento's Anthropic key is one; it never goes near a phone."
+      }
+    ]
+  },
+  "entitlement": {
+    "term": "Entitlement",
+    "levels": [
+      {
+        "ch": 18,
+        "def": "What a given account has paid for. Real ones live on a server. isPaid sitting in state on a phone is a hint about which screen to draw, never evidence."
+      }
+    ]
+  },
+  "secure-store": {
+    "term": "Secure store (keychain)",
+    "levels": [
+      {
+        "ch": 18,
+        "def": "The operating system's locked box for credentials. Memento's native tokens go in expo-secure-store, this-device-only, never in the state blob that gets backed up and copied."
       }
     ]
   }
