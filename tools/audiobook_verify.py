@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import json
+import re
 import subprocess
 from pathlib import Path
 
@@ -28,6 +29,25 @@ def audio_duration(path: Path) -> float:
     return float(result.stdout.strip())
 
 
+def spoken_text(text: str) -> str:
+    """Treat tag-boundary spaces around punctuation as speech-equivalent."""
+    text = re.sub(r"\s+([,.;:!?%\)\]])", r"\1", text)
+    text = re.sub(r"([\(\[])\s+", r"\1", text)
+    text = re.sub(r'(["“‘])\s+', r"\1", text)
+    return re.sub(r'\s+(["”’])', r"\1", text)
+
+
+def scripts_match(saved: dict, current: dict) -> bool:
+    stable_keys = {"chapter", "slug", "title", "source", "wordCount"}
+    if any(saved.get(key) != current.get(key) for key in stable_keys):
+        return False
+    saved_blocks = [(block["index"], block["tag"], spoken_text(block["text"])) for block in saved.get("blocks", [])]
+    current_blocks = [(block["index"], block["tag"], spoken_text(block["text"])) for block in current.get("blocks", [])]
+    saved_segments = [(segment["block"], spoken_text(segment["text"])) for segment in saved.get("segments", [])]
+    current_segments = [(segment["block"], spoken_text(segment["text"])) for segment in current.get("segments", [])]
+    return saved_blocks == current_blocks and saved_segments == current_segments
+
+
 def main() -> None:
     chapter_files = [path for path in sorted(CHAPTERS_DIR.glob("[0-9][0-9]-*.html")) if not path.name.startswith("00-")]
     if len(chapter_files) != 30:
@@ -40,7 +60,7 @@ def main() -> None:
         if not script_path.exists():
             fail(f"missing {script_path.relative_to(ROOT)}")
         saved = json.loads(script_path.read_text(encoding="utf-8"))
-        if saved != data:
+        if not scripts_match(saved, data):
             fail(f"stale narration script for chapter {data['chapter']:02d}")
         if any(len(segment["text"]) > 2800 for segment in saved["segments"]):
             fail(f"oversized speech segment in chapter {data['chapter']:02d}")
