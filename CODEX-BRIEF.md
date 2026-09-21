@@ -1,4 +1,4 @@
-# CODEX BRIEF: your jobs on THE CODE BOOK
+# CODEX BRIEF: your jobs on BIG CODE BOOK
 
 From Fable, 2026-09-20. Read PLAN.md first, then research/*.md. Then write CODEX-REVIEW.md before doing any build work. Malik relays between us; we never message each other directly.
 
@@ -9,7 +9,7 @@ From Fable, 2026-09-20. Read PLAN.md first, then research/*.md. Then write CODEX
 4. Book design law: dark-first, sharp, restrained. No gold, no serif or display fonts, no eyebrow labels, no purple gradients, no emoji as icons, no em dashes anywhere (not in code, copy, or filenames), no everything-rounded bubbles. Same taste as Memento. Light mode must be faithful.
 5. Voice in anything you write (captions, hints, error text): plain, short, no jargon without a translation, no "It's not X, it's Y".
 
-## Job 1: Review the plan (first, before anything else)
+## Job 1: Review the plan (DONE, CODEX-REVIEW.md, merged into PLAN.md v2)
 Write `CODEX-REVIEW.md`. Number every finding. Tag each WRONG / MISLEADING / MISSING / TOO-DEEP / TOO-SHALLOW / NIT. Specifically attack:
 - Is the competency list in PLAN.md §1 what a junior-plus at a small startup actually needs in 2026? What is missing? What is padding?
 - Is the 30-chapter order right for someone who knows the words but not the meaning? Which chapter would lose him? Which two would you merge? Which is missing?
@@ -27,7 +27,8 @@ Plain HTML/CSS/JS, no framework, no build step (this is a teaching decision, see
   - sidebar + progress (localStorage, wrapped in try/catch, degrades to no-persistence),
   - glossary chips: `<dfn data-term="api">` opens a popover showing the definition for the reader's current chapter level from `glossary.json`,
   - device gating: any `[data-device="mac"]` block on a viewport under 768px is replaced by a panel "Mac only. Skip, or continue on your Mac." with a Skip button that records the skip,
-  - the sandbox runner: a code box with Run; executes in a sandboxed iframe (`sandbox="allow-scripts"`), captures `console.log`/`console.error`/uncaught errors into a panel under the box, resets cleanly. Must work on iOS Safari.
+  - the sandbox runner: a code box with Run. Plain JS runs in a Web Worker with a timeout (kill after 3s); DOM exercises run in a sandboxed iframe (`sandbox="allow-scripts"`) with a hard reset. Captures `console.log`/`console.error`/uncaught errors into a panel under the box. Must work on iOS Safari.
+  - a passphrase gate: on first visit ask for a passphrase (Malik sets it in a config constant), remember it in localStorage. This is obscurity, not security; say so in a code comment.
   - chapter check: `<details class="check">` questions with hidden answers, counted into progress.
 - `chapters/00-template.html`: the chapter skeleton with every section from PLAN.md §2.1 as empty slots and the two-lane layout (left = universal, right = Memento).
 - `glossary.html` rendering `glossary.json` (Fable fills the JSON).
@@ -38,11 +39,15 @@ In `sandbox/`:
 - `v1/` plain JS, no build: `index.html`, `app.js`, `state.js`, `style.css`. One screen: north-star text field, hold-to-complete button (3 seconds, progress ring), streak counter, "last completed" date. State is one object, saved to localStorage on change with a 150ms debounce (mirrors Memento's `persistState`). Under 300 lines total. Every function has a one-line comment saying what it is for. No cleverness.
 - `v1/server.js`: Node, no dependencies, ~60 lines. Routes: `POST /api/ai` returns a canned "AI" reply after a 600ms delay; `POST /api/sync` writes the posted state to `db.json`; `GET /api/sync` reads it. Reads `secrets.env` for a fake `AI_KEY` and refuses to start without it. `.gitignore` excludes `secrets.env` and `db.json`; ship `secrets.env.example`.
 - `v2/`: the same app in TypeScript (`app.ts`, `state.ts`, a `tsconfig.json`), plus six deliberate type errors in `v2/errors/app.ts` for the chapter 21 exercise, each with a comment number only (no hint in the file).
-- `v3/`: the hold-to-complete button as one React Native component (`HoldToComplete.tsx`) using `useState`, `useEffect`, `useRef`, runnable in the page via react-native-web from a CDN so the phone can see it. Keep it under 80 lines. It sits next to Memento's real `memento-native/src/home/HoldToComplete.tsx` in chapter 22.
+- `v3/`: the hold-to-complete button as one React Native component (`HoldToComplete.tsx`) using `useState`, `useEffect`, `useRef`, under 80 lines. Compile it ONCE with react-native-web into a prebuilt `v3/dist/` artifact the page loads (no build step for the reader). It sits next to Memento's real `HoldToComplete.tsx` in chapter 22.
+- `v1/server.js` carries a top comment "INTENTIONALLY INCOMPLETE: no auth, no limits, no owner scoping. Chapters 17, 18, 25 fix this." and `v1-secure/` is the evolved version (owner-scoped data, input limits, error handling, revisions, authorization) for those chapters. The fake token is named `FAKE_TOKEN` everywhere.
+- `git-lab/`: a script `make-git-lab.sh` that creates a disposable repo with three commits, two branches and one staged conflict, and resets it on every run. Gitignored.
+- `lab/`: a script `make-native-lab.sh` that exports the native pin (`git -C ~/Downloads/MEMENTO archive <native-pin> memento-native | tar -x -C lab/`) into `lab/memento-native/`, gitignored. All `npm ci`, `npm test`, and Expo runs happen there. Nothing runs inside `~/Downloads/MEMENTO`.
+- Every lab folder ships a `README` line: working directory, expected output, reset command, "this cannot touch Memento".
 - `breaks/NN-slug/`: one folder per chapter that has a break-it exercise (Fable will list the exact bugs per chapter after approval; expected chapters: 5, 6, 11, 14, 18, 23 x3, 25). Each is a copy of the relevant version with ONE planted bug, plus `HINTS.md` (three hints, increasing) and `FIX.md`.
 
 ## Job 4: Diagrams (one per chapter, three heroes)
-Deliver SVG where possible (theme-aware via CSS variables), PNG only for raster art. Same palette as the book. Label everything in plain words.
+Deliver SVG where possible (theme-aware via CSS variables), PNG only for raster art. Same palette as the book. Label everything in plain words. Every visual ships with a text alternative, passes contrast in both themes, and respects `prefers-reduced-motion`. One per chapter is Malik's call (he learns from pictures); keep each one about a single relationship.
 Heroes:
 - **The Journey Map** (chapter 2, then reused with one stop lit in every chapter): finger → screen → JavaScript → state → network → Supabase edge function → Anthropic → back → state → localStorage/MMKV → Supabase sync → Postgres. Two rows: "on the phone" and "on a server someone else runs". Mark who pays for each hop.
 - **The Git Graph** (chapters 7-8): commits as dots, branches as pointers, a merge, a conflict, and the Fable/Codex "APPROVED @ sha" overlay.
@@ -58,7 +63,7 @@ Priority order. Ship what fits; none is blocking a chapter except the sandbox ru
 5. Git graph playground (chapters 7-8): make commits, branch, merge, see the dots move.
 6. Diff-reading trainer (chapter 27): a real-looking diff with three planted problems; reader marks them; reveal.
 7. Stack-trace reader (chapter 23): a real trace, tap each line to see what it means.
-8. SQL playground (chapter 17): sql.js from a CDN, four tables, six guided queries, one RLS demo (query as user A, see only A's rows).
+8. SQL playground (chapter 17): sql.js from a CDN, four tables, six guided queries, and a policy SIMULATOR labelled as such (sql.js cannot run Postgres RLS); real RLS shown as recorded Postgres output.
 
 ## Job 6: Fact-check protocol (every chapter, after Fable drafts it)
 Write `review/NN-factcheck.md` per chapter with numbered findings:
@@ -70,11 +75,11 @@ Write `review/NN-factcheck.md` per chapter with numbered findings:
 - Beginner read: is there a sentence a person who "knows the words, not the meaning" would misread? Quote it.
 Nothing ships with an open WRONG or MISLEADING finding.
 
-## Job 7: Memento pin
-Create `research/MEMENTO-PIN` containing the current commit hash of `~/Downloads/MEMENTO` on `main` (`git -C ~/Downloads/MEMENTO rev-parse main`) and the date. Re-verify cited lines against that pin, not against whatever branch is checked out.
+## Job 7: Memento pins (two)
+Create `research/MEMENTO-PIN` with two lines: `web ca8afc8` (the frozen v1378 commit) and `native <hash>`, a reviewed commit on the migration branch that contains every taught native file (main has almost none). Regenerate the citation inventory (`research/CITATIONS.md`: chapter, path, lines, pin, sha256 of the cited range) from those pins. Re-verify against the pins, never against whatever branch is checked out.
 
 ## Deliverables order
-1. CODEX-REVIEW.md (now).
-2. After Malik approves the plan: MEMENTO-PIN, site shell, Memento Jr v1 + server, the three hero diagrams. Fable starts chapters 1-5 in parallel.
+1. CODEX-REVIEW.md (done).
+2. After Malik approves plan v2: MEMENTO-PIN, site shell, Memento Jr v1 + server, the three hero diagrams. Fable starts chapters 1-5 in parallel.
 3. Rolling: per-chapter diagram + break folder + fact-check as Fable delivers drafts.
 4. Interactives in priority order as time allows.
