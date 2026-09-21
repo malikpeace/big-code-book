@@ -195,6 +195,8 @@ dfn { font-style: normal; border-bottom: 1px dotted var(--hair-2); cursor: help;
 /* Figures */
 figure { margin: 0 0 20px; }
 figure svg { width: 100%; height: auto; display: block; }
+.figscroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+@media (max-width: 599px) { .figscroll svg { min-width: 560px; } .figscroll::after { content: 'swipe sideways to see the whole picture'; display: block; color: var(--text-lo); font-size: 12px; margin-top: 6px; } }
 figcaption { color: var(--text-lo); font-size: 13px; margin-top: 8px; }
 .fig-box { background: var(--panel); border: 1px solid var(--hair); border-radius: var(--r-m); padding: 14px; }
 svg .st { fill: var(--text-hi); font-family: var(--font); font-size: 13px; }

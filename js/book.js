@@ -331,6 +331,8 @@
     chips();
     glossaryPage();
     sandboxes();
+    // Figures scroll sideways on a phone instead of shrinking to unreadable.
+    $$('figure > svg').forEach(function (s) { var w = el('div', { class: 'figscroll' }); s.parentNode.insertBefore(w, s); w.appendChild(s); });
     var cov = $('#cover-weeks');
     if (cov) {
       var p = progress();
