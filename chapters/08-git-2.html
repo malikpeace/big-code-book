@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>8. Git 2: branches, merges, conflicts, pull requests. BIG CODE BOOK</title>
+<link rel="stylesheet" href="../css/book.css">
+<meta name="theme-color" content="#0b0b0d">
+</head>
+<body data-chapter="8">
+<main>
+  <div class="kicker">Chapter 8 <span class="tag need">NEED</span> <span class="tag">~60 min</span> <span class="tag mac">MAC</span></div>
+  <h1>Git 2: branches, merges, conflicts, pull requests</h1>
+  <p class="lede">Memento has 59 branches. Not 59 copies of the app: 59 sticky labels stuck onto snapshots in one chain. Once that lands, the Fable and Codex protocol you have run for months turns out to be a git diagram.</p>
+
+  <div class="box recap"><div class="h">LAST TIME</div><p>A commit is a complete snapshot of the folder, not a list of changes, and each one points back at its parent to form a chain. Your work lives in three separate places: the working folder, the staging area, and the history in <code>.git</code>. A hash is a fingerprint of a snapshot, which is why you cannot rewrite the past without everyone seeing.</p></div>
+
+  <h2>Quick check</h2>
+  <details class="check"><summary>Is a commit a record of what changed, or something else?</summary><div class="a">Something else: a snapshot of the entire folder. Git shows you changes by comparing a snapshot with its parent, but what is stored is the whole tree, deduplicated so unchanged files are stored once and pointed at many times.</div></details>
+  <details class="check"><summary>You edit a file, run <code>git diff</code>, then <code>git add</code> it and run <code>git diff</code> again. Nothing prints. Did your change vanish?</summary><div class="a">No. <code>git diff</code> compares working folder to staging area, and after adding those two agree. <code>git diff --staged</code> compares staging to the last snapshot and shows it.</div></details>
+  <details class="check"><summary>From chapter 2: Memento's sync sends <code>p_expected_revision</code>. What is that for?</summary><div class="a">Two devices overwriting each other. The device says which version it thinks is current so the database can refuse a stale write. Two agents in one git repo have the same problem, solved the same way.</div></details>
+
+  <h2>The idea</h2>
+  <p>A <dfn data-term="branch">branch</dfn> is a label that points at one commit. That is the entire definition: a small text file inside <code>.git</code> holding one hash. Making one copies nothing and takes about a millisecond however big the project is.</p>
+  <p>The label moves. When you are standing on a branch and make a commit, the new commit points back at the one the label was on, and the label slides forward onto the new one. So a branch marks the front end of one line of work, and the chain behind it is that line's history.</p>
+  <p><dfn data-term="head">HEAD</dfn> is a second label meaning "where you are right now". It points at a branch label, which is how git knows which one to slide forward when you commit. Switching branches moves HEAD and rewrites the files in your working folder to match that snapshot. The folder changes. Nothing is copied.</p>
+
+  <div class="box analogy"><div class="h">ANALOGY (TEMPORARY)</div><p>Bookmarks in one book, not two books. One history, one stack of pages, and you can have fifty bookmarks in it. Moving to another bookmark does not duplicate the book, it turns you to that page. You write a new page after the page your bookmark is on, then move the bookmark forward. Removing a bookmark does not tear out pages.</p></div>
+
+  <figure class="fig-box">
+    <svg class="figure" viewBox="0 0 640 320" role="img" aria-label="A git graph. A line of commit dots runs left to right along the bottom, labelled main. From the second dot a second line branches upward and to the right with two dots, labelled feature. Both lines come back together at a single merge commit on the right, which has two arrows pointing back to two parents. A note says that if both lines changed the same lines a human picks, which is a conflict. A HEAD label points at the main label.">
+      <text class="st lo" x="14" y="26">one history, two labels</text>
+      <circle class="dot lo" cx="60" cy="230" r="9"/>
+      <circle class="dot lo" cx="150" cy="230" r="9"/>
+      <circle class="dot lo" cx="290" cy="230" r="9"/>
+      <path class="ln" d="M141 230 H69"/>
+      <path class="ln" d="M281 230 H159"/>
+      <circle class="dot cy" cx="230" cy="110" r="9"/>
+      <circle class="dot cy" cx="340" cy="110" r="9"/>
+      <path class="ln cy" d="M224 117 L157 223"/>
+      <path class="ln cy" d="M331 110 H239"/>
+      <circle class="dot" cx="470" cy="172" r="11"/>
+      <path class="ln cy" d="M462 165 L349 115"/>
+      <path class="ln" d="M462 180 L299 227"/>
+      <text class="st lo" x="60" y="258" text-anchor="middle">start</text>
+      <text class="st lo" x="150" y="258" text-anchor="middle">split here</text>
+      <text class="st lo" x="290" y="258" text-anchor="middle">work on main</text>
+      <text class="st lo" x="230" y="94" text-anchor="middle">work on the branch</text>
+      <text class="st lo" x="340" y="94" text-anchor="middle">more work</text>
+      <rect class="bx cy" x="388" y="82" width="92" height="26" rx="8"/>
+      <text class="st" x="434" y="100" text-anchor="middle">feature</text>
+      <path class="ln cy" d="M388 95 L349 106"/>
+      <rect class="bx acc" x="530" y="212" width="80" height="26" rx="8"/>
+      <text class="st" x="570" y="230" text-anchor="middle">main</text>
+      <path class="ln acc" d="M530 222 L481 180"/>
+      <rect class="bx" x="530" y="252" width="80" height="26" rx="8"/>
+      <text class="st" x="570" y="270" text-anchor="middle">HEAD</text>
+      <path class="ln" d="M570 252 V238"/>
+      <text class="st b" x="470" y="146" text-anchor="middle">merge commit</text>
+      <text class="st lo" x="470" y="200" text-anchor="middle">two parents</text>
+      <text class="st lo" x="14" y="300">Both lines changed the same lines of one file? The merge stops and a human picks. That is a conflict.</text>
+    </svg>
+    <figcaption>The git graph. Labels move, commits do not. A merge is a commit with two parents.</figcaption>
+  </figure>
+
+  <h3>Merging, and the thing everyone panics about</h3>
+  <p>Two lines of work exist and you want one. <dfn data-term="merge">Merging</dfn> is git working out what changed on each since they split and making a new commit with <em>two</em> parents. That commit is where the lines become one, and the graph records forever that they were separate.</p>
+  <p>Most of the time git does it without asking: if one line touched the Clarity screen and the other the sync code, nothing needs deciding. Git is not being clever. It compares line by line and notices no line was claimed twice.</p>
+  <p>A <dfn data-term="merge-conflict">conflict</dfn> is a line claimed twice: both lines changed the same lines of one file, differently. Git has no basis for choosing, so it stops, leaves the file with both versions marked out, and waits for a person. Nothing is broken, nothing is lost. A conflict is git refusing to guess. The markers are plain text in the file:</p>
+  <pre><code>&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD
+the north star is: ship the native app by November
+=======
+the north star is: ship the native app, Android too
+&gt;&gt;&gt;&gt;&gt;&gt;&gt; feature</code></pre>
+  <p>Above the <code>=======</code> is the branch you are standing on, below it the branch you are merging in. Delete the markers, leave the text you want, <code>git add</code> the file to say "resolved", and commit. You will do exactly that in a minute.</p>
+
+  <h3>Rebase, in one paragraph</h3>
+  <p><dfn data-term="rebase">Rebase</dfn> is the other way to combine work. Instead of tying two lines together with a merge commit, git lifts your commits off, moves you onto the tip of theirs, and replays yours on top. You get one straight line, and the history reads as if you had started from their latest work all along. The catch: replaying makes new snapshots with new hashes, so your old commit ids are gone and anyone who already had them is out of sync. Hence the rule, rebase your own unpushed work and merge everything else. Memento's standing instruction, at <code>CLAUDE.md:72</code>:</p>
+  <pre><code>- **Before editing:** `git pull --rebase origin main` (get other agents' latest work).</code></pre>
+  <div class="src">CLAUDE.md:72 (native pin 93bfa796)</div>
+  <p>Read as a sentence: fetch whatever the other agent pushed, replay my commits on top, so history stays one clean line and collisions surface now instead of at push time.</p>
+
+  <h3>The words for "somewhere else"</h3>
+  <p>A <dfn data-term="remote">remote</dfn> is another copy of the repository, usually on a server. <dfn data-term="origin">origin</dfn> is the conventional name for the main one; Memento's is a private GitHub repo, <code>malikpeace/memento</code>. <code>git push</code> sends your commits there, <code>git pull</code> brings its commits down and combines them with yours. That is why <code>--rebase</code> is a pull option: it picks <em>how</em> to combine.</p>
+  <p>A <dfn data-term="pull-request">pull request</dfn> is not a git feature. It is a page on GitHub saying "here is my branch, every commit and every changed line in it, look before this goes into main". Comments attach to lines, a robot runs the tests, someone clicks merge. Its value is social: a second pair of eyes becomes required instead of encouraged.</p>
+
+  <h3>Undoing: two words, very different consequences</h3>
+  <p><dfn data-term="revert">Revert</dfn> makes a new commit that undoes an earlier one. History grows, everything stays, and both the bad change and the undo are in the record. That is what "roll back the deploy" means, and it is safe even on work other people already have.</p>
+  <div class="box expiry"><div class="h">DESTRUCTIVE COMMAND. READ BEFORE YOU TYPE</div><p><dfn data-term="reset">Reset</dfn> moves your branch label backwards. <code>git reset --hard &lt;hash&gt;</code> moves the label <em>and</em> overwrites your working folder to match, deleting every uncommitted change with no undo. On pushed work it also rewrites what others are building on. In <code>git-lab</code>, fine. In Memento, never. Reach for <code>revert</code>.</p></div>
+  <p>The safety net is <dfn data-term="reflog">reflog</dfn>: a private local log of every position HEAD has been in, including ones no label points at. Move a label somewhere stupid and the commits are still there; <code>git reflog</code> finds their hashes. Local, never pushed, entries expire after about 30 to 90 days. A net with a time limit, not a resurrection machine.</p>
+
+  <h2>See it</h2>
+  <p>Branches and a merge, modelled. Watch that <code>branches</code> is only names pointing at ids, that branching adds no commits, and that the merge node is the one with two parents.</p>
+  <div class="sb">
+const commits = [];                       // the one and only history
+const branches = {};                      // name -> commit id. Labels. That is all.
+let HEAD = "main";                         // which label you are standing on
+
+function commit(message, parents) {
+  const id = "c" + (commits.length + 1);
+  commits.push({ id, message, parents: parents || [branches[HEAD]] });
+  branches[HEAD] = id;                     // the label slides forward
+  return id;
+}
+
+branches.main = null;
+commit("start");
+commit("work on main");
+
+branches.feature = branches.main;          // a new branch: zero commits copied
+console.log("after branching, commits:", commits.length, "| labels:", JSON.stringify(branches));
+
+HEAD = "feature"; commit("work on the branch");
+HEAD = "main";    commit("different work on main");
+HEAD = "main";    commit("merge feature into main", [branches.main, branches.feature]);
+
+console.log("labels now:", JSON.stringify(branches));
+commits.forEach(c => console.log(c.id, "parents:", (c.parents || []).join(",") || "none", "|", c.message));
+</div>
+  <p>Deleting the <code>feature</code> line from <code>branches</code> would remove the label while every commit stays in the array. That is why deleting a branch is not dangerous: you throw away a sticky note, not pages.</p>
+
+  <h2>Now in Memento</h2>
+
+  <div class="box expiry"><div class="h">READ-ONLY. SAME RULE AS LAST CHAPTER</div><p>In <code>~/Downloads/MEMENTO</code>: <code>git log</code>, <code>git show</code>, <code>git diff</code>, <code>git status</code>, and <code>git branch</code> with no arguments. Nothing else, ever. That matters more this chapter, because <code>switch</code>, <code>merge</code>, <code>rebase</code>, <code>reset</code> and <code>push</code> all change the tree two agents are standing in. The plan says it plainly: "Never switch the Downloads checkout's branch out from under the other agent; never touch its dirty files." Practice in <code>git-lab</code>.</p></div>
+
+  <div class="lanes">
+    <div class="lane"><div class="h">ANY APP</div>
+      <p>Teams prefix branch names so the label says who owns that line of work. Work happens on a branch, gets reviewed, then joins main, and main is the line allowed to ship. <code>git branch</code> with no arguments lists the labels and marks where you stand. It changes nothing.</p>
+    </div>
+    <div class="lane mem"><div class="h">MEMENTO</div>
+      <p><code>git -C ~/Downloads/MEMENTO branch</code> lists 59 labels. The protocol is visible in plain text:</p>
+      <pre><code>  claude/clarity-luna
+  claude/v21-overnight
+  codex/ai-spend-guardrails
++ codex/billing-monitoring
+  codex/consistency-integration
+  codex/memento-core-flow</code></pre>
+      <p>The prefixes say which agent owns that line. The <code>+</code> means the branch is checked out in a different worktree, the separate working copy the plan gives Codex so the agents are not editing the same files at once.</p>
+      <div class="src">git branch at native pin 93bfa796</div>
+    </div>
+  </div>
+
+  <h3>The Fable and Codex protocol, read as a git story</h3>
+  <p>You have run this for months. Here it is, four lines of your own migration plan:</p>
+  <pre><code>- One owner at a time for: manifests/lockfiles, app config, router, state,
+  auth. Handoffs are recorded in MIGRATION/STATUS.md. Small commits, named
+  files only, no `git add -A`.
+- Cross-agent channel: MIGRATION/*.md only. Malik relays.</code></pre>
+  <div class="src">MIGRATION/01-MIGRATION-PLAN.md:42-45 (native pin 93bfa796)</div>
+  <p>Three git ideas are compressed in there. "One owner at a time" is conflict avoidance by agreement, because git will happily let both agents edit <code>package.json</code> and then hand you a conflict where picking the wrong side breaks the build. "Named files only, no <code>git add -A</code>" is the staging area doing its job, from chapter 7. "Cross-agent channel: MIGRATION/*.md only" means the agents cannot talk, so the repository is the medium: files and commit messages are the whole conversation, and you are the cable.</p>
+  <p>Three lines further down, the plan states the gate: "Self-review alone cannot close this cross-review gate." Which brings us to the thing you type every week without knowing you were writing git. Memento has no pull request flow between the agents, so the approval is written into the commit subject:</p>
+  <pre><code>09d6c008 HANDOFF: Doors fresh-checkout journey verified on device @ b6e148b2,
+         package fully approved (gates open)
+45a73aa1 HANDOFF: Doors integration 72291168 re-reviewed and approved @ fd04712d
+         (F1/F2 both verified)
+af730079 HANDOFF: Codex Memento view integration f2ecc867 reviewed + approved
+         (review 7eb1dcf6)</code></pre>
+  <div class="src">git log --oneline (native pin 93bfa796; subjects wrapped here to fit the page)</div>
+  <p>Now that a hash is a fingerprint of a snapshot, read <code>approved @ b6e148b2</code> properly. It does not mean "the Doors work is approved". It means <strong>this exact snapshot of the entire folder, fingerprint b6e148b2, was reviewed and found good.</strong> One snapshot, not the branch. And it cannot be fudged: change one character of one file and the next commit has a different fingerprint, so the old approval visibly does not cover it. That is why the subjects also say what is owed, like "(Codex re-review owed)". Every commit after an approval is unpinned until somebody reviews again and writes a new hash down. Check one, read-only:</p>
+  <pre><code>git -C ~/Downloads/MEMENTO log -1 --format='%h %ad %s' --date=short b6e148b2</code></pre>
+  <pre><code>b6e148b2 2026-09-14 Fresh checkout journey review of Codex 10256196: verified, integration approved</code></pre>
+  <p>A review commit, naming the commit it reviewed. You have been running a hand-built pull request system in commit subjects, and it works because a hash is a promise about content.</p>
+
+  <div class="box memento"><div class="h">THE ALTERNATIVE, AND WHY MEMENTO CHOSE THIS</div><p>The normal alternative is GitHub pull requests: branch, open a PR, get line comments and an approval attached to a commit automatically, merge through a button that can be blocked until the tests pass. It is better at all of that, and Memento will need it the moment a second human touches the code. It was skipped because the reviewers are two AI agents that cannot click a button and communicate only through files in the repo. Writing "approved @ hash" into the log is the cheapest thing carrying the same guarantee. The cost: nothing enforces it, so the gate is you.</p></div>
+
+  <h2>Do it</h2>
+  <div class="ex" data-device="mac">
+    <div class="h">Exercise <span class="tag mac">MAC</span></div>
+    <div class="meta">Where: ~/Downloads/CODE-BOOK/git-lab. Expected: you cause a conflict on purpose, resolve it by hand, and get a merge commit with two parents. Reset: <code>git merge --abort</code> while mid-conflict, or delete the folder and start over, or re-run make-git-lab.sh if it exists. This cannot touch Memento.</div>
+    <ol>
+      <li><code>cd ~/Downloads/CODE-BOOK/git-lab</code>. Not there? Build one by hand:
+        <pre><code>mkdir -p ~/Downloads/CODE-BOOK/git-lab &amp;&amp; cd ~/Downloads/CODE-BOOK/git-lab &amp;&amp; git init
+echo "the north star is: ship the native app" &gt; north-star.txt
+echo "start()" &gt; app.js
+git add north-star.txt app.js
+git commit -m "first snapshot"</code></pre>
+        If it already existed, check the file with <code>cat north-star.txt</code>.</li>
+      <li><code>git branch</code>. One label, with a star on it. That is where you are standing.</li>
+      <li><code>git switch -c feature</code> makes a branch and moves onto it. <code>git log --oneline</code>: same commits as before. You created a label, not a copy.</li>
+      <li>Work on the branch and snapshot it:
+        <pre><code>echo "the north star is: ship the native app, Android too" &gt; north-star.txt
+git add north-star.txt
+git commit -m "north star mentions Android"</code></pre></li>
+      <li><code>git switch main</code>, then <code>cat north-star.txt</code>. The Android line is gone. Not lost: you moved to another bookmark and git rewrote the folder to match that snapshot. This is the moment branches click.</li>
+      <li>Make a conflicting edit on main, on the same line:
+        <pre><code>echo "the north star is: ship the native app by November" &gt; north-star.txt
+git add north-star.txt
+git commit -m "north star gets a deadline"</code></pre></li>
+      <li><code>git merge feature</code>. Expected: it refuses and says CONFLICT in <code>north-star.txt</code>. <code>git status</code> calls the file unmerged.</li>
+      <li><code>cat north-star.txt</code>. There are the markers. The file is currently not valid anything, which is normal and temporary.</li>
+      <li>Resolve by hand. <code>open -e north-star.txt</code> opens TextEdit. Delete all three marker lines, leave one sentence, for example <code>the north star is: ship the native app by November, Android too</code>. Save, then <code>cat north-star.txt</code> and confirm no markers survive. A stray marker left in a file is one of the most common real bugs there is, so look twice.</li>
+      <li><code>git add north-star.txt</code>. Adding a conflicted file is how you tell git "I decided". Then <code>git commit -m "merge feature"</code>.</li>
+      <li><code>git log --oneline --graph --all</code>: two lines, joining. Then <code>git show --stat HEAD</code>. The header has a <code>Merge:</code> line naming two parents. Only merge commits do.</li>
+      <li><code>git reflog</code>. Every position HEAD occupied in this exercise. That is the net, and it is a list of hashes you can now read.</li>
+    </ol>
+  </div>
+
+  <div class="box why"><div class="h">ASK THE AGENT WHY (paste this into Codex or Fable)</div><pre><code>Read MIGRATION/01-MIGRATION-PLAN.md section 1 and the last 40 commit subjects in this repo.
+Explain, as a git story, what "APPROVED @ &lt;sha&gt;" means: what exactly is being approved, why it
+is a specific snapshot rather than a branch, and what makes an approval stale. Then tell me which
+commits in the last 40 are currently unpinned, meaning they came after the most recent approval
+for their package and nobody has approved a later snapshot. Do not change anything.</code></pre></div>
+
+  <div class="box words"><div class="h">WORDS YOU NOW OWN</div><dl>
+    <dt>Branch</dt><dd>A movable label pointing at one commit, stored as a one-line text file. Making one copies nothing; deleting one throws away the label, not the commits.</dd>
+    <dt>HEAD</dt><dd>The label meaning "where you are standing". Switching branches moves it and rewrites your working folder to match.</dd>
+    <dt>Merge</dt><dd>Joining two lines of history with a commit that has two parents. Usually automatic.</dd>
+    <dt>Conflict</dt><dd>Both lines changed the same lines of one file, so git stops and writes both versions in with markers. A request for a decision, not a breakage.</dd>
+    <dt>Rebase</dt><dd>Replaying your commits on top of someone else's latest work: one straight line, new hashes. Fine for your own unpushed work.</dd>
+    <dt>Remote and origin</dt><dd>A remote is another copy of the repo. <code>origin</code> is the conventional name for the main one. <code>push</code> sends, <code>pull</code> fetches and combines.</dd>
+    <dt>Pull request</dt><dd>A GitHub page for reviewing a branch before it joins main: line comments, test results, an approval attached to one commit.</dd>
+    <dt>Revert</dt><dd>A new commit that undoes an old one. History grows, nothing is lost, safe on shared work. What "roll back the deploy" means.</dd>
+    <dt>Reset</dt><dd>Moving your branch label backwards. <code>--hard</code> also overwrites your working folder and destroys uncommitted work. Banned in Memento.</dd>
+    <dt>Reflog</dt><dd>A local log of every position HEAD has been in, including ones no label points at. Your way back after a bad move, for a few weeks.</dd>
+  </dl></div>
+
+  <div class="box expiry"><div class="h">WHERE TODAY'S ANALOGY BREAKS</div><p><strong>Breaks when:</strong> you assume the pages are safe forever because you only threw away a bookmark. Git keeps a commit alive as long as something can reach it: a branch label, a tag, or a reflog entry. Delete the last label pointing at a line of work and those commits become unreachable, sit in the reflog for roughly 30 to 90 days, then get swept away by garbage collection. Also, a book has one order of pages and a git history is a graph: a merge commit has two parents, so "the page before this one" can have two answers. <strong>Real model:</strong> a directed graph of immutable snapshots, a few mutable one-line pointers into it, and a reachability rule deciding what is kept. Every git command either adds a node or moves a pointer.</p></div>
+
+  <details class="hole"><summary>RABBIT HOLE: why merge conflicts are a people problem</summary><p>Git's conflict detection is dumb on purpose: it compares text line by line and has no idea what the code means. So it catches same-line edits and misses the dangerous kind, where one agent renames a function and the other adds a call to the old name in a different file, both merge cleanly, and the app breaks at runtime. That is a semantic conflict. No version control system catches it; only tests and review do. It is the deeper reason the plan insists on one owner at a time for state, auth and the router.</p></details>
+</main>
+<script src="../js/book.js"></script>
+</body>
+</html>

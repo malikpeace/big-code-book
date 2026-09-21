@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>7. Git 1: snapshots and history. BIG CODE BOOK</title>
+<link rel="stylesheet" href="../css/book.css">
+<meta name="theme-color" content="#0b0b0d">
+</head>
+<body data-chapter="7">
+<main>
+  <div class="kicker">Chapter 7 <span class="tag need">NEED</span> <span class="tag">~55 min</span> <span class="tag mac">MAC</span></div>
+  <h1>Git 1: snapshots and history</h1>
+  <p class="lede">Every version of Memento that has ever existed is still on your Mac, 2,659 of them, each one a complete photograph of the whole folder. This chapter is how that works and how you look at it without breaking anything.</p>
+
+  <div class="box recap"><div class="h">LAST TIME</div><p>The terminal is a conversation: every line is a program's name plus arguments, and the shell finds that program by walking PATH. Output comes back on two channels and every command ends with an exit code, where 0 means it worked. You are no longer scared of a black window.</p></div>
+
+  <h2>Quick check</h2>
+  <details class="check"><summary>You type <code>grep -n state file.js</code>. Which part is the program and which parts are arguments?</summary><div class="a"><code>grep</code> is the program. <code>-n</code>, <code>state</code> and <code>file.js</code> are arguments. The shell finds <code>grep</code> by looking through the folders listed in PATH, then hands it the rest.</div></details>
+  <details class="check"><summary>What is a path, and what does the <code>~</code> in <code>~/Downloads/MEMENTO</code> mean?</summary><div class="a">A path is a file's address: the folders you walk through, joined with slashes. <code>~</code> is shorthand for your home folder, so that path means <code>/Users/malikpeace/Downloads/MEMENTO</code>.</div></details>
+  <details class="check"><summary>Chapter 4 gave you five habits. The fifth one was "own the commit". What do you think that actually means?</summary><div class="a">Whatever the agent wrote, it goes into history under a message you approved, and you are the one who can say what changed and why. By the end of this chapter you will know exactly what a commit is, so that habit stops being a slogan.</div></details>
+
+  <h2>The idea</h2>
+  <p>Almost everyone believes a <dfn data-term="commit">commit</dfn> is a record of what changed. It is not. A commit is a complete snapshot of the entire folder at one moment: every file, in the state it was in, with the folder structure it had. Git stores the whole tree, not the edit.</p>
+  <p>That sounds insane until the second half of the trick. If a file did not change since the last snapshot, git does not store it again. It stores each file's content once, under a fingerprint of that content, and every snapshot containing that exact file points at the same stored copy. Complete <em>and</em> cheap. Memento has 2,659 snapshots of a folder whose web app alone is 7.8 megabytes. Real copies would be over twenty gigabytes. The whole history is 462 megabytes.</p>
+  <p>The snapshots are not a pile. They are a chain. Each commit records which commit came before it, its <dfn data-term="parent-commit">parent</dfn>. Follow the parents backwards and you walk the entire life of the project, one snapshot at a time, to the first one. That chain is the history. Nothing in it is ever edited. Things only get added to the end.</p>
+
+  <div class="box analogy"><div class="h">ANALOGY (TEMPORARY)</div><p>Save-game slots, with one extra rule. Every save is a full save of the entire world, not a list of what you did since last time, so loading any slot gives you the world exactly as it was. The extra rule: each save writes down which save you were playing when you made it, so the slots form a line you can walk backwards. And undoing does not delete a save. It makes a new save with the thing undone. Nothing ever comes off the shelf.</p></div>
+
+  <p>Now the part that confuses everybody. When you work with git there are three different places your work can be, and they are genuinely separate:</p>
+  <ul>
+    <li>The <dfn data-term="working-tree">working folder</dfn>. The actual files on your disk, the ones your editor opens and your app runs. You change these all day.</li>
+    <li>The <dfn data-term="staging-area">staging area</dfn>, also called the index. A waiting room. It holds the exact version of each file that will go into the next snapshot. Putting a file in the waiting room is <code>git add</code>.</li>
+    <li>The history, which lives in a hidden folder called <code>.git</code> at the top of the project. Every snapshot ever taken is in there. <code>git commit</code> takes everything in the waiting room and writes it in as a new snapshot. A project folder plus its <code>.git</code> folder is a <dfn data-term="repository">repository</dfn>, or repo.</li>
+  </ul>
+  <p>The difference between any two of those places, printed as removed and added lines, is a <dfn data-term="diff">diff</dfn>. And <dfn data-term="head">HEAD</dfn> is git's word for the snapshot you are currently standing on, which for now is simply the newest one.</p>
+  <p>Editing a file changes the first place only. Nothing reaches history until you add, then commit. That two-step is not bureaucracy. It lets you say "these four files are one coherent change, and those two I am still messing with are not part of it". Hold that thought: it is the entire reason for a rule you have enforced in Memento for a year.</p>
+
+  <figure class="fig-box">
+    <svg class="figure" viewBox="0 0 640 320" role="img" aria-label="Top row: three boxes left to right, the working folder, the staging area, and the history in the dot git folder. An arrow labelled git add goes from working folder to staging area, and an arrow labelled git commit goes from staging area to history. Below, a chain of three commit dots, each with a short hash underneath, and arrows from each commit pointing back at the one before it. The newest is labelled HEAD.">
+      <rect class="bx" x="14" y="34" width="176" height="76" rx="8"/>
+      <text class="st b" x="102" y="62" text-anchor="middle">working folder</text>
+      <text class="st lo" x="102" y="82" text-anchor="middle">the files you edit</text>
+      <text class="st lo" x="102" y="98" text-anchor="middle">right now</text>
+
+      <rect class="bx cy" x="232" y="34" width="176" height="76" rx="8"/>
+      <text class="st b" x="320" y="62" text-anchor="middle">staging area</text>
+      <text class="st lo" x="320" y="82" text-anchor="middle">the waiting room for</text>
+      <text class="st lo" x="320" y="98" text-anchor="middle">the next snapshot</text>
+
+      <rect class="bx acc" x="450" y="34" width="176" height="76" rx="8"/>
+      <text class="st b" x="538" y="62" text-anchor="middle">history (.git)</text>
+      <text class="st lo" x="538" y="82" text-anchor="middle">every snapshot ever,</text>
+      <text class="st lo" x="538" y="98" text-anchor="middle">never edited</text>
+
+      <path class="ln cy" d="M190 72 H232"/>
+      <text class="st lo" x="211" y="64" text-anchor="middle">git add</text>
+      <path class="ln acc" d="M408 72 H450"/>
+      <text class="st lo" x="429" y="64" text-anchor="middle">git commit</text>
+      <text class="st lo" x="320" y="134" text-anchor="middle">git status tells you which of the three a file is sitting in</text>
+
+      <line class="ln" x1="14" y1="160" x2="626" y2="160" stroke-dasharray="4 4"/>
+      <text class="st lo" x="14" y="186">INSIDE THE HISTORY: a chain, newest on the right</text>
+
+      <circle class="dot lo" cx="110" cy="230" r="9"/>
+      <circle class="dot lo" cx="320" cy="230" r="9"/>
+      <circle class="dot" cx="530" cy="230" r="9"/>
+      <path class="ln" d="M311 230 H119"/>
+      <path class="ln" d="M521 230 H329"/>
+      <text class="st lo" x="215" y="222" text-anchor="middle">points back at</text>
+      <text class="st lo" x="425" y="222" text-anchor="middle">points back at</text>
+      <text class="st mono" x="110" y="258" text-anchor="middle">09d6c00</text>
+      <text class="st mono" x="320" y="258" text-anchor="middle">79994c3</text>
+      <text class="st mono" x="530" y="258" text-anchor="middle">93bfa79</text>
+      <text class="st lo" x="110" y="278" text-anchor="middle">older snapshot</text>
+      <text class="st lo" x="320" y="278" text-anchor="middle">older snapshot</text>
+      <text class="st b" x="530" y="278" text-anchor="middle">newest</text>
+      <text class="st lo" x="320" y="306" text-anchor="middle">Each snapshot holds the whole folder. The arrow is the parent link, not the change.</text>
+    </svg>
+    <figcaption>Three places, then the chain. Every git command you will ever run is moving something between these boxes or reading the chain.</figcaption>
+  </figure>
+
+  <h3>The hash, and why it looks like that</h3>
+  <p>Every commit has an id that looks like <code>93bfa79698c797f48bd3a45add06fb17ff31ca7a</code>. That is a <dfn data-term="hash">hash</dfn>: a fingerprint calculated from the snapshot's contents, including the parent's id and the message and the author and the time. Feed identical contents in, get the identical fingerprint out. Change one character anywhere and you get a completely different fingerprint.</p>
+  <p>Two consequences. The id is not a counter, so there is no "commit number 400"; ids identify, they do not sort. And because the fingerprint includes the parent's fingerprint, you cannot quietly rewrite an old snapshot: change anything back there and every id after it changes too. History is tamper-evident by construction.</p>
+  <p>In practice nobody types forty characters. The first seven or eight are enough to be unique in a project this size, which is why you see <code>ca8afc8</code> and <code>93bfa796</code> in Memento's own notes.</p>
+
+  <h2>See it</h2>
+  <p>Git in miniature. Commits are objects with a parent pointer. Watch two things: the history only ever grows, and undoing a change makes a new snapshot rather than removing an old one.</p>
+  <div class="sb">
+// A pretend git. Each commit holds the WHOLE folder, plus its parent.
+const history = [];
+
+function commit(message, folder) {
+  const parent = history.length ? history[history.length - 1].id : null;
+  const snap = { id: "c" + (history.length + 1), message, parent, folder: { ...folder } };
+  history.push(snap);
+  return snap;
+}
+
+let folder = { "app.js": "start()", "README": "Memento" };
+commit("first snapshot", folder);
+
+folder["app.js"] = "start(); trackStreak()";   // edit the working folder
+commit("add streak tracking", folder);
+
+folder["app.js"] = "start()";                  // the undo
+commit("revert the streak tracking", folder);
+
+console.log("snapshots kept:", history.length);
+history.forEach(c => console.log(c.id, "parent:", c.parent, "|", c.message, "|", c.folder["app.js"]));
+</div>
+  <p>Three snapshots, not one. The middle one still holds the streak code, which is why a revert is safe: you can go and read the thing you undid. Now the second half of the claim, that a full snapshot is not a full copy.</p>
+  <div class="sb">
+// Content-addressed storage: store each unique file ONCE, under a fingerprint.
+const store = {};                       // fingerprint -> content
+function put(content) {
+  const fp = "f" + [...content].reduce((a, ch) => (a * 31 + ch.charCodeAt(0)) % 99991, 7);
+  store[fp] = content;                  // writing the same content twice is free
+  return fp;
+}
+
+const snapshots = [];
+function snap(folder) {
+  const tree = {};
+  for (const name in folder) tree[name] = put(folder[name]);
+  snapshots.push(tree);                 // the snapshot is a list of fingerprints
+}
+
+snap({ "app.js": "start()", "README": "Memento" });
+snap({ "app.js": "start(); trackStreak()", "README": "Memento" });
+snap({ "app.js": "start()", "README": "Memento" });
+
+console.log("snapshots:", snapshots.length);
+console.log("unique file contents actually stored:", Object.keys(store).length);
+console.log("README fingerprint is the same every time:", snapshots.map(s => s["README"]).join(" "));
+</div>
+  <p>Three complete snapshots, three stored file contents, not six. The README was written once and pointed at three times, and the third snapshot's <code>app.js</code> reuses the first one's fingerprint because the content came back to identical. That is git, minus a million lines of hard engineering.</p>
+
+  <h2>Now in Memento</h2>
+
+  <div class="box expiry"><div class="h">READ-ONLY. THIS IS NOT A DRILL</div><p>Memento is a live shared tree. Two AI agents work in it. In <code>~/Downloads/MEMENTO</code> the only git commands you or this book may ever run are the ones that look and do not touch: <code>git log</code>, <code>git show</code>, <code>git diff</code>, <code>git status</code>, and <code>git branch</code> with no arguments. Never <code>add</code>, <code>commit</code>, <code>checkout</code>, <code>switch</code>, <code>stash</code>, <code>restore</code>, <code>reset</code>, <code>pull</code> or <code>push</code> there while you are learning. Practice happens in <code>git-lab</code>, which is disposable. Looking is free. Touching is not.</p></div>
+
+  <div class="lanes">
+    <div class="lane"><div class="h">ANY APP</div>
+      <p>The one-line summary of history is <code>git log --oneline</code>. Each line is a short hash and the commit's subject. It reads newest first. This is the single most useful git command in the world, and it is completely safe.</p>
+      <p>To look inside one snapshot, <code>git show &lt;hash&gt;</code>. Add <code>--stat</code> and you get the header plus a count of which files moved and by how many lines, without a wall of code.</p>
+      <p>The <code>-C &lt;folder&gt;</code> flag means "run this as if you were in that folder", so you never have to <code>cd</code> into one you must not disturb.</p>
+    </div>
+    <div class="lane mem"><div class="h">MEMENTO</div>
+      <p>Run this. It changes nothing.</p>
+      <pre><code>git -C ~/Downloads/MEMENTO log --oneline -8</code></pre>
+      <p>Real output, at the native pin:</p>
+      <pre><code>93bfa796 HANDOFF: Profile Stage A F1-F6 fixed @ c535204f (Codex re-review owed)
+79994c3f HANDOFF: Profile Stage A screens built @ d47bb07d (Codex review owed before host wiring)
+42e6721f HANDOFF: Profile/You F1-F6 applied @ 2a85581b (Astra re-review next)
+526df4ed HANDOFF: Profile/You spec + handoff delivered @ 745e789d on fable/phase3-profile (no screens; Codex Astra review next)
+09d6c008 HANDOFF: Doors fresh-checkout journey verified on device @ b6e148b2, package fully approved (gates open)
+45a73aa1 HANDOFF: Doors integration 72291168 re-reviewed and approved @ fd04712d (F1/F2 both verified)
+76527c20 HANDOFF: Doors host integration 4750dded reviewed, changes requested (F1 record-exit race, F2 empty Action root)
+932b5176 HANDOFF: Doors ceremony Codex F1 (Reduced Motion mid-ceremony) fixed @ 1fcd3c3d</code></pre>
+      <p>Then open the newest one, header and file counts only:</p>
+      <pre><code>git -C ~/Downloads/MEMENTO show --stat 93bfa796</code></pre>
+      <pre><code>commit 93bfa79698c797f48bd3a45add06fb17ff31ca7a
+Author: Malik Peace &lt;mjpeaceis@gmail.com&gt;
+Date:   Tue Sep 15 01:24:50 2026 -0400
+
+    HANDOFF: Profile Stage A F1-F6 fixed @ c535204f (Codex re-review owed)
+
+ HANDOFF.md | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)</code></pre>
+      <div class="src">git history at native pin 93bfa796 (web pin ca8afc8 is the frozen web app)</div>
+      <p>One file, nine lines added, three removed. That snapshot still contains all 38 JavaScript files and everything else. It just shares them with its parent.</p>
+    </div>
+  </div>
+
+  <h3>Why Memento bans <code>git add -A</code></h3>
+  <p>This is the rule you wrote, and now you can read it properly. Run <code>grep -n 'git add' ~/Downloads/MEMENTO/CLAUDE.md</code> and you get line 73:</p>
+  <pre><code>- **After a meaningful change:** commit ONLY your own files: `git add &lt;your specific files&gt; &amp;&amp;
+  git commit -m "&lt;what changed&gt;" &amp;&amp; git push origin main`. **NEVER `git add -A`**
+  (other agents share this tree; a blanket add scoops up their half-done work
+  and causes duplicate features).</code></pre>
+  <div class="src">CLAUDE.md:73 (line broken here to fit the page; it is one line in the file)</div>
+  <p><code>git add -A</code> means "put every changed file in the whole project into the waiting room". On a solo project, convenient. In Memento it is a loaded gun, because the working folder is shared. While Fable is halfway through a screen, its unfinished files sit in that folder. If Codex runs <code>git add -A</code> then, they go into the waiting room, get committed under Codex's message, and are pushed. A broken half-feature is now in history under a message that does not describe it, and the next agent to pull gets it. The duplicate features the rule complains about are exactly that: half a thing committed twice, from two directions.</p>
+  <p>The staging area is the defence. Naming your files is how you say "this change is mine, and it is these four files". The rule is not tidiness. It is the only mechanism git gives you to stop two authors in one folder eating each other's work.</p>
+
+  <div class="box memento"><div class="h">THE ALTERNATIVE, AND WHY MEMENTO CHOSE THIS</div><p>The obvious alternative is one working copy per agent, so nobody shares a folder and <code>git add -A</code> is harmless. Memento does that for the native rebuild: the migration plan puts Codex in a separate worktree at <code>../MEMENTO-codex</code> while Fable stays in the Downloads checkout. It costs disk space, a second checkout to keep current, and remembering which copy you are looking at. For the web app the agents kept one tree and paid with a rule instead. Both are real choices. What does not work is one tree and no rule, which is what most people do.</p></div>
+
+  <h2>Do it</h2>
+  <div class="ex" data-device="mac">
+    <div class="h">Exercise <span class="tag mac">MAC</span></div>
+    <div class="meta">Where: ~/Downloads/CODE-BOOK/git-lab. Expected: you make two snapshots by hand and read them back. Reset: delete the folder and re-run the setup line, or re-run make-git-lab.sh if it exists. This cannot touch Memento.</div>
+    <ol>
+      <li>Open Terminal and try <code>cd ~/Downloads/CODE-BOOK/git-lab</code>. If it says no such file or directory, the lab is not built yet. Make one by hand:
+        <pre><code>mkdir -p ~/Downloads/CODE-BOOK/git-lab &amp;&amp; cd ~/Downloads/CODE-BOOK/git-lab &amp;&amp; git init
+echo "ship the native app" &gt; north-star.txt
+echo "start()" &gt; app.js
+git add north-star.txt app.js
+git commit -m "first snapshot"</code></pre>
+        Note you named both files instead of using <code>-A</code>. Build the habit here.</li>
+      <li><code>ls -a</code>. There is a <code>.git</code> folder you did not create. That is the time machine. Do not poke inside it; just know every snapshot lives there.</li>
+      <li><code>git status</code>. Expected: nothing to commit, working folder clean. All three places agree.</li>
+      <li><code>git log --oneline</code>. One line, one snapshot, with a short hash. Copy that hash.</li>
+      <li>Now change the working folder: <code>echo "start(); trackStreak()" &gt; app.js</code>. Run <code>git status</code> again. Expected: <code>app.js</code> is listed as modified and <strong>not staged</strong>. The change exists in place one only.</li>
+      <li><code>git diff</code>. The difference between working folder and waiting room. Lines starting <code>-</code> were removed, <code>+</code> were added. Read it.</li>
+      <li><code>git add app.js</code>, then <code>git status</code>. Same change, different place: staged. Now <code>git diff</code> prints nothing, because working folder and waiting room agree, while <code>git diff --staged</code> shows the change, because it compares the waiting room to the last snapshot. Two commands, two questions, confused forever.</li>
+      <li><code>git commit -m "track the streak"</code>, then <code>git log --oneline</code>. Two lines. Then <code>git show --stat HEAD</code>: header, message, file count, exactly like Memento's.</li>
+      <li><strong>Break it.</strong> <code>echo "oops, garbage" &gt; north-star.txt</code>. Run <code>git status</code>, see modified, run <code>git diff</code>, read what you wrecked. Inspect first, always. Then, and only then, undo it:
+        <div class="box expiry"><div class="h">DESTRUCTIVE COMMAND. READ BEFORE YOU TYPE</div><p><code>git restore north-star.txt</code> throws away every uncommitted change to that file and puts back the version from the last snapshot. There is no undo, because what you lose was never in history. Git can only return what you committed. Run <code>git diff</code> and look first, every time, forever.</p></div>
+        Run it, then <code>git status</code>. Clean. The north star is back and the garbage is gone for good.</li>
+    </ol>
+  </div>
+
+  <div class="box why"><div class="h">ASK THE AGENT WHY (paste this into Codex or Fable)</div><pre><code>Using git log and git show only, and without changing anything in this repo, find the three
+commits that touched memento-app/js/01-state-foundation.js most recently. For each one tell me
+the short hash, the subject line, which files it touched, and in one sentence what the change was
+for. Then explain why CLAUDE.md line 73 forbids git add -A in this specific repository, in terms
+of the staging area. Do not change anything.</code></pre></div>
+
+  <div class="box words"><div class="h">WORDS YOU NOW OWN</div><dl>
+    <dt>Commit</dt><dd>A snapshot of the whole folder, with a message, an author, a time, and a pointer to the snapshot before it. Not a record of changes.</dd>
+    <dt>Repository (repo)</dt><dd>A project folder plus its hidden <code>.git</code> folder containing every snapshot ever taken of it.</dd>
+    <dt>Working folder</dt><dd>The real files on disk that you and the agents edit. Nothing here is in a snapshot until you add and commit.</dd>
+    <dt>Staging area (the index)</dt><dd>The waiting room. It holds the exact file versions that will go into the next snapshot. <code>git add &lt;file&gt;</code> puts one in.</dd>
+    <dt>Hash</dt><dd>A commit's id: a fingerprint of the snapshot's contents and its parent's id. Same contents, same fingerprint. Change anything and every id after it changes too.</dd>
+    <dt>Diff</dt><dd>The difference between two versions of a file, as removed and added lines. <code>git diff</code>: working folder against waiting room. <code>git diff --staged</code>: waiting room against the last snapshot.</dd>
+    <dt>HEAD</dt><dd>Git's word for the snapshot you are currently standing on. Chapter 8 makes it move.</dd>
+  </dl></div>
+
+  <div class="box expiry"><div class="h">WHERE TODAY'S ANALOGY BREAKS</div><p><strong>Breaks when:</strong> you picture 2,659 complete copies of the folder, or assume every save survives forever. Git stores each unique file content once and every snapshot points at the shared copies, which is why the history is 462 megabytes instead of twenty gigabytes. And a snapshot nothing points at any more, because a label moved or a branch was deleted, becomes unreachable and is eventually swept away by git's garbage collector. <strong>Real model:</strong> a content-addressed database of objects, where a commit names a tree, a tree names file contents by fingerprint, and reachability from a label keeps an object alive. Chapter 8 brings the labels.</p></div>
+
+  <details class="hole"><summary>RABBIT HOLE: what is actually inside .git</summary><p>Four kinds of object, all stored by fingerprint. A <em>blob</em> is one file's contents with no name. A <em>tree</em> is a folder listing: names plus the fingerprints they point at, including other trees. A <em>commit</em> names one tree, its parents, an author, a time and a message. A <em>tag</em> names a commit with a human label. On top of that sits a small folder of <em>refs</em>, which are plain text files each containing one hash, and those are branches. That is the entire design. Everything else in git, every command and every flag, is manipulation of those four object types and those one-line ref files. Linus Torvalds wrote the first working version in about ten days in 2005, which chapter 3 put on the timeline.</p></details>
+
+</main>
+<script src="../js/book.js"></script>
+</body>
+</html>
