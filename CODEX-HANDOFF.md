@@ -4,17 +4,21 @@ Date: 2026-09-21
 
 ## Status
 
-Codex's assigned artifacts are built, tested, committed, and pushed through commit `d6b53b1`. The book is not ready to call final. Fable still owns the prose and shell changes below.
+Codex's assigned artifacts are built, tested, committed, and pushed through commit `d6b53b1`. Malik's priority is an accurate 80/20 understanding of what Memento does in the background, not textbook-level completeness. Only factual corrections block him from using the book. Fable owns those prose edits.
 
-## Required before final publication
+## Required before Malik relies on the book
 
 1. Resolve every `WRONG` and `MISLEADING` finding in the chapter reviews, then ask Codex to re-check the edits. There are 14 `WRONG` and 10 `MISLEADING` tags across these 17 reviews: `03`, `04`, `05`, `08`, `09`, `13`, `14`, `15`, `17`, `18`, `19`, `20`, `22`, `25`, `26`, `28`, and `30`.
 2. Remove or resolve the 10 remaining `CODEX: verify` markers in chapters `04`, `17`, `19`, `22`, `25`, and `29`. The answers and evidence are in the matching fact-check files. Chapter 29's verified automated result is 43 suites and 965 tests passing. A real iOS simulator boot was not claimed.
-3. Build Malik's requested notes and highlights feature. This is the first blocker in `review/shell-review.md`. It needs per-chapter local persistence plus export and import because cross-device sync is deferred.
-4. Fix the high-severity shell issues in `review/shell-review.md`: checks do not count toward progress, the closed mobile drawer remains in the accessibility tree, the drawer lacks modal keyboard behavior, the passphrase gate does not isolate or fully label itself, and light-theme accent and button contrast is too low.
-5. Update chapter 22 to link or embed `sandbox/v3/`. Its current prose says no v3 sandbox exists, but the prebuilt artifact now exists and requires no reader build step.
-6. Malik's visual direction is simple teaching diagrams in the spirit of Alex Hormozi's books: one clear relationship, minimal labels, and only where the picture adds understanding. Do not force an image into every explanation. The chapter 3 and 4 raster files are optional extras, not required chapter art. Use them only if they genuinely improve the page; otherwise prefer Fable's clear inline diagrams or omit them.
-7. Run the short real-iPhone checklist in `review/shell-review.md` before calling iOS Safari behavior verified.
+
+`MISSING` and `NIT` findings do not block this goal unless they would cause Malik to form a false mental model of Memento.
+
+## Useful extras, not blockers
+
+1. Notes and highlights are optional. A local-only notes tab is simple. Notes that stay synchronized between Mac and phone require shared storage and identity, so defer that rather than expanding the project.
+2. Embedding the seven interactives and `sandbox/v3/` is optional. If used, place them only where they make the explanation easier.
+3. Shell accessibility fixes and a real-iPhone test are valuable polish, but they do not delay the correctness pass.
+4. Malik's visual direction is simple teaching diagrams in the spirit of Alex Hormozi's books: one clear relationship, minimal labels, and only where the picture adds understanding. Do not force an image into every explanation. Every chapter already has an inline diagram. Simplify or remove one only when it does not help. The chapter 3 and 4 raster files are optional extras, not required chapter art.
 
 ## Codex deliverables
 
