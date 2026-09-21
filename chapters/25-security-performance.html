@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>25. Security and performance, the junior version. BIG CODE BOOK</title>
+<link rel="stylesheet" href="../css/book.css">
+<meta name="theme-color" content="#0b0b0d">
+</head>
+<body data-chapter="25">
+<main>
+  <div class="kicker">Chapter 25 <span class="tag need">NEED</span> <span class="tag">~55 min</span> <span class="tag">phone or Mac</span></div>
+  <h1>Security and performance, the junior version</h1>
+  <p class="lede">Two subjects that sound like specialist work and are one habit each. Security: decide where you stop believing what you are told. Performance: measure before you touch anything.</p>
+
+  <div class="box recap"><div class="h">LAST TIME</div><p>A test is an executable expectation, written once and re-run forever. Unit, integration and end to end answer different questions, and coverage measures how much code ran, not whether it was right. Memento's native side has a runner and a test that uses the frozen web code as the oracle; the web side has no runner at all.</p></div>
+
+  <h2>Quick check</h2>
+  <details class="check"><summary>Why is Memento's Supabase anon key sitting in a public file, while the Anthropic key is not?</summary><div class="a">The anon key is an address, not a permission. What protects the data is Row Level Security in the database, which decides per row who may read it. The Anthropic key is a permission: anyone holding it can spend Memento's money. So it lives in the edge function's environment and never reaches a browser.</div></details>
+  <details class="check"><summary>A request comes back with status 429. What does the app now know?</summary><div class="a">Too many requests. The server understood fine and refused on purpose, so retrying immediately is the wrong move. Memento's native transport maps that status to the code <code>rate-limit</code> so the UI can say something human instead of "error".</div></details>
+  <details class="check"><summary>What does a migration do that editing the database by hand does not?</summary><div class="a">It is a dated, forward-only file in git. The change is reviewable, repeatable on another machine, and there is a record of when the promise changed. Memento has 33 of them.</div></details>
+
+  <h2>The idea, part one: security is a boundary question</h2>
+  <p>Every app has a line running through it. On one side is code you control. On the other is everything a stranger can touch: the phone, the browser, the network, the request body, the headers, the URL. That line is a <dfn data-term="trust-boundary">trust boundary</dfn>, and almost every security bug is one sentence: someone believed something that arrived from the far side of it.</p>
+  <p>The far side includes your own app. Memento's JavaScript in Safari feels like yours because you wrote it. It is running on a computer a stranger owns, and they can open the developer tools, edit any value, and send whatever they like to your server. Anything the phone sends can be forged. The button that says "I am a paid user" is a claim, not a fact.</p>
+
+  <div class="box analogy"><div class="h">ANALOGY (TEMPORARY)</div><p>A nightclub. Inside, nobody checks anything, because getting in was the check. The door is the trust boundary. The bouncer does four things and only four: is this person who they say (authentication), are they on the list for this room (authorization), is that bag a reasonable size (validation), and how many people are already inside (rate limit). A bouncer who lets someone in because they said "I was here last week, mate" is not a bouncer. And if the guest list system goes down, a good bouncer stops the queue. He does not wave everyone through.</p></div>
+
+  <figure class="fig-box">
+    <svg class="figure" viewBox="0 0 640 300" role="img" aria-label="A vertical dashed line splits the picture. On the left, labelled untrusted, are the phone, the browser tools, and the request. On the right, labelled your server, a stack of four checks: shape and size, who is asking, what they may do, and how many. Past the checks are the secret key and the database. An arrow crosses the line only through the checks.">
+      <text class="st lo" x="20" y="24">UNTRUSTED: you do not control any of this</text>
+      <rect class="bx" x="20" y="38" width="120" height="48" rx="8"/><text class="st" x="80" y="68" text-anchor="middle">the phone</text>
+      <rect class="bx" x="20" y="100" width="120" height="48" rx="8"/><text class="st" x="80" y="122" text-anchor="middle">dev tools</text><text class="st lo" x="80" y="138" text-anchor="middle">edits any value</text>
+      <rect class="bx" x="20" y="162" width="120" height="48" rx="8"/><text class="st" x="80" y="184" text-anchor="middle">the request</text><text class="st lo" x="80" y="200" text-anchor="middle">body, headers, URL</text>
+      <line class="ln" x1="200" y1="14" x2="200" y2="286" stroke-dasharray="5 5"/>
+      <text class="st lo" x="206" y="24">YOUR SERVER: the only place a rule is real</text>
+      <rect class="bx acc" x="230" y="38" width="200" height="40" rx="8"/><text class="st" x="330" y="63" text-anchor="middle">1. shape and size</text>
+      <rect class="bx acc" x="230" y="90" width="200" height="40" rx="8"/><text class="st" x="330" y="115" text-anchor="middle">2. who is asking</text>
+      <rect class="bx acc" x="230" y="142" width="200" height="40" rx="8"/><text class="st" x="330" y="167" text-anchor="middle">3. what they may do</text>
+      <rect class="bx acc" x="230" y="194" width="200" height="40" rx="8"/><text class="st" x="330" y="219" text-anchor="middle">4. how many, how often</text>
+      <rect class="bx cy" x="470" y="90" width="150" height="44" rx="8"/><text class="st" x="545" y="118" text-anchor="middle">the secret key</text>
+      <rect class="bx cy" x="470" y="160" width="150" height="44" rx="8"/><text class="st" x="545" y="188" text-anchor="middle">the database</text>
+      <path class="ln acc" d="M140 186 H230"/>
+      <path class="ln acc" d="M430 214 H450 V112 H470"/>
+      <path class="ln acc" d="M450 182 H470"/>
+      <text class="st lo" x="330" y="262" text-anchor="middle">Nothing reaches the right-hand boxes except by passing all four checks, in order.</text>
+      <text class="st lo" x="330" y="280" text-anchor="middle">A check that lives on the left-hand side is decoration.</text>
+    </svg>
+    <figcaption>The door. Every check that matters happens on the right of the dashed line, because the left side can be edited by whoever is holding the phone.</figcaption>
+  </figure>
+
+  <p>Four habits sit on that boundary. They cover most of what a junior engineer is expected to know.</p>
+  <p><strong>Validate at the edges.</strong> The first thing the server does with a request is check its shape: size, type, range. Not because users are hostile, but because the check is cheap and the alternative is your code discovering the problem twenty lines deeper, holding half a write. <dfn data-term="validation">Validation</dfn> means refusing early and saying why, in one plain sentence.</p>
+  <p><strong>Least privilege.</strong> Every key, token and database role gets the smallest power that still does the job. That is why the key that reads a table is not the key that drops it, and why Memento's browser holds a key that can only act as the signed-in user. <dfn data-term="least-privilege">Least privilege</dfn>, in one line.</p>
+  <p><strong>Secrets never ship.</strong> A <dfn data-term="secret">secret</dfn> is a value your code needs and must never contain. It arrives from the environment at runtime, on the server, never in git. A secret that reaches a browser is burned. Rotate it, do not hide it.</p>
+  <p><strong>Rate limits that fail closed.</strong> A <dfn data-term="rate-limit">rate limit</dfn> caps how often one caller may do an expensive thing. The interesting part is what happens when the limiter breaks. <dfn data-term="fail-closed">Fail closed</dfn>: if I cannot tell whether you are over the limit, the answer is no. Fail open is how a database blip becomes an unbounded bill.</p>
+
+  <h3>The OWASP short list, in plain words</h3>
+  <p>Security people keep a ranked list of how apps get broken. You need four entries from it.</p>
+  <table>
+    <tr><th>Name</th><th>What it actually is</th><th>The habit that kills it</th></tr>
+    <tr><td><dfn data-term="injection">Injection</dfn></td><td>Data gets treated as code. Text a user typed ends up inside a database command or a shell command and changes what it means.</td><td>Never build a command by gluing strings. Pass values as values (chapter 17's parameters).</td></tr>
+    <tr><td><dfn data-term="xss">XSS</dfn></td><td>Someone else's script runs inside your page, with your user's session. Usually text that was written straight into the page as HTML.</td><td>Escape anything a human typed before it becomes HTML. Memento has an <code>_esc</code> helper for exactly this.</td></tr>
+    <tr><td>Broken auth</td><td>Trusting a flag. The client says "paid" or "admin" and the server believes it.</td><td>The server re-derives the answer from something it owns. A receipt, a session, a row.</td></tr>
+    <tr><td>Open database</td><td>The data is reachable by anyone who knows the address, because no rule says who owns which row.</td><td>Row Level Security on, per table, deny by default. This is the exact hole in the incidents from chapter 4.</td></tr>
+  </table>
+  <p>One sentence to retire permanently: "nobody would do that." Nobody is not a control. A bored teenager with the network tab open is not nobody, and neither is a script crawling the internet for open Supabase projects. That script is how the 170 Lovable apps in chapter 4 got found.</p>
+
+  <h2>The idea, part two: performance is a measurement question</h2>
+  <p>Slow software is a feeling. Optimising is a change. The gap between them is where engineers waste weeks, because the part you think is slow is almost never the part that is slow. The rule is blunt: measure first, change second, measure again.</p>
+  <p>Two words keep you honest. <dfn data-term="latency">Latency</dfn> is how long one thing takes, from the user's finger. <dfn data-term="throughput">Throughput</dfn> is how many fit in a second. They trade against each other: batching raises throughput and can make one person's wait longer.</p>
+  <p>After that, the same four suspects turn up over and over.</p>
+  <ul>
+    <li><strong>The <dfn data-term="n-plus-one">N+1 query</dfn>.</strong> The code asks the database once for the list, then once more for each row. Thirty rows, thirty one round trips. One query for everything is usually far faster and looks almost identical in the code. The most common real performance bug in web apps.</li>
+    <li><strong><dfn data-term="bundle-size">Bundle size</dfn>.</strong> Every kilobyte the phone downloads is time before the first pixel. The one number that predicts how an app feels on a cheap phone.</li>
+    <li><strong><dfn data-term="cache">Caching</dfn>.</strong> Keep the answer so you do not compute or fetch it twice. Caching turns a slow thing into a fast thing and introduces exactly one new problem: knowing when the kept copy is stale.</li>
+    <li><strong><dfn data-term="debounce">Debouncing</dfn>.</strong> When something fires constantly, wait for it to stop before acting. Saving on every keystroke is a hundred writes a minute. Wait 150 milliseconds after the last one and save once.</li>
+  </ul>
+  <p>The cheap opening move, before any profiler: look at the biggest file. Size is not proof of slowness, but the file that grew to ten thousand lines is where the work accumulated.</p>
+
+  <h2>See it</h2>
+  <p>Four small programs: two security habits, two performance habits.</p>
+
+  <div class="sb">
+// A validator: size, type, range. Refuse early, say why, in one sentence.
+function validate(body) {
+  if (!body || typeof body !== "object") return "body must be an object";
+  if (typeof body.northStar !== "string") return "northStar must be text";
+  if (body.northStar.length > 200) return "northStar is too long, 200 max";
+  if (!Number.isInteger(body.streak) || body.streak < 0) return "streak must be 0 or more";
+  return null; // null means fine
+}
+console.log(validate({ northStar: "ship it", streak: 4 }));
+console.log(validate({ northStar: "ship it", streak: -1 }));
+console.log(validate({ northStar: 12, streak: 4 }));
+console.log(validate("paid=true"));
+console.log(validate({ northStar: "x".repeat(500), streak: 1 }));
+</div>
+
+  <div class="sb">
+// A rate limiter. The interesting line is the catch block.
+let counts = {};
+let dbBroken = false;
+function countFor(user) {
+  if (dbBroken) throw new Error("counter database unreachable");
+  counts[user] = (counts[user] || 0) + 1;
+  return counts[user];
+}
+function allowed(user) {
+  try {
+    return countFor(user) <= 3;
+  } catch (err) {
+    return false; // FAIL CLOSED. Unsure means no.
+  }
+}
+for (let i = 1; i <= 4; i++) console.log("call", i, allowed("malik"));
+dbBroken = true;
+console.log("limiter broken, allowed?", allowed("malik"));
+</div>
+
+  <div class="sb">
+// N+1 versus one batched query. The fake database counts its round trips.
+let trips = 0;
+const rows = [1,2,3,4,5,6,7,8,9,10];
+function query() { trips++; return "result"; }
+
+trips = 0;
+const list = query();                 // 1 trip for the list
+for (const id of rows) query();       // then one per row
+console.log("N+1 round trips:", trips);
+
+trips = 0;
+query();                              // 1 trip for the list
+query();                              // 1 trip for all the details
+console.log("batched round trips:", trips);
+</div>
+
+  <div class="sb">
+// Measure first. Two implementations, same answer, one clock.
+const big = Array.from({ length: 200000 }, (_, i) => i);
+
+let t = Date.now();
+let sum1 = 0;
+for (const n of big) sum1 = sum1 + n;
+const slowMs = Date.now() - t;
+
+t = Date.now();
+let sum2 = big.reduce((a, b) => a + b, 0);
+const otherMs = Date.now() - t;
+
+console.log("same answer?", sum1 === sum2);
+console.log("loop ms:", slowMs, "reduce ms:", otherMs);
+console.log("Run it three times. Notice the numbers move. One measurement is an anecdote.");
+</div>
+
+  <h2>Now in Memento</h2>
+  <div class="lanes">
+    <div class="lane"><div class="h">ANY APP</div>
+      <p>The door lives in one file and everything expensive happens behind it, in a fixed order: reject the wrong origin, reject the wrong method, rate limit, then read the body with a cap on it. Rate limiting comes before parsing, because parsing a huge body is itself a cost an attacker can make you pay. When the limiter's own storage fails, the request is refused rather than allowed, so the spend control survives the outage.</p>
+    </div>
+    <div class="lane mem"><div class="h">MEMENTO</div>
+      <p>Memento's AI proxy states its posture in the file header, then does exactly that:</p>
+      <pre><code>// - Rate-limit failures fail closed so a database outage cannot remove the
+//   spend control.
+// - The Anthropic key comes from the function's env, never from the request.</code></pre>
+      <div class="src">supabase/functions/ai-proxy/index.ts:15-17 (web pin ca8afc8)</div>
+      <p>And the branch that makes it true. <code>unavailable</code> means the limiter could not answer, so the request is refused:</p>
+      <pre><code>  if (result.unavailable) {
+    return jsonResponse(req, {
+      error: {
+        type: 'service_unavailable',
+        message: 'The AI service is temporarily unavailable. Try again shortly.',
+      },
+    }, 503);
+  }
+  if (result.allowed) return null;</code></pre>
+      <div class="src">supabase/functions/ai-proxy/index.ts:47-55 (web pin ca8afc8)</div>
+      <p>The door checks, in order, before anything is spent:</p>
+      <pre><code>  const originRejected = rejectDisallowedOrigin(req);
+  if (originRejected) return originRejected;
+  if (req.method !== 'POST') {
+    return jsonResponse(req, { error: 'POST only' }, 405);
+  }</code></pre>
+      <div class="src">supabase/functions/ai-proxy/index.ts:102-106 (web pin ca8afc8)</div>
+      <p>The body cap is a named constant: <code>MAX_AI_REQUEST_BYTES = 512_000</code> and <code>MAX_AI_RESPONSE_BYTES = 2_000_000</code> in <code>_shared/ai-request.ts:3-4</code>, applied at <code>index.ts:136</code> and <code>182</code>. Both directions bounded.</p>
+    </div>
+  </div>
+
+  <div class="lanes">
+    <div class="lane"><div class="h">ANY APP</div>
+      <p>The phone has a door pointed the other way: data loaded off the disk is untrusted too, because an older version of your own app wrote it, or someone edited it. A validator walks the saved tree, refuses anything absurdly large or deep, and strips values that should never have been stored. Saving is debounced, so a burst of changes becomes one write.</p>
+    </div>
+    <div class="lane mem"><div class="h">MEMENTO</div>
+      <p>The native app caps the saved state before trusting it. One counter, one depth limit, one early false:</p>
+      <pre><code>function jsonTree(v: unknown, depth = 0, counter = { n: 0 }): v is Json {
+  if (++counter.n &gt; 250000 || depth &gt; 40) return false;</code></pre>
+      <div class="src">memento-native/src/storage/stateValidation.ts:16-17 (native pin 93bfa796)</div>
+      <p>And it names the one path that must be scrubbed, with a comment that limits its own blast radius:</p>
+      <pre><code>// Only verified payload credential path. Supabase auth is not stored in this
+// payload in the inspected source. Do not recursively delete user text named token.
+export const CREDENTIAL_PATHS = [['spotify', 'tokens']] as const;</code></pre>
+      <div class="src">memento-native/src/storage/stateValidation.ts:9-11 (native pin 93bfa796)</div>
+      <p>The web app's debounce is six lines, and you have already read them in chapter 10:</p>
+      <pre><code>function persistState() {
+  if (DEMO_MODE || IS_RESETTING) return;
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() =&gt; { writeStateToStorage(); }, 150);</code></pre>
+      <div class="src">memento-app/js/01-state-foundation.js:488-491 (web pin ca8afc8)</div>
+    </div>
+  </div>
+
+  <p>On the performance side, Memento tells you where to look first without a profiler. Real sizes, read off disk at the frozen pin.</p>
+  <table>
+    <tr><th>File</th><th>Size</th><th>Why it is the first suspect</th></tr>
+    <tr><td><code>memento-app/css/dashboard.css</code></td><td>411,050 bytes</td><td>The biggest stylesheet by a distance. Every byte is download time and parse time before the home screen can paint.</td></tr>
+    <tr><td><code>memento-app/css/action.css</code></td><td>283,557 bytes</td><td>Second. The three biggest CSS files together are larger than most whole apps.</td></tr>
+    <tr><td><code>memento-app/js/08-cards-grid-share.js</code></td><td>10,478 lines</td><td>The biggest script. Parsed on every page load whether or not the user opens a card.</td></tr>
+    <tr><td><code>memento-app/js/09-controllers.js</code></td><td>7,064 lines</td><td>Shared wiring, so it also loads every time.</td></tr>
+  </table>
+  <p>Memento's caching story is the opposite problem, solved by hand. Every script tag carries <code>?v=v1378</code>, and the app checks the stamp against itself at boot:</p>
+  <pre><code>/* v980: the JS build stamp. The release sed bump rewrites the version in BOTH
+   index.html AND this line; js/11 compares them at boot and force-refreshes
+   ONCE on mismatch. Kills the "phone silently runs old cached js under a new
+   index" class (the SW's offline fallback can serve stale files on a bad
+   connection; Malik hit this three times in one day). */
+window.MEMENTO_JS_BUILD = 'v1378';</code></pre>
+  <div class="src">memento-app/js/01-state-foundation.js:5-10 (web pin ca8afc8)</div>
+  <p>That is caching's one hard problem: the phone kept the answer, the answer changed, nobody told the phone. The version string is the telling.</p>
+  <p>The last control is about money rather than speed, same shape. The AI spend ceiling lives in a dated migration, in the database, not in app code:</p>
+  <pre><code>-- Allow fixed 31-day windows for server-only AI spend ceilings.
+
+create or replace function public.consume_rate_limits(p_rules jsonb)</code></pre>
+  <div class="src">supabase/migrations/20260827130000_ai_spend_guardrails.sql:1-3 (web pin ca8afc8)</div>
+  <p>A ceiling enforced where the counting happens cannot be argued with by a client.</p>
+
+  <div class="box memento"><div class="h">THE ALTERNATIVE, AND WHY MEMENTO CHOSE THIS</div><p>The proxy could fail open: if the rate-limit table is unreachable, let the call through so real users are never blocked by an outage. That is the friendlier choice and plenty of teams make it. It also means one database wobble removes every spend control at once, on an endpoint that costs real money per call, reachable anonymously. Memento chose the unfriendly branch and pays for it with a 503 that a real user might see during an outage. The cost is written in the file header rather than left for someone to discover on a bill.</p></div>
+
+  <h2>Do it</h2>
+  <div class="ex" data-device="mac">
+    <div class="h">Exercise: audit a server, then read the fixes <span class="tag mac">MAC</span></div>
+    <div class="meta">Where: ~/Downloads/CODE-BOOK/sandbox. Expected: you name three holes before looking at the answers, then match each one to a tagged line in the fixed version. Reset: nothing changes, you are only reading. This cannot touch Memento.</div>
+    <ol>
+      <li>Open <code>sandbox/v1/server.js</code> and read <code>readBody</code> at lines 37-44 and the two <code>/api/sync</code> routes. Write down three things a stranger could do to this server. Do it before step 2.</li>
+      <li>The three holes: <strong>no size limit</strong> (<code>raw += chunk</code> accepts a body of any size, all in memory), <strong>no validation</strong> (whatever JSON parses is written straight to <code>db.json</code>), and <strong>no error wall</strong> (a crash inside a handler escapes as a raw stack trace instead of a clean 500). Bonus: one file for everyone, no owner.</li>
+      <li>Now diff the two versions:
+        <pre><code>cd ~/Downloads/CODE-BOOK
+diff sandbox/v1/server.js sandbox/v1-secure/server.js | head -60</code></pre>
+      </li>
+      <li>Match each hole to its fix in <code>sandbox/v1-secure/server.js</code>. Size limit: line 12 (<code>MAX_BODY_BYTES = 50 * 1024</code>) plus the early refusal at 45-50, a 413 and a destroyed request. Validation: <code>validateState</code> at 88-96, the checks you ran above. Error wall: <code>handle</code> at 148-156. Ownership and conflicts are tagged CHAPTER 25 at lines 112 and 114.</li>
+      <li>One question to sit with: the fixed server trusts a header called <code>FAKE_TOKEN</code> whose value is written in the file. Which of today's four habits does that break, and which does it satisfy?</li>
+    </ol>
+  </div>
+  <!-- CODEX: verify tag numbering. In sandbox/v1-secure/server.js the size cap, validateState and the 500 wall are tagged CHAPTER 18; the owner slot and revision conflict are tagged CHAPTER 25. The brief expected the first three under the CHAPTER 25 tag. Either the tags or this paragraph should move. -->
+
+  <div class="ex">
+    <div class="h">Phone alternative <span class="tag">phone</span></div>
+    <div class="meta">Where: the validator sandbox above. Expected: your added check rejects one input the original accepted. Reset: the Reset button. This cannot touch Memento.</div>
+    <ol>
+      <li>Add a fifth rule to <code>validate</code>: reject a <code>streak</code> above 20000, with a plain message.</li>
+      <li>Add a call at the bottom that sends <code>{ northStar: "ship it", streak: 99999 }</code> and check you get your message.</li>
+      <li>Delete the first line of <code>validate</code> and call it with <code>"paid=true"</code> again. Read the error. That is a missing shape check.</li>
+    </ol>
+  </div>
+
+  <div class="box why"><div class="h">ASK THE AGENT WHY (paste this into Codex or Fable)</div><pre><code>In supabase/functions/ai-proxy/index.ts, explain why checkRateLimit runs before the request body is read, and what would change if the body were parsed first. Then explain what a caller could do if the unavailable branch at lines 47-55 returned null instead of a 503. Do not change anything.</code></pre></div>
+
+  <div class="box words"><div class="h">WORDS YOU NOW OWN</div><dl>
+    <dt>Trust boundary</dt><dd>The line between code you control and everything a stranger can edit. Every rule that matters is enforced on your side of it.</dd>
+    <dt>Validation</dt><dd>Checking size, type and range at the door, and refusing with one plain sentence. Cheap, early, boring, and it prevents a whole category of bugs.</dd>
+    <dt>Least privilege</dt><dd>Each key, token and role gets the smallest power that still does the job, so a leak costs less.</dd>
+    <dt>Secret</dt><dd>A value the code needs and must never contain. It arrives from the environment, on the server, and is never in git or a browser.</dd>
+    <dt>Rate limit, fail closed</dt><dd>A cap on how often something expensive may happen. Fail closed means that when the limiter cannot answer, the request is refused.</dd>
+    <dt>Injection and XSS</dt><dd>Data treated as code, in a database command or in your page. Killed by passing values as values and escaping anything a human typed.</dd>
+    <dt>Latency and throughput</dt><dd>How long one thing takes, versus how many fit in a second. They trade against each other.</dd>
+    <dt>N+1</dt><dd>One query for the list plus one per row. The most common real performance bug, and it looks harmless in the code.</dd>
+    <dt>Bundle size</dt><dd>How much the phone must download before anything appears. The number that decides how the app feels on a bad connection.</dd>
+    <dt>Debounce</dt><dd>Wait for the storm to stop, then act once. Memento saves 150 milliseconds after the last change.</dd>
+  </dl></div>
+
+  <div class="box expiry"><div class="h">WHERE TODAY'S ANALOGY BREAKS</div><p><strong>Breaks when:</strong> you picture one door. A real app has many, and the dangerous ones are the doors nobody drew: a database reachable directly with a public key, a storage bucket, a webhook, an old function still deployed. The bouncer also implies that once you are inside you can go anywhere, which is the assumption Row Level Security exists to destroy: the rule is per row, re-checked on every read. <strong>Real model:</strong> every place data crosses from something you do not control into something you do is its own boundary, with its own four checks. Chapter 26 asks the structural version: where should a rule live so it cannot be bypassed by accident.</p></div>
+
+  <details class="hole"><summary>RABBIT HOLE: why "measure first" is not a slogan</summary><p>Programs spend most of their time in a small part of their code, and humans are terrible at guessing which part. The usual story is that a team spends a week making a function twice as fast, and the function accounted for two percent of the time, so the app got one percent faster and nobody noticed. There is an arithmetic law behind this: the best possible speedup from optimising one part is capped by how much of the total that part was. If a piece is 5% of the runtime, deleting it entirely buys you 5%. That is why the measurement is not a formality, it is the thing that tells you whether the work is worth doing at all. The same law is why the biggest file is a good first guess and a bad conclusion.</p></details>
+
+  <details class="hole"><summary>RABBIT HOLE: what a 500 should say</summary><p>Two audiences, two messages. The user gets "something went wrong on the server", with no detail, because details are a map of your internals: file paths, library versions, table names, sometimes a fragment of a query with data in it. The log gets everything, because it is yours. Memento's native transport takes the same line from the other direction: it catches errors and only surfaces messages from a short allowlist, so an unexpected error message can never be painted onto a screen. Chapter 23 read that allowlist.</p></details>
+</main>
+<script src="../js/book.js"></script>
+</body>
+</html>

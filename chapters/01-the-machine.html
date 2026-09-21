@@ -135,7 +135,7 @@ while (n < 10) {
       <p>Every app is a pile of files on a disk, loaded into memory, walked through by a CPU. A "feature" is a region of that pile. Deleting a feature means deleting files, and every place that still names the deleted thing becomes an instruction the machine cannot follow. The machine does not know the feature is gone. It just hits a name that points at nothing, and stops.</p>
     </div>
     <div class="lane mem"><div class="h">MEMENTO</div>
-      <p>The best specimen in the whole codebase is a file that exists only because the machine is literal. In v1319 the old Action module, 6,070 lines, was deleted. About eighty other places in the app still say <code>ActionExperience.open()</code>. If that name vanished, each of those eighty spots would crash the moment a user touched it. So a human left a 38-line file whose only job is to catch the old name and forward it to the new system:</p>
+      <p>The best specimen in the whole codebase is a file that exists only because the machine is literal. In v1319 the old Action module, 6,070 lines, was deleted. About eighty other places in the app still say <code>ActionExperience.open()</code>. If that name vanished, each of those eighty spots would crash the moment a user touched it. So a human left a 37-line file whose only job is to catch the old name and forward it to the new system:</p>
       <pre><code>const ActionExperience = {
   // the old module never opens, so nothing may believe it is open
   isOpen: false,
@@ -155,7 +155,7 @@ while (n < 10) {
   renderContent() {}
 };</code></pre>
       <div class="src">memento-app/js/33-action-shim.js:20-37 (web pin ca8afc8)</div>
-      <p>Read the comments above the code in that file some time. Twenty of its 38 lines are a human explaining to future humans why the machine needs this. The machine does not read comments. Only people do.</p>
+      <p>Read the comments above the code in that file some time. Twenty of its 37 lines are a human explaining to future humans why the machine needs this. The machine does not read comments. Only people do.</p>
     </div>
   </div>
   <div class="box memento"><div class="h">THE ALTERNATIVE, AND WHY MEMENTO CHOSE THIS</div><p>The clean alternative is to edit all eighty call sites to say the new name, then delete the shim. That is more correct and more work, and with two agents editing in parallel it risks a half-done rename where forty spots say the new name and forty say the old one. The shim is a deliberate, documented piece of debt: cheap now, a small tax on understanding later. Chapter 26 comes back to it as the textbook example of debt done honestly.</p></div>
