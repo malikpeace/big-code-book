@@ -1,0 +1,16 @@
+{
+  "name": "memento-jr-v3",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "esbuild entry.tsx --bundle --platform=browser --format=iife --minify --outfile=dist/app.js --alias:react-native=react-native-web"
+  },
+  "dependencies": {
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "react-native-web": "0.21.2"
+  },
+  "devDependencies": {
+    "esbuild": "0.28.2"
+  }
+}
