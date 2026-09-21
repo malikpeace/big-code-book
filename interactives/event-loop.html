@@ -1,0 +1,30 @@
+<div class="bcb-i" id="event-loop"></div>
+<script>
+(() => {
+  const root = document.querySelector("#event-loop");
+  const frames = [
+    { thread: "run main script", queue: "empty", wait: "empty", out: "" },
+    { thread: "schedule timer", queue: "empty", wait: "timer: 0 ms", out: "" },
+    { thread: "schedule promise", queue: "empty", wait: "timer + promise", out: "" },
+    { thread: "console.log('A')", queue: "empty", wait: "timer + promise", out: "A" },
+    { thread: "main script ends", queue: "promise callback", wait: "timer", out: "A" },
+    { thread: "promise callback", queue: "timer callback", wait: "empty", out: "A\nP" },
+    { thread: "timer callback", queue: "empty", wait: "empty", out: "A\nP\nT" },
+    { thread: "empty", queue: "empty", wait: "empty", out: "A\nP\nT" },
+  ];
+  let step = 0;
+  root.innerHTML = `<h3>Event loop, one move at a time</h3><p class="i-dim">Predict the print order, then step. Waiting work never interrupts the thread.</p><div class="i-grid i-grid-3"><div class="i-panel"><b>Thread</b><p data-thread></p></div><div class="i-panel"><b>Queue</b><p data-queue></p></div><div class="i-panel"><b>Waiting list</b><p data-wait></p></div></div><pre data-out aria-live="polite"></pre><div class="i-row"><button type="button" data-step>Next step</button><button type="button" data-reset>Reset</button><span class="i-dim" data-count></span></div>`;
+  function paint() {
+    const frame = frames[step];
+    root.querySelector("[data-thread]").textContent = frame.thread;
+    root.querySelector("[data-queue]").textContent = frame.queue;
+    root.querySelector("[data-wait]").textContent = frame.wait;
+    root.querySelector("[data-out]").textContent = frame.out || "output waits here";
+    root.querySelector("[data-count]").textContent = `Step ${step + 1} of ${frames.length}`;
+    root.querySelector("[data-step]").disabled = step === frames.length - 1;
+  }
+  root.querySelector("[data-step]").addEventListener("click", () => { step = Math.min(step + 1, frames.length - 1); paint(); });
+  root.querySelector("[data-reset]").addEventListener("click", () => { step = 0; paint(); });
+  paint();
+})();
+</script>

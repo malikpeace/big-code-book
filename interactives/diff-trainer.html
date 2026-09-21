@@ -1,0 +1,38 @@
+<div class="bcb-i" id="diff-trainer"></div>
+<script>
+(() => {
+  const root = document.querySelector("#diff-trainer");
+  const rows = [
+    ["+ const API_KEY = 'sk-live-plain-text';", true, "A secret was committed to client code. It must be revoked and moved behind a server."],
+    ["+ if (body.owner) return loadDB()[body.owner];", true, "The caller chooses the owner. Authorization must use the signed-in identity."],
+    ["+ result.innerHTML = userMessage;", true, "Untrusted text becomes HTML. Use textContent so data cannot become code."],
+    ["+ const timeoutMs = 3000;", false, "A named timeout is ordinary and makes the limit visible."],
+    ["- console.log('request body', body);", false, "Removing a log of user data reduces accidental exposure."],
+    ["+ return sendJSON(res, 400, { error: 'bad input' });", false, "A plain client error reveals no internal detail."],
+  ];
+  root.innerHTML = `<h3>Diff-reading trainer</h3><p class="i-dim">Select the three lines you would block in review, then check your call.</p><div data-lines></div><p class="i-row"><button type="button" data-check>Check my review</button><button type="button" data-reveal>Reveal explanations</button><span data-score aria-live="polite"></span></p><div data-explain></div>`;
+  const holder = root.querySelector("[data-lines]");
+  rows.forEach((row, index) => {
+    const label = document.createElement("label");
+    label.className = "i-panel";
+    label.innerHTML = `<span><input type="checkbox" data-index="${index}"> <code></code></span>`;
+    label.querySelector("code").textContent = row[0];
+    holder.append(label);
+  });
+  root.querySelector("[data-check]").addEventListener("click", () => {
+    const picks = [...holder.querySelectorAll("input")].map(input => input.checked);
+    const correct = picks.filter((picked, i) => picked === rows[i][1]).length;
+    root.querySelector("[data-score]").textContent = correct === rows.length ? "6 of 6 decisions correct." : `${correct} of 6 decisions correct. Re-read what crosses a trust boundary.`;
+  });
+  root.querySelector("[data-reveal]").addEventListener("click", () => {
+    const box = root.querySelector("[data-explain]");
+    box.replaceChildren();
+    rows.forEach((row, index) => {
+      const p = document.createElement("p");
+      p.className = row[1] ? "i-bad" : "i-good";
+      p.textContent = `${index + 1}. ${row[1] ? "Block" : "Accept"}: ${row[2]}`;
+      box.append(p);
+    });
+  });
+})();
+</script>

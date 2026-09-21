@@ -1,0 +1,28 @@
+<div class="bcb-i" id="stack-trace-reader"></div>
+<script>
+(() => {
+  const root = document.querySelector("#stack-trace-reader");
+  const frames = [
+    ["TypeError: Cannot read properties of null", "The error type and message. Something expected an object but received null."],
+    ["at render (app.js:16:22)", "First line in code you own. The failure happened in render, app.js line 16, column 22."],
+    ["at tickHold (app.js:48:3)", "render was called by tickHold. This is the caller, not the first place that failed."],
+    ["at browser-animation-frame", "Browser machinery called tickHold. You usually stop reading when frames leave your code."],
+  ];
+  root.innerHTML = `<h3>Read a stack trace</h3><p class="i-dim">Tap each line. Find the first frame in code you own before opening any file.</p><div data-lines></div><div class="i-panel i-live" data-answer aria-live="polite">Choose a line.</div><p><button type="button" data-pick>Which file and line do I open first?</button></p>`;
+  const holder = root.querySelector("[data-lines]");
+  frames.forEach((frame, index) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.style.cssText = "display:block;width:100%;text-align:left;margin:6px 0";
+    button.textContent = frame[0];
+    button.addEventListener("click", () => {
+      [...holder.children].forEach((item, i) => item.setAttribute("aria-pressed", String(i === index)));
+      root.querySelector("[data-answer]").textContent = frame[1];
+    });
+    holder.append(button);
+  });
+  root.querySelector("[data-pick]").addEventListener("click", () => {
+    root.querySelector("[data-answer]").innerHTML = `Open <code>app.js:16</code>. Read the exact expression at column 22, then ask why it became null.`;
+  });
+})();
+</script>

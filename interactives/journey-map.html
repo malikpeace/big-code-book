@@ -1,0 +1,36 @@
+<div class="bcb-i" id="journey-map"></div>
+<script>
+(() => {
+  const root = document.querySelector("#journey-map");
+  const stops = [
+    ["Finger", "Your tap begins the trip.", "You", "No file. This is physical input."],
+    ["Screen", "The browser or native view turns the tap into an event.", "You", "memento-app/index.html"],
+    ["JavaScript", "An event handler decides what the tap means.", "You", "memento-app/js/03-ai-integration.js"],
+    ["State", "The app changes its in-memory truth and redraws.", "You", "memento-app/js/01-state-foundation.js"],
+    ["Network", "A request leaves the device as bytes.", "Your connection", "memento-native/src/network/transport.ts"],
+    ["Edge function", "Supabase receives the request and keeps secrets off the phone.", "Supabase", "supabase/functions/ai-proxy/index.ts"],
+    ["Anthropic", "A paid model produces the answer.", "Memento pays per use", "supabase/functions/ai-proxy/index.ts"],
+    ["Back", "The response crosses the network to the app.", "Your connection", "memento-native/src/network/transport.ts"],
+    ["State again", "The answer becomes local state and the screen redraws.", "You", "memento-app/js/03-ai-integration.js"],
+    ["Device storage", "localStorage or MMKV keeps a copy for next launch.", "You", "memento-native/src/storage/ports/mmkvAdapter.ts"],
+    ["Postgres", "Sync stores the server copy under access rules.", "Supabase", "supabase/migrations/20260724113000_safe_user_state_sync.sql"],
+  ];
+  root.innerHTML = `<h3>Follow one tap</h3><p class="i-dim">Choose a stop to see who runs it, who pays, and where its code lives.</p><div class="i-row" data-stops></div><div class="i-panel i-live" data-detail aria-live="polite"></div>`;
+  const bar = root.querySelector("[data-stops]");
+  const detail = root.querySelector("[data-detail]");
+  stops.forEach((stop, index) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.textContent = `${index + 1}. ${stop[0]}`;
+    button.addEventListener("click", () => show(index));
+    bar.append(button);
+  });
+  function show(index) {
+    const [name, runs, pays, file] = stops[index];
+    [...bar.children].forEach((button, i) => button.setAttribute("aria-pressed", String(i === index)));
+    detail.innerHTML = `<strong>${name}</strong><p>${runs}</p><p><b>Who pays:</b> ${pays}</p><p><b>Memento file:</b> <code></code></p>`;
+    detail.querySelector("code").textContent = file;
+  }
+  show(0);
+})();
+</script>

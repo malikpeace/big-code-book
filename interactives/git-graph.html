@@ -1,0 +1,50 @@
+<div class="bcb-i" id="git-graph"></div>
+<script>
+(() => {
+  const root = document.querySelector("#git-graph");
+  let commits, branches, current, next;
+  root.innerHTML = `<h3>Git graph playground</h3><p class="i-dim">Commits stay put. Branch names move to the newest snapshot.</p><div class="i-row"><button type="button" data-do="commit">Commit</button><button type="button" data-do="branch">Create feature</button><button type="button" data-do="switch">Switch branch</button><button type="button" data-do="merge">Merge feature into main</button><button type="button" data-do="reset">Reset</button></div><div class="i-panel" data-graph aria-live="polite"></div><p data-note></p>`;
+  function reset() {
+    commits = [{ id: "C1", parents: [], branch: "main" }];
+    branches = { main: "C1" };
+    current = "main";
+    next = 2;
+    paint("HEAD starts on main.");
+  }
+  function addCommit(parents) {
+    const id = `C${next++}`;
+    commits.push({ id, parents, branch: current });
+    branches[current] = id;
+    return id;
+  }
+  function act(name) {
+    if (name === "reset") return reset();
+    if (name === "commit") paint(`Made ${addCommit([branches[current]])} on ${current}.`);
+    if (name === "branch") {
+      if (branches.feature) return paint("feature already exists.");
+      branches.feature = branches[current]; current = "feature"; paint("feature points at the same commit, then HEAD switches to it.");
+    }
+    if (name === "switch") {
+      if (!branches.feature) return paint("Create feature first.");
+      current = current === "main" ? "feature" : "main"; paint(`HEAD now points to ${current}.`);
+    }
+    if (name === "merge") {
+      if (!branches.feature) return paint("Create feature and commit on it first.");
+      current = "main";
+      if (branches.main === branches.feature) return paint("Nothing to merge. Both labels point at the same commit.");
+      const id = addCommit([branches.main, branches.feature]);
+      paint(`${id} is a merge commit with two parents. If both sides changed the same line, a human resolves the conflict first.`);
+    }
+  }
+  function paint(note) {
+    const labels = Object.entries(branches).map(([name, id]) => `${name}${current === name ? " (HEAD)" : ""} -> ${id}`).join(" | ");
+    const lines = commits.map(c => `${c.id}  <-  ${c.parents.length ? c.parents.join(" + ") : "start"}   [made on ${c.branch}]`).reverse();
+    root.querySelector("[data-graph]").innerHTML = `<p><b>${labels}</b></p><div class="i-track"></div><pre></pre>`;
+    commits.forEach(commit => { const node = document.createElement("span"); node.className = "i-node"; node.textContent = commit.id; root.querySelector(".i-track").append(node); });
+    root.querySelector("pre").textContent = lines.join("\n");
+    root.querySelector("[data-note]").textContent = note;
+  }
+  root.querySelectorAll("[data-do]").forEach(button => button.addEventListener("click", () => act(button.dataset.do)));
+  reset();
+})();
+</script>

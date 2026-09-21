@@ -1,0 +1,32 @@
+<div class="bcb-i" id="request-inspector"></div>
+<script>
+(() => {
+  const root = document.querySelector("#request-inspector");
+  root.innerHTML = `<h3>Request inspector</h3><p class="i-dim">This stays in your browser. It composes a request, then a fake server applies its rules.</p><div class="i-grid"><label>Method<select data-method><option>GET</option><option>POST</option></select></label><label>Path<select data-path><option>/api/sync</option><option>/api/ai</option><option>/api/missing</option></select></label><label><span>JSON body</span><textarea data-body>{"northStar":"Read my own code","streak":1}</textarea></label><label><span><input data-token type="checkbox"> Send a valid session token</span></label></div><p><button type="button" data-send>Send request</button></p><div class="i-grid i-grid-3"><div class="i-panel"><b>Request</b><pre data-request></pre></div><div class="i-panel i-live"><b>Response</b><pre data-response aria-live="polite"></pre></div><div class="i-panel"><b>Status means</b><p data-meaning></p></div></div>`;
+  const meanings = {
+    200: "The server understood and completed the request.",
+    400: "The request shape was wrong. Fix the input.",
+    401: "This route needs an identity and did not get a valid one.",
+    404: "No route exists at that method and path.",
+  };
+  function send() {
+    const method = root.querySelector("[data-method]").value;
+    const path = root.querySelector("[data-path]").value;
+    const token = root.querySelector("[data-token]").checked;
+    const raw = root.querySelector("[data-body]").value;
+    let status = 200;
+    let reply = { ok: true };
+    let body;
+    try { body = JSON.parse(raw); } catch (error) { status = 400; reply = { error: "body must be valid JSON" }; }
+    if (status === 200 && path === "/api/missing") { status = 404; reply = { error: "not found" }; }
+    else if (status === 200 && path === "/api/sync" && !token) { status = 401; reply = { error: "sign in required" }; }
+    else if (status === 200 && path === "/api/ai" && method !== "POST") { status = 404; reply = { error: "not found" }; }
+    else if (status === 200 && path === "/api/ai") reply = { reply: `One small move toward ${(body && body.message) || "your goal"}.` };
+    root.querySelector("[data-request]").textContent = `${method} ${path}\nAuthorization: ${token ? "Bearer valid-demo-token" : "(none)"}\n\n${raw}`;
+    root.querySelector("[data-response]").textContent = `${status}\n${JSON.stringify(reply, null, 2)}`;
+    root.querySelector("[data-meaning]").textContent = meanings[status];
+  }
+  root.querySelector("[data-send]").addEventListener("click", send);
+  send();
+})();
+</script>
