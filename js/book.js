@@ -109,6 +109,24 @@
   var ICON_FOCUS = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>';
   var ICON_SUN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>';
 
+  /* ---------- 5a. Text size, Kindle style: five steps, remembered ---------- */
+  var sizebar = null;
+  function applySize() { var s = store('bcb_size') || 2; if (s === 2) document.documentElement.removeAttribute('data-size'); else document.documentElement.setAttribute('data-size', String(s)); if (sizebar) $('.lvl', sizebar).textContent = ['XS', 'S', 'M', 'L', 'XL', 'XXL'][s]; }
+  function stepSize(d) { var s = Math.max(1, Math.min(5, (store('bcb_size') || 2) + d)); store('bcb_size', s); applySize(); }
+  function toggleSizebar() {
+    if (!sizebar) {
+      sizebar = el('div', { class: 'sizebar', role: 'group', 'aria-label': 'Text size' }, [
+        el('button', { class: 'btn', 'aria-label': 'Smaller text', onclick: function () { stepSize(-1); } }, ['A\u2212']),
+        el('span', { class: 'lvl' }, ['M']),
+        el('button', { class: 'btn', 'aria-label': 'Bigger text', onclick: function () { stepSize(1); } }, ['A+'])
+      ]);
+      document.body.appendChild(sizebar); applySize();
+      document.addEventListener('click', function (e) { if (sizebar.classList.contains('open') && !sizebar.contains(e.target) && !e.target.closest('.aa')) sizebar.classList.remove('open'); });
+    }
+    sizebar.classList.toggle('open');
+  }
+  var ICON_AA = 'Aa';
+
   /* ---------- 5b. Focus mode: hide everything but the words ---------- */
   function applyFocus() { document.documentElement.classList.toggle('focus', !!store('bcb_focus')); }
   function toggleFocus() { store('bcb_focus', !store('bcb_focus')); applyFocus(); if (side) side.classList.remove('open'); document.body.classList.remove('drawer-open'); }
@@ -123,6 +141,7 @@
     side.appendChild(el('div', { class: 'brand' }, [
       el('a', { href: root + 'index.html' }, ['BIG CODE BOOK']),
       el('div', { class: 'btns' }, [
+        el('button', { class: 'icon-btn aa', 'aria-label': 'Text size', title: 'Text size', onclick: toggleSizebar }, [ICON_AA]),
         el('button', { class: 'icon-btn', 'aria-label': 'Focus mode', title: 'Focus: only the words', html: ICON_FOCUS, onclick: toggleFocus }),
         el('button', { class: 'icon-btn', 'aria-label': 'Toggle light or dark', html: ICON_SUN, onclick: toggleTheme })
       ])
@@ -149,6 +168,7 @@
       el('button', { class: 'icon-btn', 'aria-label': 'Open contents', html: ICON_MENU, onclick: function () { side.classList.add('open'); document.body.classList.add('drawer-open'); } }),
       el('span', { class: 't' }, [chapterNo ? 'Chapter ' + chapterNo : 'BIG CODE BOOK']),
       el('div', { class: 'btns' }, [
+        el('button', { class: 'icon-btn aa', 'aria-label': 'Text size', title: 'Text size', onclick: toggleSizebar }, [ICON_AA]),
         el('button', { class: 'icon-btn', 'aria-label': 'Focus mode', title: 'Focus: only the words', html: ICON_FOCUS, onclick: toggleFocus }),
         el('button', { class: 'icon-btn', 'aria-label': 'Toggle light or dark', html: ICON_SUN, onclick: toggleTheme })
       ])
@@ -220,10 +240,47 @@
     entry.levels.forEach(function (l) { if (l.ch <= (upTo || 999) && l.ch >= best.ch) best = l; });
     return best;
   }
+  var STOP = { code: 1, test: 1, log: 1, path: 1, program: 1, file: 1, files: 1, event: 1, network: 1 }; // too common to underline every time
+  function markLaterMentions(g) {
+    // Every glossary word after its first (bold) mention gets a quiet underline, so it is always tappable.
+    var aliases = [];
+    Object.keys(g).forEach(function (slug) {
+      var t = g[slug].term.replace(/\s*\(.*\)\s*$/, '').trim();
+      [t, slug.replace(/-/g, ' ')].forEach(function (a) { a = a.trim(); if (a.length > 2 && !STOP[a.toLowerCase()]) aliases.push([a.toLowerCase(), slug]); });
+    });
+    var map = {}; aliases.forEach(function (p) { if (!map[p[0]]) map[p[0]] = p[1]; });
+    var keys = Object.keys(map).sort(function (a, b) { return b.length - a.length; });
+    if (!keys.length) return;
+    var re = new RegExp('(^|[^A-Za-z0-9])(' + keys.map(function (k) { return k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }).join('|') + ')(?=$|[^A-Za-z0-9])', 'i');
+    var SKIP = 'DFN,CODE,PRE,A,SVG,BUTTON,H1,H2,H3,SUMMARY,TEXTAREA,STYLE,SCRIPT';
+    $$('main p, main li, main dd, main td').forEach(function (block) {
+      if (block.closest('.sb, .src, .meta, .kicker, .pop, figure, .words, .check')) return;
+      var seen = {};
+      var walker = document.createTreeWalker(block, NodeFilter.SHOW_TEXT, null);
+      var nodes = []; while (walker.nextNode()) nodes.push(walker.currentNode);
+      nodes.forEach(function (node) {
+        var p = node.parentNode;
+        for (var a = p; a && a !== block; a = a.parentNode) if (SKIP.indexOf(a.tagName) >= 0 || (a.classList && a.classList.contains('term'))) return;
+        var s = node.nodeValue, r2 = new RegExp(re.source, 'gi'), mm, pos = 0, frag = document.createDocumentFragment(), hit = false;
+        while ((mm = r2.exec(s)) !== null) {
+          var st = mm.index + mm[1].length, en = st + mm[2].length, sl = map[mm[2].toLowerCase()];
+          if (seen[sl]) continue;
+          seen[sl] = 1; hit = true;
+          frag.appendChild(document.createTextNode(s.slice(pos, st)));
+          frag.appendChild(el('span', { class: 'term', 'data-term': sl }, [s.slice(st, en)]));
+          pos = en;
+        }
+        if (!hit) return;
+        frag.appendChild(document.createTextNode(s.slice(pos)));
+        p.replaceChild(frag, node);
+      });
+    });
+  }
   function chips() {
-    var dfns = $$('dfn[data-term]');
-    if (!dfns.length) return;
     loadGlossary(function (g) {
+      markLaterMentions(g);
+      var dfns = $$('dfn[data-term], .term[data-term]');
+      if (!dfns.length) return;
       dfns.forEach(function (d) {
         d.setAttribute('tabindex', '0');
         function show() {
@@ -377,6 +434,7 @@
   /* ---------- 12. Boot ---------- */
   applyTheme();
   applyFocus();
+  applySize();
   function boot() {
     mountChrome();
     chapterFurniture();
