@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>6. The terminal is a conversation. BIG CODE BOOK</title>
+<link rel="stylesheet" href="../css/book.css">
+<meta name="theme-color" content="#0b0b0d">
+</head>
+<body data-chapter="6">
+<main>
+  <div class="kicker">Chapter 6 <span class="tag need">NEED</span> <span class="tag">~50 min</span> <span class="tag mac">MAC</span></div>
+  <h1>The terminal is a conversation</h1>
+  <p class="lede">Every line you type is the same shape: the name of a program, then what to give it. It answers on one channel, complains on another, and leaves behind a number saying whether it worked. Learn those four facts and the black window stops being a threat.</p>
+
+  <div class="box recap"><div class="h">LAST TIME</div><p>Almost everything is a file, a path is its address, and the Terminal is always standing in one folder. You walked into Memento, read the top of a real file, and mistyped a path on purpose. You also learned which commands never get typed in there.</p></div>
+
+  <h2>Quick check</h2>
+  <details class="check"><summary>What is the difference between <code>/Users/malikpeace/Downloads</code> and <code>Downloads</code>?</summary><div class="a">The first is absolute and means the same from anywhere. The second is relative and only means something from where you are standing, which <code>pwd</code> tells you.</div></details>
+  <details class="check"><summary>Why are the files in <code>memento-app/js</code> numbered?</summary><div class="a">The browser runs them in that order and they share one global scope, so the number is the load order. A file in the wrong position is a crash at boot.</div></details>
+  <details class="check"><summary>On the journey map, which stops sit on computers Memento pays rent for?</summary><div class="a">The edge function and the Postgres database, both rented from Supabase, plus Anthropic's servers, which are billed per call.</div></details>
+
+  <h2>The idea</h2>
+  <p>The window is not the thing. The thing is a program called a <dfn data-term="shell">shell</dfn>, and yours is named zsh. It does four jobs, over and over, forever: read a line, find the program you named, run it with the rest of the line handed over, print what came back. Then it shows the prompt again and waits.</p>
+  <p>So a <dfn data-term="command">command</dfn> is a program plus <dfn data-term="argument">arguments</dfn>. In <code>head -20 js/33-action-shim.js</code>, the program is <code>head</code>, and it gets two arguments. The ones starting with a dash are <dfn data-term="flag">flags</dfn>, the dials on the program. The rest is usually what to work on. That is the entire grammar. There is no second grammar to learn later.</p>
+  <p>How does the shell find <code>head</code>? There is a list of folders it searches, in order, and that list lives in a setting called PATH. <code>which head</code> tells you which one it found:</p>
+  <pre><code>$ which node
+/opt/homebrew/bin/node</code></pre>
+  <p>That is where your Node came from. If <code>which</code> prints nothing, the program is not installed, or it is not in any folder on the <dfn data-term="path-variable">PATH</dfn>. This is the whole explanation for "command not found", and it is also why a fresh Mac cannot run <code>node</code> until something installs it and puts it on the list.</p>
+  <p>Now the answers. A program talks back on two separate channels. <dfn data-term="stdout">Standard output</dfn>, stdout, is the answer you asked for. <dfn data-term="stderr">Standard error</dfn>, stderr, is the complaints. They both land in the same window, which is why nobody notices there are two, until you send one somewhere and the other keeps showing up.</p>
+  <p>And when it finishes, the program hands back a number nobody shows you: the <dfn data-term="exit-code">exit code</dfn>. Zero means it worked. Anything else means it did not, and the number says roughly what went wrong. Ask for the last one with <code>echo $?</code>. This tiny number is what makes automation possible: it is how your deploy robot knows the tests failed, and how <code>&amp;&amp;</code> decides whether to run the next command.</p>
+
+  <div class="box analogy"><div class="h">ANALOGY (TEMPORARY)</div><p>A very literal clerk at a counter. You slide a slip across: the name of the form you want, then the details. The clerk does not interpret, does not check whether you meant something else, and does not care that you are in a hurry. He returns the document on one tray and any complaint on a second tray, and stamps the slip with a number: 0 if he did it, something else if he did not. Nothing happens until you slide the slip. Nothing extra ever happens.</p></div>
+
+  <figure class="fig-box">
+    <svg class="figure" viewBox="0 0 640 300" role="img" aria-label="The anatomy of one command. The typed line splits into four parts: the program grep, the flag -rn, the argument persistState, and the argument memento-app slash js. Below, the program runs and produces three things: standard output with the answer, standard error with any complaints, and an exit code where zero means it worked.">
+      <text class="st lo" x="20" y="18">what you type</text>
+      <rect class="bx acc" x="20" y="28" width="86" height="40" rx="8"/><text class="st mono" x="63" y="53" text-anchor="middle">grep</text>
+      <rect class="bx cy" x="114" y="28" width="66" height="40" rx="8"/><text class="st mono" x="147" y="53" text-anchor="middle">-rn</text>
+      <rect class="bx" x="188" y="28" width="176" height="40" rx="8"/><text class="st mono" x="276" y="53" text-anchor="middle">"persistState"</text>
+      <rect class="bx" x="372" y="28" width="248" height="40" rx="8"/><text class="st mono" x="496" y="53" text-anchor="middle">memento-app/js</text>
+      <text class="st lo" x="63" y="86" text-anchor="middle">program</text>
+      <text class="st lo" x="147" y="86" text-anchor="middle">flags</text>
+      <text class="st lo" x="276" y="86" text-anchor="middle">what to look for</text>
+      <text class="st lo" x="496" y="86" text-anchor="middle">where to look</text>
+      <path class="ln" d="M320 96 V128"/>
+      <rect class="bx" x="230" y="128" width="180" height="40" rx="8"/><text class="st" x="320" y="153" text-anchor="middle">the program runs</text>
+      <path class="ln acc" d="M270 168 V196 H110 V212"/>
+      <path class="ln" d="M320 168 V212"/>
+      <path class="ln cy" d="M370 168 V196 H530 V212"/>
+      <rect class="bx acc" x="20" y="212" width="180" height="46" rx="8"/><text class="st" x="110" y="232" text-anchor="middle">stdout</text><text class="st lo" x="110" y="249" text-anchor="middle">the answer</text>
+      <rect class="bx" x="230" y="212" width="180" height="46" rx="8"/><text class="st" x="320" y="232" text-anchor="middle">stderr</text><text class="st lo" x="320" y="249" text-anchor="middle">the complaints</text>
+      <rect class="bx cy" x="440" y="212" width="180" height="46" rx="8"/><text class="st" x="530" y="232" text-anchor="middle">exit code</text><text class="st lo" x="530" y="249" text-anchor="middle">0 means it worked</text>
+      <text class="st lo" x="320" y="285" text-anchor="middle">Two channels out, one number left behind. Every command, every time.</text>
+    </svg>
+    <figcaption>One command, taken apart. Everything in a terminal has this shape.</figcaption>
+  </figure>
+
+  <h3>The commands that pay rent</h3>
+  <p>You met six in chapter 5. Here are seven more, and then you are done collecting.</p>
+  <table>
+    <tr><th>You type</th><th>It means</th></tr>
+    <tr><td><code>head -5 file.js</code> / <code>tail -5 file.js</code></td><td>First five lines. Last five lines. Tail is how you watch a log.</td></tr>
+    <tr><td><code>grep -n "streak" app.js</code></td><td>Print every line containing streak, with its line number.</td></tr>
+    <tr><td><code>grep -rn "persistState" js</code></td><td>The same, recursively through a whole folder. This is the command that reads a codebase.</td></tr>
+    <tr><td><code>find . -name "*.css"</code></td><td>Find files by name instead of by contents.</td></tr>
+    <tr><td><code>echo $HOME</code></td><td>Print something. Mostly used to look inside a setting.</td></tr>
+    <tr><td><code>ls | wc -l</code></td><td>A <dfn data-term="pipe">pipe</dfn>. Send the stdout of the left into the right. Here: count the names.</td></tr>
+    <tr><td><code>ls &gt; files.txt</code></td><td>A <dfn data-term="redirect">redirect</dfn>. Put the stdout in a file instead of on screen.</td></tr>
+  </table>
+  <p>Two warnings about that last one. <code>&gt;</code> overwrites the target file completely, with no prompt and no undo, so never point it at a file you care about. <code>&gt;&gt;</code> adds to the end instead. And note that only stdout gets redirected, which is why errors still appear on screen when everything else has gone quiet. Send stderr away separately with <code>2&gt;/dev/null</code>, where 2 is the channel number and <code>/dev/null</code> is the bin.</p>
+  <p>When you do not know a program's flags, ask it. Most answer <code>--help</code> with a short list. <code>man grep</code> opens the full manual, and <code>q</code> quits it. Reading two lines of <code>--help</code> beats guessing every time.</p>
+
+  <h3>Settings the shell hands down</h3>
+  <p>An <dfn data-term="environment-variable">environment variable</dfn> is a named value the shell hands to every program it starts. <code>echo $HOME</code> prints yours, <code>echo $SHELL</code> proves you are in zsh. Set one with <code>export CLARITY_MODE=1</code>, and every program started from that window can read it.</p>
+  <p>This is exactly how secrets travel. A key never gets typed into code, where it would be saved, committed, pushed and public forever. It gets put in the environment of the one server that needs it, and the code asks for it by name at the moment it runs. Memento's proxy does precisely this, in one line: <code>Deno.env.get('ANTHROPIC_API_KEY')</code>. Chapter 19 does the whole subject.</p>
+
+  <h3>Break it, twice</h3>
+  <p>First, a failure. Type <code>ls /nope</code>, then <code>echo $?</code>.</p>
+  <pre><code>$ ls /nope
+ls: /nope: No such file or directory
+$ echo $?
+1</code></pre>
+  <p>The message came out on stderr. The 1 is the exit code. Run <code>ls</code> on a folder that exists, ask again, and you get 0. You have now seen the number your deploy robot reads on every push.</p>
+  <p>Second, a runaway. Type <code>while true; do echo hi; done</code> and watch the window fill up forever, because you told it to and the machine has no opinion about that. Hold control and press C. It stops. <strong>Ctrl-C is the stop button</strong>, and it is the single most useful key in the Terminal: it interrupts whatever is running and hands you back the prompt.</p>
+  <p>Ctrl-C only reaches the program in front of you. Something running in the background, like a forgotten local server holding onto a port, needs finding first. <code>ps</code> lists running <dfn data-term="process">processes</dfn> with their id numbers, and <code>kill 4821</code> asks that one to stop. Memento's own launcher does this every time you start it, which you are about to read.</p>
+
+  <h2>See it</h2>
+  <p>A shell in fifteen lines. It splits a line into a program and arguments, looks the program up, and returns two channels plus an exit code. The real one does more, but not differently.</p>
+  <div class="sb">
+const PROGRAMS = {
+  echo: (args) => ({ out: args.join(" "), err: "", code: 0 }),
+  ls: (args) => args[0] === "/nope"
+    ? { out: "", err: "ls: /nope: No such file or directory", code: 1 }
+    : { out: "index.html\ncss\njs", err: "", code: 0 }
+};
+
+function run(line) {
+  const [name, ...args] = line.split(" ");          // program first, then arguments
+  const program = PROGRAMS[name];                    // this lookup is what PATH does
+  if (!program) return { out: "", err: "zsh: command not found: " + name, code: 127 };
+  return program(args);
+}
+
+for (const line of ["echo hello there", "ls memento-app", "ls /nope", "lz"]) {
+  const r = run(line);
+  console.log("$ " + line);
+  if (r.out) console.log(r.out);
+  if (r.err) console.log("[stderr] " + r.err);
+  console.log("[exit code] " + r.code);
+}
+</div>
+  <p>Predict the four blocks before you press Run. Then look at the last one: a name the lookup cannot find comes back 127, which is the real code zsh uses for "command not found". Break it yourself by deleting the <code>if (!program)</code> line and running it again. The crash you get is the machine being literal, exactly as in chapter 1.</p>
+
+  <h2>Now in Memento</h2>
+  <div class="lanes">
+    <div class="lane"><div class="h">ANY APP</div>
+      <p>Nobody remembers long commands. Two ways to stop trying.</p>
+      <p><strong>Name them in the project.</strong> A <code>package.json</code> has a scripts section: short names for long commands, kept next to the code, so every human and every robot runs the same thing.</p>
+      <p><strong>Save them in a file.</strong> A file of shell commands is a script. Make it runnable and it is a program like any other, indistinguishable from the built-in ones as far as the shell is concerned.</p>
+    </div>
+    <div class="lane mem"><div class="h">MEMENTO</div>
+      <p>The native app names its commands:</p>
+      <pre><code>  "scripts": {
+    "start": "expo start --dev-client",
+    "ios": "expo run:ios",
+    "android": "expo run:android",
+    "typecheck": "tsc --noEmit",
+    "test": "jest --runInBand",
+    "check": "npm run typecheck &amp;&amp; npm test"
+  },</code></pre>
+      <div class="src">memento-native/package.json:9-16 (native pin 93bfa796)</div>
+      <p>Read the last one. <code>npm run check</code> is the type checker followed by the tests, and <code>&amp;&amp;</code> means "only if the first one exits 0". A type error means the tests never run and the whole thing exits non-zero. That is the gate CI reads.</p>
+      <p>And the thing you double-click to see the web app is a saved command:</p>
+      <pre><code>OLD_PID=$(lsof -ti tcp:$PORT 2>/dev/null)
+if [ -n "$OLD_PID" ]; then
+  kill "$OLD_PID" 2>/dev/null
+  sleep 1
+fi</code></pre>
+      <div class="src">Open Memento (new modular).command:10-14 (repo root, native pin 93bfa796)</div>
+      <p>Everything in there is this chapter. <code>lsof -ti tcp:8090</code> asks which process is holding that port, and its stdout is captured into a variable. <code>2>/dev/null</code> throws the complaints away. <code>kill</code> stops the old server so the new one can have the port. That file is not magic, it is five commands somebody got tired of typing.</p>
+    </div>
+  </div>
+  <div class="box memento"><div class="h">THE ALTERNATIVE, AND WHY MEMENTO CHOSE THIS</div><p>The alternative to a launcher script is opening <code>index.html</code> straight from the disk with a double click. It works, until it does not: the browser then keeps serving you yesterday's JavaScript out of its cache, and you spend an hour debugging a bug you already fixed. The launcher exists because that happened, so it starts a tiny local server that sends no-cache headers and kills any stale one first. The cost is a Terminal window you have to leave open. The alternative to named npm scripts is everyone typing <code>tsc --noEmit</code> from memory, where everyone includes two AI agents and a CI robot, and one of them types it slightly differently.</p></div>
+
+  <h2>Do it</h2>
+  <div class="ex" data-device="mac">
+    <div class="h">Exercise <span class="tag mac">MAC</span></div>
+    <div class="meta">Where: <code>~/Downloads/CODE-BOOK/sandbox/v1</code>, plus one read-only look into Memento. Expected: an exit code of 1 and then 0, a runaway loop you stop yourself, and a count of 38. Reset: <code>rm files.txt</code> removes the only file you create, or drag it to the Trash. This cannot touch Memento: the only command aimed at it is a grep, which reads.</div>
+    <ol>
+      <li><code>cd ~/Downloads/CODE-BOOK/sandbox/v1</code> then <code>ls</code>. Five files and a server. That is Memento Jr, the practice app.</li>
+      <li><code>which node</code> and <code>node --version</code>. If the first prints a path, the second will work. If it prints nothing, Node is not on your PATH.</li>
+      <li><code>echo $HOME</code>, then <code>echo $SHELL</code>. Two settings the shell hands to every program it starts.</li>
+      <li>Break it: <code>ls /nope</code>, then <code>echo $?</code>. You get 1. Now <code>ls</code>, then <code>echo $?</code> again. You get 0.</li>
+      <li><code>grep -n "streak" app.js</code>. Every line naming the streak, with line numbers. Now <code>head -20 app.js</code> and compare: grep finds, head tastes.</li>
+      <li><code>ls &gt; files.txt</code> then <code>cat files.txt</code>. The answer went into a file instead of onto the screen. Then <code>rm files.txt</code>, which is safe here and only here, because you made that file thirty seconds ago.</li>
+      <li>Pipe it: <code>ls ~/Downloads/MEMENTO/memento-app/js | wc -l</code>. You should get 38, which is chapter 5's number, counted by a machine.</li>
+      <li>Read Memento without touching it: <code>grep -rn "persistState" ~/Downloads/MEMENTO/memento-app/js | head</code>. Every call site, file and line, ten at a time. Look at the shape of it: one name, twenty-five places, and the first five hits all sitting in one file.</li>
+      <li>The runaway: <code>while true; do echo hi; done</code>. Let it fill the screen for two seconds, then press control and C. Say out loud what just happened.</li>
+      <li>Press the up arrow six times. Your whole session is there. <code>history</code> prints it as a numbered list.</li>
+    </ol>
+  </div>
+
+  <div class="box why"><div class="h">ASK THE AGENT WHY (paste this into Codex or Fable)</div><pre><code>Explain what `npm run check` in memento-native actually runs, what tsc --noEmit and jest --runInBand each do, why the two are joined with && instead of ; , and what exit code CI sees when one test fails. Do not change anything.</code></pre></div>
+
+  <div class="box words"><div class="h">WORDS YOU NOW OWN</div><dl>
+    <dt>Shell</dt><dd>The program reading your typed lines. Yours is zsh. It finds the program you named and runs it.</dd>
+    <dt>Command, argument, flag</dt><dd>A program plus what you hand it. The parts starting with a dash are the dials.</dd>
+    <dt>PATH</dt><dd>The ordered list of folders the shell searches for a program. <code>which node</code> shows which one it found.</dd>
+    <dt>stdout and stderr</dt><dd>Two separate channels out: the answer, and the complaints. Redirecting one leaves the other on screen.</dd>
+    <dt>Exit code</dt><dd>The number a program leaves behind. 0 worked, anything else did not. <code>echo $?</code> shows the last one.</dd>
+    <dt>Pipe and redirect</dt><dd><code>|</code> feeds one program's output into the next. <code>&gt;</code> writes it to a file and overwrites what was there.</dd>
+    <dt>Environment variable</dt><dd>A named value handed to every program the shell starts. How secrets reach code without being written in it.</dd>
+    <dt>Ctrl-C, ps, kill</dt><dd>Stop the thing in front of you. List what is running. Stop one by its id.</dd>
+  </dl></div>
+
+  <div class="box expiry"><div class="h">WHERE TODAY'S ANALOGY BREAKS</div><p><strong>Breaks when:</strong> you decide the clerk is part of the building. The shell is just another program, with a name and a version, and it can be swapped: zsh is the Mac default now, bash was before it, and servers run either. Its own rules are a full programming language, which is why <code>while true; do echo hi; done</code> is a legal thing to type at a prompt, and why a shell script can have real bugs. The counter is also not one queue: programs can run in the background, and their output arrives in your window while you type something else. <strong>Real model:</strong> the shell is a program that turns a line of text into a new process with its arguments, its environment, and three streams attached (input, output, errors), then waits for that process to end and keeps its exit code. Everything else, pipes, redirects, loops, scripts, is arrangements of that one move.</p></div>
+
+  <details class="hole"><summary>RABBIT HOLE: why a script needs the ./</summary><p>Running a script in the folder you are standing in takes <code>./launch.sh</code>, not <code>launch.sh</code>, and the reason is security. The current folder is deliberately not on the PATH. If it were, downloading a folder containing a file called <code>ls</code> and then typing <code>ls</code> would run a stranger's program instead of the real one. Making you write <code>./</code> forces you to say out loud that you mean this file, here. The same instinct is why chapter 5 told you never to run an unknown command in a folder you are only visiting.</p></details>
+</main>
+<script src="../js/book.js"></script>
+</body>
+</html>

@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>5. Files, folders, paths, and opening code. BIG CODE BOOK</title>
+<link rel="stylesheet" href="../css/book.css">
+<meta name="theme-color" content="#0b0b0d">
+</head>
+<body data-chapter="5">
+<main>
+  <div class="kicker">Chapter 5 <span class="tag need">NEED</span> <span class="tag">~55 min</span> <span class="tag mac">MAC</span></div>
+  <h1>Files, folders, paths, and opening code</h1>
+  <p class="lede">Your app is a folder. Inside it are files, and every file has an address. Today you open the Terminal for the first time and walk into Memento with your own hands. You cannot break anything, because every command here only looks.</p>
+
+  <div class="box recap"><div class="h">LAST TIME</div><p>You got the real 2026 picture of AI and coding, with receipts: what it can do, what it costs, and the incidents that were all the same bug. You left with five habits: read the plan, read the diff, ask why, demand verification, own the commit. Every one of them needs you to be able to open the thing the agent changed.</p></div>
+
+  <h2>Quick check</h2>
+  <details class="check"><summary>The agent guesses what you meant. What does the machine do with the result?</summary><div class="a">Runs it literally, at full speed, forever. There is no layer under the agent where intention lives, and that gap is where every bug sits.</div></details>
+  <details class="check"><summary>On the journey map, which stop holds Memento's Anthropic key, and why not the phone?</summary><div class="a">The edge function, the small server Memento rents from Supabase. A phone cannot keep a secret, because anything shipped to a device can be read off it.</div></details>
+  <details class="check"><summary>Chapter 3's punchline was "everything under Memento is old, only the typist is new". Name two of the old things.</summary><div class="a">Files and folders (1960s), the shell (1970s), SQL (1974), JavaScript (1995), git (2005). The AI writes in languages older than you.</div></details>
+
+  <h2>The idea</h2>
+  <p>Chapter 1 said a <dfn data-term="file">file</dfn> is a named chunk of bytes on a disk. The working model is that almost everything on a computer is one. Your code, your photos, the settings. Even a <dfn data-term="folder">folder</dfn> (engineers say directory) is a kind of file, one whose contents are a list of other files. Folders sit inside folders, and the whole machine is one nest of them starting at a single top called <code>/</code>, said out loud as "root".</p>
+  <p>A <dfn data-term="path">path</dfn> is the address of a file: the folders you walk through to reach it, joined with slashes.</p>
+  <pre><code>/Users/malikpeace/Downloads/MEMENTO/memento-app/js/01-state-foundation.js</code></pre>
+  <p>Read it left to right and you are walking. Top of the disk, into <code>Users</code>, into your account, Downloads, MEMENTO, the web app, js, and there is the file. That is not a picture of the address. That is the address.</p>
+
+  <div class="box analogy"><div class="h">ANALOGY (TEMPORARY)</div><p>A path is a postal address written backwards: country, city, street, building, flat. The Terminal is you standing in one room of that building, always somewhere. Commands mean "look around this room", "walk to that room", "read me this page". Finder is the same building with the lights on.</p></div>
+
+  <figure class="fig-box">
+    <svg class="figure" viewBox="0 0 640 380" role="img" aria-label="An indented folder tree of the MEMENTO folder. At the top, MEMENTO. Inside it, memento-app which holds index.html, a css folder of 22 files, a js folder of 38 numbered files, and assets. Also inside MEMENTO, memento-native which holds src, which holds folders named ai, auth, billing, clarity, home, storage, sync and ui. Also supabase and CLAUDE.md.">
+      <rect class="bx acc" x="16" y="14" width="150" height="24" rx="8"/><text class="st mono" x="28" y="31">MEMENTO/</text>
+      <line class="ln" x1="28" y1="38" x2="28" y2="356"/>
+      <line class="ln" x1="28" y1="60" x2="48" y2="60"/>
+      <rect class="bx cy" x="48" y="48" width="150" height="24" rx="8"/><text class="st mono" x="58" y="65">memento-app/</text>
+      <line class="ln" x1="60" y1="72" x2="60" y2="172"/>
+      <line class="ln" x1="60" y1="88" x2="96" y2="88"/>
+      <rect class="bx" x="96" y="76" width="120" height="24" rx="8"/><text class="st mono" x="104" y="93">index.html</text>
+      <line class="ln" x1="60" y1="116" x2="96" y2="116"/>
+      <rect class="bx" x="96" y="104" width="190" height="24" rx="8"/><text class="st mono" x="104" y="121">css/ 22 files</text>
+      <line class="ln" x1="60" y1="144" x2="96" y2="144"/>
+      <rect class="bx" x="96" y="132" width="230" height="24" rx="8"/><text class="st mono" x="104" y="149">js/ 38 numbered files</text>
+      <line class="ln" x1="60" y1="172" x2="96" y2="172"/>
+      <rect class="bx" x="96" y="160" width="190" height="24" rx="8"/><text class="st mono" x="104" y="177">assets/ fonts/ icons/</text>
+      <text class="st lo" x="340" y="149">the number is the load order</text>
+      <line class="ln" x1="28" y1="208" x2="48" y2="208"/>
+      <rect class="bx cy" x="48" y="196" width="160" height="24" rx="8"/><text class="st mono" x="58" y="213">memento-native/</text>
+      <line class="ln" x1="60" y1="220" x2="60" y2="236"/>
+      <line class="ln" x1="60" y1="236" x2="96" y2="236"/>
+      <rect class="bx" x="96" y="224" width="70" height="24" rx="8"/><text class="st mono" x="104" y="241">src/</text>
+      <line class="ln" x1="108" y1="248" x2="108" y2="292"/>
+      <line class="ln" x1="108" y1="264" x2="150" y2="264"/>
+      <rect class="bx" x="150" y="252" width="250" height="24" rx="8"/><text class="st mono" x="158" y="269">ai/ auth/ billing/ clarity/</text>
+      <line class="ln" x1="108" y1="292" x2="150" y2="292"/>
+      <rect class="bx" x="150" y="280" width="250" height="24" rx="8"/><text class="st mono" x="158" y="297">home/ storage/ sync/ ui/</text>
+      <text class="st lo" x="414" y="283">the folder is the job</text>
+      <line class="ln" x1="28" y1="328" x2="48" y2="328"/>
+      <rect class="bx" x="48" y="316" width="140" height="24" rx="8"/><text class="st mono" x="58" y="333">supabase/</text>
+      <line class="ln" x1="28" y1="356" x2="48" y2="356"/>
+      <rect class="bx" x="48" y="344" width="140" height="24" rx="8"/><text class="st mono" x="58" y="361">CLAUDE.md</text>
+    </svg>
+    <figcaption>Two apps in one folder, with two completely different ideas about where things go. The Memento section below is about why.</figcaption>
+  </figure>
+
+  <p>Three shortcuts you will see everywhere. <code>~</code> is your <dfn data-term="home-directory">home folder</dfn>, <code>/Users/malikpeace</code>, so <code>~/Downloads</code> is a whole address in one character. <code>.</code> is "the folder I am standing in". <code>..</code> is "the folder above this one".</p>
+  <p>A path starting with <code>/</code> or <code>~</code> is an <dfn data-term="absolute-path">absolute path</dfn> and means the same thing from anywhere. A path starting with a name, like <code>js/01-state-foundation.js</code>, is a <dfn data-term="relative-path">relative path</dfn> and means "from where I am standing right now". Half of all terminal confusion is one of these used where the other was meant.</p>
+  <p>Files whose name starts with a dot, like <code>.git</code>, are <dfn data-term="hidden-file">hidden files</dfn>. Finder does not show them and neither does a plain <code>ls</code>. Not secret, just marked "tooling, not for browsing", and some of the most important things in a codebase live in them.</p>
+
+  <h3>Open the Terminal</h3>
+  <p>Press cmd and space, type <code>terminal</code>, press return. A window opens with a prompt and a waiting cursor. Nothing runs until you press return.</p>
+  <p>The <dfn data-term="terminal">Terminal</dfn> is always standing in a folder. That folder is the <dfn data-term="working-directory">working directory</dfn>, and every relative path is measured from it. When people get lost in a terminal it is nearly always because they forgot where they were standing, so the first command you will ever run is the one that answers that.</p>
+
+  <table>
+    <tr><th>You type</th><th>You see</th><th>It means</th></tr>
+    <tr><td><code>pwd</code></td><td><code>/Users/malikpeace</code></td><td>Print working directory. Where am I standing.</td></tr>
+    <tr><td><code>ls</code></td><td>A list of names</td><td>List. What is in this room.</td></tr>
+    <tr><td><code>ls -la</code></td><td>One name per line, with size, date, owner, and the hidden dotfiles</td><td>The same list, told properly. <code>-l</code> is long, <code>-a</code> is all.</td></tr>
+    <tr><td><code>cd Downloads</code></td><td>Nothing</td><td>Change directory. Walk into it. Silence means it worked.</td></tr>
+    <tr><td><code>cd ..</code></td><td>Nothing</td><td>Walk back up one.</td></tr>
+    <tr><td><code>cd</code> alone, or <code>cd ~</code></td><td>Nothing</td><td>Go home.</td></tr>
+    <tr><td><code>open .</code></td><td>A Finder window</td><td>Open the current folder in Finder. The bridge between the two worlds.</td></tr>
+    <tr><td><code>cat CLAUDE.md</code></td><td>The whole file, dumped</td><td>Print a file. Good for short files, brutal for long ones.</td></tr>
+    <tr><td><code>head -20 file.js</code></td><td>The first 20 lines</td><td>Just the top. This is how you taste a file.</td></tr>
+  </table>
+
+  <p>Two habits make this feel less hostile. <strong>Press tab</strong>: type <code>cd Down</code>, hit tab, the shell finishes it. Tab completion is a spellchecker, because if tab will not complete it, the thing does not exist. <strong>Press the up arrow</strong> to bring back the last command and edit it instead of retyping.</p>
+  <p>One trap: spaces separate a command from its parts, so a name with a space in it must be quoted. Memento's root holds a launcher called <code>Open Memento (new modular).command</code>, and reading it takes <code>cat "Open Memento (new modular).command"</code>. Without the quotes you get an error about four files that do not exist.</p>
+
+  <h3>Break it: mistype a path</h3>
+  <p>On purpose: stand in MEMENTO and type <code>cd memento-ap</code>, missing the final p.</p>
+  <pre><code>cd: no such file or directory: memento-ap</code></pre>
+  <p>Three facts in one line. <code>cd</code> complained. Nothing by that name exists here. The name it tried is quoted back so you can compare it letter by letter with what you meant. Nothing was created, nothing was damaged. Type <code>cd memento-a</code>, press tab, and you are in. That loop, type, read the error literally, fix the letter, run again, is what the work looks like. Engineers do it dozens of times a day.</p>
+
+  <h3>Opening code in an editor</h3>
+  <p>The Terminal is for walking and peeking. Real reading happens in an <dfn data-term="editor">editor</dfn>, a program built for a whole folder of text files. You already have one: the Claude desktop app's code view shows the file an agent touched, with line numbers. Engineers mostly use VS Code or Cursor, both free, and you need neither to finish this book. <code>open -a TextEdit somefile.js</code> puts any file on screen.</p>
+  <p>Four things an editor gives you that <code>cat</code> cannot:</p>
+  <ul>
+    <li><strong>The file tree.</strong> The left sidebar is the figure above, live. Clicking a folder is <code>cd</code>, and the shape of an app becomes obvious in ten seconds.</li>
+    <li><strong>Project-wide search.</strong> Cmd+Shift+F searches every file at once. Type <code>persistState</code> and you get all 25 places in Memento's web app that call it. That one feature is most of what reading a codebase is.</li>
+    <li><strong>Go to definition.</strong> Cmd+click a name to jump to where it was created. Find references does the reverse.</li>
+    <li><strong>Following a path:line link.</strong> When an agent, a test or an error says <code>js/01-state-foundation.js:488</code>, that is a file and a line number, and an editor turns it into a click. This book cites Memento the same way.</li>
+  </ul>
+  <p>Now the routine for any codebase you have never seen. Ten minutes, in order: read the README, read the top-level folder names and guess each one's job, find the entry file that starts everything (<code>index.html</code>, <code>index.js</code>, <code>main.ts</code>, <code>src/app/</code>), read <code>package.json</code>'s scripts and dependencies, open the biggest file because that is where the mess lives, find the tests folder because it is the closest thing to a spec, then search one feature name and read what comes back.</p>
+
+  <h2>See it</h2>
+  <p>A path is text with slashes in it, and the commands you just learned are string operations with a disk behind them. This one runs on your phone.</p>
+  <div class="sb">
+const p = "/Users/malikpeace/Downloads/MEMENTO/memento-app/js/01-state-foundation.js";
+const parts = p.split("/");
+console.log("steps in the walk:", parts.length - 1);
+console.log("the file:", parts[parts.length - 1]);
+console.log("the folder it sits in:", parts.slice(0, -1).join("/"));
+
+function up(path) { return path.split("/").slice(0, -1).join("/"); }
+console.log("cd .. once:", up("/Users/malikpeace/Downloads/MEMENTO"));
+console.log("cd .. twice:", up(up("/Users/malikpeace/Downloads/MEMENTO")));
+
+function join(...bits) { return bits.join("/").replace(/\/+/g, "/"); }
+console.log("joined:", join("/Users/malikpeace", "Downloads/", "MEMENTO"));
+
+const HOME = "/Users/malikpeace";
+console.log("what the shell does with ~:", "~/Downloads/MEMENTO".replace("~", HOME));
+</div>
+  <p>That last line is the whole mystery of <code>~</code>: the shell swaps in your home folder before the command runs.</p>
+
+  <h2>Now in Memento</h2>
+  <div class="lanes">
+    <div class="lane"><div class="h">ANY APP</div>
+      <p>Two ways to organise a codebase.</p>
+      <p><strong>By load order.</strong> Files are numbered and run top to bottom. The number is the architecture. No build step, edit and refresh. But nothing states what needs what, and a file in the wrong position crashes at boot.</p>
+      <p><strong>By job.</strong> Files sit in folders named after what they do, each declaring what it needs, and a tool works out the order. You have to keep that tool. In exchange the dependencies are written down and the folder name tells a newcomer where to look.</p>
+    </div>
+    <div class="lane mem"><div class="h">MEMENTO</div>
+      <p>Memento is both, in one folder, because one is being rebuilt into the other. <code>ls memento-app/js</code> gives 38 files, all numbered:</p>
+      <pre><code>00-backup-security.js
+00-error-reporting.js
+01-state-foundation.js
+02-clarity-experience.js
+03-ai-integration.js</code></pre>
+      <p>The numbers are not decoration. The shell that loads them says so:</p>
+      <pre><code>&lt;!-- App, split into per-feature files. Loaded as classic &lt;script&gt;s (NOT modules)
+     so they share one global lexical scope exactly like the original single IIFE.
+     const/let/class stay scoped (no window pollution); top-level function decls
+     are hoisted across files at call time. Order matters: every definition file
+     must load before 11-init.js, which runs the bootstrap immediately on load. --&gt;</code></pre>
+      <div class="src">memento-app/index.html:809-813 (web pin ca8afc8)</div>
+      <p>And the rule for humans, at the top of the repo:</p>
+      <pre><code>## WHERE THINGS LIVE (edit the right file)
+Styling:
+- A feature's look → `css/&lt;feature&gt;.css` (Notes look → `css/notes.css`; also dashboard, sidebar, misc, vivere, onboarding, clarity, action).</code></pre>
+      <div class="src">CLAUDE.md:14-16 (repo root, native pin 93bfa796)</div>
+      <p>It then lists the js folder file by file so an agent knows which one to open. That list has drifted: CLAUDE.md says 21 js files and 16 css files, <code>ls</code> says 38 and 22. The folder is the truth. A map is a document somebody has to maintain.</p>
+      <p>Now <code>ls memento-native/src</code>, the rebuild:</p>
+      <pre><code>ai      auth    clarity  home   rules    sample   storage  ui
+app     billing entry    notes  rewards  runtime  star     sync</code></pre>
+      <p>Sixteen folders, no numbers, named after jobs. Nothing loads by position; each file names what it needs.</p>
+    </div>
+  </div>
+  <div class="box memento"><div class="h">THE ALTERNATIVE, AND WHY MEMENTO CHOSE THIS</div><p>The web app could have used modules and a bundler from day one, which is what almost every team does. Not doing it was right for what it was: one founder and an agent shipping several times a day, where a build step is one more thing that breaks at 2am. The bill arrived later. 67,000 lines in one shared global scope, a file numbered 33 that exists to catch a deleted name, two files numbered 20, a map that no longer matches the folder. The rebuild pays the tooling cost up front to get the import graph back. Chapter 26 adds up what each one cost.</p></div>
+
+  <div class="box"><div class="h">NEVER TYPE THESE INSIDE ~/Downloads/MEMENTO</div>
+    <p>Everything above only reads. These change things, and this folder is a live product two agents work in.</p>
+    <ul>
+      <li><code>rm</code> deletes, with no Trash and no undo. <code>rm -rf</code> takes a whole folder tree without asking. Recovery means a backup.</li>
+      <li><code>git add</code> and <code>git commit</code> record changes. In a shared tree, a blanket add scoops up another agent's half-finished work and ships it. Memento's rules ban <code>git add -A</code> for exactly that.</li>
+      <li><code>git checkout</code> and <code>git restore</code> can throw away uncommitted work permanently. Chapter 28, with the safety commit that goes first.</li>
+      <li><code>npm install</code> downloads and runs other people's code and rewrites the lockfile. Never in a folder you are visiting. Chapter 19.</li>
+    </ul>
+    <p>Inside MEMENTO you may use <code>ls</code>, <code>cd</code>, <code>pwd</code>, <code>cat</code>, <code>head</code>, <code>open</code> and later <code>grep</code>. Nothing else. Anything that writes goes in the book's sandbox folder, which exists to be broken.</p>
+  </div>
+
+  <h2>Do it</h2>
+  <div class="ex" data-device="mac">
+    <div class="h">Exercise <span class="tag mac">MAC</span></div>
+    <div class="meta">Where: the Terminal, starting wherever it opens. Expected: you reach Memento, read the top of a real file, and get one error on purpose. Reset: type <code>cd</code> and press return, or close the window. This cannot touch Memento: every command below only reads.</div>
+    <ol>
+      <li>cmd+space, type <code>terminal</code>, return. Type <code>pwd</code>. That is where you are standing.</li>
+      <li><code>ls</code>, then <code>ls -la</code>. Find a name starting with a dot. Those are the hidden files.</li>
+      <li><code>cd Downloads/MEMENTO</code>, using tab after a few letters, then <code>pwd</code>. Now <code>ls</code>. Those 178 entries are the real repo root: source next to PDFs next to a screen recording. Chapter 26 has opinions.</li>
+      <li>Break it: <code>cd memento-ap</code>. Read the error out loud. Then <code>cd memento-a</code> plus tab, and you are in.</li>
+      <li><code>ls js | head -8</code>. There is the numbering.</li>
+      <li><code>head -20 js/33-action-shim.js</code>. That is the file from chapter 1, in your own hands: twenty lines of a human explaining 6,070 deleted ones.</li>
+      <li><code>cd ../memento-native/src</code>, then <code>ls</code>. Same app, sixteen job-named folders, zero numbers.</li>
+      <li><code>open .</code>. Finder opens the folder you are standing in. Same place, two windows.</li>
+      <li>The editor step: <code>open -a TextEdit ~/Downloads/CODE-BOOK/sandbox/v1/app.js</code>. That is Memento Jr, the practice app, not Memento. Scroll it, close with cmd+W, choose Don't Save. If you have VS Code or Cursor, open the whole CODE-BOOK folder there instead and look at the file tree.</li>
+      <li><code>cd</code> and return. Home.</li>
+    </ol>
+  </div>
+
+  <div class="box why"><div class="h">ASK THE AGENT WHY (paste this into Codex or Fable)</div><pre><code>Explain why memento-app/js files are numbered and loaded as classic scripts instead of ES modules, what physically happens at boot if two files load in the wrong order, and why CLAUDE.md's file list no longer matches what ls shows. Do not change anything.</code></pre></div>
+
+  <div class="box words"><div class="h">WORDS YOU NOW OWN</div><dl>
+    <dt>Folder (directory)</dt><dd>A named container of files and other folders. The whole machine is one nest of them starting at <code>/</code>.</dd>
+    <dt>Path</dt><dd>The address of a file: the folders you walk through, joined with slashes.</dd>
+    <dt>Absolute and relative path</dt><dd>Absolute starts at <code>/</code> or <code>~</code> and means the same from anywhere. Relative starts from where you are standing.</dd>
+    <dt>Home folder</dt><dd>Your own top-level folder. <code>~</code> is shorthand for it. Yours is <code>/Users/malikpeace</code>.</dd>
+    <dt>Working directory</dt><dd>The folder the Terminal is standing in. <code>pwd</code> tells you, <code>cd</code> changes it.</dd>
+    <dt>Hidden file</dt><dd>A file whose name starts with a dot. Not secret, just not shown by default. Often the tooling that matters.</dd>
+    <dt>Editor</dt><dd>A program for a whole folder of code: file tree, project-wide search, go to definition, clickable path:line links.</dd>
+  </dl></div>
+
+  <div class="box expiry"><div class="h">WHERE TODAY'S ANALOGY BREAKS</div><p><strong>Breaks when:</strong> you leave the Mac. On your iPhone there is no address you can type: each app gets a sealed container, which is why "where is my Memento data on my phone" has no path for an answer. A database row is not a file either. And on the disk a file is not one chunk of bytes in one spot, it is scattered pieces the operating system assembles for you. <strong>Real model:</strong> a path is a name the operating system agrees to resolve to some stored data, and how much of the machine is addressable that way is each operating system's choice. On a Mac, nearly all of it. On iOS, almost none. For this book, the building with rooms is the right picture.</p></div>
+
+  <details class="hole"><summary>RABBIT HOLE: why the slashes lean that way</summary><p>Mac and Linux separate folders with <code>/</code>. Windows uses <code>\</code>, from a 1981 accident: the forward slash was already taken for command options, so paths got the backslash, and software has handled both ever since. Memento never meets the problem, since its files are only read by a browser or a Mac.</p></details>
+</main>
+<script src="../js/book.js"></script>
+</body>
+</html>

@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>3. Seventy years of coding in one hour. BIG CODE BOOK</title>
+<link rel="stylesheet" href="../css/book.css">
+<meta name="theme-color" content="#0b0b0d">
+</head>
+<body data-chapter="3">
+<main>
+  <div class="kicker">Chapter 3 <span class="tag eng">ENGINEER</span> <span class="tag">~50 min</span> <span class="tag">phone or Mac</span></div>
+  <h1>Seventy years of coding in one hour</h1>
+  <p class="lede">Nothing under Memento was invented for Memento. Every layer it stands on is between six and seventy years old, and each one was built by somebody solving their own problem. The only genuinely new thing in your company is who does the typing.</p>
+
+  <div class="box recap"><div class="h">LAST TIME</div><p>One tap in Memento is a relay: phone, JavaScript, state, network, a rented server, the AI company, and back, then saved twice. The top of that map runs on the user's phone and the bottom runs on computers Memento pays rent for. The proxy exists so the secret key never rides along in the app.</p></div>
+
+  <h2>Quick check</h2>
+  <details class="check"><summary>On the journey map, which stops run on somebody else's computer?</summary><div class="a">The edge function, Anthropic, and the Postgres database. Everything from finger to saved-on-phone runs on the user's own device, which the user already paid for.</div></details>
+  <details class="check"><summary>What is the difference between a program and a process?</summary><div class="a">A program is the file of instructions sitting on a disk. A process is that program while it is running, loaded into memory, with a CPU walking through it.</div></details>
+  <details class="check"><summary>Why does Memento have a proxy instead of calling the AI from the phone?</summary><div class="a">Because the call needs a secret key and a phone cannot keep a secret. Anything shipped to a user's device can be read by that user. The key lives in the server's environment instead.</div></details>
+
+  <h2>The idea</h2>
+  <p>Seventy years of programming is one move, repeated. Somebody does a horrible job by hand, once. Then they write a program that does that job, and nobody ever has to do it by hand again. The program that removes the horrible job is called an <dfn data-term="abstraction">abstraction</dfn>. Stack enough of them and you get 2026, where a founder who cannot write a for-loop ships a real app with real customers.</p>
+  <p>The first move was the biggest. In the 1940s and 1950s, a program was a physical thing: wires you moved, or cards with holes punched in them. Every instruction was a number, specific to one machine, and if you wanted the program on a different machine you wrote it again from scratch. This is <dfn data-term="machine-code">machine code</dfn>, and it is still what the CPU actually eats. Nobody writes it any more.</p>
+  <p>Then somebody wrote a program that read human-ish text and produced those numbers. That program is a <dfn data-term="compiler">compiler</dfn>. Fortran arrived in 1957 and let scientists write formulas. C arrived in 1972 at Bell Labs and became the language operating systems are written in, which it still is, fifty-four years later. The compiler was written by hand in machine code once, and then never again. That is the shape of every layer that follows.</p>
+
+  <div class="box analogy"><div class="h">ANALOGY (TEMPORARY)</div><p>A building. You work on the ninth floor. Somebody poured the foundation in 1957, somebody framed the third floor in 1995, somebody put the lift in around 2010, and you have met none of them. You do not need to know how the plumbing works to use the tap. But the floors are real, they are load-bearing, and when the basement floods your ninth-floor carpet gets wet. That flood is what a bug at a lower layer feels like from up here.</p></div>
+
+  <figure class="fig-box">
+    <svg class="figure" viewBox="0 0 640 300" role="img" aria-label="A timeline from 1957 to 2020. Ten markers: Fortran 1957 and C 1972 in grey, then JavaScript 1995, Git 2005, cloud 2006, GitHub and the App Store 2008, npm 2010, TypeScript 2012, React and React Native 2013 and 2015, and Supabase 2020, all marked in green as layers Memento stands on.">
+      <text class="st lo" x="20" y="24">grey = Memento never touches it. green = Memento stands on it today.</text>
+      <line class="ln" x1="30" y1="120" x2="620" y2="120"/>
+      <g>
+        <circle class="dot lo" cx="48" cy="120" r="5"/>
+        <text class="st lo" x="48" y="106" text-anchor="middle">1957</text>
+        <text class="st" x="48" y="146" text-anchor="middle">Fortran</text>
+        <text class="st lo" x="48" y="162" text-anchor="middle">compilers</text>
+      </g>
+      <g>
+        <circle class="dot lo" cx="118" cy="120" r="5"/>
+        <text class="st lo" x="118" y="106" text-anchor="middle">1972</text>
+        <text class="st" x="118" y="186" text-anchor="middle">C</text>
+        <text class="st lo" x="118" y="202" text-anchor="middle">operating systems</text>
+      </g>
+      <g>
+        <circle class="dot" cx="200" cy="120" r="5"/>
+        <text class="st lo" x="200" y="106" text-anchor="middle">1995</text>
+        <text class="st" x="200" y="146" text-anchor="middle">JavaScript</text>
+        <text class="st lo" x="200" y="162" text-anchor="middle">pages that do things</text>
+      </g>
+      <g>
+        <circle class="dot" cx="290" cy="120" r="5"/>
+        <text class="st lo" x="290" y="106" text-anchor="middle">2005</text>
+        <text class="st" x="290" y="186" text-anchor="middle">Git</text>
+        <text class="st lo" x="290" y="202" text-anchor="middle">history of changes</text>
+      </g>
+      <g>
+        <circle class="dot" cx="355" cy="120" r="5"/>
+        <text class="st lo" x="355" y="106" text-anchor="middle">2006</text>
+        <text class="st" x="355" y="146" text-anchor="middle">cloud</text>
+        <text class="st lo" x="355" y="162" text-anchor="middle">rent a server</text>
+      </g>
+      <g>
+        <circle class="dot" cx="420" cy="120" r="5"/>
+        <text class="st lo" x="420" y="106" text-anchor="middle">2008</text>
+        <text class="st" x="420" y="186" text-anchor="middle">GitHub, App Store</text>
+      </g>
+      <g>
+        <circle class="dot" cx="478" cy="120" r="5"/>
+        <text class="st lo" x="478" y="106" text-anchor="middle">2010</text>
+        <text class="st" x="478" y="146" text-anchor="middle">npm</text>
+        <text class="st lo" x="478" y="162" text-anchor="middle">borrowed code</text>
+      </g>
+      <g>
+        <circle class="dot" cx="530" cy="120" r="5"/>
+        <text class="st lo" x="530" y="222" text-anchor="middle">2012</text>
+        <text class="st" x="530" y="238" text-anchor="middle">TypeScript</text>
+        <line class="ln acc" x1="530" y1="126" x2="530" y2="210"/>
+      </g>
+      <g>
+        <circle class="dot" cx="572" cy="120" r="5"/>
+        <text class="st lo" x="572" y="186" text-anchor="middle">2013 / 2015</text>
+        <text class="st" x="572" y="202" text-anchor="middle">React, RN</text>
+      </g>
+      <g>
+        <circle class="dot" cx="612" cy="120" r="5"/>
+        <text class="st lo" x="612" y="106" text-anchor="middle">2020</text>
+        <text class="st" x="612" y="146" text-anchor="middle">Supabase</text>
+      </g>
+      <text class="st lo" x="30" y="276">Memento's web app sits on 1995. Its native rebuild sits on 2012 to 2020. Nothing on this line was built for you.</text>
+    </svg>
+    <figcaption>The whole stack under your company, on one line. Eight of the ten markers are load-bearing for Memento right now.</figcaption>
+  </figure>
+
+  <h3>The rest of the story, fast</h3>
+  <p>In 1995 Netscape needed pages that could do something when you clicked. A man wrote <dfn data-term="javascript">JavaScript</dfn> in about ten days. It was a rush job for a browser war and it is now the language your entire web app is written in, thirty-one years later. That is not unusual. Most of the load-bearing stuff in software was a rush job that nobody got around to replacing.</p>
+  <p>Next came the idea that code should be shared instead of sold: <dfn data-term="open-source">open source</dfn>. Linux, Apache, and eventually everything. It means nobody starts from zero. In 2005 Linus Torvalds wrote <dfn data-term="git">Git</dfn> in a couple of weeks because the Linux project lost access to its old tool. Git records every change to a folder of code so nothing is ever lost and two people can work on the same files. In 2008 GitHub put Git online and turned "pull request" into a verb. Your two agents commit through Git and push to GitHub every single day. Chapters 7 and 8 take that apart properly.</p>
+  <p>In 2006 Amazon started renting computers by the hour. That is the <dfn data-term="cloud">cloud</dfn>, and it is the reason a solo founder can host anything at all. Before it, you bought a machine, put it in a room, and prayed. Two years later Apple opened the App Store and "an app" became the default shape of a software product, which is the shape you are rebuilding Memento into.</p>
+  <p>In 2009 Node.js let JavaScript run outside a browser, so the same language could write servers. In January 2010 <dfn data-term="package-manager">npm</dfn> shipped: a package manager, a way to download other people's JavaScript with one command. That one command is why a small project today pulls in hundreds of strangers' code. Chapter 19 covers what you are agreeing to when you install something.</p>
+  <p>In 2012 Microsoft released TypeScript: JavaScript with a proofreader that checks your work before anything runs. In 2013 Facebook open-sourced React, a <dfn data-term="framework">framework</dfn> for describing a screen as a function of your data instead of poking at the page by hand. In 2015 React Native did the same trick for phones, drawing real iOS and Android views from JavaScript. Expo grew on top as the standard toolkit. That combination is exactly what <code>memento-native/</code> is.</p>
+  <p>Last floor. Firebase, from 2011, sold founders on not running a database server themselves. <dfn data-term="supabase">Supabase</dfn>, founded in January 2020, did the open-source version on top of Postgres, the database the serious people already trusted. It is now what your accounts, sync, and billing sit on.</p>
+
+  <h3>Language cameos</h3>
+  <p>You will hear these names. Here is what they are for and whether they are in your building.</p>
+  <table>
+    <tr><th>Language</th><th>What it is for</th><th>Who uses it</th><th>In Memento?</th></tr>
+    <tr><td>C</td><td>Speaking to the hardware. Operating systems, drivers, the guts of other languages.</td><td>Systems people, Apple, Google, Linux</td><td>No. It is under everything, several floors down.</td></tr>
+    <tr><td>Python</td><td>Scripts, data, machine learning. Easy to read, slow to run.</td><td>Researchers, data teams, AI labs</td><td>No.</td></tr>
+    <tr><td>Swift</td><td>Apple's language for iPhone and Mac apps.</td><td>iOS developers</td><td>Under React Native, yes. Nobody on your side writes it.</td></tr>
+    <tr><td>Kotlin / Java</td><td>Android's languages, plus most big-company backends.</td><td>Android developers, banks, enterprises</td><td>Same: under React Native, never written by you.</td></tr>
+    <tr><td>Go</td><td>Fast, simple servers and infrastructure tools.</td><td>Cloud companies, Docker, Kubernetes</td><td>No.</td></tr>
+    <tr><td>Rust</td><td>Fast like C, with the memory traps removed by the compiler.</td><td>Browsers, infrastructure, the ambitious</td><td>No.</td></tr>
+    <tr><td><dfn data-term="sql">SQL</dfn></td><td>Asking a database questions and changing what it stores.</td><td>Everyone with a database</td><td>Yes. 33 migration files in <code>supabase/migrations/</code>. Chapter 17.</td></tr>
+    <tr><td>HTML / CSS</td><td>The skeleton and the skin of a web page. Not programming languages.</td><td>Every website</td><td>Yes, heavily. 22 CSS files. Chapter 13.</td></tr>
+  </table>
+
+  <h2>See it</h2>
+  <p>The abstraction ladder, in one box. Three versions of the same job: add up a week of daily minutes. Level 0 is the machine's view, numbered slots and one finger. Level 1 wraps it in a name. Level 2 uses a wrapper somebody else already wrote. All three print the same number. Each one is shorter, and each one hides more from you.</p>
+  <div class="sb">
+// Level 0: the machine's view. Slots, an index, a running total.
+const slots = [20, 35, 0, 45, 15, 60, 10];
+let total = 0;
+let i = 0;
+while (i < slots.length) {
+  total = total + slots[i];
+  i = i + 1;
+}
+console.log("level 0:", total);
+
+// Level 1: same steps, given a name. Now it is a tool.
+function sumOf(list) {
+  let t = 0;
+  for (let n of list) t = t + n;
+  return t;
+}
+console.log("level 1:", sumOf(slots));
+
+// Level 2: somebody already wrote the loop. You describe the job.
+console.log("level 2:", slots.reduce((a, b) => a + b, 0));
+</div>
+  <p>Level 2 is where your agents write. Level 0 is what still runs. Nothing changed in the arithmetic, only in how much of it a human holds in their head.</p>
+
+  <h2>Now in Memento</h2>
+  <div class="lanes">
+    <div class="lane"><div class="h">ANY APP: 1995, still running</div>
+      <p>The oldest way to build a web page is still the simplest: write HTML, list your script files in the order they should run, and the browser fetches and runs each one top to bottom. No build step, no tooling, no install. Every name a file defines becomes available to the files listed after it. Get the order wrong and something calls a name that does not exist yet.</p>
+    </div>
+    <div class="lane mem"><div class="h">MEMENTO: 1995, still running</div>
+      <p>The whole web app is loaded by a list of script tags in one file, in a hand-chosen order:</p>
+      <pre><code>&lt;script src="js/33-action-shim.js?v=v1358"&gt;&lt;/script&gt;
+&lt;script src="js/03-ai-integration.js?v=v1358"&gt;&lt;/script&gt;
+&lt;script src="js/04-templates-proof.js?v=v1358"&gt;&lt;/script&gt;
+&lt;script src="js/05-vivere.js?v=v1020"&gt;&lt;/script&gt;
+&lt;script src="js/06-consistency-mori.js?v=v1358"&gt;&lt;/script&gt;
+&lt;script src="js/07-sheet-templates.js?v=v1358"&gt;&lt;/script&gt;</code></pre>
+      <div class="src">memento-app/index.html:823-828 (web pin ca8afc8)</div>
+      <p>That is 1995's idea, unchanged, running your business in 2026. The numbered filenames are the order. The <code>?v=v1358</code> is a human doing by hand what a modern tool does automatically: changing the address so browsers stop serving an old copy. Chapter 20 explains that trick.</p>
+    </div>
+  </div>
+
+  <div class="lanes">
+    <div class="lane"><div class="h">ANY APP: the 2013 to 2020 layer</div>
+      <p>A modern app declares its floors in a file. It lists every piece of borrowed code with an exact version, and a tool downloads them. The app is then written against those pieces rather than against the browser directly.</p>
+    </div>
+    <div class="lane mem"><div class="h">MEMENTO: the 2013 to 2020 layer</div>
+      <p>The native rebuild's floors, named and pinned:</p>
+      <pre><code>  "dependencies": {
+    ...
+    "expo": "57.0.22",
+    ...
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "react-native": "0.86.3",
+    ...
+  "devDependencies": {
+    ...
+    "typescript": "6.0.3"
+  }</code></pre>
+      <div class="src">memento-native/package.json:17-56 (native pin 93bfa796)</div>
+      <p>Four lines, four floors: 2013, 2015, and 2012, plus the toolkit that holds them together. Every one of them existed years before Memento did.</p>
+    </div>
+  </div>
+
+  <div class="box memento"><div class="h">THE ALTERNATIVE, AND WHY MEMENTO CHOSE THIS</div><p>The web app could have used a <dfn data-term="bundler">bundler</dfn>: a tool that reads all 38 JavaScript files, works out the order itself, squashes them into one file, and stamps a fresh address on it every build. Almost every professional web app does this. Memento does not, and there is no <code>package.json</code> in <code>memento-app/</code> at all. The price of skipping it: the order is maintained by a human, the cache-busting version number is typed by hand in two places, and nothing checks either. What it bought: any file can be opened and read on its own, and the app runs by double-clicking a launcher. For a solo founder with two agents and no build engineer, that trade held up for a long time. The native rebuild takes the other road, which is why it has a lockfile and a CI robot.</p></div>
+
+  <h2>Do it</h2>
+  <div class="ex">
+    <div class="h">Exercise <span class="tag">phone or Mac</span></div>
+    <div class="meta">Where: paper, or the notes app. Expected: a line with eight things on it and a date next to each. Reset: none needed. This cannot touch Memento.</div>
+    <ol>
+      <li>Draw a horizontal line. Mark 1995 on the left and 2020 on the right.</li>
+      <li>From memory, place these on it: JavaScript, Git, GitHub, the cloud, the App Store, npm, TypeScript, React Native, Supabase. Do not scroll up.</li>
+      <li>Next to each one, write one short sentence: what it does for Memento specifically. If you cannot, that is the chapter you should read twice later.</li>
+      <li>Circle the ones that would stop Memento working tomorrow if they vanished. Then check your line against the figure above.</li>
+    </ol>
+  </div>
+
+  <div class="box why"><div class="h">ASK THE AGENT WHY (paste this into Codex or Fable)</div><pre><code>memento-app has no bundler, no package.json and no framework: it loads 38 plain script files with script tags in index.html, in a hand-chosen order, with a ?v= version typed by hand. Explain what a bundler and a framework would have done for it, what specifically breaks or gets risky without them, and what the no-build setup buys in exchange. Do not change anything.</code></pre></div>
+
+  <div class="box words"><div class="h">WORDS YOU NOW OWN</div><dl>
+    <dt>Abstraction</dt><dd>A hard job, done once, wrapped in a name so nobody has to do it again. Every layer under your app is one of these.</dd>
+    <dt>Machine code</dt><dd>The numbers a CPU actually eats. Written by hand in the 1950s, written by tools ever since.</dd>
+    <dt>Compiler</dt><dd>A program that turns human-readable code into machine instructions. The first great abstraction, 1957.</dd>
+    <dt>Open source</dt><dd>Code published for anyone to read, use and change. The reason nobody starts from zero.</dd>
+    <dt>Cloud</dt><dd>Renting somebody else's computers by the hour instead of buying your own. 2006 onward.</dd>
+    <dt>Package manager (npm)</dt><dd>One command that downloads other people's code into your project, with a version number attached.</dd>
+    <dt>Framework</dt><dd>Borrowed code with opinions. It calls your code rather than the other way round. React is one.</dd>
+    <dt>Bundler</dt><dd>A tool that reads all your source files and produces one file the browser loads. Memento's web app deliberately has none.</dd>
+    <dt>SQL</dt><dd>The language for asking a database questions. Memento has 33 SQL migration files.</dd>
+  </dl></div>
+
+  <div class="box expiry"><div class="h">WHERE TODAY'S ANALOGY BREAKS</div><p><strong>Breaks when:</strong> you assume the floors are sealed and you never have to look down. Every abstraction leaks. A JavaScript number behaves oddly because of a 1985 floating-point standard. A CSS layout breaks on iOS because of how Safari counts a blurred element's size. An <code>npm install</code> pulls a stranger's code onto your machine. The ninth floor really does get wet. <strong>Real model:</strong> layers are contracts, not walls, and each one is honoured only until the case nobody thought about. The practical version for you: when something makes no sense at your layer, the answer is usually one floor down, and the fastest way to find it is to ask which layer is telling the lie.</p></div>
+
+  <details class="hole"><summary>RABBIT HOLE: what a compiler actually does</summary><p>It reads your text into words, works out the grammar into a tree, checks the tree makes sense, then walks it producing instructions. JavaScript does not do this ahead of time. The engine in your browser reads the text, starts interpreting it immediately, and compiles the hot parts to machine code while the program is already running. That is why a JavaScript file needs no build step to work and why the same file runs on an iPhone and a Mac despite different chips: the engine on each does the translating. TypeScript, meanwhile, compiles to JavaScript and then throws all the type information away, because the browser never sees it. Chapter 21.</p></details>
+</main>
+<script src="../js/book.js"></script>
+</body>
+</html>

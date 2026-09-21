@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>10. JavaScript 2: functions and the call stack. BIG CODE BOOK</title>
+<link rel="stylesheet" href="../css/book.css">
+<meta name="theme-color" content="#0b0b0d">
+</head>
+<body data-chapter="10">
+<main>
+  <div class="kicker">Chapter 10 <span class="tag need">NEED</span> <span class="tag">~55 min</span> <span class="tag">phone or Mac</span></div>
+  <h1>JavaScript 2: functions and the call stack</h1>
+  <p class="lede">A function is a named recipe. Writing it down does nothing at all. Calling it is what runs it. Once you can see the pile of half-finished recipes a running program is holding, error messages stop being noise and start being directions.</p>
+
+  <div class="box recap"><div class="h">LAST TIME</div><p>A variable is a name tag tied to one value, never a box. Every value has a type, and text that looks like a number behaves nothing like a number. <code>const</code> locks the name, not the object behind it, and <code>===</code> is the only comparison you should write.</p></div>
+
+  <h2>Quick check</h2>
+  <details class="check"><summary><code>let best = streak;</code> then <code>streak = 10;</code>. What is <code>best</code>?</summary><div class="a">Whatever streak was pointing at when that line ran. The two names were never linked. Assignment reads the right side once and points the left name at the result.</div></details>
+  <details class="check"><summary>What does <code>typeof "7"</code> print, and why does it matter?</summary><div class="a"><code>"string"</code>. It matters because a string of digits does arithmetic wrong and silently. It glues instead of adding.</div></details>
+  <details class="check"><summary>What is a commit, physically?</summary><div class="a">A snapshot of the whole folder at one moment, with a message, an author, and an id. History is a chain of them, each pointing at the one before.</div></details>
+
+  <h2>The idea</h2>
+  <p>A <dfn data-term="function">function</dfn> is a chunk of steps with a name on it. You write the steps once. Then anywhere in the app, any number of times, you say the name followed by brackets and the steps run.</p>
+  <p>Two words do all the work, and mixing them up is the beginner's mistake. <strong>Defining</strong> a function means writing the recipe down. Nothing happens. No step inside it runs. The machine notes the name and moves on. <strong>Calling</strong> it, writing its name followed by <code>()</code>, is what makes the steps run. A file full of definitions and no calls does precisely nothing.</p>
+
+  <div class="box analogy"><div class="h">ANALOGY (TEMPORARY)</div><p>A recipe card and a cook. The card says "carbonara: boil water, fry the guanciale, mix the eggs". Writing that card feeds nobody. The cook reading the card out loud feeds somebody. <dfn data-term="parameter">Parameters</dfn> are the blanks on the card: "serves N people". <dfn data-term="argument">Arguments</dfn> are the numbers you shout at the cook when you hand the card over: "make it for four". <dfn data-term="return">Return</dfn> is the plate coming back. And the moment the cook hands the plate over, that recipe is finished; anything written after the "hand over the plate" line never gets read.</p></div>
+
+  <p>The shape, with every word labelled:</p>
+  <pre><code>function greet(name, streak) {     // name and streak are parameters: labels for the inputs
+  const line = name + " is on day " + streak;
+  return line;                     // hand this value back, and stop here
+}
+
+const message = greet("Malik", 12);  // "Malik" and 12 are the arguments
+</code></pre>
+  <p>Parameters are variables, and chapter 9's model applies exactly. They are name tags, tied to the values you passed in, and they only exist while the function is running. <code>name</code> is not a box the string went into. It is a tag on the string you handed over.</p>
+  <p><code>return</code> does two things at once and people usually only notice the first. It hands a value back to whoever called, and it stops the function on the spot. Lines below a <code>return</code> that has just run are dead. That second behaviour is what makes guard clauses possible, and Memento is full of them.</p>
+  <p>A function with no <code>return</code> still hands something back: <dfn data-term="undefined">undefined</dfn>, the machine's shrug from chapter 9. This is the most common confusing moment for a beginner. You call a function, it clearly did its job, you print the result, and you get <code>undefined</code>. Nothing is broken. You just never said what to hand back.</p>
+
+  <h3>The call stack</h3>
+  <p>Now the picture that pays for the whole chapter. While a program runs, it keeps a pile of index cards. Each card is one function currently in progress, and holds that function's own local names and the line it is paused on.</p>
+  <p>Call a function: a new card goes on top of the pile. That function calls another: another card on top. A function returns: its card is thrown away, and the machine resumes the card now on top, exactly where it paused. The pile is the <dfn data-term="call-stack">call stack</dfn>, and the only card being worked on is the top one.</p>
+
+  <figure class="fig-box">
+    <svg class="figure" viewBox="0 0 640 280" role="img" aria-label="A pile of three index cards. The bottom card is the program itself, the middle card is onTap, and the top card is draw. An arrow on the left labelled call points upward, showing a new card being placed on top. An arrow on the right labelled return points downward, showing the top card being removed. A note says only the top card is running.">
+      <text class="st lo" x="20" y="24">THE CALL STACK, while draw() is running</text>
+      <rect class="bx acc" x="150" y="46" width="300" height="52" rx="8"/>
+      <text class="st mono" x="170" y="68">draw()</text>
+      <text class="st lo" x="170" y="86">top card: this is the one running right now</text>
+      <rect class="bx" x="150" y="112" width="300" height="52" rx="8"/>
+      <text class="st mono" x="170" y="134">onTap()</text>
+      <text class="st lo" x="170" y="152">paused, waiting for draw() to finish</text>
+      <rect class="bx" x="150" y="178" width="300" height="52" rx="8"/>
+      <text class="st mono" x="170" y="200">the program itself</text>
+      <text class="st lo" x="170" y="218">paused, waiting for onTap() to finish</text>
+      <path class="ln acc" d="M120 200 V60"/><circle class="dot" cx="120" cy="60" r="3.5"/>
+      <text class="st lo" x="108" y="130" text-anchor="end">call:</text>
+      <text class="st lo" x="108" y="146" text-anchor="end">card goes</text>
+      <text class="st lo" x="108" y="162" text-anchor="end">on top</text>
+      <path class="ln cy" d="M480 60 V200"/><circle class="dot cy" cx="480" cy="200" r="3.5"/>
+      <text class="st lo" x="492" y="130">return:</text>
+      <text class="st lo" x="492" y="146">top card is</text>
+      <text class="st lo" x="492" y="162">thrown away</text>
+      <text class="st lo" x="320" y="262" text-anchor="middle">A stack trace in an error message is a photograph of this pile at the moment things went wrong.</text>
+    </svg>
+    <figcaption>The pile of index cards. Chapter 23 reads real ones out of real crashes; today you only need to be able to draw it.</figcaption>
+  </figure>
+
+  <p>Two things fall out of this picture for free. First, <dfn data-term="scope">scope</dfn>: names created inside a function live on that function's card, so they are thrown away when it returns. That is why a name from inside a function is invisible outside it, and why two functions can both use a name like <code>text</code> without colliding. Each has its own card.</p>
+  <p>Second, a <dfn data-term="stack-trace">stack trace</dfn>. When something breaks, the machine prints the pile top to bottom: the function that broke, then who called it, then who called that. It reads like a chain of blame, and the useful line is usually not the top one, it is the first one that names a file you wrote.</p>
+
+  <h3>Guard clauses</h3>
+  <p>Because <code>return</code> stops the function, the cleanest way to handle a bad input is to check for it on the first line and leave. That is a <dfn data-term="guard-clause">guard clause</dfn>: deal with the exits at the top, then write the real work with no nesting under it. The alternative is wrapping everything in an <code>if</code> and drifting three levels deep. Memento's small functions almost all open with one or two guards, and once you can spot them, you can read the real intent of a function in about four seconds.</p>
+
+  <h3>Arrow functions</h3>
+  <p>There is a second spelling. <code>function add(a, b) { return a + b; }</code> can also be written <code>const add = (a, b) =&gt; a + b;</code>. That is an <dfn data-term="arrow-function">arrow function</dfn>: parameters left of the arrow, body on the right, and with a single-expression body the <code>return</code> is implied. Shorter, which matters most when a function is being handed to something else as an instruction, like "when this is clicked, run this". Memento uses both styles, often within a few lines of each other.</p>
+
+  <h2>See it</h2>
+  <p>Same rule as chapter 9, and it stays the rule. <strong>Predict what this prints. Then run.</strong> Six boxes, growing.</p>
+
+  <div class="sb">
+// 1. Defining does nothing. Calling runs it. Predict. Then run.
+function shout() {
+  console.log("the function ran");
+}
+console.log("before");
+shout();
+console.log("after");
+</div>
+
+  <div class="sb">
+// 2. Parameters are labels for what you hand over. Predict all three. Then run.
+function describe(name, days) {
+  return name + " is on day " + days;
+}
+console.log(describe("Malik", 12));
+console.log(describe("Malik", "12"));
+console.log(describe("Malik"));
+</div>
+
+  <div class="sb">
+// 3. return hands back AND stops. Predict both lines. Then run.
+function check(n) {
+  if (n &lt; 0) return "negative";
+  console.log("still going, n is", n);
+  return "fine";
+}
+console.log(check(-5));
+console.log(check(5));
+</div>
+
+  <div class="sb">
+// 4. Three deep. Predict the ORDER of all six lines before you run.
+function draw(label) { console.log("  draw: " + label); }
+function onTap() {
+  console.log(" onTap: start");
+  draw("loading");
+  console.log(" onTap: done");
+}
+console.log("program: start");
+onTap();
+console.log("program: done");
+</div>
+
+  <div class="sb">
+// 5. The same guard clause Memento uses, in miniature. Predict. Then run.
+let loading = false;
+function submit(text) {
+  if (!text || loading) return;
+  loading = true;
+  console.log("sending:", text);
+}
+submit("");            // empty
+submit("my answer");   // real
+submit("again");       // loading is now true
+</div>
+
+  <div class="sb">
+// 6. Two spellings, one idea. Predict. Then run.
+function addLong(a, b) { return a + b; }
+const addShort = (a, b) =&gt; a + b;
+console.log(addLong(2, 3), addShort(2, 3));
+console.log(typeof addLong, typeof addShort);
+</div>
+
+  <p>Box 2's second line is a quiet warning: passing <code>"12"</code> as text prints exactly the same sentence as passing <code>12</code>, because gluing text to text looks identical. That is where a type bug hides until the first time someone does maths on it. The third line is the one that teaches outright. Calling <code>describe("Malik")</code> with one argument does not crash. The <code>days</code> parameter simply never gets tied to anything, so it is <code>undefined</code>, and the sentence comes out with the word <code>undefined</code> in it. The machine did exactly what you said, again.</p>
+
+  <h2>Now in Memento</h2>
+  <div class="lanes">
+    <div class="lane"><div class="h">ANY APP: save, but not too often</div>
+      <p>Saving on every change is wasteful. A user typing a sentence would trigger forty writes. The standard move: cancel any save that has not happened yet, then schedule one for a moment from now. Type fast and only the last survives. Pause and it lands. Before any of that, one guard: if saving would be wrong right now, leave immediately.</p>
+    </div>
+    <div class="lane mem"><div class="h">MEMENTO: persistState()</div>
+      <pre><code>function persistState() {
+  if (DEMO_MODE || IS_RESETTING) return; // never write demo data, or re-write after a reset wipe
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() =&gt; { writeStateToStorage(); }, 150);
+  try { Backend.pushState(); } catch (_) {} // debounced cloud-sync when logged in
+  try { if (window.CloudSync) CloudSync.schedulePush(); } catch (_) {} // optional Supabase mirror
+}</code></pre>
+      <div class="src">memento-app/js/01-state-foundation.js:488-494 (web pin ca8afc8)</div>
+      <p>Six lines, and you can now read every one. Line two is the guard: if this is a demo account or a reset is in progress, return, and the four lines below never run. Line four hands an arrow function to <code>setTimeout</code> as an instruction to carry out in 150 milliseconds. Note that <code>persistState()</code> returns nothing, so it hands back <code>undefined</code>. It was called for what it does, not for what it gives.</p>
+    </div>
+  </div>
+
+  <div class="lanes">
+    <div class="lane"><div class="h">ANY APP: the double-submit guard</div>
+      <p>A user taps Send twice, or taps Send with an empty box. Without a guard you get two requests for one answer, which in an AI product means paying twice and dropping two conflicting replies into one conversation. One line at the top stops both cases.</p>
+    </div>
+    <div class="lane mem"><div class="h">MEMENTO: sendAiAnswer()</div>
+      <pre><code>async function sendAiAnswer() {
+  const text = aiUserAnswer.trim();
+  if (!text || aiChatLoading) return;
+
+  // Pre-flight: catch obvious garbage before burning an API call</code></pre>
+      <div class="src">memento-app/js/03-ai-integration.js:4173-4177 (web pin ca8afc8)</div>
+      <p>Read the guard out loud: if there is no text, or a request is already in flight, leave. Two failure cases, one line, zero nesting. The comment underneath says what it is protecting: money.</p>
+    </div>
+  </div>
+
+  <div class="lanes">
+    <div class="lane"><div class="h">ANY APP: a function handed to something else</div>
+      <p>"When this is clicked, run this" needs a this to run. So you hand a whole function over as a value, and something else calls it later, when the event happens. This is the moment a function stops looking like a recipe card.</p>
+    </div>
+    <div class="lane mem"><div class="h">MEMENTO: the tap from chapter 2</div>
+      <pre><code>btn.addEventListener('click', (e) =&gt; {
+  e.stopPropagation();
+  const key = btn.getAttribute('data-tab');
+  tabBtns.forEach(b =&gt; b.classList.toggle('is-active', b === btn));
+  panels.forEach(p =&gt; p.classList.toggle('is-active', p.getAttribute('data-panel') === key));
+});</code></pre>
+      <div class="src">memento-app/js/02-clarity-experience.js:475-480 (web pin ca8afc8)</div>
+      <p>Three arrow functions in six lines. The outer one is never called by Memento's own code at all. It is handed to the browser, which keeps it and calls it, with the tap event as its argument, possibly minutes later. The two inner ones get handed to <code>forEach</code> and called once per item.</p>
+    </div>
+  </div>
+
+  <div class="box memento"><div class="h">THE ALTERNATIVE, AND WHY MEMENTO CHOSE THIS</div><p>The alternative is to write straight to storage every time anything changes. One line shorter, always correct, and it would make typing in the note editor stutter on a real phone, because every write converts the entire state object to text first. The timer means a burst of forty changes costs one write. The price is a 150 millisecond window where a hard crash loses the last change, which for this app is nothing. A bigger timer, say two seconds, saves more work and widens that window to something a user would notice. 150 is the founder's bet on where the line sits. Chapter 25 comes back to this as a performance tool.</p></div>
+
+  <h2>Do it</h2>
+  <div class="ex">
+    <div class="h">Exercise <span class="tag">phone or Mac</span></div>
+    <div class="meta">Where: paper or notes for part one, then the two boxes below. Expected: your hand-drawn stack matches the printed one, and you turn an <code>undefined</code> into a real answer. Reset: the Reset button on each box. This cannot touch Memento.</div>
+    <ol>
+      <li><strong>Trace it by hand first.</strong> Read box 1 below without running it. On paper, write the pile at five moments: just before <code>start()</code> is called, inside <code>start()</code>, inside <code>loadPlan()</code>, inside <code>label()</code>, and just after <code>label()</code> returns. Each moment is a list of cards, bottom to top.</li>
+      <li>Now predict the exact order of the printed lines. Write it down.</li>
+      <li>Run box 1. Compare with your paper. The printed depth marks show you the pile. Anywhere you were wrong, say in one sentence what rule you had wrong.</li>
+      <li><strong>Break it, then fix it.</strong> Box 2 has a function that forgets to hand anything back. Run it and see the <code>undefined</code>. Fix it by adding one word, run again, and get a real sentence.</li>
+    </ol>
+  </div>
+
+  <div class="sb">
+// 1. Trace the stack on paper BEFORE you run this.
+function label(days) { return "day " + days; }
+function loadPlan(days) {
+  console.log("  loadPlan: asking label()");
+  const text = label(days);
+  console.log("  loadPlan: got back " + text);
+  return text.toUpperCase();
+}
+function start() {
+  console.log(" start: calling loadPlan()");
+  console.log(" start: result is " + loadPlan(12));
+}
+console.log("program: begin");
+start();
+console.log("program: end");
+</div>
+
+  <div class="sb">
+// 2. This prints undefined. One missing word. Find it, fix it, run again.
+function summarise(name, days) {
+  const line = name + " has shown up " + days + " times";
+  line;
+}
+console.log(summarise("Malik", 30));
+console.log(typeof summarise("Malik", 30));
+</div>
+
+  <div class="box why"><div class="h">ASK THE AGENT WHY (paste this into Codex or Fable)</div><pre><code>In memento-app/js/01-state-foundation.js, explain persistState() at line 488 line by line. Tell me exactly what the guard on line 489 protects against, what would go wrong if the 150 millisecond setTimeout were removed and writeStateToStorage() were called directly, and what is lost if the app is killed inside that 150 millisecond window. Then find three other functions in memento-app/js that open with a guard clause and show me each one. Do not change anything.</code></pre></div>
+
+  <div class="box words"><div class="h">WORDS YOU NOW OWN</div><dl>
+    <dt>Function</dt><dd>A named chunk of steps. Writing it down does nothing. Calling it runs it.</dd>
+    <dt>Define vs call</dt><dd>Writing the recipe card vs handing it to the cook. Only the second one does work.</dd>
+    <dt>Parameter / argument</dt><dd>The blank on the card / the value you hand over to fill it. Parameters are name tags that exist only while the function runs.</dd>
+    <dt>return</dt><dd>Hands a value back and stops the function immediately. No return means the caller gets <code>undefined</code>.</dd>
+    <dt>Call stack</dt><dd>The pile of index cards for the functions currently in progress. Only the top one is running.</dd>
+    <dt>Stack trace</dt><dd>A photograph of that pile at the moment something broke. Chapter 23 reads real ones.</dd>
+    <dt>Scope</dt><dd>Names made inside a function live on its card and die when it returns. That is why they are invisible from outside.</dd>
+    <dt>Guard clause</dt><dd>A check at the very top that returns early on a bad case, so the real work below stays flat and readable.</dd>
+    <dt>Arrow function</dt><dd>A shorter spelling, <code>(a, b) =&gt; a + b</code>. Same idea, used most when a function is being handed to something else.</dd>
+  </dl></div>
+
+  <div class="box expiry"><div class="h">WHERE TODAY'S ANALOGY BREAKS</div><p><strong>Breaks when:</strong> you try to hand a recipe card to another recipe. In a kitchen you cannot pass carbonara as an ingredient. In JavaScript a function is itself a value, with a type, and it can be stored in a variable, put in an object, passed as an argument, and returned from another function. You already saw it in the Memento lane: the arrow function handed to <code>addEventListener</code> is never called by Memento's code, it is given away and called later by the browser. <strong>Real model:</strong> functions are values. A function passed to something else so it can be called later is a callback, and it is the backbone of every event and every network reply in the app. Chapter 12 takes that idea and builds the whole async story on it. A second, smaller break: the pile is not the only place a paused function can live. An <code>await</code> takes a card off the pile and puts it aside until the answer arrives, which is why the phone stays responsive while waiting on the AI. Also chapter 12.</p></div>
+
+  <details class="hole"><summary>RABBIT HOLE: what a stack overflow actually is</summary><p>The pile has a size limit, a few thousand cards deep in most browsers. If a function calls itself with no way out, cards pile up until the limit, and the machine gives up with "Maximum call stack size exceeded". That message means one specific thing: something called something called something forever. It is the one error where the top of the stack trace is almost never the useful part, because the trace is the same three lines repeated a thousand times.</p></details>
+</main>
+<script src="../js/book.js"></script>
+</body>
+</html>

@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>9. JavaScript 1: values, variables, types. BIG CODE BOOK</title>
+<link rel="stylesheet" href="../css/book.css">
+<meta name="theme-color" content="#0b0b0d">
+</head>
+<body data-chapter="9">
+<main>
+  <div class="kicker">Chapter 9 <span class="tag need">NEED</span> <span class="tag">~55 min</span> <span class="tag">phone or Mac</span></div>
+  <h1>JavaScript 1: values, variables, types</h1>
+  <p class="lede">Every line of Memento moves values around and hangs names on them. Get the names right and the rest of the language is small. Get them wrong and you will misread code for years.</p>
+
+  <div class="box recap"><div class="h">LAST TIME</div><p>A branch is a movable label pointing at a commit, not a copy of the folder. Merging joins two lines of history, and a conflict is two people editing the same line, which a human settles. That is why Memento gives one owner to each file while two agents work in one tree.</p></div>
+
+  <h2>Quick check</h2>
+  <details class="check"><summary>Your agent says "I made a branch." What physically got created on the disk?</summary><div class="a">A tiny label with a commit id in it. No files were copied. That is why branching costs nothing and why switching branches can feel instant.</div></details>
+  <details class="check"><summary>A command in Terminal prints nothing at all. How do you know whether it worked?</summary><div class="a">The exit code. Run <code>echo $?</code> right after. Zero means success, anything else means failure. Silence is not proof.</div></details>
+  <details class="check"><summary>Name the five habits from chapter 4.</summary><div class="a">Read the plan. Read the diff. Ask why. Demand a verification step. Own the commit. Chapters 9 and 10 exist so that "read the diff" stops being a bluff.</div></details>
+
+  <h2>The idea</h2>
+  <p>There are two separate things, and almost every beginner welds them into one.</p>
+  <p>A <dfn data-term="value">value</dfn> is a piece of data. The number <code>7</code>. The text <code>"stellar"</code>. The answer <code>true</code>. Values exist whether or not anyone has named them. They live in memory, in those numbered slots from chapter 1.</p>
+  <p>A <dfn data-term="variable">variable</dfn> is a name you hang on a value so you can talk about it later. Chapter 1 called it a name tag, not a box, and that phrasing is the whole chapter, so here it is with the consequences attached.</p>
+
+  <div class="box analogy"><div class="h">ANALOGY (TEMPORARY)</div><p>Baggage claim. The suitcases are the values. They sit on the carousel whether or not anyone has claimed them. A variable is a luggage tag with a name written on it, tied to one suitcase. <code>streak = 10</code> means "tie the tag that says streak onto the suitcase holding 10". Re-assigning means untying the tag and tying it to a different suitcase. The tag was never a container. Nothing was ever inside the name.</p></div>
+
+  <figure class="fig-box">
+    <svg class="figure" viewBox="0 0 640 250" role="img" aria-label="Three name tags on the left, labelled streak, best, and theme. Arrows run from each tag across to a panel on the right called memory, which holds three values: the number 10, the number 3, and the text stellar. The names are outside the values, pointing at them.">
+      <text class="st lo" x="20" y="24">NAMES (in your code)</text>
+      <rect class="bx acc" x="20" y="60" width="130" height="34" rx="8"/><text class="st mono" x="85" y="82" text-anchor="middle">streak</text>
+      <rect class="bx acc" x="20" y="112" width="130" height="34" rx="8"/><text class="st mono" x="85" y="134" text-anchor="middle">best</text>
+      <rect class="bx acc" x="20" y="164" width="130" height="34" rx="8"/><text class="st mono" x="85" y="186" text-anchor="middle">theme</text>
+      <text class="st lo" x="330" y="24">MEMORY (the actual values)</text>
+      <rect class="bx" x="330" y="40" width="290" height="176" rx="8"/>
+      <rect class="bx cy" x="350" y="60" width="250" height="34" rx="8"/><text class="st mono" x="475" y="82" text-anchor="middle">10</text>
+      <rect class="bx cy" x="350" y="112" width="250" height="34" rx="8"/><text class="st mono" x="475" y="134" text-anchor="middle">3</text>
+      <rect class="bx cy" x="350" y="164" width="250" height="34" rx="8"/><text class="st mono" x="475" y="186" text-anchor="middle">"stellar"</text>
+      <path class="ln acc" d="M150 77 H350"/><circle class="dot" cx="350" cy="77" r="3.5"/>
+      <path class="ln acc" d="M150 129 H350"/><circle class="dot" cx="350" cy="129" r="3.5"/>
+      <path class="ln acc" d="M150 181 H350"/><circle class="dot" cx="350" cy="181" r="3.5"/>
+      <text class="st lo" x="240" y="236" text-anchor="middle">The name is outside the value and points at it. Re-assigning moves the arrow, it does not refill a box.</text>
+    </svg>
+    <figcaption>The label model. If you ever catch yourself drawing a box with a value written inside it, redraw it like this. The box picture is the one that produces wrong predictions later.</figcaption>
+  </figure>
+
+  <p>Three things follow from the picture, and each kills a misconception that survives in most people for years.</p>
+  <p><strong>A name points at exactly one value at a time.</strong> Never two. People say "the variable holds the old value and the new value" because the box picture lets them imagine a box with two things in it. There is no box. Move the tag and the old suitcase is simply no longer tagged by that name.</p>
+  <p><strong>The equals sign is not an equation.</strong> <code>streak = streak + 1</code> would be nonsense in maths. In code, <code>=</code> is an instruction: work out the right side, then point the left name at the result. Read it as "becomes", never as "equals". This single re-reading fixes more confusion than anything else in the chapter.</p>
+  <p><strong>Tying a second tag copies nothing.</strong> <code>let best = streak</code> reads the value streak points at right now and points best at that. From then on the two names are independent. There is a real exception for objects and arrays, it causes genuine bugs, and it is chapter 11's job.</p>
+
+  <h3>Types: what kind of thing the value is</h3>
+  <p>Every value has a <dfn data-term="type">type</dfn>, which is simply what kind of thing it is. The machine uses the type to decide which rule to apply. Six of them cover almost everything you will read in Memento.</p>
+  <table>
+    <tr><th>Type</th><th>Looks like</th><th>Means</th></tr>
+    <tr><td><dfn data-term="string">string</dfn></td><td><code>'stellar'</code>, <code>"Malik"</code>, <code>''</code></td><td>Text. Quotes make it text. Single or double, pick one.</td></tr>
+    <tr><td><dfn data-term="number">number</dfn></td><td><code>7</code>, <code>0</code>, <code>1.5</code></td><td>A number. No quotes. Whole and decimal are one type here.</td></tr>
+    <tr><td><dfn data-term="boolean">boolean</dfn></td><td><code>true</code>, <code>false</code></td><td>A yes or no. Only two values exist.</td></tr>
+    <tr><td><dfn data-term="null">null</dfn></td><td><code>null</code></td><td>Deliberately empty. A human wrote "there is nothing here on purpose".</td></tr>
+    <tr><td><dfn data-term="undefined">undefined</dfn></td><td><code>undefined</code></td><td>Never given a value. Nobody decided anything. The machine's shrug.</td></tr>
+    <tr><td><dfn data-term="array">array</dfn></td><td><code>[]</code>, <code>['health', 'work']</code></td><td>An ordered list. Square brackets.</td></tr>
+    <tr><td><dfn data-term="object">object</dfn></td><td><code>{ name: 'Malik', streak: 4 }</code></td><td>A bundle of named values. Curly braces. The workhorse of the language.</td></tr>
+  </table>
+  <p>The most expensive type bug in the world is a number that arrived as text. Chapter 1 showed you <code>"7" + 5</code> gluing into <code>"75"</code>. It happens because everything a user types, everything read from storage, and everything that comes back over the network starts as a string. If nobody converts it, a quiet piece of text wanders into your maths. <code>typeof</code> asks a value what it is, and it is the cheapest debugging tool in the language.</p>
+
+  <h3>let, const, and what const actually protects</h3>
+  <p>You create a name with <code>let</code> or <dfn data-term="const">const</dfn>. <code>let</code> means this name may be pointed elsewhere later. <code>const</code> means it may never be moved once tied. Memento uses <code>const</code> by default, so when you read a diff, a <code>let</code> is a small signal that something changes.</p>
+  <p>Here is the part people get wrong. <code>const</code> freezes the tag, not the suitcase. <code>const state = { streak: 4 }</code> then <code>state.streak = 5</code> is completely legal, because the tag never moved. Only <code>state = somethingElse</code> is refused. Hold the sentence: const locks the name, not the thing.</p>
+
+  <h3>Quotes, backticks, and equals signs</h3>
+  <p>Text in quotes is literal. Text in backticks is a <dfn data-term="template-literal">template literal</dfn>, which lets you drop a value into the middle with <code>${...}</code>. Memento's AI prompts and most of its screen copy are built this way. Comparing values uses <dfn data-term="strict-equality">strict equality</dfn>, three equals signs: <code>===</code> asks "same type and same value". There is also a two-equals version, <code>==</code>, which converts types before comparing and says <code>"7" == 7</code> is true. It exists, you will see it in old code, and you should never write it. Three, always.</p>
+  <p>Last thing: a <dfn data-term="comment">comment</dfn> starts with <code>//</code> and the machine ignores the rest of the line. Comments are humans talking to humans across time. Chapter 1's shim file was twenty lines of exactly that.</p>
+
+  <h2>See it</h2>
+  <p>Five boxes. The rule for every one of them, and for the rest of this book: <strong>predict what this prints, out loud or on paper, then run.</strong> A wrong prediction is the whole point. It shows you precisely where your picture of the machine and the real machine disagree, which is the only thing worth finding.</p>
+
+  <div class="sb">
+// 1. Two tags, one starting value. Predict both lines. Then run.
+let streak = 3;
+let best = streak;
+streak = 10;
+console.log(streak);
+console.log(best);
+</div>
+
+  <div class="sb">
+// 2. One name points at one value at a time. Predict all three. Then run.
+let mood = "tired";
+mood = "focused";
+console.log(mood);
+mood = 3;
+console.log(mood, typeof mood);
+</div>
+
+  <div class="sb">
+// 3. Digits in quotes are text, not a number. Predict. Then run.
+const daysText = "7";
+const days = 7;
+console.log(typeof daysText, typeof days);
+console.log(daysText + 1);
+console.log(days + 1);
+console.log(Number(daysText) + 1);
+</div>
+
+  <div class="sb">
+// 4. Comparing, and the two kinds of empty. Predict all five. Then run.
+console.log(7 === 7);
+console.log("7" === 7);
+console.log("7" == 7);
+let letter;
+console.log(letter);
+console.log(letter === null);
+</div>
+
+  <div class="sb">
+// 5. const locks the tag, not the thing behind it. Predict. Then run.
+const person = { name: "Malik", streak: 4, paid: false, domains: ["health", "work"] };
+person.streak = 5;
+console.log(`${person.name} is on ${person.streak} days`);
+console.log(typeof person, Array.isArray(person.domains));
+console.log(Object.keys(person).length);
+// person = {}; would throw an error. Try it by deleting the two slashes.
+</div>
+
+  <p>Box 3 is the one to remember. <code>"7" + 1</code> gives <code>"71"</code> because the machine saw text on the left and applied the glue rule. <code>Number("7") + 1</code> gives <code>8</code> because a human said what they meant. Box 4 shows the other half: <code>"7" === 7</code> is false and <code>"7" == 7</code> is true, and the second one is why <code>==</code> is banned in decent code. A value that is <code>undefined</code> is not <code>null</code>, and both print as nothing-ish, which is exactly how they hide.</p>
+
+  <h2>Now in Memento</h2>
+  <div class="lanes">
+    <div class="lane"><div class="h">ANY APP</div>
+      <p>Every app decides what it remembers about a user and writes that shape down somewhere, usually as one object with named keys: a starting template, empty on day one, filled in as the person uses the product. Reading that template is the fastest way to understand any codebase, because it is the list of everything the app believes exists.</p>
+      <p>Each starting value's type is a promise. <code>''</code> promises text. <code>0</code> promises a number. <code>[]</code> promises a list. <code>null</code> is a slot a human deliberately left empty.</p>
+    </div>
+    <div class="lane mem"><div class="h">MEMENTO</div>
+      <p>Memento's template is a single object called <code>DEFAULT_STATE</code>, opened at line 35 with <code>const DEFAULT_STATE = {</code>. It is a person's life described in types. Line 36, which is one enormous line holding every profile field, is left out here so the rest is readable.</p>
+      <pre><code>  dev: { previewAll: false, savedClarity: null },
+  // Entitlement: Clarity is the free first win; Action + Consistency + the rest
+  // are paid. Flipped by the post-Clarity paywall (no billing backend yet).
+  entitlements: { isPaid: false, paidAt: null, plan: '' },
+  clarity: {
+    completed: false,
+    tutorialSeen: false,
+    theme: 'stellar',
+    answers: {
+      domains: [], keystone: '', support: '', stage: '',
+      prideOutcome: '', fearPain: '', rewardDesire: '',
+      dailyTime: 0, energyBaseline: '',
+      biggestBlocker: '', doomscrollWhen: '', triggerApps: [],</code></pre>
+      <div class="src">memento-app/js/01-state-foundation.js:37-49 (web pin ca8afc8)</div>
+    </div>
+  </div>
+
+  <p>Walk five of those keys and say the type out loud. This is the exercise that turns reading code from decoding into recognising.</p>
+  <table>
+    <tr><th>Key</th><th>Value</th><th>Type</th><th>What it means</th></tr>
+    <tr><td><code>entitlements</code></td><td><code>{ isPaid: false, paidAt: null, plan: '' }</code></td><td>object</td><td>A bundle of three named values, nested inside the bigger object.</td></tr>
+    <tr><td><code>isPaid</code></td><td><code>false</code></td><td>boolean</td><td>Have they paid. Two possible answers, ever.</td></tr>
+    <tr><td><code>paidAt</code></td><td><code>null</code></td><td>null</td><td>Deliberately empty. No payment, so no date. A human chose this over inventing one.</td></tr>
+    <tr><td><code>theme</code></td><td><code>'stellar'</code></td><td>string</td><td>Text. The quotes are what make it text.</td></tr>
+    <tr><td><code>domains</code></td><td><code>[]</code></td><td>array</td><td>An empty list, waiting for the life areas the user picks in Clarity.</td></tr>
+    <tr><td><code>dailyTime</code></td><td><code>0</code></td><td>number</td><td>Minutes a day. No quotes, so arithmetic on it works.</td></tr>
+  </table>
+  <p>Notice <code>dailyTime: 0</code> sitting on the same line as <code>energyBaseline: ''</code>. One is a number, one is text, and the difference is four characters. If a change ever stored the user's typed minutes without converting them, <code>dailyTime</code> would quietly become <code>"30"</code> and every calculation on it would produce text instead.</p>
+
+  <div class="box memento"><div class="h">THE ALTERNATIVE, AND WHY MEMENTO CHOSE THIS</div><p>The alternative is many small variables: <code>userName</code>, <code>isPaid</code>, <code>clarityTheme</code>, a few hundred of them scattered across 38 files. That reads fine in any one spot and is a disaster everywhere else, because saving would mean listing every name by hand and forgetting one means silent data loss. With one object, saving is <code>JSON.stringify(state)</code>, syncing is one parcel, resetting is pointing the name at a fresh copy of <code>DEFAULT_STATE</code>, and adding a feature is adding a key. The cost is that every part of the app can reach into one shared thing, so a careless change anywhere can corrupt anything. Chapter 14 shows the write path, chapter 17 shows the database refusing a blank overwrite.</p></div>
+
+  <h2>Do it</h2>
+  <div class="ex">
+    <div class="h">Exercise <span class="tag">phone or Mac</span></div>
+    <div class="meta">Where: the four boxes below. Expected: at least one prediction is wrong, and box 4 prints a sentence with your own words in it. Reset: the Reset button on each box. This cannot touch Memento.</div>
+    <ol>
+      <li>For boxes 1 to 3, write your prediction down before pressing Run. Writing it down matters, because a prediction kept in your head rewrites itself the moment you see the answer.</li>
+      <li>Run. Where you were wrong, change one thing and run again until the machine's behaviour matches a rule you can say in a sentence.</li>
+      <li>Box 4 is yours. Fill in the values and make it print a line about you.</li>
+    </ol>
+  </div>
+
+  <div class="sb">
+// 1. Predict both lines. Then run.
+let total = "10";
+total = total + 5;
+console.log(total);
+console.log(typeof total);
+</div>
+
+  <div class="sb">
+// 2. Predict. Then run. Then delete the two slashes on the last line and run again.
+const goal = { title: "ship the native app", days: 30 };
+goal.days = 60;
+console.log(goal.days);
+// goal = { title: "rest", days: 0 };
+</div>
+
+  <div class="sb">
+// 3. Say the type of each one before you run. Six answers.
+console.log(typeof 7, typeof "7");
+console.log(typeof true, typeof undefined);
+console.log(typeof [], typeof {});
+</div>
+
+  <div class="sb">
+// 4. Make this print your own north star. Change the values, not the last line.
+const northStar = "put your one sentence here";
+const horizon = 12;
+const paid = false;
+console.log(`${northStar} in ${horizon} months. Paid: ${paid}.`);
+console.log(typeof northStar, typeof horizon, typeof paid);
+</div>
+
+  <div class="box why"><div class="h">ASK THE AGENT WHY (paste this into Codex or Fable)</div><pre><code>In memento-app/js/01-state-foundation.js, read DEFAULT_STATE starting at line 35. For each top-level key, tell me the type of its starting value and what that type promises about what will be stored there later. Then tell me which keys start as null rather than an empty string, and why a human would choose null in those specific places. Do not change anything.</code></pre></div>
+
+  <div class="box words"><div class="h">WORDS YOU NOW OWN</div><dl>
+    <dt>Value</dt><dd>A piece of data living in memory. It exists whether or not it has a name.</dd>
+    <dt>Variable</dt><dd>A name tag tied to one value. Never a container. Move the tag and the old value is just untagged.</dd>
+    <dt>Type</dt><dd>What kind of thing a value is. The machine picks its rules from the type, which is why text that looks like a number behaves nothing like one.</dd>
+    <dt>string / number / boolean</dt><dd>Text in quotes / a number with no quotes / true or false.</dd>
+    <dt>null / undefined</dt><dd>Deliberately empty / never set at all. Different, and the difference matters when you are hunting a bug.</dd>
+    <dt>array / object</dt><dd>An ordered list in square brackets / a bundle of named values in curly braces.</dd>
+    <dt>let / const</dt><dd>A name that may be re-pointed / a name that may not. const locks the tag, not the object behind it.</dd>
+    <dt>typeof</dt><dd>Asks a value what type it is. Your first move when a value is behaving strangely.</dd>
+    <dt>===</dt><dd>Same type and same value. Use it always. The two-equals version converts types first and lies to you.</dd>
+    <dt>Template literal</dt><dd>Text in backticks with <code>${...}</code> holes you drop values into.</dd>
+    <dt>Comment</dt><dd>A line starting with <code>//</code> that the machine skips. Written by a human, for a human.</dd>
+  </dl></div>
+
+  <div class="box expiry"><div class="h">WHERE TODAY'S ANALOGY BREAKS</div><p><strong>Breaks when:</strong> two tags end up on the same suitcase. With plain values that never matters, because you can never edit the number 7. With objects and arrays you can edit the value itself, so two names pointing at one object means a change through either name is visible through both. At baggage claim that would be two tags on one suitcase, and someone repacking it while you watch a different tag. <strong>Real model:</strong> a variable holds a reference to an object, and assignment copies the reference, not the object. That is chapter 11, and it is where half of all "but I did not change that" bugs come from. The tag picture stays correct the whole way through. What changes is what you are allowed to do to the suitcase.</p></div>
+
+  <details class="hole"><summary>RABBIT HOLE: why typeof null says "object"</summary><p>Run <code>console.log(typeof null)</code> and it prints <code>"object"</code>, which is wrong and everybody knows it is wrong. It is a bug from the first version of JavaScript in 1995, when types were stored as a small tag on each value and the tag for null happened to be all zeroes, the same as the tag for objects. It has never been fixed because fixing it would break an unknown number of pages on the live web. Keep it as a souvenir: production software carries its history forever, and "we cannot fix it because people depend on the broken behaviour" is a sentence you will meet again in your own product.</p></details>
+</main>
+<script src="../js/book.js"></script>
+</body>
+</html>
