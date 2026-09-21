@@ -13,7 +13,7 @@ Codex's assigned artifacts are built, tested, committed, and pushed through comm
 3. Build Malik's requested notes and highlights feature. This is the first blocker in `review/shell-review.md`. It needs per-chapter local persistence plus export and import because cross-device sync is deferred.
 4. Fix the high-severity shell issues in `review/shell-review.md`: checks do not count toward progress, the closed mobile drawer remains in the accessibility tree, the drawer lacks modal keyboard behavior, the passphrase gate does not isolate or fully label itself, and light-theme accent and button contrast is too low.
 5. Update chapter 22 to link or embed `sandbox/v3/`. Its current prose says no v3 sandbox exists, but the prebuilt artifact now exists and requires no reader build step.
-6. Place the optional chapter 3 and 4 raster art using `img/RASTER-NOTES.md` for the supplied alt text and captions.
+6. Malik's visual direction is simple teaching diagrams in the spirit of Alex Hormozi's books: one clear relationship, minimal labels, and only where the picture adds understanding. Do not force an image into every explanation. The chapter 3 and 4 raster files are optional extras, not required chapter art. Use them only if they genuinely improve the page; otherwise prefer Fable's clear inline diagrams or omit them.
 7. Run the short real-iPhone checklist in `review/shell-review.md` before calling iOS Safari behavior verified.
 
 ## Codex deliverables
