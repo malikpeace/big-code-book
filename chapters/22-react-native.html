@@ -1,0 +1,371 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>22. React and React Native: components, props, state, hooks. BIG CODE BOOK</title>
+<link rel="stylesheet" href="../css/book.css">
+<meta name="theme-color" content="#0b0b0d">
+</head>
+<body data-chapter="22">
+<main>
+  <div class="kicker">Chapter 22 <span class="tag eng">ENGINEER</span> <span class="tag">~60 min</span> <span class="tag">phone or Mac</span></div>
+  <h1>React and React Native: components, props, state, hooks</h1>
+  <p class="lede">The rebuild is 104 files of small functions that each return a piece of screen. Learn the four words in this title and you can read any of them, and most of the apps on your phone.</p>
+
+  <div class="box recap"><div class="h">LAST TIME</div><p>A type is a note about the shape of a value, checked by a proofreader that never runs your code. Unions say "one of these", strict mode forces you to handle null, and every annotation is erased before the phone runs anything. That proofreader is what catches an agent inventing a property name.</p></div>
+
+  <h2>Quick check</h2>
+  <details class="check"><summary>Chapter 14: what are the two ways to get a change onto the screen?</summary><div class="a">Imperative: find the element and change it yourself. Declarative: change the state and let a framework redraw from it. The web app is the first. Today is the second, in full.</div></details>
+  <details class="check"><summary>Chapter 12: <code>await</code> does not freeze the app. What is it actually doing?</summary><div class="a">Handing the single thread back so other work can run, with a note to come back to this line when the answer arrives. That is why the screen still responds while a request is in flight.</div></details>
+  <details class="check"><summary>Chapter 21: your phone runs the TypeScript you wrote. True or false?</summary><div class="a">False. Types are erased at build time and the phone runs plain JavaScript. They existed only for the proofreader, before shipping.</div></details>
+
+  <h2>The idea</h2>
+  <p>A <dfn data-term="component">component</dfn> is a function that takes inputs and returns a description of what should be on screen. Not a class, not a widget, not a magic object. A function.</p>
+  <p>Its inputs come from two places. <dfn data-term="props">Props</dfn> are handed down by whoever used the component, and it may not change them: the parent's data, on loan. <dfn data-term="state">State</dfn> is the component's own memory, and when it changes the component runs again and the screen updates. Same props and same state, same screen, every time.</p>
+
+  <div class="box analogy"><div class="h">ANALOGY (TEMPORARY)</div><p>A chef at a station. The ingredients come from the kitchen, already chosen, and the chef cannot change what was sent. That is props. In the chef's pocket is a notebook with tonight's plate count. That is state. Given the same ingredients and the same notebook, the chef plates the identical dish every time. When the notebook changes, the dish is plated again and the new plate replaces the old one.</p></div>
+
+  <figure class="fig-box">
+    <svg class="figure" viewBox="0 0 640 280" role="img" aria-label="A tree of components. At the top, RootLayout. Below it, HomeScreen, which passes props down to two children: StreakText and HoldToComplete. HoldToComplete has its own state and three hooks listed beside it: useState for a value plus a setter, useRef for a box that survives a redraw, and useEffect for work after drawing with cleanup. An arrow loops from the state back into the component labelled set state, redraw.">
+      <rect class="bx" x="230" y="16" width="170" height="36" rx="8"/><text class="st mono" x="315" y="39" text-anchor="middle">RootLayout</text>
+      <path class="ln" d="M315 52 V78"/>
+      <rect class="bx" x="230" y="78" width="170" height="36" rx="8"/><text class="st mono" x="315" y="101" text-anchor="middle">HomeScreen</text>
+      <path class="ln acc" d="M315 114 V134 H150 V150"/>
+      <path class="ln acc" d="M315 114 V134 H420 V150"/>
+      <text class="st lo" x="232" y="132">props down</text>
+      <rect class="bx acc" x="60" y="150" width="180" height="40" rx="8"/><text class="st mono" x="150" y="175" text-anchor="middle">StreakText</text>
+      <rect class="bx cy" x="330" y="150" width="180" height="40" rx="8"/><text class="st mono" x="420" y="175" text-anchor="middle">HoldToComplete</text>
+      <path class="ln cy" d="M510 170 H548 V206 H420 V192"/>
+      <text class="st lo" x="470" y="226" text-anchor="middle">set state, redraw</text>
+      <text class="st lo" x="20" y="222">HOOKS (how a function remembers)</text>
+      <text class="st mono" x="20" y="244">useState</text><text class="st lo" x="110" y="244">a value plus a setter, changing it redraws</text>
+      <text class="st mono" x="20" y="262">useRef</text><text class="st lo" x="110" y="262">a box that survives a redraw and never causes one</text>
+      <text class="st mono" x="20" y="280">useEffect</text><text class="st lo" x="110" y="280">work after drawing, plus how to undo it</text>
+    </svg>
+    <figcaption>Data goes down the tree as props. State lives where it is owned, and changing it redraws that component and everything under it. Hooks are the only way a function keeps anything between calls.</figcaption>
+  </figure>
+
+  <h3>Redrawing, and why nobody touches the screen</h3>
+  <p>Chapter 14 gave you the two styles. Memento's web app is imperative: something happens, code finds the element, code edits it. React is the other one. You never edit the screen. You change state, React calls your component again, compares what it returns with what is on screen, and applies the smallest set of real changes itself. That second run is a <dfn data-term="re-render">re-render</dfn>, cheap because it is mostly comparison. The payoff: the screen cannot drift out of step with the data, because it is only ever produced from the data. The cost: you say what you want, not how to get there, which feels backwards for about a week.</p>
+
+  <h3>What the function returns</h3>
+  <p>Components return <dfn data-term="jsx">JSX</dfn>, HTML-shaped syntax inside JavaScript: <code>&lt;Text&gt;{label}&lt;/Text&gt;</code>. It is not HTML and not a string. The build turns every tag into a function call, so that line becomes roughly <code>createElement(Text, null, label)</code>. Curly braces drop a value into the middle, and a capitalised tag is one of your own components. Nesting them builds the <dfn data-term="component-tree">component tree</dfn>: a screen is a component holding components, down to the ones that actually draw something. Reading an unfamiliar React app means finding the top of that tree and walking down.</p>
+
+  <h3>Hooks: how a function remembers</h3>
+  <p>A function forgets everything when it returns, so React provides <dfn data-term="hook">hooks</dfn>: functions whose names start with <code>use</code>, which attach memory to a component.</p>
+  <table>
+    <tr><th>Hook</th><th>Gives you</th><th>Use it when</th></tr>
+    <tr><td><dfn data-term="usestate">useState</dfn></td><td>A value and a setter: <code>const [n, setN] = useState(0)</code></td><td>The screen must change when this changes.</td></tr>
+    <tr><td><dfn data-term="useeffect">useEffect</dfn></td><td>Work that runs after drawing, plus a function that undoes it</td><td>Timers, subscriptions, anything outside React.</td></tr>
+    <tr><td><dfn data-term="useref">useRef</dfn></td><td>A box that survives redraws and never causes one</td><td>You must remember something the screen does not show.</td></tr>
+    <tr><td><dfn data-term="usecallback">useCallback</dfn></td><td>The same function object across redraws</td><td>Handing a function to a child that would otherwise redraw for nothing.</td></tr>
+  </table>
+  <p>The one that bites people is <code>useEffect</code>. It takes a job and a list of things to watch, and it may return a <dfn data-term="cleanup-function">cleanup function</dfn>. React runs that cleanup before running the job again, and when the component leaves the screen. Start a timer with no cleanup and it fires into a screen that no longer exists. Half the crashes in a young React app are exactly that.</p>
+
+  <h3>React Native: same model, no browser</h3>
+  <p><dfn data-term="react-native">React Native</dfn> keeps all of the above and changes the tags. There is no DOM. <code>&lt;View&gt;</code>, <code>&lt;Text&gt;</code> and <code>&lt;Pressable&gt;</code> become the real native views iOS and Android already have, so scrolling, text selection and the keyboard are the platform's own. Styling is a <dfn data-term="style-object">style object</dfn> in JavaScript instead of a CSS file: same properties, camelCased, no cascade, no selectors, in the component's own file.</p>
+  <p><dfn data-term="expo">Expo</dfn> is the toolkit around it: build system, native modules, packaging. <dfn data-term="expo-router">expo-router</dfn> turns files into screens, so <code>src/app/index.tsx</code> is the first screen and <code>src/app/_layout.tsx</code> wraps everything. Running on a phone needs a <dfn data-term="dev-build">dev build</dfn>: a real app installed once, holding the project's native pieces, that loads your JavaScript over the network as you edit. On a Mac it runs in the <dfn data-term="simulator">simulator</dfn>, a fake iPhone in a window that belongs to Xcode, which is why Xcode is installed even though nobody opens it. Shipping means Apple's review and a cut of anything bought inside the app.</p>
+
+  <h2>See it</h2>
+  <p>React will not run in this page, so here is a model of it: thirty lines that behave like React and are not React. Components are functions returning strings of HTML, and one <code>render</code> rebuilds the root from state. Press Run, then tap the button.</p>
+
+  <div class="sb" data-dom>
+&lt;div id="root"&gt;&lt;/div&gt;
+&lt;script&gt;
+// A MODEL of React. 30 lines. Not React.
+var state = { streak: 0, done: false };
+
+// Two components. Each is a function of props, returning what to draw.
+function StreakText(props) {
+  return '&lt;p&gt;' + props.days + ' day streak&lt;/p&gt;';
+}
+function HoldButton(props) {
+  return '&lt;button id="hold"&gt;' + props.label + '&lt;/button&gt;';
+}
+
+// The tree: one component made of the other two.
+function App(s) {
+  return StreakText({ days: s.streak })
+       + HoldButton({ label: s.done ? 'Done for today' : 'Hold to complete' });
+}
+
+function setState(patch) {
+  for (var k in patch) state[k] = patch[k];
+  render();                       // state changed, so redraw. That is the whole idea.
+}
+
+function render() {
+  document.getElementById('root').innerHTML = App(state);
+  document.getElementById('hold').onclick = function () {
+    setState({ streak: state.streak + 1, done: true });
+  };
+  console.log('re-rendered, streak is now ' + state.streak);
+}
+
+render();
+&lt;/script&gt;
+</div>
+
+  <p>Nothing there reaches into the page to edit a number. The click changes state, the screen is rebuilt from state. Real React does the same, except it compares old and new trees and touches only what differs. Delete the <code>render()</code> call inside <code>setState</code> and you get the web app's classic bug: the data moves and the screen does not.</p>
+
+  <h2>Now in Memento</h2>
+  <div class="lanes">
+    <div class="lane"><div class="h">ANY APP</div>
+      <p>Every React app has one component at the very top, running before any screen. It loads what the app needs, holds the splash until that is ready, and renders the navigator that picks the screen. First file to open in a codebase you do not know.</p>
+    </div>
+    <div class="lane mem"><div class="h">MEMENTO</div>
+      <pre><code>export default function RootLayout() {
+  const [loaded, error] = useFonts({
+    GeistRegular: require('../../assets/fonts/geist-400.otf'),
+    GeistMedium: require('../../assets/fonts/geist-500.otf'),
+    GeistBold: require('../../assets/fonts/geist-700.otf'),
+  });
+  useEffect(() =&gt; {
+    if (__DEV__ &amp;&amp; process.env.EXPO_PUBLIC_STORAGE_PROBE === '1') {
+      require('../storage/nativeProbe').runJournalProbe();
+    }
+  }, []);
+  useEffect(() =&gt; {
+    if (error) console.warn('Memento fonts unavailable; using system fonts.');
+    // RootGate hides the splash only after secure identity and hydration settle.
+  }, [loaded, error]);
+  if (!loaded &amp;&amp; !error) return null;
+  return (
+    &lt;AppFontsReady.Provider value={loaded &amp;&amp; !error}&gt;
+      &lt;StatusBar style="light" /&gt;
+      &lt;Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: '#000000' } }} /&gt;
+    &lt;/AppFontsReady.Provider&gt;
+  );
+}</code></pre>
+      <div class="src">memento-native/src/app/_layout.tsx:10-32 (native pin 93bfa796)</div>
+    </div>
+  </div>
+  <p>A list of decisions. <code>useFonts</code> is a hook, so it re-renders this component when the fonts load. The first <code>useEffect</code> has an empty watch list, so it runs once ever; the second watches <code>loaded</code> and <code>error</code>, so it runs again whenever either changes. <code>return null</code> is a component drawing nothing yet, so no screen flashes in the wrong typeface. Then one line of JSX puts <code>&lt;Stack&gt;</code>, the router's navigator, under the whole app.</p>
+  <p>It is the root because of where it sits. <code>src/app/_layout.tsx</code> is a name expo-router recognises. Nothing registers it, nothing imports it. The folder is the configuration.</p>
+
+  <h3>The versions, and the doors that only open in development</h3>
+  <p>The first screen's file opens by reading switches out of the environment, chapter 19's mechanism exactly.</p>
+  <pre><code>const FEEL_SAMPLE = __DEV__ &amp;&amp; process.env.EXPO_PUBLIC_FEEL_SAMPLE === '1';
+// Phase 3 item 1 preview (sign-in/restore screens on a fake port); see MIGRATION/ENTRY-HANDOFF.md for the router wiring Codex owns.
+const ENTRY_SAMPLE = __DEV__ &amp;&amp; process.env.EXPO_PUBLIC_ENTRY_SAMPLE === '1';
+const entryAvailable = () =&gt; ENTRY_SAMPLE;
+// Phase 3 Clarity preview (fixture port, in-memory account); see MIGRATION/CLARITY-HANDOFF.md. LOCAL, not committed: Codex owns src/app.
+const CLARITY_SAMPLE = __DEV__ &amp;&amp; process.env.EXPO_PUBLIC_CLARITY_SAMPLE === '1';</code></pre>
+  <div class="src">memento-native/src/app/index.tsx:45-50 (native pin 93bfa796)</div>
+  <!-- CODEX: verify src/app/index.tsx has uncommitted local edits in the working tree; confirm these six lines against the pin before publishing. -->
+  <p><code>__DEV__</code> is true only in a dev build, so every one of these previews is gone from anything that ships. The versions underneath are pinned to the number, not a range.</p>
+  <table>
+    <tr><th>Package</th><th>Version</th><th>What it is</th></tr>
+    <tr><td><code>expo</code></td><td>57.0.22</td><td>The toolkit and build system.</td></tr>
+    <tr><td><code>expo-router</code></td><td>57.0.21</td><td>Files in <code>src/app/</code> become screens.</td></tr>
+    <tr><td><code>react</code></td><td>19.2.3</td><td>Components, props, state, hooks. The model itself.</td></tr>
+    <tr><td><code>react-native</code></td><td>0.86.3</td><td>The part that draws native views instead of HTML.</td></tr>
+  </table>
+  <div class="src">memento-native/package.json:20,27,32,34 (native pin 93bfa796)</div>
+
+  <h3>A real component, top to bottom</h3>
+  <pre><code>export function HoldToComplete(props: {
+  theme: Theme; typeface: Typeface; width: number;
+  onComplete: () =&gt; void;
+  completed?: boolean;      // actionDoneToday(): the control is inert while true
+  actionKey?: string;       // a new key re-arms a finished control
+  label?: string; icon?: React.ReactNode;
+}) {
+  const { theme, typeface, width } = props;
+  const labelFont = typeface(700);
+  const label = props.label ?? 'Hold to complete';
+  const progress = useSharedValue(0);
+  const holding = useRef(false);
+  const finished = useRef(false);
+  const timer = useRef&lt;ReturnType&lt;typeof setTimeout&gt; | null&gt;(null);
+  const onComplete = useRef(props.onComplete);
+  onComplete.current = props.onComplete;
+
+  const clearTimer = () =&gt; { if (timer.current) { clearTimeout(timer.current); timer.current = null; } };
+
+  // A new action identity re-arms the control (js/08 rebinds per render).
+  useEffect(() =&gt; {
+    finished.current = false; holding.current = false; clearTimer();
+    cancelAnimation(progress); progress.value = 0;
+  }, [props.actionKey, progress]);
+  // Unmount: nothing may fire afterwards.
+  useEffect(() =&gt; () =&gt; { clearTimer(); holding.current = false; }, []);</code></pre>
+  <div class="src">memento-native/src/home/HoldToComplete.tsx:22-47 (native pin 93bfa796)</div>
+  <p>The props list is the component's contract, typed by chapter 21. <code>onComplete: () =&gt; void</code> is how a child talks back up: the button does not know what completing means, only who to tell.</p>
+  <p>Then four <code>useRef</code> calls, and why they are refs and not state is the lesson. Whether a finger is down changes many times a second and must never redraw the button. A ref survives every redraw and never triggers one. State is for what the screen shows, refs for what the component must remember.</p>
+  <p>Two effects, both about cleanup. The first watches <code>props.actionKey</code>: a new action arrives, cancel the animation, re-arm. The second's body is a function, so it does nothing going in and runs that function on the way out. When the button leaves the screen, kill the timer, because a timer firing into a component that no longer exists is a crash.</p>
+  <pre><code>  const begin = useCallback(() =&gt; {
+    if (finished.current || holding.current || props.completed) return;
+    holding.current = true;
+    cancelAnimation(progress);
+    progress.value = 0;
+    progress.value = withTiming(1, { duration: HOLD_MS, easing: Easing.linear });
+    timer.current = setTimeout(finish, HOLD_MS);
+  }, [finish, progress, props.completed]);</code></pre>
+  <div class="src">memento-native/src/home/HoldToComplete.tsx:57-64 (native pin 93bfa796)</div>
+  <p>Three guard clauses from chapter 10, then two things started together: an animation filling the button over <code>HOLD_MS</code>, and a timer firing at the same moment to do the completing. <code>useCallback</code> keeps the function object the same between redraws. At three seconds <code>finish</code> runs and calls <code>onComplete.current()</code>.</p>
+
+  <h3>Tokens and a hook of your own</h3>
+  <pre><code>export const dark: Theme = {
+  scheme: 'dark',
+  bg: '#040606',
+  ink: [255, 255, 255],
+  textHi: rgba([255, 255, 255], 0.96), textMid: rgba([255, 255, 255], 0.62), textLo: rgba([255, 255, 255], 0.40),
+  solidBg: '#ffffff', solidFg: '#0b1112',
+  hairline: rgba([255, 255, 255], 0.12),
+  consistency: '#30D158',
+  accent: '#3ad9f5',
+  accentStrong: '#50b9cc',
+  roomBg: '#04050a', roomAcc: '#8be9fa', roomAccRing: 'rgba(139, 233, 250, 0.45)',</code></pre>
+  <div class="src">memento-native/src/ui/theme.ts:22-33 (native pin 93bfa796)</div>
+  <pre><code>export function useTheme(): Theme {
+  return useColorScheme() === 'light' ? light : dark;
+}</code></pre>
+  <div class="src">memento-native/src/ui/theme.ts:51-53 (native pin 93bfa796)</div>
+  <p>The web app's tokens are CSS variables. Here they are an object, because there is no stylesheet to put them in. <code>useTheme</code> is a hook you wrote yourself, and only a hook because it calls one. The phone switching to light mode re-renders every component that called it.</p>
+
+  <h3>Where state changes actually live</h3>
+  <p>Big flows do not keep their state in a component. Clarity's whole journey is a <dfn data-term="reducer">reducer</dfn>: one pure function taking the current state and an event, returning the next state. No screens, no network.</p>
+  <pre><code>export function clarityReduce(s: FlowState, e: FlowEvent): FlowState {
+  const st = s.stage;
+  if (st.kind === 'done' &amp;&amp; e.type !== 'intents-drained') return s;
+
+  switch (e.type) {
+    case 'intents-drained': return s.intents.length ? { ...s, intents: s.intents.slice(e.count) } : s;
+
+    case 'chunks': {
+      if (st.kind !== 'tutorial') return s;
+      return { ...s, chunk: { idx: Math.min(s.chunk.idx, Math.max(0, e.total - 1)), total: Math.max(1, e.total) } };
+    }</code></pre>
+  <div class="src">memento-native/src/clarity/clarityFlow.ts:414-424 (native pin 93bfa796)</div>
+  <p>Every case returns a new object built with the spread from chapter 11, never an edit of the old one, which makes it testable without a screen: feed it a state and an event, check what comes back. Components stay thin, showing the state and sending events.</p>
+
+  <div class="lanes">
+    <div class="lane"><div class="h">THE WEB TWIN (imperative)</div>
+      <pre><code>function refreshAiChatUI() {
+  if (typeof ClarityExperience !== 'undefined' &amp;&amp; ClarityExperience.isOpen) {
+    ClarityExperience.renderPage(ClarityExperience.currentPage);
+    ClarityExperience.bindWizardInFullscreen();
+    ClarityExperience.updateNav();
+    ClarityExperience.updateProgress();
+  }
+}</code></pre>
+      <div class="src">memento-app/js/03-ai-integration.js:4806-4813 (web pin ca8afc8)</div>
+      <p>Four explicit instructions to four parts of the screen. Forget one and a corner of the app goes stale. Nothing is wrong with this code. It is a list a human maintains by hand.</p>
+    </div>
+    <div class="lane mem"><div class="h">THE NATIVE VERSION (declarative)</div>
+      <p>There is no equivalent function, and that is the point. State changes, the components that read it run again, and every part is correct because it was drawn from the new state. Nobody keeps a list of what to refresh. The trade: less control over exactly when a piece of screen updates, in exchange for a guarantee that it cannot be forgotten.</p>
+    </div>
+  </div>
+
+  <h3>Memento Jr, React Native version</h3>
+  <p>Read only for now: the sandbox app's hold button written the way the real one is, cut to the bones.</p>
+  <pre><code>// Memento Jr, React Native version. READ ONLY, there is no v3 sandbox yet.
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
+
+const HOLD_MS = 3000;
+
+export function HoldToComplete(props: { done: boolean; onComplete: () =&gt; void }) {
+  const [holding, setHolding] = useState(false);   // the screen shows this
+  const timer = useRef&lt;ReturnType&lt;typeof setTimeout&gt; | null&gt;(null);
+
+  // Leaving the screen must not leave a timer behind.
+  useEffect(() =&gt; () =&gt; { if (timer.current) clearTimeout(timer.current); }, []);
+
+  const begin = useCallback(() =&gt; {
+    if (props.done) return;                        // guard clause, chapter 10
+    setHolding(true);
+    timer.current = setTimeout(() =&gt; {
+      setHolding(false);
+      props.onComplete();                          // tell the parent, do not decide
+    }, HOLD_MS);
+  }, [props.done, props.onComplete]);
+
+  const cancel = useCallback(() =&gt; {
+    if (timer.current) clearTimeout(timer.current);
+    timer.current = null;
+    setHolding(false);
+  }, []);
+
+  return (
+    &lt;Pressable onPressIn={begin} onPressOut={cancel} disabled={props.done} style={styles.button}&gt;
+      &lt;View style={styles.row}&gt;
+        &lt;Text style={styles.label}&gt;
+          {props.done ? 'Done for today' : holding ? 'Keep holding' : 'Hold to complete'}
+        &lt;/Text&gt;
+      &lt;/View&gt;
+    &lt;/Pressable&gt;
+  );
+}
+
+const styles = StyleSheet.create({
+  button: { minHeight: 44, borderRadius: 8, paddingVertical: 12, paddingHorizontal: 16, backgroundColor: '#ffffff' },
+  row: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 },
+  label: { fontSize: 15, color: '#0b1112' },
+});</code></pre>
+  <p>Two props, one piece of state, one ref, one cleanup, two callbacks, three tags. The real one adds a typed theme, an animation, haptics, a re-arming key and an inverted twin layer sweeping across the label. Same skeleton.</p>
+
+  <div class="box memento"><div class="h">THE ALTERNATIVE, AND WHY MEMENTO CHOSE THIS</div><p>The alternatives: wrap the web app, write Swift for iPhone and Kotlin for Android, or rebuild once in React Native. The decision is on record, in writing, before any code.</p><pre><code>- Platforms for the first release: iPhone + Android.
+- Storefronts: Malik prefers WORLDWIDE if not a headache. Consequence
+  (Fable): worldwide means Apple/Google in-app purchase is effectively
+  required for in-app buying (US-only external links do not cover other
+  storefronts). DECIDED (Malik, 2026-09-11): WORLDWIDE, accept the 15%
+  in-app purchase cut. Section 7's worldwide branch is the plan.</code></pre><div class="src">MIGRATION/01-MIGRATION-PLAN.md:10,15-19 (native pin 93bfa796)</div><p>Two phone platforms from one codebase decided it. Two native codebases would double every screen, every fix and every review round, for a product one founder and two agents maintain. The bill is Apple's 15% under their small business programme, accepted on purpose rather than discovered later. The other cost: React Native sits between you and the platform, so anything new on iOS arrives when the library catches up.</p><p>The same document explains the storage choice. MMKV is used from day one because its reads are synchronous once the app has hydrated, so the first frame is drawn with real data instead of a flash of empty state that corrects itself. Hydration finishes before first render and the splash holds until it does. The same fear <code>_layout.tsx</code> answers with the fonts.</p></div>
+
+  <h2>Do it</h2>
+  <div class="ex" data-device="mac">
+    <div class="h">Exercise <span class="tag mac">MAC</span></div>
+    <div class="meta">Where: <code>~/Downloads/MEMENTO/memento-native/src/home/HoldToComplete.tsx</code>, read only. Expected: four answers you can defend from the file. Reset: nothing, you are only reading. This cannot touch Memento: do not save the file, do not run anything.</div>
+    <ol>
+      <li>Open the file. Read the comment block at the top first, it names the frozen web code this came from.</li>
+      <li>Answer on paper: what are its props? What state does it own? What does each <code>useEffect</code> clean up? What happens at three seconds?</li>
+      <li>Open the check when you have four answers written down.</li>
+    </ol>
+  </div>
+
+  <details class="check"><summary>The four answers</summary><div class="a">
+    <p><strong>Props:</strong> <code>theme</code>, <code>typeface</code>, <code>width</code>, <code>onComplete</code> required; <code>completed</code>, <code>actionKey</code>, <code>label</code>, <code>icon</code> optional. All typed in the signature at line 22.</p>
+    <p><strong>State:</strong> almost none, which is the interesting answer. Nothing uses <code>useState</code>. There is a shared animation value and four refs: <code>holding</code>, <code>finished</code>, <code>timer</code>, and one holding the latest <code>onComplete</code>. None of them redraw, because none of them are what the screen shows.</p>
+    <p><strong>Cleanups:</strong> the first effect re-arms on a new <code>actionKey</code>: clear the timer, cancel the animation, reset progress. The second returns a function and does nothing else, so its whole job is the unmount cleanup: clear the timer, drop the holding flag, so nothing fires after the button is gone.</p>
+    <p><strong>At three seconds:</strong> the <code>setTimeout</code> from <code>begin</code> fires <code>finish</code>, which refuses if the finger lifted or it already fired, marks itself finished, triggers a light haptic whose failure is swallowed on purpose, and calls <code>onComplete.current()</code>. The parent decides what completing means.</p>
+  </div></details>
+
+  <div class="ex">
+    <div class="h">Exercise, phone version <span class="tag">phone or Mac</span></div>
+    <div class="meta">Where: the sandbox on this page. Expected: the streak climbs and the log prints one line per re-render. Reset: the Reset button. This cannot touch Memento.</div>
+    <ol>
+      <li>Add a component <code>Title</code> that returns <code>'&lt;h3&gt;Memento Jr&lt;/h3&gt;'</code> and put it first inside <code>App</code>.</li>
+      <li>Give <code>StreakText</code> a second prop, <code>label</code>, passed from <code>App</code>. Props travel down, never up.</li>
+      <li>Delete the <code>render()</code> call inside <code>setState</code> and press the button. That one line is what React does for you.</li>
+    </ol>
+  </div>
+
+  <div class="box why"><div class="h">ASK THE AGENT WHY (paste this into Codex or Fable)</div><pre><code>In memento-native/src/home/HoldToComplete.tsx, explain why holding, finished and timer are useRef and not useState. What would visibly break if they were useState instead? Then explain the second useEffect, the one whose body is a function that returns a function, and tell me exactly when each part runs. Do not change anything.</code></pre></div>
+
+  <div class="box words"><div class="h">WORDS YOU NOW OWN</div><dl>
+    <dt>Component</dt><dd>A function that takes props and returns what to draw. The unit everything else is made of.</dd>
+    <dt>Props</dt><dd>Inputs handed down from the parent. Read only. Data goes down the tree, never up.</dd>
+    <dt>State (in a component)</dt><dd>Memory the component owns. Changing it redraws. Only for things the screen shows.</dd>
+    <dt>Re-render</dt><dd>React calling your function again after state changed, comparing the result to what is on screen, and applying the difference.</dd>
+    <dt>JSX</dt><dd>HTML-shaped syntax that the build turns into plain function calls. Capitalised tag means your component.</dd>
+    <dt>Component tree</dt><dd>Components nested inside components. Where you start reading an unfamiliar app.</dd>
+    <dt>Hook</dt><dd>A <code>use</code>-prefixed function that gives a component memory or behaviour. Called in the same order every render, never inside an if.</dd>
+    <dt>useState / useRef</dt><dd>A value plus a setter, changing it redraws / a box that survives redraws and never causes one.</dd>
+    <dt>useEffect and its cleanup</dt><dd>Work after drawing, plus the function that undoes it. The cleanup runs before the next run and when the component leaves.</dd>
+    <dt>useCallback</dt><dd>Keeps the same function object between renders so children do not redraw for nothing.</dd>
+    <dt>Reducer</dt><dd>A pure function from (state, event) to the next state. Where a big flow's logic lives, testable without a screen.</dd>
+    <dt>Style object</dt><dd>Styles as JavaScript next to the component. Same properties as CSS, camelCased, no cascade.</dd>
+    <dt>Expo / expo-router</dt><dd>The toolkit around React Native / the router where a file in <code>src/app/</code> is a screen.</dd>
+    <dt>Dev build</dt><dd>A real app installed once, holding the project's native pieces, that loads your JavaScript as you edit.</dd>
+    <dt>Simulator</dt><dd>A fake iPhone in a window on the Mac, provided by Xcode. Not a real device, and it will lie to you about safe areas and performance.</dd>
+  </dl></div>
+
+  <div class="box expiry"><div class="h">WHERE TODAY'S ANALOGY BREAKS</div><p><strong>Breaks when:</strong> you believe the dish really is plated from scratch. React produces a fresh description, then changes only the parts of the real screen that differ. Native views that stayed are the same objects they were, which is why a text field keeps its cursor through a re-render and the chef picture predicts the opposite. It breaks again on refs, effects and timers, the chef reaching outside the station: they survive re-plating, and uncleaned they carry on after the chef has gone home. <strong>Real model:</strong> a component is a description of a screen, re-run when its inputs change, and anything outside that description is created and destroyed by hand through effects.</p></div>
+
+  <details class="hole"><summary>RABBIT HOLE: why hooks may not go inside an if</summary><p>React does not know your hooks' names. It matches them by call order: first, second, third. A hook inside an <code>if</code> changes the count between renders, so React hands your second hook the memory belonging to your third. Hence the rule, hooks at the top level always, enforced by a lint rule in every React project alive. One strange rule, in exchange for components that stay simple functions instead of classes.</p></details>
+</main>
+<script src="../js/book.js"></script>
+</body>
+</html>

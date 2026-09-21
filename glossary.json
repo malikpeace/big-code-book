@@ -471,6 +471,10 @@
       {
         "ch": 4,
         "def": "When an AI states something that is not true with full confidence: a file that does not exist, a function that was never written, 'tests pass' with no output."
+      },
+      {
+        "ch": 27,
+        "def": "The most plausible continuation, stated as fact. Seven common shapes: a file path that does not exist, a function never written, \"tests pass\" with no output, a library API that is not there, a confident number with no source, a behaviour claim with no line number, and \"I verified it\" with no artifact. Six of the seven die to one command."
       }
     ]
   },
@@ -596,6 +600,10 @@
       {
         "ch": 4,
         "def": "The scaffolding around an agent: rule files it reads every session, plan files, checks and hooks. Memento's CLAUDE.md and MIGRATION folder are one."
+      },
+      {
+        "ch": 27,
+        "def": "The rules file, file map and mechanical checks an agent reads at the start of every session, because it remembers nothing from the last one. A harness also makes review cheap: \"the diff touched a file outside the list\" becomes a yes or no question."
       }
     ]
   },
@@ -609,6 +617,10 @@
       {
         "ch": 7,
         "def": "The difference between two versions of a file, shown as removed and added lines. git diff compares the working folder to the staging area; git diff --staged compares staging to the last snapshot."
+      },
+      {
+        "ch": 27,
+        "def": "The record of what actually shipped, as opposed to the agent's summary of what it meant to ship. --stat for the shape, the full diff for the content, and always the hunks."
       }
     ]
   },
@@ -882,6 +894,10 @@
       {
         "ch": 8,
         "def": "A new commit that undoes an earlier one. History grows and nothing is lost, so it is safe on work other people already have. What 'roll back the deploy' means."
+      },
+      {
+        "ch": 28,
+        "def": "The only undo that is safe after pushing, because it adds a commit instead of rewriting history. The move for anything already live: git revert <sha>, then push."
       }
     ]
   },
@@ -900,6 +916,10 @@
       {
         "ch": 8,
         "def": "A private local log of every position HEAD has been in, including ones no label points at any more. How you find a lost commit's hash. Never pushed, and entries expire after about 30 to 90 days."
+      },
+      {
+        "ch": 28,
+        "def": "Every position HEAD has occupied, including ones no branch points at. Finds a commit you thought you lost. It cannot recover work that was never committed, which is why the safety commit comes first."
       }
     ]
   },
@@ -1658,6 +1678,10 @@
       {
         "ch": 14,
         "def": "A pure function that takes the current state plus an event and returns the next state. Touches no screen, so the whole flow can be tested with no phone."
+      },
+      {
+        "ch": 22,
+        "def": "A pure function from (current state, event) to the next state. Where a big flow's logic lives, testable with no screen. Memento's Clarity journey is one."
       }
     ]
   },
@@ -1667,6 +1691,10 @@
       {
         "ch": 14,
         "def": "A reusable piece of screen described as a function of its inputs. The unit React and React Native are built out of."
+      },
+      {
+        "ch": 22,
+        "def": "A function that takes props and returns what to draw. The unit a React app is made of."
       }
     ]
   },
@@ -1676,6 +1704,10 @@
       {
         "ch": 14,
         "def": "The markup-shaped syntax used inside React files to describe a screen. Braces are holes where a value is dropped in, like a template literal."
+      },
+      {
+        "ch": 22,
+        "def": "HTML-shaped syntax inside JavaScript. The build turns each tag into a function call. A capitalised tag is one of your own components."
       }
     ]
   },
@@ -2168,6 +2200,10 @@
       {
         "ch": 20,
         "def": "A setting that turns a dangerous capability off without a deploy. Memento's POLAR_PRODUCTION_MODE defaults to disabled, so anything unset or misspelled means real billing stays off."
+      },
+      {
+        "ch": 28,
+        "def": "A pre-built, tested lever that stops a dangerous system without shipping code. Memento's is POLAR_PRODUCTION_MODE=disabled, which stops new checkout while access checks and webhooks keep working."
       }
     ]
   },
@@ -2463,6 +2499,10 @@
     "term": "Dev build",
     "levels": [
       {
+        "ch": 22,
+        "def": "A real app installed once, containing the project's native pieces, which then loads your JavaScript over the network as you edit."
+      },
+      {
         "ch": 29,
         "def": "A native shell built once with one extra ability: it loads its JavaScript from a server on your Mac instead of carrying its own copy."
       }
@@ -2490,6 +2530,10 @@
     "term": "Simulator",
     "levels": [
       {
+        "ch": 22,
+        "def": "A fake iPhone in a window on the Mac, provided by Xcode. Good for layout, and it will lie to you about safe areas and performance."
+      },
+      {
         "ch": 29,
         "def": "A real copy of iOS running on your Mac, pretending to be a phone. No camera, no cell radio, no App Store, and it reports safe-area insets of zero unless told otherwise."
       }
@@ -2498,6 +2542,10 @@
   "expo-router": {
     "term": "expo-router",
     "levels": [
+      {
+        "ch": 22,
+        "def": "File-based routing: a file in src/app/ is a screen, and _layout.tsx wraps everything under it. The folder is the configuration."
+      },
       {
         "ch": 29,
         "def": "File-based routing for React Native. A file in src/app/ is a screen and its path is its URL. A file starting with an underscore, like _layout.tsx, is a wrapper rather than a screen."
@@ -2528,6 +2576,330 @@
       {
         "ch": 30,
         "def": "Command output, a test summary, or a screenshot of the real surface. Anything short of that is a claim, including one of your own."
+      }
+    ]
+  },
+  "type-annotation": {
+    "term": "Type annotation",
+    "levels": [
+      {
+        "ch": 21,
+        "def": "The note after a colon saying what may go in a slot. streak: number. Erased before the code runs."
+      }
+    ]
+  },
+  "function-signature": {
+    "term": "Function signature",
+    "levels": [
+      {
+        "ch": 21,
+        "def": "What a function takes and what it hands back, written as one line. Usually all you need to use a function you have never read."
+      }
+    ]
+  },
+  "type-alias": {
+    "term": "Type alias",
+    "levels": [
+      {
+        "ch": 21,
+        "def": "A name given to a shape so you can reuse it: type State = { streak: number }."
+      }
+    ]
+  },
+  "interface": {
+    "term": "Interface",
+    "levels": [
+      {
+        "ch": 21,
+        "def": "Another way to name a shape. The difference from a type alias matters to library authors, not to you. Read both as 'a named shape'."
+      }
+    ]
+  },
+  "optional-property": {
+    "term": "Optional property",
+    "levels": [
+      {
+        "ch": 21,
+        "def": "A field marked with ?. It may be absent, and strict mode makes you handle that."
+      }
+    ]
+  },
+  "union-type": {
+    "term": "Union type",
+    "levels": [
+      {
+        "ch": 21,
+        "def": "A | B. One of these, never anything else. How code says 'success or failure' out loud. Memento's AI Result is a union of a success shape and a failure shape."
+      }
+    ]
+  },
+  "type-inference": {
+    "term": "Type inference",
+    "levels": [
+      {
+        "ch": 21,
+        "def": "The compiler working out the obvious types itself, so you only annotate the edges where a shape enters or leaves."
+      }
+    ]
+  },
+  "strict-mode": {
+    "term": "Strict mode (TypeScript)",
+    "levels": [
+      {
+        "ch": 21,
+        "def": "The paranoid setting, on in Memento's rebuild. Its best rule: a value that might be null cannot be used until the null is dealt with."
+      }
+    ]
+  },
+  "type-erasure": {
+    "term": "Type erasure",
+    "levels": [
+      {
+        "ch": 21,
+        "def": "Types are stripped out at build time. The phone runs plain JavaScript, so types are never runtime protection and cannot check what a server sends."
+      }
+    ]
+  },
+  "typecheck": {
+    "term": "Typecheck",
+    "levels": [
+      {
+        "ch": 21,
+        "def": "tsc --noEmit: read every file, report every violation, produce no output. Memento runs it as npm run typecheck, and CI runs it on every push."
+      }
+    ]
+  },
+  "any-type": {
+    "term": "any",
+    "levels": [
+      {
+        "ch": 21,
+        "def": "'Stop checking this value.' Honest at a boundary where the shape genuinely cannot be known, a bug anywhere else."
+      }
+    ]
+  },
+  "unknown-type": {
+    "term": "unknown",
+    "levels": [
+      {
+        "ch": 21,
+        "def": "The strict cousin of any. You may hold the value, but you may not touch a property until you have proved what it is."
+      }
+    ]
+  },
+  "type-predicate": {
+    "term": "Type predicate",
+    "levels": [
+      {
+        "ch": 21,
+        "def": "A return type written 'value is Thing'. A runtime check whose true answer promotes the value into a known shape for the compiler."
+      }
+    ]
+  },
+  "generic": {
+    "term": "Generic",
+    "levels": [
+      {
+        "ch": 21,
+        "def": "A blank left in a contract that the caller fills in, written <T>. One module can serve many shapes without any of them losing their types."
+      }
+    ]
+  },
+  "declaration-file": {
+    "term": "Declaration file (.d.ts)",
+    "levels": [
+      {
+        "ch": 21,
+        "def": "Hand-written signatures with no bodies, so typed code can safely call plain JavaScript. Memento's ported rules each have one."
+      }
+    ]
+  },
+  "props": {
+    "term": "Props",
+    "levels": [
+      {
+        "ch": 22,
+        "def": "Inputs handed down from a parent component. Read only. Data travels down the tree; a child talks back by calling a function it was given."
+      }
+    ]
+  },
+  "re-render": {
+    "term": "Re-render",
+    "levels": [
+      {
+        "ch": 22,
+        "def": "React calling your component again after state changed, comparing the result with what is on screen, and applying only the difference."
+      }
+    ]
+  },
+  "component-tree": {
+    "term": "Component tree",
+    "levels": [
+      {
+        "ch": 22,
+        "def": "Components nested inside components, from the root layout down to the ones that draw. Where you start reading an unfamiliar app."
+      }
+    ]
+  },
+  "hook": {
+    "term": "Hook",
+    "levels": [
+      {
+        "ch": 22,
+        "def": "A use-prefixed function that gives a component memory or behaviour. Matched by call order, so never inside an if."
+      }
+    ]
+  },
+  "usestate": {
+    "term": "useState",
+    "levels": [
+      {
+        "ch": 22,
+        "def": "A value plus a setter. Changing it re-renders. Only for things the screen shows."
+      }
+    ]
+  },
+  "useref": {
+    "term": "useRef",
+    "levels": [
+      {
+        "ch": 22,
+        "def": "A box that survives re-renders and never causes one. For what the component must remember but the screen does not show."
+      }
+    ]
+  },
+  "useeffect": {
+    "term": "useEffect",
+    "levels": [
+      {
+        "ch": 22,
+        "def": "Work that runs after drawing, with a watch list. Timers, subscriptions, anything outside React."
+      }
+    ]
+  },
+  "cleanup-function": {
+    "term": "Cleanup function",
+    "levels": [
+      {
+        "ch": 22,
+        "def": "What a useEffect returns. React runs it before the effect runs again and when the component leaves the screen. Skipping it is how timers fire into screens that no longer exist."
+      }
+    ]
+  },
+  "usecallback": {
+    "term": "useCallback",
+    "levels": [
+      {
+        "ch": 22,
+        "def": "Keeps the same function object across re-renders, so a child handed that function does not redraw for nothing."
+      }
+    ]
+  },
+  "style-object": {
+    "term": "Style object",
+    "levels": [
+      {
+        "ch": 22,
+        "def": "Styles written as JavaScript next to the component. Same properties as CSS, camelCased, with no cascade and no selectors."
+      }
+    ]
+  },
+  "expo": {
+    "term": "Expo",
+    "levels": [
+      {
+        "ch": 22,
+        "def": "The toolkit around React Native: build system, native modules, packaging. Memento's rebuild pins Expo 57."
+      }
+    ]
+  },
+  "five-part-ask": {
+    "term": "Five-part ask",
+    "levels": [
+      {
+        "ch": 27,
+        "def": "A change request with five parts: what, where (named files), the symptom or goal, the done-condition, and what not to touch. Each part closes one gap the agent would otherwise fill with a plausible guess."
+      }
+    ]
+  },
+  "done-condition": {
+    "term": "Done-condition",
+    "levels": [
+      {
+        "ch": 27,
+        "def": "How a machine could tell the job is finished, written before the work starts. Without one, \"done\" means \"I stopped typing\"."
+      }
+    ]
+  },
+  "implementation-plan": {
+    "term": "Plan (implementation plan)",
+    "levels": [
+      {
+        "ch": 27,
+        "def": "The agent's statement of what it intends to do before it writes code. Six questions decide whether it proceeds: does it name files, say what it will not touch, name existing code it will reuse, say how it verifies, stay the size of the ask, and have a rollback."
+      }
+    ]
+  },
+  "hunk": {
+    "term": "Hunk",
+    "levels": [
+      {
+        "ch": 27,
+        "def": "One changed region of one file in a diff, introduced by a header like @@ -210,6 +210,22 @@: six lines at line 210 before, twenty-two after. Read every hunk, not every file."
+      }
+    ]
+  },
+  "verification-artifact": {
+    "term": "Verification artifact",
+    "levels": [
+      {
+        "ch": 27,
+        "def": "Something a machine produced that you can look at: pasted command output, a test result with assertion names, a screenshot of the real surface, an exit code. Confidence is not one."
+      }
+    ]
+  },
+  "duplicate-system": {
+    "term": "Duplicate system",
+    "levels": [
+      {
+        "ch": 28,
+        "def": "A second thing that does the job something already does. Born from not searching first, no memory between sessions, and adding feeling safer than changing. Memento's specimens: two paywalls, two event styles, two Action flows."
+      }
+    ]
+  },
+  "scope-creep": {
+    "term": "Scope creep",
+    "levels": [
+      {
+        "ch": 28,
+        "def": "A change that grew past the ask. Visible in --stat as more files than you named, a reformat with no behaviour change, or a shared file you never mentioned. The guard: \"Change only X. If you see something else worth fixing, list it, do not fix it.\""
+      }
+    ]
+  },
+  "safety-commit": {
+    "term": "Safety commit",
+    "levels": [
+      {
+        "ch": 28,
+        "def": "A throwaway commit made before undoing anything, whose only job is turning destroyable work into a hash. Always first whenever something is uncommitted, because reflog cannot recover what was never committed."
+      }
+    ]
+  },
+  "git-restore": {
+    "term": "Restore",
+    "levels": [
+      {
+        "ch": 28,
+        "def": "git restore --source=<commit> -- <file> brings one named file back from a known-good snapshot. The explicit target after the -- is the safety."
+      }
+    ]
+  },
+  "fresh-context-review": {
+    "term": "Fresh-context review",
+    "levels": [
+      {
+        "ch": 28,
+        "def": "A review by a session, ideally a different model, that has not seen the reasoning and must reconstruct intent from the diff. If it cannot, that is the finding. Self-review cannot replace it, because an agent reviews its own work with the assumptions that produced it."
       }
     ]
   }

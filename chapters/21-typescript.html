@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>21. TypeScript: types as contracts. BIG CODE BOOK</title>
+<link rel="stylesheet" href="../css/book.css">
+<meta name="theme-color" content="#0b0b0d">
+</head>
+<body data-chapter="21">
+<main>
+  <div class="kicker">Chapter 21 <span class="tag eng">ENGINEER</span> <span class="tag">~55 min</span> <span class="tag">phone or Mac</span></div>
+  <h1>TypeScript: types as contracts</h1>
+  <p class="lede">Memento's rebuild is written in a language that refuses to build until the shapes line up. That refusal is the cheapest bug-catcher you own, and it works while you sleep.</p>
+
+  <div class="box recap"><div class="h">LAST TIME</div><p>Code goes from your machine to a build, from a build to a host, and a robot reviewer runs on every push so a broken commit never reaches a phone. Production is one environment among several, and rolling back means shipping a commit that undoes the last one. Logs, alerts and backups are where you look when it goes wrong at 2am.</p></div>
+
+  <h2>Quick check</h2>
+  <details class="check"><summary>In plain JavaScript, what does <code>"7" + 1</code> give you, and why?</summary><div class="a"><code>"71"</code>. The machine saw text on the left and applied the glue rule instead of the arithmetic rule. Nobody was warned, nothing crashed. That silence is what this chapter attacks.</div></details>
+  <details class="check"><summary>Chapter 20: what does CI actually do when you push?</summary><div class="a">A computer checks out your commit, runs the checks the project listed, and reports pass or fail. Same commands you could run yourself, run every time so nobody can forget. Memento's native workflow runs a type check, the tests, and an export build.</div></details>
+  <details class="check"><summary>Chapter 19: why is <code>EXPO_PUBLIC_FEEL_SAMPLE</code> safe in a repo and <code>ANTHROPIC_API_KEY</code> is not?</summary><div class="a">The <code>EXPO_PUBLIC_</code> prefix means the value gets baked into the app that ships to phones, so it is public by design and only ever holds switches. The API key is a password that spends Malik's money, so it lives in Supabase's secret store and the phone never sees it.</div></details>
+
+  <h2>The idea</h2>
+  <p>A <dfn data-term="type-annotation">type annotation</dfn> is a note next to a name saying what shape of value may go there. <code>streak: number</code> means this slot takes numbers. Everything else in this chapter is that one idea stacked.</p>
+  <p>Chapter 9 gave you the types themselves. They exist in plain JavaScript too, but only while the program runs, and nobody checks them in advance. You find out <code>dailyTime</code> became <code>"30"</code> when a customer sees <code>NaN</code>.</p>
+  <p><dfn data-term="typescript">TypeScript</dfn> is JavaScript with a second program attached that reads your code and checks every one of those notes against every place the value is used. That program never runs your app. It reads it, the way a proofreader reads a manuscript.</p>
+
+  <div class="box analogy"><div class="h">ANALOGY (TEMPORARY)</div><p>A proofreader who never reads for sense. Before the book prints, one person checks only the mechanics: every footnote points at a source that exists, every cross-reference names a real chapter, every name spelled the same way each time. They cannot tell you the argument is wrong. They can tell you page 212 points at a chapter that was cut. It catches a class of mistake careful reading never catches, because it is boring and mechanical and a human gets tired.</p></div>
+
+  <figure class="fig-box">
+    <svg class="figure" viewBox="0 0 640 260" role="img" aria-label="A function drawn as a box in the middle. On the left, an input shape labelled a message with a role and content, fitting into a matching slot. Below it a wrong shape, labelled a message with a rank instead of a role, bouncing off the slot and marked refused. On the right, an output shape leaving the box, labelled either a success with text or a failure with a code.">
+      <text class="st lo" x="16" y="22">WHAT MAY GO IN</text>
+      <rect class="bx acc" x="16" y="38" width="176" height="52" rx="8"/>
+      <text class="st mono" x="104" y="60" text-anchor="middle">{ role, content }</text>
+      <text class="st lo" x="104" y="78" text-anchor="middle">fits</text>
+      <path class="ln acc" d="M192 64 H250"/><circle class="dot" cx="250" cy="64" r="3.5"/>
+      <rect class="bx" x="16" y="126" width="176" height="52" rx="8"/>
+      <text class="st mono" x="104" y="148" text-anchor="middle">{ rank, content }</text>
+      <text class="st lo" x="104" y="166" text-anchor="middle">refused before it runs</text>
+      <path class="ln" d="M192 152 H238"/>
+      <path class="ln" d="M232 142 L244 162 M244 142 L232 162"/>
+      <rect class="bx cy" x="250" y="40" width="150" height="140" rx="8"/>
+      <text class="st b" x="325" y="100" text-anchor="middle">sendMessage</text>
+      <text class="st lo" x="325" y="120" text-anchor="middle">the contract</text>
+      <path class="ln cy" d="M400 110 H452"/><circle class="dot cy" cx="452" cy="110" r="3.5"/>
+      <text class="st lo" x="452" y="22">WHAT COMES OUT</text>
+      <rect class="bx cy" x="452" y="60" width="172" height="44" rx="8"/>
+      <text class="st mono" x="538" y="87" text-anchor="middle">success + text</text>
+      <text class="st lo" x="538" y="124" text-anchor="middle">or</text>
+      <rect class="bx cy" x="452" y="136" width="172" height="44" rx="8"/>
+      <text class="st mono" x="538" y="163" text-anchor="middle">failure + code</text>
+      <text class="st lo" x="320" y="230" text-anchor="middle">The contract is checked by a proofreader that never runs the code. One of the two outputs happens, never both.</text>
+    </svg>
+    <figcaption>A type is a contract on both ends of a function: what you may hand it, and what it promises back. The wrong shape is stopped at the door, months before a customer sees it.</figcaption>
+  </figure>
+
+  <h3>The parts you will actually read</h3>
+  <p>Annotations go after a colon. <code>const name: string = 'Malik'</code>. Functions annotate their inputs and their answer: <code>function dayKey(date: Date): string</code> reads as hand me a Date, I hand you back a string. That line is a <dfn data-term="function-signature">function signature</dfn>, usually all you need to use a function you have never seen.</p>
+  <p>Shapes get names. A <dfn data-term="type-alias">type alias</dfn> is <code>type State = { streak: number }</code>. An <dfn data-term="interface">interface</dfn> does nearly the same job with different words, and the difference matters to library authors, not to you. Read both as a named shape.</p>
+  <p>A question mark makes a field an <dfn data-term="optional-property">optional property</dfn>: <code>system?: string</code> may be absent, and the proofreader forces you to cope with that. A vertical bar makes a <dfn data-term="union-type">union type</dfn>: <code>string | null</code> is one of those two, and <code>'off' | 'deep'</code> is one of exactly those two words. Unions are the most useful thing in the language, because most real answers in software are one of a small set of possibilities and plain JavaScript cannot say that out loud.</p>
+  <p>You do not annotate everything. <dfn data-term="type-inference">Type inference</dfn> works out the obvious ones: write <code>let streak = 0</code> and the proofreader knows that slot is a number and rejects <code>streak = "0"</code> later. Good TypeScript is mostly inferred, with annotations at the edges where a shape enters or leaves.</p>
+  <p><dfn data-term="strict-mode">Strict mode</dfn> turns on the paranoid checks. The best one: a value that might be null cannot be used until you have dealt with the null. That single rule deletes the most common crash in every JavaScript app ever written.</p>
+  <p>Then the part everybody gets wrong on first contact. <dfn data-term="type-erasure">Types are erased</dfn> before the code runs. The build strips every annotation and the phone executes plain JavaScript, exactly as if you had never written a type. Types are not a runtime safety net and cannot check what a server sends you.</p>
+  <p>So the check is a command you run on purpose. <code>npm run typecheck</code> runs <code>tsc --noEmit</code>: read every file, report every violation, produce no output. The proofreader with the printing press switched off. <dfn data-term="typecheck">Typechecking</dfn> is what CI runs on every push, and a failing typecheck is a build that does not ship.</p>
+
+  <h3>Why this matters more now than it did in 2015</h3>
+  <p>An agent writing code makes a specific kind of mistake: something that reads beautifully and refers to a property that does not exist. <code>state.lastDone</code> when the field is <code>lastCompleted</code>. In plain JavaScript that line runs, evaluates to <code>undefined</code>, and the screen quietly says "never" forever. In TypeScript it does not compile, and the agent is told so in seconds, usually before you see the diff. Types are one of very few tools that catch an AI's mistakes with no human looking. Tests are the other, and tests cost a person's time. The annotation was going to be written anyway.</p>
+
+  <h2>See it</h2>
+  <p>These boxes run JavaScript, because a sandbox in a web page cannot run the proofreader. Each shows the TypeScript line in a comment above the JavaScript that survives erasure. Read the comment, then look at what runs. That gap is the point.</p>
+
+  <div class="sb">
+// TS:  const goal: string = "ship the native app";
+const goal = "ship the native app";
+// TS:  const days: number = 30;
+const days = 30;
+// TS:  let lastCompleted: string | null = null;
+let lastCompleted = null;
+// TS:  function summary(title: string, n: number): string {
+function summary(title, n) {
+  return title + " in " + n + " days";
+}
+console.log(summary(goal, days));
+console.log(lastCompleted);
+// Every TS: line above vanishes before this runs. What executes is what you see.
+</div>
+
+  <div class="sb">
+// The typo an agent makes, and what plain JavaScript does about it.
+// TS:  type State = { northStar: string; streak: number; lastCompleted: string | null };
+const state = { northStar: "ship it", streak: 4, lastCompleted: "2026-09-19" };
+
+console.log(state.lastCompleted);   // the real field
+console.log(state.lastDone);        // the hallucinated one
+console.log("streak is " + (state.streek + 1));
+// TypeScript would refuse both of the last two lines by name.
+// JavaScript prints undefined, and NaN, and carries on all the way to a customer.
+</div>
+
+  <div class="sb">
+// A union in action: one of two shapes, never both, never a third.
+// TS:  type Result = { status: 'success'; text: string } | { status: 'failure'; code: string };
+function show(result) {
+  if (result.status === "success") return "got: " + result.text;
+  return "failed: " + result.code;
+}
+console.log(show({ status: "success", text: "here is your plan" }));
+console.log(show({ status: "failure", code: "rate-limit" }));
+// In TypeScript, reading result.text before checking status is an error,
+// because the failure half of the union has no text. The if is what proves it.
+</div>
+
+  <h2>Now in Memento</h2>
+  <div class="lanes">
+    <div class="lane"><div class="h">ANY APP</div>
+      <p>Anything that talks to a network needs two shapes written down: what a request looks like going out, and what an answer looks like coming back. Answers come in two flavours, worked and did not work, so the reply is a union of a success and a failure.</p>
+      <p>Writing those shapes at the top of the file is a habit worth stealing. Shortest documentation there is, it cannot go stale, and every call site gets checked against it free.</p>
+    </div>
+    <div class="lane mem"><div class="h">MEMENTO</div>
+      <p>The rebuild's AI transport opens with nothing but shapes.</p>
+      <pre><code>export type Message = { role: 'user' | 'assistant'; content: string };
+export type Request = {
+  messages: Message[]; system?: string; profileContext?: string;
+  clarityOperation?: 'clarity.discovery' | 'clarity.synthesis' | 'clarity.sharpen_goal' | 'clarity.star_name';
+  quality?: 'standard' | 'deep'; luna?: boolean; history?: unknown[];
+  paidAction?: boolean; model?: string; maxTokens?: number; cache?: boolean;
+  thinking?: 'off' | { budget_tokens: number }; stream?: boolean;
+};</code></pre>
+      <div class="src">memento-native/src/ai/transport.ts:1-8 (native pin 93bfa796)</div>
+      <p>Then the answer, as one line and one union.</p>
+      <pre><code>export type Result = { status: 'success'; text: string; stopReason: string; model: string } | { status: 'failure'; code: string };</code></pre>
+      <div class="src">memento-native/src/ai/transport.ts:11 (native pin 93bfa796)</div>
+    </div>
+  </div>
+
+  <p>Read <code>Message</code> slowly. <code>role</code> is not a string, it is one of two exact strings, so <code>role: 'system'</code> is an error at the keyboard. <code>Message[]</code> is a list of those, so nothing but a well formed message enters the pipe. The question marks carry the rest: <code>messages</code> is required, everything else is optional. One thing mandatory, the rest knobs.</p>
+  <p>Now the function that builds a <code>Result</code>, and the line that turns HTTP numbers into words.</p>
+  <pre><code>export function extract(data: any): Result {
+  const text=Array.isArray(data?.content)?data.content.find((b:any)=&gt;b?.type==='text' &amp;&amp; typeof b.text==='string')?.text:undefined;
+  if (data?.stop_reason==='refusal') return {status:'failure',code:'refusal'};
+  if (data?.stop_reason==='max_tokens') return {status:'failure',code:'truncated'};
+  if (typeof text!=='string' || !text.trim()) return {status:'failure',code:'empty'};
+  return {status:'success',text:text.replace(/[\u2014\u2013]/g,' - '),stopReason:String(data.stop_reason||''),model:String(data.model||'')};
+}
+const codeForStatus=(status:number)=&gt;status===429?'rate-limit':status===403?'paid-required':status===401?'unauthorized':status===409?'job-conflict':status===529?'busy':'service-unavailable';</code></pre>
+  <div class="src">memento-native/src/ai/transport.ts:45-52 (native pin 93bfa796)</div>
+  <p>Four exits, every one a member of the union. The signature <code>(data: any): Result</code> is a promise the proofreader enforces: add a fifth exit returning <code>{ ok: true }</code> and the file stops compiling. Note <code>data: any</code> going in. <dfn data-term="any-type">any</dfn> means stop checking this one, honest here because that value came off the network and nobody can know its shape in advance. Every <code>?.</code> and <code>typeof</code> in the body earns back by hand what the types could not give. Types describe your code, not the outside world.</p>
+
+  <h3>A type that proves something</h3>
+  <pre><code>/** A local UI cache, NOT a signed purchase receipt or server authority. */
+export function validateReceipt(value: unknown, subject: string, environment: Environment, now: number): value is AccessReceipt {</code></pre>
+  <div class="src">memento-native/src/billing/accessPolicy.ts:42-43 (native pin 93bfa796)</div>
+  <p>That return annotation is not <code>boolean</code>. <code>value is AccessReceipt</code> is a <dfn data-term="type-predicate">type predicate</dfn>: it returns true or false, and when it returns true the proofreader treats that value as a real receipt from then on. A runtime fact promoted into a compile-time one. The input is <dfn data-term="unknown-type">unknown</dfn>, the strict cousin of <code>any</code>: you may hold it, you may not touch a property until you prove what it is. Right for data out of storage, which chapter 18 taught you never to trust.</p>
+
+  <h3>A whole module, nine lines</h3>
+  <pre><code>import { createMMKV } from 'react-native-mmkv';
+import { createJournal } from './journal';
+
+/** Created after account selection. No singleton shared between signed-in users. */
+export function openAccountJournal&lt;T&gt;(userId: string, supportedSchema: number, validate: (value: unknown) =&gt; value is T) {
+  if (!userId || userId.length &gt; 200) throw new Error('Invalid local account identity');
+  const storage = createMMKV({ id: `memento.account.${encodeURIComponent(userId)}` });
+  return createJournal(storage, userId, supportedSchema, validate);
+}</code></pre>
+  <div class="src">memento-native/src/storage/mmkv.ts:1-9 (native pin 93bfa796)</div>
+  <p>The <code>&lt;T&gt;</code> is a <dfn data-term="generic">generic</dfn>: a blank in the contract the caller fills in. Whatever you are storing, call it T, hand me a function that proves a value is a T, and everything I give back is about T. One storage module serves every screen and none of them lose their types.</p>
+
+  <h3>Types for code that has none</h3>
+  <p>Memento's pure rules were ported from the frozen web app as plain JavaScript, on purpose, so the logic stays comparable with the original. To let typed code call them, a human wrote the shapes by hand next to each file: a <dfn data-term="declaration-file">declaration file</dfn>, <code>.d.ts</code>, signatures with no bodies.</p>
+  <div class="lanes">
+    <div class="lane"><div class="h">THE TYPES (dayKeys.d.ts)</div>
+      <pre><code>/** Calendar strings remain strings for compatibility; validate at input boundaries. */
+export function localISO(date: Date): string;
+export function isoToLocalDay(value: unknown): string | null;
+/** Explicit valid clock input required. Invalid dates throw, as in the PWA. */
+export function actionDayKey(date: Date | string | number): string | null;</code></pre>
+      <div class="src">memento-native/src/rules/dayKeys.d.ts:1-5 (native pin 93bfa796)</div>
+    </div>
+    <div class="lane mem"><div class="h">THE CODE (dayKeys.js)</div>
+      <pre><code>'use strict';
+
+// Frozen js/01 and js/02 date semantics. Callers supply the current clock.
+function localISO(d) {
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+}</code></pre>
+      <div class="src">memento-native/src/rules/dayKeys.js:1-6 (native pin 93bfa796)</div>
+    </div>
+  </div>
+  <p>Every caller is checked against the left file while the right file runs unchanged. Note <code>string | null</code> on two of the three: those may fail to give you a day, and strict mode makes you handle it. Two lines make it binding.</p>
+  <table>
+    <tr><th>Where</th><th>Line</th><th>What it does</th></tr>
+    <tr><td><code>memento-native/tsconfig.json:4</code></td><td><code>"strict": true</code></td><td>Turns on the paranoid checks, including the null rule.</td></tr>
+    <tr><td><code>memento-native/package.json:13</code></td><td><code>"typecheck": "tsc --noEmit"</code></td><td>Read everything, report every violation, write no files.</td></tr>
+  </table>
+  <div class="src">memento-native/tsconfig.json:4, memento-native/package.json:13 (native pin 93bfa796)</div>
+
+  <div class="box memento"><div class="h">THE ALTERNATIVE, AND WHY MEMENTO CHOSE THIS</div><p>The alternative is sitting in the same repo, and you have been reading it for twenty chapters. <code>memento-app/</code> is plain JavaScript: no types, no compiler, no build step, roughly 67,000 lines. The payoff was real. Edit a file, reload the browser, done, and deploys that are a file copy.</p><p>The bill was real too. Two AI agents wrote most of those lines, and not one misspelled property, wrong argument count or forgotten null was ever caught before a human looked at a screen. Nothing in that codebase can tell you mechanically that a caller and its function disagree. Every check is a person. So the rebuild flipped it: TypeScript strict from the first commit, <code>tsc --noEmit</code> in CI, and hand-written <code>.d.ts</code> files for the logic that could not be retyped. The cost is a build step and annotations to maintain. The purchase is a proofreader that reviews every agent's work in seconds, forever, for free.</p></div>
+
+  <h2>Do it</h2>
+  <div class="ex">
+    <div class="h">Exercise <span class="tag">phone or Mac</span></div>
+    <div class="meta">Where: <code>sandbox/v2/errors/app.ts</code>, quoted below so you can do this on a phone. Expected: you name the problem in all six. Reset: nothing, this is reading. This cannot touch Memento.</div>
+    <ol>
+      <li>The practice copy of Memento Jr has six type errors planted in it. Here are the six lines. Everything else in the file is correct.</li>
+      <li>Say what the proofreader would complain about in each. The shapes you need: <code>State</code> is <code>{ northStar: string; streak: number; lastCompleted: string | null; history: string[] }</code>, plus <code>setRing(fraction: number)</code>, <code>say(text: string)</code>, <code>isHoldKey(e: KeyboardEvent): boolean</code>.</li>
+      <li>Then the harder question: which of the six would plain JavaScript run happily, producing a wrong screen instead of an error? Open the check only after you have written six sentences down.</li>
+    </ol>
+  </div>
+
+  <pre><code>state.streak = "0"; // error 1
+
+el("last").textContent = state.lastDone || "never"; // error 2
+
+document.getElementById("message").textContent = text; // error 3
+
+setRing(); // error 5
+
+return e.key; // error 4
+
+state.northstar = (e.target as HTMLInputElement).value; // error 6</code></pre>
+
+  <details class="check"><summary>The six answers</summary><div class="a">
+    <p><strong>1.</strong> <code>streak</code> is a <code>number</code>, <code>"0"</code> is a string.</p>
+    <p><strong>2.</strong> There is no <code>lastDone</code> on <code>State</code>. The real name is <code>lastCompleted</code>. The hallucinated-property mistake, exactly.</p>
+    <p><strong>3.</strong> <code>getElementById</code> can return <code>null</code>, and strict mode will not let you reach into a maybe-null value. The <code>el()</code> helper throws a clear error instead.</p>
+    <p><strong>4.</strong> <code>isHoldKey</code> promises a <code>boolean</code> and hands back <code>e.key</code>, a string. Signature and body disagree.</p>
+    <p><strong>5.</strong> <code>setRing()</code> needs one number and got nothing.</p>
+    <p><strong>6.</strong> <code>state.northstar</code>, lowercase s. The property is <code>northStar</code>.</p>
+    <p><strong>The harder question:</strong> five of the six. Only number 3 might crash, and only if that element were missing. The other five run fine and produce a quietly wrong screen: a streak that is text, a date stuck on "never", a hold that never fills, an odd keyboard, and a north star saved under a name nothing reads. That is the whole argument for this chapter, in one file.</p>
+  </div></details>
+
+  <div class="ex" data-device="mac">
+    <div class="h">Exercise, extra <span class="tag mac">MAC</span></div>
+    <div class="meta">Where: <code>~/Downloads/CODE-BOOK/sandbox/v2/</code>. Expected: two files side by side and you can point at each difference. Reset: nothing, this is reading. This cannot touch Memento.</div>
+    <ol>
+      <li>Open <code>sandbox/v2/app.ts</code> and <code>sandbox/v2/errors/app.ts</code> in two panes and scroll them together. The correct file is the answer key.</li>
+      <li>Then open <code>sandbox/v2/app.js</code>, the same app with every type stripped by hand, which is what a browser runs. Read twenty lines of each and watch the annotations disappear.</li>
+    </ol>
+  </div>
+
+  <div class="box why"><div class="h">ASK THE AGENT WHY (paste this into Codex or Fable)</div><pre><code>In memento-native/src/ai/transport.ts, explain the Result type on line 11. Why is it written as a union of two object shapes rather than one object with an optional error field? Show me one place in the file where that choice forces a caller to handle failure, and tell me what would break if someone changed it to { ok: boolean; text?: string; code?: string }. Then explain why extract() takes `data: any` when the rest of the file is strictly typed. Do not change anything.</code></pre></div>
+
+  <div class="box words"><div class="h">WORDS YOU NOW OWN</div><dl>
+    <dt>TypeScript</dt><dd>JavaScript with a proofreader attached. You write down shapes, the proofreader checks every use of them, and none of it exists once the code runs.</dd>
+    <dt>Type annotation</dt><dd>The note after a colon that says what may go in a slot. <code>streak: number</code>.</dd>
+    <dt>Function signature</dt><dd>What a function takes and what it gives back, written as one line. Usually all you need to use it.</dd>
+    <dt>Type alias / interface</dt><dd>A name given to a shape so you can reuse it. Read both as "here is a named shape".</dd>
+    <dt>Optional property</dt><dd>A field marked with <code>?</code>. It may be missing, and strict mode makes you handle that.</dd>
+    <dt>Union type</dt><dd><code>A | B</code>. One of these, never something else. How software says "success or failure" out loud.</dd>
+    <dt>Type inference</dt><dd>The proofreader working out the obvious types itself, so you only annotate the edges.</dd>
+    <dt>Strict mode</dt><dd>The paranoid setting. Its best rule: a maybe-null value cannot be used until the null is dealt with.</dd>
+    <dt>Type erasure</dt><dd>Types are stripped before the code runs. The phone executes plain JavaScript. Types are never runtime protection.</dd>
+    <dt>Typecheck</dt><dd><code>tsc --noEmit</code>. Read everything, report every violation, produce no files. Run by CI on every push.</dd>
+    <dt>any / unknown</dt><dd>"Stop checking this" / "I do not know yet, and you may not touch it until you prove what it is". Prefer the second.</dd>
+    <dt>Type predicate</dt><dd>A return type written <code>value is Thing</code>. A runtime check that promotes its result into a compile-time fact.</dd>
+    <dt>Generic</dt><dd>A blank in a contract that the caller fills in, written <code>&lt;T&gt;</code>. One module serving many shapes without losing any of them.</dd>
+    <dt>Declaration file</dt><dd>A <code>.d.ts</code> file: signatures with no bodies, hand-written so typed code can safely call untyped JavaScript.</dd>
+  </dl></div>
+
+  <div class="box expiry"><div class="h">WHERE TODAY'S ANALOGY BREAKS</div><p><strong>Breaks when:</strong> data arrives from outside. A proofreader checks every cross-reference inside the manuscript and has no opinion about a letter arriving in the post tomorrow. Write <code>const reply: Result = await response.json()</code> and TypeScript believes you completely, because the annotation is a claim you made, not a fact it verified. <strong>Real model:</strong> types stop existing at runtime. Anything crossing a boundary, the network, storage, a form field, must be validated by code that really runs, which is why <code>extract()</code> is full of <code>typeof</code> checks and <code>validateReceipt</code> takes <code>unknown</code>. Chapter 25 calls this the trust boundary.</p></div>
+
+  
+  <details class="hole"><summary>RABBIT HOLE: the type check is not a proof</summary><p>A passing typecheck means the shapes agree, not that the code is correct. <code>function streakFor(user: User): number { return 0; }</code> typechecks perfectly and is completely wrong. Logic is still on you, and on chapter 24's tests. Anyone who says a typed codebase does not need tests is selling something.</p></details>
+</main>
+<script src="../js/book.js"></script>
+</body>
+</html>
