@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>30. Graduation: one real change to Memento. BIG CODE BOOK</title>
+<link rel="stylesheet" href="../css/book.css">
+<meta name="theme-color" content="#0b0b0d">
+</head>
+<body data-chapter="30">
+<main>
+  <div class="kicker">Chapter 30 <span class="tag need">NEED</span> <span class="tag">~75 min</span> <span class="tag mac">MAC</span></div>
+  <h1>Graduation: one real change to Memento</h1>
+  <p class="lede">Twenty-nine chapters of reading someone else's app. This one ends with your name on a branch, a change you understand line by line, and a pull request that stops there until somebody reviews it. Then the test, which is not a quiz. It is six things you either can do or cannot.</p>
+
+  <div class="box recap"><div class="h">LAST TIME</div><p>You ran the native app yourself. A dev build is a shell Xcode compiled once, Metro is the bundler on your Mac that serves it the JavaScript, and the simulator is a fake iPhone. You found the file that drew a screen by grepping the words on it, and you changed nothing.</p></div>
+
+  <p style="color:var(--text-lo)">Mac chapter. Read every word of it on your phone if that is where you are. The rubric and the change need Terminal, git and a browser, so they wait for the Mac.</p>
+
+  <h2>Quick check</h2>
+  <details class="check"><summary>Why is <code>git add -A</code> banned in Memento?</summary><div class="a">Two agents share one working folder. A blanket add stages their half-finished files along with yours and commits work nobody reviewed, which is how a duplicate feature ships. Name your files.</div></details>
+  <details class="check"><summary>What does "APPROVED @ b6e148b2" actually approve?</summary><div class="a">That exact snapshot of the whole folder, identified by its fingerprint. Not the branch, not the idea. Change one character and the next commit has a different hash, so the approval visibly does not cover it.</div></details>
+  <details class="check"><summary>You are told "the tests pass." What is missing?</summary><div class="a">The output. A claim with no evidence is a claim. Chapter 27's rule: if you cannot verify it, it did not happen. Ask for the summary lines, or run <code>npm run check</code> yourself in the lab.</div></details>
+
+  <h2>The idea: the gate</h2>
+  <p>Every serious codebase has a moment where reading stops and writing starts, and that moment is a permission, not a feeling.</p>
+  <p>Memento is under a <dfn data-term="code-freeze">code freeze</dfn>. A freeze is a decision to stop changing something so that a second thing can catch up: here, the web app holds still at v1378 while the React Native rebuild chases it. A freeze is not laziness. It is how you stop the target moving while you copy it, and every change you allow through it is a change the other team has to replay by hand.</p>
+  <p>So this chapter has a gate in front of it, and the gate is one sentence from one person.</p>
+  <div class="box expiry"><div class="h">THE GATE. DO NOT PASS IT WITHOUT THIS</div><p>This chapter begins only when Malik has said, <strong>that day, in chat</strong>: "yes, do the graduation change on Memento." Not last week. Not implied by your being on chapter 30. Not an agent saying it is fine. Until that sentence exists the chapter is reading, and the lab from chapter 29 is where anything runs. After it exists, the agent creates a branch and every change lives there. Nothing, ever, happens on <code>main</code>.</p></div>
+  <p>That is not ceremony. Memento is live, it has paying users, and its rules file tells every agent what the freeze allows:</p>
+  <pre><code>- No new features, redesigns, or copy changes in `memento-app/`. Bug fixes
+  only, and only for bugs that block a real person or a test account.
+- Every fix to `memento-app/` gets one line in `MIGRATION/FREEZE-LOG.md`
+  (version, file, what, why) so the native build replays it. Malik approves
+  emergency fixes; an agent may ship a fix only after logging it.</code></pre>
+  <div class="src">CLAUDE.md:54-58 (native pin 93bfa796)</div>
+  <p>Read the second rule again, because it is the one people skip. <code>MIGRATION/FREEZE-LOG.md</code> is the list of things the native rebuild owes:</p>
+  <pre><code>One line per fix. The native build replays each of these before parity.
+Format: `vNNNN | file | what changed | why it could not wait | approved by`
+
+(none yet)</code></pre>
+  <div class="src">MIGRATION/FREEZE-LOG.md:3-6 (native pin 93bfa796)</div>
+  <p>"(none yet)" is the proudest line in the repository: nine days of freeze and nothing urgent enough to break it. If your change touches <code>memento-app/</code>, you write the first line in that file, and you had better be able to defend it.</p>
+  <p>Then the shipping rules, which you now read as git rather than as chores:</p>
+  <pre><code>- **Before editing:** `git pull --rebase origin main` (get other agents' latest work).
+- **After a meaningful change:** commit ONLY your own files: `git add &lt;your specific files&gt;
+  &amp;&amp; git commit -m "&lt;what changed&gt;" &amp;&amp; git push origin main`. **NEVER `git add -A`**
+- End commit messages with: `Co-Authored-By: ...`</code></pre>
+  <div class="src">CLAUDE.md:72, 73 and 75, wrapped to fit (native pin 93bfa796)</div>
+  <p>Pull with rebase first so your work sits on top of theirs. Name your files so you commit only what you understand. Sign the message so the log says who wrote it. And where that quote says push to <code>main</code>, you do the safer version: push a branch and open a <dfn data-term="pull-request">pull request</dfn>, because a first change by a new engineer gets read before it merges. That reader is not you.</p>
+
+  <div class="box analogy"><div class="h">ANALOGY (TEMPORARY)</div><p>A shooting range. The range is cold by default: you can handle the weapon, dry fire it, walk the line, inspect everything. Live ammunition only when the range officer calls the range hot, and it goes cold again the moment anyone steps forward. Malik is the range officer. The lab is dry fire. The branch is a hot range with one person shooting and one person watching.</p></div>
+
+  <figure class="fig-box">
+    <svg class="figure" viewBox="0 0 640 250" role="img" aria-label="A loop of six steps. Malik says yes, then create a branch, then make the change, then verify it with tests or screenshots, then open a pull request, then stop at the reviewed branch. An arrow from stop goes back to Malik says yes, labelled merging is a separate yes. Main sits outside the loop, untouched.">
+      <rect class="bx acc" x="12" y="40" width="112" height="56" rx="8"/>
+      <text class="st b" x="68" y="64" text-anchor="middle">Malik says yes</text>
+      <text class="st lo" x="68" y="82" text-anchor="middle">today, in chat</text>
+      <rect class="bx" x="148" y="40" width="104" height="56" rx="8"/>
+      <text class="st b" x="200" y="64" text-anchor="middle">Branch</text>
+      <text class="st lo" x="200" y="82" text-anchor="middle">never main</text>
+      <rect class="bx" x="276" y="40" width="104" height="56" rx="8"/>
+      <text class="st b" x="328" y="64" text-anchor="middle">Change</text>
+      <text class="st lo" x="328" y="82" text-anchor="middle">one small thing</text>
+      <rect class="bx" x="404" y="40" width="104" height="56" rx="8"/>
+      <text class="st b" x="456" y="64" text-anchor="middle">Verify</text>
+      <text class="st lo" x="456" y="82" text-anchor="middle">with evidence</text>
+      <rect class="bx cy" x="532" y="40" width="96" height="56" rx="8"/>
+      <text class="st b" x="580" y="64" text-anchor="middle">Pull request</text>
+      <text class="st lo" x="580" y="82" text-anchor="middle">branch, not main</text>
+      <path class="ln" d="M124 68 H148"/>
+      <path class="ln" d="M252 68 H276"/>
+      <path class="ln" d="M380 68 H404"/>
+      <path class="ln" d="M508 68 H532"/>
+      <rect class="bx cy" x="452" y="136" width="176" height="46" rx="8"/>
+      <text class="st b" x="540" y="164" text-anchor="middle">STOP: reviewed branch</text>
+      <path class="ln cy" d="M580 96 V136"/>
+      <path class="ln acc" d="M452 159 H68 V96"/>
+      <text class="st lo" x="250" y="150" text-anchor="middle">merging is a separate yes</text>
+      <rect class="bx" x="12" y="196" width="616" height="34" rx="8"/>
+      <text class="st lo" x="320" y="217" text-anchor="middle">main sits outside this loop the whole time. Nothing in this chapter touches it.</text>
+    </svg>
+    <figcaption>The loop you will run for the rest of your life as the person who owns this codebase. The only step people skip is the last one.</figcaption>
+  </figure>
+
+  <h2>See it</h2>
+  <p>The rubric, as an object. Run it with everything false, then flip your honest answers and run it again. It will not flatter you.</p>
+
+  <div class="sb">
+const rubric = [
+  { id: "trace",   what: "Trace one function by hand",         pass: false },
+  { id: "bug",     what: "Find a planted bug from a trace",    pass: false },
+  { id: "diff",    what: "Review a diff, name its problems",   pass: false },
+  { id: "secure",  what: "Explain one security decision",      pass: false },
+  { id: "verify",  what: "Verify one claim with evidence",     pass: false },
+  { id: "journey", what: "Narrate one data journey, no notes", pass: false }
+];
+
+function report(items) {
+  const failed = items.filter(i => !i.pass);
+  items.forEach(i => console.log((i.pass ? "PASS  " : "RETAKE") + "  " + i.what));
+  console.log("---");
+  if (failed.length === 0) return console.log("Graduated. Six for six.");
+  console.log("Retake " + failed.length + ": " + failed.map(i => i.id).join(", "));
+  console.log("Retakes are the normal outcome. Nothing else changes.");
+}
+
+report(rubric);
+// Now set some to true and run again. Be honest. Nobody sees this but you.
+</div>
+  <p>Notice what the function does not do: no score, no percentage, no "4 out of 6 is a pass". Six separate skills, each either there or not. A percentage lets you hide a missing one behind five good ones, and the missing one is what bites you at 11pm when the app is down.</p>
+
+  <h2>Now in Memento</h2>
+  <div class="lanes">
+    <div class="lane"><div class="h">ANY APP</div>
+      <p>Real teams write their rules in a file at the root of the repository and expect you to read it before touching anything: what may change, who owns which files, how a commit message looks, what has to be true before something merges. Reading it is the first five minutes of any job. Breaking a rule in it is what makes a team stop trusting your commits.</p>
+    </div>
+    <div class="lane mem"><div class="h">MEMENTO</div>
+      <p>Your rules file is <code>CLAUDE.md</code>, and two AI agents obey it more literally than a human would. The review gate it creates shows up in the log as plain English:</p>
+      <pre><code>09d6c008 HANDOFF: Doors fresh-checkout journey verified on device
+         @ b6e148b2, package fully approved (gates open)</code></pre>
+      <div class="src">git log --oneline (native pin 93bfa796; subject wrapped to fit)</div>
+      <p>That is <dfn data-term="code-review">code review</dfn>. One agent built it, the other checked out that exact snapshot fresh, ran the journey on a real device, and wrote the approval into the log against the hash. "Gates open" means the next package may start. You have been the cable between those agents for months. Today you are a third party on the same protocol.</p>
+    </div>
+  </div>
+  <div class="box memento"><div class="h">THE ALTERNATIVE, AND WHY MEMENTO CHOSE THIS</div><p>The alternative to a freeze is to keep shipping the web app while the native rebuild chases it. That is what most teams do, and it is why most rewrites die: the target keeps moving, the new version is never at parity, and one day somebody quietly gives up. The freeze costs real speed right now, and "(none yet)" is the receipt that it is being honoured. The alternative to a pull request for your change is to push straight to <code>main</code>, which the rules file literally permits for the agents. You are not taking that permission, because the cost of a bad first commit on a live app is not measured in time.</p></div>
+
+  <h2>The rubric</h2>
+  <p>Open tool. AI allowed, internet allowed, book allowed. That is the real job: nobody has ever asked an engineer to work without documentation. What is tested is whether you can drive the tools to a correct answer and know when it is correct. Use Codex or Fable for any of it, then answer the only question that counts: could I have caught it if the agent got it wrong?</p>
+  <table>
+    <tr><th>Item</th><th>You pass when</th></tr>
+    <tr><td>Trace one function by hand</td><td>You pick <code>persistState()</code> (<code>memento-app/js/01-state-foundation.js:488</code>) or <code>closeToday()</code> (<code>memento-native/src/sample/feelSampleStore.ts:67</code>), write down its inputs, its output, and every side effect it causes, then run it and find nothing you missed.</td></tr>
+    <tr><td>Find a planted bug from a stack trace</td><td>Given a stack trace from a broken copy in <code>lab/</code> or <code>git-lab/</code>, you name the file and line before opening the file, then explain the fix in one sentence.</td></tr>
+    <tr><td>Review a diff and name its problems</td><td>Given a prepared diff, you find both planted problems and say why each is a problem, without being told how many there are.</td></tr>
+    <tr><td>Explain one security decision</td><td>You explain, unprompted, why Supabase's anon key sits in public git and the Anthropic key never can, and what Row Level Security has to be doing for the first half to be safe.</td></tr>
+    <tr><td>Verify one claim with evidence</td><td>You take one "it works" claim and produce the proof: command output, a test summary, or a screenshot of the actual surface, not a reconstruction.</td></tr>
+    <tr><td>Narrate one complete data journey from memory</td><td>Closed book. Tap to pixel: phone, JavaScript, state, network, edge function, Anthropic, back, state, storage, sync, database. Which parts run where, and who pays for each.</td></tr>
+  </table>
+  <p>Item five decides the other five. <dfn data-term="evidence">Evidence</dfn> means command output, a test summary, or a screenshot of the real surface, in the same theme as the report. Anything else is a claim, including one of yours.</p>
+  <p>Codex prepares the planted bug and the planted diff, so neither is a puzzle you have seen. Six for six is the pass. Miss one and you retake that one, not the set, after rereading the chapter it came from. Retakes are the normal outcome. The only failing move is deciding a missed item did not matter.</p>
+
+  <h2>The change</h2>
+  <p>Small. Real. Yours. The freeze picks the shape: on the web side, only a bug fix that blocks a real person or a test account, logged in <code>FREEZE-LOG.md</code>. On the native side there is no freeze, so a small typed change with a test next to it is fair game. Either way the rule is the one that governs your agents: one thing, named, understood end to end.</p>
+  <p>The safe shape, in order:</p>
+  <ol>
+    <li>Read the plan, out loud, before any file opens. One sentence: what changes, in which file, and how you will know it worked.</li>
+    <li><code>git pull --rebase origin main</code>, then create the branch. Your work starts on top of everyone else's, never beside it.</li>
+    <li>Make the change. Read the diff line by line, chapter 27 style, including the lines you did not expect to see.</li>
+    <li>Verify. Native: <code>npm run check</code> in the lab copy. Web: the console gate, zero errors, and the four-cell screenshot matrix if anything visual moved.</li>
+    <li>Commit the named files with a message that says what changed and why, ending with the co-author line the rules file requires.</li>
+    <li>Push the branch and open the pull request: <code>gh pr create</code>, or the button GitHub shows you after a push.</li>
+    <li><strong>Stop.</strong> The chapter ends at a reviewed branch. Merging is a separate yes, from the same person, on a different day if he wants.</li>
+  </ol>
+
+  <h2>Do it</h2>
+  <div class="ex" data-device="mac">
+    <div class="h">Exercise <span class="tag mac">MAC</span></div>
+    <div class="meta">Where: the rubric anywhere, the change on a branch in ~/Downloads/MEMENTO, everything that runs in ~/Downloads/CODE-BOOK/lab. Expected: six rubric results written down, and one pull request open against a branch. Reset: the rubric has no reset, retakes are the reset. For the change, <code>git switch main</code> leaves the branch sitting there harmlessly, and the pull request can be closed without merging. This cannot touch Memento until the gate sentence exists, and only ever on a branch.</div>
+    <ol>
+      <li><strong>The gate.</strong> Do not start until Malik has said, that day, in chat: "yes, do the graduation change on Memento." Write the sentence and the date at the top of your notes. No sentence, no step 5 onward.</li>
+      <li>Run the rubric's six items and write PASS or RETAKE next to each, in that order, before you read any answer.</li>
+      <li>For every RETAKE, name the chapter it came from and redo that chapter's exercise. Then retake the item.</li>
+      <li>Pick the change with the agent, in writing: what, which file, why it passes the freeze, how it gets verified. If it touches <code>memento-app/</code>, draft the <code>FREEZE-LOG.md</code> line now, before the code.</li>
+      <li><code>git -C ~/Downloads/MEMENTO pull --rebase origin main</code>, then the branch. Expected: a clean rebase. <strong>If it reports a conflict</strong>, stop and resolve it by hand. Never force anything.</li>
+      <li>Make the change. Then <code>git diff</code> and read every line aloud. Anything you cannot explain gets removed before it goes further.</li>
+      <li>Verify, and keep the evidence. Paste the command output into your notes. "It works" is not evidence.</li>
+      <li><code>git add</code> your named files only. Expected: <code>git status</code> shows exactly the files you meant and nothing else. <strong>If it shows more</strong>, you typed <code>-A</code>. Unstage and start the add again.</li>
+      <li>Commit with the co-author line. Push the branch. Open the pull request.</li>
+      <li>Stop. Post the link. Say out loud that merging is a separate yes, because in six months you will be the one tempted to skip it.</li>
+    </ol>
+  </div>
+
+  <h2>What you can do now</h2>
+  <p>Close the book and draw the system from memory. Boxes and arrows on paper. GitHub holding the code. GitHub Pages and Netlify serving the web app. Supabase holding auth, Postgres and the edge functions. Anthropic and OpenAI answering the AI calls. Polar taking the money, Resend sending the mail, Google handling the sign-in. The App Store one day, with its 15% cut. Then draw one finger tapping one button and trace the line down and back.</p>
+  <p>If you can do that, you have the thing this book was for. Here is the checklist against what "graduated" meant at the start. Tick them, and be strict.</p>
+  <ul>
+    <li>Open any file in Memento and say what it does. Trace a function by hand. Spot one doing two jobs.</li>
+    <li>Draw the journey and say which parts run on the phone, which on a server, and who pays for each.</li>
+    <li>Use a terminal with no fear. Move, list, grep, read a log, run a script, read <code>--help</code>, kill a stuck process.</li>
+    <li>Read git: status, diff, log, branch, merge, conflict, pull request, revert. Explain the bans and why they exist.</li>
+    <li>Name the frontend, backend, database, API and server pieces of your own app and where each one lives.</li>
+    <li>Say what deploy does in Memento's two-repo mirror, and what environments mean.</li>
+    <li>Follow a piece of data from birth to storage, and say what "source of truth" means.</li>
+    <li>Explain identity versus permission, tokens, OAuth, RLS, and which key is public and why.</li>
+    <li>Read a SELECT. Say what a migration is and why there are 33 of them.</li>
+    <li>Explain a dependency, a lockfile, semver, and why an upgrade is a change.</li>
+    <li>Read a stack trace top down. Tell syntax, runtime and logic errors apart.</li>
+    <li>Run the native test suite and read one failure. Know coverage is not correctness.</li>
+    <li>Name a trust boundary. Say why secrets never ship to a client and why rate limits fail closed.</li>
+    <li>Supervise an agent: spec, plan, diff, verify, spot a hallucination, catch a duplicate, catch scope creep, recover.</li>
+    <li>Run a ten-minute reconnaissance on a codebase you have never seen.</li>
+    <li>Say where the logs, alerts, backups and bills are, and what you do first in an incident.</li>
+  </ul>
+  <p>Six weeks ago you could not do one of those. Not one. You could say the words, which is a different thing, and the gap between saying the word and owning the idea is the whole reason this book exists.</p>
+
+  <h3>What comes next</h3>
+  <p>Three things, in order of value. Read one Memento file a week, properly, with the agent explaining only what you ask about: fifty-two files a year is most of the app. Do the rabbit holes you skipped when you hit a wall that needs them, and not before, because a rabbit hole taken for its own sake is entertainment. And keep the habit that is worth more than every fact in here: when an agent tells you something, ask why, and do not accept an answer you cannot check.</p>
+  <p>You are not an engineer. Six weeks does not do that, and anyone selling you otherwise is selling something. What you are is the person who can no longer be lied to about his own app, by a vendor, by a contractor, or by a very confident machine. That was the job. It is done. Now go and read something that scares you.</p>
+
+  <div class="box why"><div class="h">ASK THE AGENT WHY (paste this into Codex or Fable)</div><pre><code>Read CLAUDE.md's MIGRATION FREEZE and GITHUB SYNC sections and MIGRATION/FREEZE-LOG.md.
+Explain what a line in FREEZE-LOG.md costs the native rebuild, why the freeze exists at all,
+and what specifically would have to be true about a bug for the freeze to allow a fix.
+Then tell me one change I could make that would NOT pass those rules and why.
+Do not change anything.</code></pre></div>
+
+  <div class="box words"><div class="h">WORDS YOU NOW OWN</div><dl>
+    <dt>Code freeze</dt><dd>A deliberate stop on changes to one part of a system so something else can catch up. Enforced by a written rule, not by hope, and every exception is logged.</dd>
+    <dt>Code review</dt><dd>Somebody who did not write the change reads it before it merges. In Memento the reviewer is the other agent, and the approval is pinned to a commit hash.</dd>
+    <dt>Pull request (upgraded)</dt><dd>A page holding one branch, its commits, its diff, its test results and its review. The place a change waits, visible, until someone with authority merges it.</dd>
+    <dt>Evidence</dt><dd>Command output, a test summary, or a screenshot of the real surface. Anything else is a claim, including one from you.</dd>
+  </dl></div>
+
+  <div class="box expiry"><div class="h">WHERE TODAY'S ANALOGY BREAKS</div><p><strong>Breaks when:</strong> you imagine the range goes cold by itself. It does not. A branch sits there live until it is merged or deleted, a pull request can rot for months, and a half-finished branch is the commonest way a codebase acquires a ghost. Also, a range officer sees every shooter. Malik cannot see what an agent did at 3am unless it is in the log, which is why the rules make the repository the record. <strong>Real model:</strong> permission is a decision with a timestamp and a scope, and it expires. Written down it survives. Remembered, it does not.</p></div>
+
+  <details class="hole"><summary>RABBIT HOLE: what a real team bolts onto this</summary><p>Everything in this chapter is enforced by people remembering. Teams replace that with machinery: branch protection that makes <code>main</code> refuse a direct push, required status checks so a pull request cannot merge while the tests are red, required reviewers per folder via a CODEOWNERS file, signed commits, and a changelog generated from commit messages. Each one turns a rule you have to remember into a rule that enforces itself, and each one costs setup time and a little speed. Memento has almost none of it, deliberately, because the two contributors are agents that cannot click a merge button. The day a second human touches this code, that stops being the right trade.</p></details>
+</main>
+<script src="../js/book.js"></script>
+</body>
+</html>
