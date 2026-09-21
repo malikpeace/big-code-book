@@ -1,0 +1,658 @@
+{
+  "chapter": 23,
+  "slug": "debugging",
+  "title": "Errors, logs, stack traces, debugging",
+  "source": "chapters/23-debugging.html",
+  "blocks": [
+    {
+      "index": 0,
+      "tag": "h1",
+      "text": "Errors, logs, stack traces, debugging"
+    },
+    {
+      "index": 1,
+      "tag": "p",
+      "text": "An error message is not the computer being rude. It is the computer handing you a written statement with the address of the crime on it. Once you can read one, most bugs stop being scary and start being boring, which is exactly what you want."
+    },
+    {
+      "index": 2,
+      "tag": "div",
+      "text": "LAST TIME"
+    },
+    {
+      "index": 3,
+      "tag": "p",
+      "text": "A React component is a function that takes props and returns a description of what to draw. Hooks are how that function remembers things between redraws. React Native runs the same idea against real native views instead of HTML, which is why Memento's rebuild can share its logic and still feel like an iPhone app."
+    },
+    {
+      "index": 4,
+      "tag": "h2",
+      "text": "Quick check"
+    },
+    {
+      "index": 5,
+      "tag": "summary",
+      "text": "What is the call stack, in one sentence, and what happens to it when a function returns?"
+    },
+    {
+      "index": 6,
+      "tag": "summary",
+      "text": "Why does Memento's phone never call Anthropic directly?"
+    },
+    {
+      "index": 7,
+      "tag": "summary",
+      "text": "In a state to render to events app, what is the one thing you must never do?"
+    },
+    {
+      "index": 8,
+      "tag": "h2",
+      "text": "The idea"
+    },
+    {
+      "index": 9,
+      "tag": "p",
+      "text": "Debugging is not a talent. It is a routine, and the routine is short. Most of what makes it feel like magic when an engineer does it is that they have read ten thousand error messages and you have read four."
+    },
+    {
+      "index": 10,
+      "tag": "p",
+      "text": "Start with the fact that there are three kinds of broken, and they fail in three completely different places."
+    },
+    {
+      "index": 11,
+      "tag": "th",
+      "text": "Kind"
+    },
+    {
+      "index": 12,
+      "tag": "th",
+      "text": "When it is caught"
+    },
+    {
+      "index": 13,
+      "tag": "th",
+      "text": "What you see"
+    },
+    {
+      "index": 14,
+      "tag": "td",
+      "text": "Syntax error"
+    },
+    {
+      "index": 15,
+      "tag": "td",
+      "text": "Before a single line runs"
+    },
+    {
+      "index": 16,
+      "tag": "td",
+      "text": "Nothing works at all. The file was never even understood."
+    },
+    {
+      "index": 17,
+      "tag": "td",
+      "text": "Runtime error"
+    },
+    {
+      "index": 18,
+      "tag": "td",
+      "text": "While running, at the exact bad moment"
+    },
+    {
+      "index": 19,
+      "tag": "td",
+      "text": "A red line naming a type problem, and everything after it is dead."
+    },
+    {
+      "index": 20,
+      "tag": "td",
+      "text": "Logic error"
+    },
+    {
+      "index": 21,
+      "tag": "td",
+      "text": "Never. Nothing catches it."
+    },
+    {
+      "index": 22,
+      "tag": "td",
+      "text": "A clean console and a wrong answer on the screen."
+    },
+    {
+      "index": 23,
+      "tag": "p",
+      "text": "A syntax error means the machine could not read the file. A missing comma, an unclosed brace. Nothing in that file exists, not one function, because the browser parses the whole thing before running any of it. That is why one typo in state.js gives you a blank app and a second, confusing error in app.js . Cheap to find: the tools point at the character."
+    },
+    {
+      "index": 24,
+      "tag": "p",
+      "text": "A runtime error means it read fine, ran, and hit something impossible. undefined is not a function . Cannot read properties of null . Almost always the same story: you expected a thing to be there, it was not, and you treated the nothing like a thing. The message is accurate and people still skim it."
+    },
+    {
+      "index": 25,
+      "tag": "p",
+      "text": "A logic error is the expensive one. No red line, no trace, no alarm. Only a human noticing the streak says 0 on a day they completed. Every hour spent learning to read errors is really training for this one, because the only tool that finds a logic bug is a person deciding to check an assumption."
+    },
+    {
+      "index": 26,
+      "tag": "div",
+      "text": "ANALOGY (TEMPORARY)"
+    },
+    {
+      "index": 27,
+      "tag": "p",
+      "text": "Three ways a recipe fails. The card is water damaged and unreadable, so nobody cooks anything: syntax. The card is readable, the cook gets to step four, and there are no eggs in the fridge: runtime, and the cook stops mid dish holding a bowl. Or the card says salt where it meant sugar, the cook follows it perfectly, dinner is served, everyone smiles, and the cake is disgusting: logic. Only the third one needs somebody to taste it."
+    },
+    {
+      "index": 28,
+      "tag": "h3",
+      "text": "The stack trace, read line by line"
+    },
+    {
+      "index": 29,
+      "tag": "p",
+      "text": "When a runtime error happens, the machine photographs the call stack from chapter 10 and prints it. That photo is the stack trace . Here is a real one, produced by a fifteen line file that does exactly what Memento Jr does when you finish a hold. The only thing edited is the length of the folder path."
+    },
+    {
+      "index": 30,
+      "tag": "p",
+      "text": "Six things are in there, and every one is useful."
+    },
+    {
+      "index": 31,
+      "tag": "li",
+      "text": "The first three lines are a quotation: file, line, the actual source line, and a caret under the exact spot. Free evidence, and people scroll past it."
+    },
+    {
+      "index": 32,
+      "tag": "li",
+      "text": "TypeError is the family. A value was the wrong kind of thing for what you did to it."
+    },
+    {
+      "index": 33,
+      "tag": "li",
+      "text": "Cannot read properties of null (reading 'toISOString') is the sentence that solves the bug. Something was null and the code asked it for toISOString . You know the shape of the fault before opening a file."
+    },
+    {
+      "index": 34,
+      "tag": "li",
+      "text": "The at lines are the pile, top card first. dayKey broke, completeToday called it, onHoldFinished called that. Read down and you read backwards in time."
+    },
+    {
+      "index": 35,
+      "tag": "li",
+      "text": "file:3:15 is line 3, column 15. On a line with four calls on it, the column says which one."
+    },
+    {
+      "index": 36,
+      "tag": "li",
+      "text": "The bottom lines say node:internal . Not your code, the machinery that started your program. The useful line is the first one naming a file you or your agent wrote. In a browser those frames say things like HTMLButtonElement.dispatchEvent , ignorable for the same reason."
+    },
+    {
+      "index": 37,
+      "tag": "h3",
+      "text": "The routine"
+    },
+    {
+      "index": 38,
+      "tag": "p",
+      "text": "Reproduce first. A bug you cannot trigger on demand is a rumour. Find the exact steps that make it happen every single time, and write them down before touching code. \"It just broke\" is never the full story. The full story is \"on a fresh account, after completing once, reload and the streak reads 0\". Half of all bug reports die right here, because the bug turns out to be one stale browser tab."
+    },
+    {
+      "index": 39,
+      "tag": "p",
+      "text": "Then isolate. Cut the problem in half. Comment out the bottom half of the function. Still broken? It is in the top half. This is bisecting , and it works on anything with a middle: lines in a function, files in a load order, commits in a history. Ten rounds of halving searches a thousand possibilities. Guessing searches one."
+    },
+    {
+      "index": 40,
+      "tag": "p",
+      "text": "Log what you assume. console.log is a flashlight, and the trick is to aim it. Print the specific thing you are certain about. \"lastCompleted is yesterday's date at this point\" is an assumption; print it, and half the time it is null and the bug is over in nine seconds. The fault is never where you are sure it is not, which is exactly why you print the thing you are sure about."
+    },
+    {
+      "index": 41,
+      "tag": "p",
+      "text": "The console is the app talking to you: every log an agent left behind, every browser warning, every uncaught error. Memento's build rule is one line about this exact window: After edits, verify in a browser and confirm ZERO console errors before pushing. CLAUDE.md:64 (web pin ca8afc8) Not \"few\". Zero. A console with three errors you have learned to ignore is a console where the fourth one hides."
+    },
+    {
+      "index": 42,
+      "tag": "p",
+      "text": "One more split. Browser logs are yours alone, on your device, gone on reload. Server logs are the only record of what happened to a user you will never meet. When Memento's AI call fails for somebody in another country, nothing appears in your console; the evidence is in the Supabase dashboard's logs for that edge function, and in whatever the function chose to write down. A server that swallows its errors silently is a server you cannot debug, which is why Memento's proxy records upstream 500s before it answers the phone. supabase/functions/ai-proxy/index.ts:184-186 (web pin ca8afc8)"
+    },
+    {
+      "index": 43,
+      "tag": "h3",
+      "text": "Catching, on purpose"
+    },
+    {
+      "index": 44,
+      "tag": "p",
+      "text": "A runtime error is also called an exception , and code can raise one deliberately with throw . The machine then stops that function and discards cards off the pile one by one, looking for a try/catch . Find one and the catch runs and the program carries on. Find none and the error reaches the top, which is when the trace gets printed and the app dies. That is why try around one risky line is a fence, not a bandage: this can fail, here is the plan."
+    },
+    {
+      "index": 45,
+      "tag": "h2",
+      "text": "See it"
+    },
+    {
+      "index": 46,
+      "tag": "p",
+      "text": "Same rule as always. Predict, then run. A note on box 2: this sandbox prints an error's name and message but not its stack, because it runs in a stripped down worker with no files. Real traces need a real console or a terminal, which is what the exercise is for."
+    },
+    {
+      "index": 47,
+      "tag": "h2",
+      "text": "Now in Memento"
+    },
+    {
+      "index": 48,
+      "tag": "div",
+      "text": "ANY APP: never hand a raw error to a user"
+    },
+    {
+      "index": 49,
+      "tag": "p",
+      "text": "An error message is written for the person who wrote the code. It can contain file paths, internal names, parts of the request, sometimes a token. Show it to a user and you have confused them and leaked your insides at once. The standard move: keep a short list of failure words you are willing to say out loud, and turn everything else into one generic word."
+    },
+    {
+      "index": 50,
+      "tag": "div",
+      "text": "MEMENTO: the allowlist in transport.ts"
+    },
+    {
+      "index": 51,
+      "tag": "p",
+      "text": "Read the middle line as a question: is this one of my seven known failures? If yes, pass the word through. If no, say invalid-or-unavailable-response and nothing else. finally runs either way, which is how the timers get cleared even on the crash path."
+    },
+    {
+      "index": 52,
+      "tag": "div",
+      "text": "ANY APP: the failure you know is coming"
+    },
+    {
+      "index": 53,
+      "tag": "p",
+      "text": "Saving to the browser's storage can fail: disk full, private mode, the phone decided today is the day. You cannot prevent it, so you catch it, work out whether it is the failure you understand, and tell the user once instead of forty times."
+    },
+    {
+      "index": 54,
+      "tag": "div",
+      "text": "MEMENTO: the quota catch"
+    },
+    {
+      "index": 55,
+      "tag": "p",
+      "text": "e.name is how you identify an exception without reading its English. _quotaWarned is why the toast appears once and not on every keystroke. The inner try around the toast is a real habit: your error handler is code too, and code that runs while everything is on fire must not be able to throw a second error on top of the first."
+    },
+    {
+      "index": 56,
+      "tag": "div",
+      "text": "ANY APP: the server decides what the client hears"
+    },
+    {
+      "index": 57,
+      "tag": "p",
+      "text": "When your server calls somebody else's server and that call fails, you choose: forward their error body, which is easy and leaks, or replace it with your own sentence. Their error body can echo your request, which contains your user's words and your own prompt."
+    },
+    {
+      "index": 58,
+      "tag": "div",
+      "text": "MEMENTO: the proxy refuses to forward"
+    },
+    {
+      "index": 59,
+      "tag": "p",
+      "text": "Two sentences leave this building, ever. Note the order: record the failure on the server first, then answer the phone with the sanitised version. The truth is kept where you can read it. The vague version is what ships."
+    },
+    {
+      "index": 60,
+      "tag": "div",
+      "text": "THE ALTERNATIVE, AND WHY MEMENTO CHOSE THIS"
+    },
+    {
+      "index": 61,
+      "tag": "p",
+      "text": "The alternative is to pass the real error through to the screen, which plenty of apps do, and it is genuinely better for debugging: you would see the provider's actual message instead of guessing. The price is that anybody can pick at a failing endpoint and read internals out of it, and that a user mid Clarity session gets a wall of JSON instead of a sentence. Memento pays for safety with a worse view. invalid-or-unavailable-response literally means \"something we did not plan for\", and the only place to learn what is the server log. That trade is why the proxy records its 500s before answering, and why the allowlist is seven words and not two."
+    },
+    {
+      "index": 62,
+      "tag": "h2",
+      "text": "Do it"
+    },
+    {
+      "index": 63,
+      "tag": "div",
+      "text": "Exercise: three bugs, one of each kind MAC"
+    },
+    {
+      "index": 64,
+      "tag": "li",
+      "text": "Each of 23-syntax/ , 23-runtime/ and 23-logic/ is a complete copy of Memento Jr with exactly one bug planted in it. Do them in that order."
+    },
+    {
+      "index": 65,
+      "tag": "li",
+      "text": "For each: open index.html in Safari or Chrome with the console already open, because the interesting line appears at load time. Safari: enable the Develop menu in Settings, then Develop > Show JavaScript Console. Chrome: View > Developer > JavaScript Console."
+    },
+    {
+      "index": 66,
+      "tag": "li",
+      "text": "You can get the first two verdicts without a browser. cd ~/Downloads/CODE-BOOK/sandbox/breaks/23-syntax , then node --check state.js and node --check app.js . One prints an error and exits non zero. Do the same in 23-runtime : both pass, which already tells you what kind of bug you are hunting."
+    },
+    {
+      "index": 67,
+      "tag": "li",
+      "text": "Write the bug down before anything else: what you did, what you expected, what happened. That sentence is the reproduction."
+    },
+    {
+      "index": 68,
+      "tag": "li",
+      "text": "Read the error properly. Every word, the caret, the line and column, and every at line naming a file in this folder. Say the fault out loud before you open the file."
+    },
+    {
+      "index": 69,
+      "tag": "li",
+      "text": "Stuck? Each folder has HINTS.md , three hints getting less subtle. Take one at a time. FIX.md is the answer, a last resort rather than a step."
+    },
+    {
+      "index": 70,
+      "tag": "li",
+      "text": "The third has no error at all. Reset the page, hold the button, read the streak. Then use the flashlight: a console.log inside completeToday() printing state.lastCompleted , the computed today and state.streak , before and after the branch. Watch which branch runs."
+    },
+    {
+      "index": 71,
+      "tag": "li",
+      "text": "Fix each, reload, confirm the console is clean and the streak reads 1 on the day you complete. Then name the kind of error each was, and which one would have reached a real user."
+    },
+    {
+      "index": 72,
+      "tag": "div",
+      "text": "On a phone instead phone"
+    },
+    {
+      "index": 73,
+      "tag": "li",
+      "text": "Run box 3. It prints three lines and none of them is red. Write down what each line should say for a person who completed today, yesterday and the day before."
+    },
+    {
+      "index": 74,
+      "tag": "li",
+      "text": "Find the single wrong character in streakAfter . It is the same bug planted in 23-logic ."
+    },
+    {
+      "index": 75,
+      "tag": "li",
+      "text": "Change it, run again, and check all three lines now match what you wrote down. That comparison, expected against actual, is the whole of chapter 24."
+    },
+    {
+      "index": 76,
+      "tag": "div",
+      "text": "ASK THE AGENT WHY (paste this into Codex or Fable)"
+    },
+    {
+      "index": 77,
+      "tag": "div",
+      "text": "WORDS YOU NOW OWN"
+    },
+    {
+      "index": 78,
+      "tag": "dt",
+      "text": "Syntax error"
+    },
+    {
+      "index": 79,
+      "tag": "dd",
+      "text": "The file could not be read at all, so nothing in it exists. Caught before a single line runs. Usually one character."
+    },
+    {
+      "index": 80,
+      "tag": "dt",
+      "text": "Runtime error"
+    },
+    {
+      "index": 81,
+      "tag": "dd",
+      "text": "The file ran and hit something impossible, usually treating a null or undefined like a real thing. Stops the code at that exact point."
+    },
+    {
+      "index": 82,
+      "tag": "dt",
+      "text": "Logic error"
+    },
+    {
+      "index": 83,
+      "tag": "dd",
+      "text": "It ran fine and did the wrong thing. No alarm, no trace. The only detector is a human checking the answer."
+    },
+    {
+      "index": 84,
+      "tag": "dt",
+      "text": "Exception"
+    },
+    {
+      "index": 85,
+      "tag": "dd",
+      "text": "An error object thrown up through the call stack. Each card is discarded until a catch is found, or until it reaches the top and the app dies."
+    },
+    {
+      "index": 86,
+      "tag": "dt",
+      "text": "try / catch"
+    },
+    {
+      "index": 87,
+      "tag": "dd",
+      "text": "A fence around a line that can fail, plus the plan for when it does. finally runs on both paths, which is where cleanup goes."
+    },
+    {
+      "index": 88,
+      "tag": "dt",
+      "text": "Stack trace"
+    },
+    {
+      "index": 89,
+      "tag": "dd",
+      "text": "The printed call stack at the moment of the error. Top line is where it broke, each line below is who called whom, file:line:column . The useful line is the first one naming a file you wrote."
+    },
+    {
+      "index": 90,
+      "tag": "dt",
+      "text": "Console"
+    },
+    {
+      "index": 91,
+      "tag": "dd",
+      "text": "The window where the app talks to you: logs, warnings, uncaught errors. Memento's rule is zero errors in it before any push."
+    },
+    {
+      "index": 92,
+      "tag": "dt",
+      "text": "Reproduce"
+    },
+    {
+      "index": 93,
+      "tag": "dd",
+      "text": "The exact steps that trigger the bug every time. Written down before any code is touched. Without it you cannot tell a fix from a coincidence."
+    },
+    {
+      "index": 94,
+      "tag": "dt",
+      "text": "Bisect"
+    },
+    {
+      "index": 95,
+      "tag": "dd",
+      "text": "Cut the search space in half, test, repeat. Works on lines, on files, and on git history. Ten halvings beat a thousand guesses."
+    },
+    {
+      "index": 96,
+      "tag": "dt",
+      "text": "Debugging"
+    },
+    {
+      "index": 97,
+      "tag": "dd",
+      "text": "Reproduce, isolate, log the thing you assume, fix, confirm. A routine, not a gift."
+    },
+    {
+      "index": 98,
+      "tag": "div",
+      "text": "WHERE TODAY'S ANALOGY BREAKS"
+    },
+    {
+      "index": 99,
+      "tag": "p",
+      "text": "Breaks when: the kitchen has more than one cook. The recipe picture assumes one thing at a time, so a failure gives you one clean trace pointing at one line. Chapter 12's async world does not work like that. When an error happens inside an await , or inside a callback the browser invoked minutes later, the card that started it all is long gone from the pile and the trace can show a handful of frames with nothing recognisable in them. It is also why an error thrown inside a promise nobody is waiting on can vanish without printing anything. Real model: a trace shows what was on the stack at that instant, not the story of how the app got there. For async faults you stop trusting it to name the culprit and go back to reproduce, log, bisect, which is why the routine is the thing worth memorising and not the trace format."
+    },
+    {
+      "index": 100,
+      "tag": "summary",
+      "text": "RABBIT HOLE: why a trace from a real user is often useless"
+    },
+    {
+      "index": 101,
+      "tag": "p",
+      "text": "Code that ships to a browser is usually squashed by a bundler: whitespace gone, names shortened to single letters, forty files glued into one. A trace from that file says at t (main.4f8a.js:1:20481) , which names nothing. The fix is a source map, a separate file saying \"character 20481 of the squashed file was line 63 of transport.ts\", which error reporting tools use to rebuild a readable trace. Memento's web app ships unbundled on purpose, a real cost in other ways with this one genuine benefit: every trace from a real phone names the actual file and line. The native app, bundled by Expo, needs the source map."
+    }
+  ],
+  "segments": [
+    {
+      "blocks": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24
+      ],
+      "text": "Errors, logs, stack traces, debugging\n\nAn error message is not the computer being rude. It is the computer handing you a written statement with the address of the crime on it. Once you can read one, most bugs stop being scary and start being boring, which is exactly what you want.\n\nLAST TIME\n\nA React component is a function that takes props and returns a description of what to draw. Hooks are how that function remembers things between redraws. React Native runs the same idea against real native views instead of HTML, which is why Memento's rebuild can share its logic and still feel like an iPhone app.\n\nQuick check\n\nWhat is the call stack, in one sentence, and what happens to it when a function returns?\n\nWhy does Memento's phone never call Anthropic directly?\n\nIn a state to render to events app, what is the one thing you must never do?\n\nThe idea\n\nDebugging is not a talent. It is a routine, and the routine is short. Most of what makes it feel like magic when an engineer does it is that they have read ten thousand error messages and you have read four.\n\nStart with the fact that there are three kinds of broken, and they fail in three completely different places.\n\nKind\n\nWhen it is caught\n\nWhat you see\n\nSyntax error\n\nBefore a single line runs\n\nNothing works at all. The file was never even understood.\n\nRuntime error\n\nWhile running, at the exact bad moment\n\nA red line naming a type problem, and everything after it is dead.\n\nLogic error\n\nNever. Nothing catches it.\n\nA clean console and a wrong answer on the screen.\n\nA syntax error means the machine could not read the file. A missing comma, an unclosed brace. Nothing in that file exists, not one function, because the browser parses the whole thing before running any of it. That is why one typo in state.js gives you a blank app and a second, confusing error in app.js . Cheap to find: the tools point at the character.\n\nA runtime error means it read fine, ran, and hit something impossible. undefined is not a function . Cannot read properties of null . Almost always the same story: you expected a thing to be there, it was not, and you treated the nothing like a thing. The message is accurate and people still skim it."
+    },
+    {
+      "blocks": [
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37
+      ],
+      "text": "A logic error is the expensive one. No red line, no trace, no alarm. Only a human noticing the streak says 0 on a day they completed. Every hour spent learning to read errors is really training for this one, because the only tool that finds a logic bug is a person deciding to check an assumption.\n\nANALOGY (TEMPORARY)\n\nThree ways a recipe fails. The card is water damaged and unreadable, so nobody cooks anything: syntax. The card is readable, the cook gets to step four, and there are no eggs in the fridge: runtime, and the cook stops mid dish holding a bowl. Or the card says salt where it meant sugar, the cook follows it perfectly, dinner is served, everyone smiles, and the cake is disgusting: logic. Only the third one needs somebody to taste it.\n\nThe stack trace, read line by line\n\nWhen a runtime error happens, the machine photographs the call stack from chapter 10 and prints it. That photo is the stack trace . Here is a real one, produced by a fifteen line file that does exactly what Memento Jr does when you finish a hold. The only thing edited is the length of the folder path.\n\nSix things are in there, and every one is useful.\n\nThe first three lines are a quotation: file, line, the actual source line, and a caret under the exact spot. Free evidence, and people scroll past it.\n\nTypeError is the family. A value was the wrong kind of thing for what you did to it.\n\nCannot read properties of null (reading 'toISOString') is the sentence that solves the bug. Something was null and the code asked it for toISOString . You know the shape of the fault before opening a file.\n\nThe at lines are the pile, top card first. dayKey broke, completeToday called it, onHoldFinished called that. Read down and you read backwards in time.\n\nfile:3:15 is line 3, column 15. On a line with four calls on it, the column says which one.\n\nThe bottom lines say node:internal . Not your code, the machinery that started your program. The useful line is the first one naming a file you or your agent wrote. In a browser those frames say things like HTMLButtonElement.dispatchEvent , ignorable for the same reason.\n\nThe routine"
+    },
+    {
+      "blocks": [
+        38,
+        39,
+        40,
+        41,
+        42,
+        43
+      ],
+      "text": "Reproduce first. A bug you cannot trigger on demand is a rumour. Find the exact steps that make it happen every single time, and write them down before touching code. \"It just broke\" is never the full story. The full story is \"on a fresh account, after completing once, reload and the streak reads 0\". Half of all bug reports die right here, because the bug turns out to be one stale browser tab.\n\nThen isolate. Cut the problem in half. Comment out the bottom half of the function. Still broken? It is in the top half. This is bisecting , and it works on anything with a middle: lines in a function, files in a load order, commits in a history. Ten rounds of halving searches a thousand possibilities. Guessing searches one.\n\nLog what you assume. console.log is a flashlight, and the trick is to aim it. Print the specific thing you are certain about. \"lastCompleted is yesterday's date at this point\" is an assumption; print it, and half the time it is null and the bug is over in nine seconds. The fault is never where you are sure it is not, which is exactly why you print the thing you are sure about.\n\nThe console is the app talking to you: every log an agent left behind, every browser warning, every uncaught error. Memento's build rule is one line about this exact window: After edits, verify in a browser and confirm ZERO console errors before pushing. CLAUDE.md:64 (web pin ca8afc8) Not \"few\". Zero. A console with three errors you have learned to ignore is a console where the fourth one hides.\n\nOne more split. Browser logs are yours alone, on your device, gone on reload. Server logs are the only record of what happened to a user you will never meet. When Memento's AI call fails for somebody in another country, nothing appears in your console; the evidence is in the Supabase dashboard's logs for that edge function, and in whatever the function chose to write down. A server that swallows its errors silently is a server you cannot debug, which is why Memento's proxy records upstream 500s before it answers the phone. supabase/functions/ai-proxy/index.ts:184-186 (web pin ca8afc8)\n\nCatching, on purpose"
+    },
+    {
+      "blocks": [
+        44,
+        45,
+        46,
+        47,
+        48,
+        49,
+        50,
+        51,
+        52,
+        53,
+        54,
+        55,
+        56,
+        57
+      ],
+      "text": "A runtime error is also called an exception , and code can raise one deliberately with throw . The machine then stops that function and discards cards off the pile one by one, looking for a try/catch . Find one and the catch runs and the program carries on. Find none and the error reaches the top, which is when the trace gets printed and the app dies. That is why try around one risky line is a fence, not a bandage: this can fail, here is the plan.\n\nSee it\n\nSame rule as always. Predict, then run. A note on box 2: this sandbox prints an error's name and message but not its stack, because it runs in a stripped down worker with no files. Real traces need a real console or a terminal, which is what the exercise is for.\n\nNow in Memento\n\nANY APP: never hand a raw error to a user\n\nAn error message is written for the person who wrote the code. It can contain file paths, internal names, parts of the request, sometimes a token. Show it to a user and you have confused them and leaked your insides at once. The standard move: keep a short list of failure words you are willing to say out loud, and turn everything else into one generic word.\n\nMEMENTO: the allowlist in transport.ts\n\nRead the middle line as a question: is this one of my seven known failures? If yes, pass the word through. If no, say invalid-or-unavailable-response and nothing else. finally runs either way, which is how the timers get cleared even on the crash path.\n\nANY APP: the failure you know is coming\n\nSaving to the browser's storage can fail: disk full, private mode, the phone decided today is the day. You cannot prevent it, so you catch it, work out whether it is the failure you understand, and tell the user once instead of forty times.\n\nMEMENTO: the quota catch\n\ne.name is how you identify an exception without reading its English. _quotaWarned is why the toast appears once and not on every keystroke. The inner try around the toast is a real habit: your error handler is code too, and code that runs while everything is on fire must not be able to throw a second error on top of the first.\n\nANY APP: the server decides what the client hears\n\nWhen your server calls somebody else's server and that call fails, you choose: forward their error body, which is easy and leaks, or replace it with your own sentence. Their error body can echo your request, which contains your user's words and your own prompt."
+    },
+    {
+      "blocks": [
+        58,
+        59,
+        60,
+        61,
+        62,
+        63,
+        64,
+        65,
+        66,
+        67,
+        68,
+        69
+      ],
+      "text": "MEMENTO: the proxy refuses to forward\n\nTwo sentences leave this building, ever. Note the order: record the failure on the server first, then answer the phone with the sanitised version. The truth is kept where you can read it. The vague version is what ships.\n\nTHE ALTERNATIVE, AND WHY MEMENTO CHOSE THIS\n\nThe alternative is to pass the real error through to the screen, which plenty of apps do, and it is genuinely better for debugging: you would see the provider's actual message instead of guessing. The price is that anybody can pick at a failing endpoint and read internals out of it, and that a user mid Clarity session gets a wall of JSON instead of a sentence. Memento pays for safety with a worse view. invalid-or-unavailable-response literally means \"something we did not plan for\", and the only place to learn what is the server log. That trade is why the proxy records its 500s before answering, and why the allowlist is seven words and not two.\n\nDo it\n\nExercise: three bugs, one of each kind MAC\n\nEach of 23-syntax/ , 23-runtime/ and 23-logic/ is a complete copy of Memento Jr with exactly one bug planted in it. Do them in that order.\n\nFor each: open index.html in Safari or Chrome with the console already open, because the interesting line appears at load time. Safari: enable the Develop menu in Settings, then Develop > Show JavaScript Console. Chrome: View > Developer > JavaScript Console.\n\nYou can get the first two verdicts without a browser. cd ~/Downloads/CODE-BOOK/sandbox/breaks/23-syntax , then node --check state.js and node --check app.js . One prints an error and exits non zero. Do the same in 23-runtime : both pass, which already tells you what kind of bug you are hunting.\n\nWrite the bug down before anything else: what you did, what you expected, what happened. That sentence is the reproduction.\n\nRead the error properly. Every word, the caret, the line and column, and every at line naming a file in this folder. Say the fault out loud before you open the file.\n\nStuck? Each folder has HINTS.md , three hints getting less subtle. Take one at a time. FIX.md is the answer, a last resort rather than a step."
+    },
+    {
+      "blocks": [
+        70,
+        71,
+        72,
+        73,
+        74,
+        75,
+        76,
+        77,
+        78,
+        79,
+        80,
+        81,
+        82,
+        83,
+        84,
+        85,
+        86,
+        87,
+        88,
+        89,
+        90,
+        91,
+        92,
+        93,
+        94,
+        95,
+        96,
+        97,
+        98
+      ],
+      "text": "The third has no error at all. Reset the page, hold the button, read the streak. Then use the flashlight: a console.log inside completeToday() printing state.lastCompleted , the computed today and state.streak , before and after the branch. Watch which branch runs.\n\nFix each, reload, confirm the console is clean and the streak reads 1 on the day you complete. Then name the kind of error each was, and which one would have reached a real user.\n\nOn a phone instead phone\n\nRun box 3. It prints three lines and none of them is red. Write down what each line should say for a person who completed today, yesterday and the day before.\n\nFind the single wrong character in streakAfter . It is the same bug planted in 23-logic .\n\nChange it, run again, and check all three lines now match what you wrote down. That comparison, expected against actual, is the whole of chapter 24.\n\nASK THE AGENT WHY (paste this into Codex or Fable)\n\nWORDS YOU NOW OWN\n\nSyntax error\n\nThe file could not be read at all, so nothing in it exists. Caught before a single line runs. Usually one character.\n\nRuntime error\n\nThe file ran and hit something impossible, usually treating a null or undefined like a real thing. Stops the code at that exact point.\n\nLogic error\n\nIt ran fine and did the wrong thing. No alarm, no trace. The only detector is a human checking the answer.\n\nException\n\nAn error object thrown up through the call stack. Each card is discarded until a catch is found, or until it reaches the top and the app dies.\n\ntry / catch\n\nA fence around a line that can fail, plus the plan for when it does. finally runs on both paths, which is where cleanup goes.\n\nStack trace\n\nThe printed call stack at the moment of the error. Top line is where it broke, each line below is who called whom, file:line:column . The useful line is the first one naming a file you wrote.\n\nConsole\n\nThe window where the app talks to you: logs, warnings, uncaught errors. Memento's rule is zero errors in it before any push.\n\nReproduce\n\nThe exact steps that trigger the bug every time. Written down before any code is touched. Without it you cannot tell a fix from a coincidence.\n\nBisect\n\nCut the search space in half, test, repeat. Works on lines, on files, and on git history. Ten halvings beat a thousand guesses.\n\nDebugging\n\nReproduce, isolate, log the thing you assume, fix, confirm. A routine, not a gift.\n\nWHERE TODAY'S ANALOGY BREAKS"
+    },
+    {
+      "blocks": [
+        99,
+        100,
+        101
+      ],
+      "text": "Breaks when: the kitchen has more than one cook. The recipe picture assumes one thing at a time, so a failure gives you one clean trace pointing at one line. Chapter 12's async world does not work like that. When an error happens inside an await , or inside a callback the browser invoked minutes later, the card that started it all is long gone from the pile and the trace can show a handful of frames with nothing recognisable in them. It is also why an error thrown inside a promise nobody is waiting on can vanish without printing anything. Real model: a trace shows what was on the stack at that instant, not the story of how the app got there. For async faults you stop trusting it to name the culprit and go back to reproduce, log, bisect, which is why the routine is the thing worth memorising and not the trace format.\n\nRABBIT HOLE: why a trace from a real user is often useless\n\nCode that ships to a browser is usually squashed by a bundler: whitespace gone, names shortened to single letters, forty files glued into one. A trace from that file says at t (main.4f8a.js:1:20481) , which names nothing. The fix is a source map, a separate file saying \"character 20481 of the squashed file was line 63 of transport.ts\", which error reporting tools use to rebuild a readable trace. Memento's web app ships unbundled on purpose, a real cost in other ways with this one genuine benefit: every trace from a real phone names the actual file and line. The native app, bundled by Expo, needs the source map."
+    }
+  ],
+  "wordCount": 2690
+}

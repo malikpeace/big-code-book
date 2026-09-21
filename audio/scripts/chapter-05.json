@@ -1,0 +1,755 @@
+{
+  "chapter": 5,
+  "slug": "files-and-paths",
+  "title": "Files, folders, paths, and opening code",
+  "source": "chapters/05-files-and-paths.html",
+  "blocks": [
+    {
+      "index": 0,
+      "tag": "h1",
+      "text": "Files, folders, paths, and opening code"
+    },
+    {
+      "index": 1,
+      "tag": "p",
+      "text": "Your app is a folder. Inside it are files, and every file has an address. Today you open the Terminal for the first time and walk into Memento with your own hands. You cannot break anything, because every command here only looks."
+    },
+    {
+      "index": 2,
+      "tag": "div",
+      "text": "LAST TIME"
+    },
+    {
+      "index": 3,
+      "tag": "p",
+      "text": "You got the real 2026 picture of AI and coding, with receipts: what it can do, what it costs, and the incidents that were all the same bug. You left with five habits: read the plan, read the diff, ask why, demand verification, own the commit. Every one of them needs you to be able to open the thing the agent changed."
+    },
+    {
+      "index": 4,
+      "tag": "h2",
+      "text": "Quick check"
+    },
+    {
+      "index": 5,
+      "tag": "summary",
+      "text": "The agent guesses what you meant. What does the machine do with the result?"
+    },
+    {
+      "index": 6,
+      "tag": "summary",
+      "text": "On the journey map, which stop holds Memento's Anthropic key, and why not the phone?"
+    },
+    {
+      "index": 7,
+      "tag": "summary",
+      "text": "Chapter 3's punchline was \"everything under Memento is old, only the typist is new\". Name two of the old things."
+    },
+    {
+      "index": 8,
+      "tag": "h2",
+      "text": "The idea"
+    },
+    {
+      "index": 9,
+      "tag": "p",
+      "text": "Chapter 1 said a file is a named chunk of bytes on a disk. The working model is that almost everything on a computer is one. Your code, your photos, the settings. Even a folder (engineers say directory) is a kind of file, one whose contents are a list of other files. Folders sit inside folders, and the whole machine is one nest of them starting at a single top called / , said out loud as \"root\"."
+    },
+    {
+      "index": 10,
+      "tag": "p",
+      "text": "A path is the address of a file: the folders you walk through to reach it, joined with slashes."
+    },
+    {
+      "index": 11,
+      "tag": "p",
+      "text": "Read it left to right and you are walking. Top of the disk, into Users , into your account, Downloads, MEMENTO, the web app, js, and there is the file. That is not a picture of the address. That is the address."
+    },
+    {
+      "index": 12,
+      "tag": "div",
+      "text": "ANALOGY (TEMPORARY)"
+    },
+    {
+      "index": 13,
+      "tag": "p",
+      "text": "A path is a postal address written backwards: country, city, street, building, flat. The Terminal is you standing in one room of that building, always somewhere. Commands mean \"look around this room\", \"walk to that room\", \"read me this page\". Finder is the same building with the lights on."
+    },
+    {
+      "index": 14,
+      "tag": "p",
+      "text": "Three shortcuts you will see everywhere. ~ is your home folder , /Users/malikpeace , so ~/Downloads is a whole address in one character. . is \"the folder I am standing in\". .. is \"the folder above this one\"."
+    },
+    {
+      "index": 15,
+      "tag": "p",
+      "text": "A path starting with / or ~ is an absolute path and means the same thing from anywhere. A path starting with a name, like js/01-state-foundation.js , is a relative path and means \"from where I am standing right now\". Half of all terminal confusion is one of these used where the other was meant."
+    },
+    {
+      "index": 16,
+      "tag": "p",
+      "text": "Files whose name starts with a dot, like .git , are hidden files . Finder does not show them and neither does a plain ls . Not secret, just marked \"tooling, not for browsing\", and some of the most important things in a codebase live in them."
+    },
+    {
+      "index": 17,
+      "tag": "h3",
+      "text": "Open the Terminal"
+    },
+    {
+      "index": 18,
+      "tag": "p",
+      "text": "Press cmd and space, type terminal , press return. A window opens with a prompt and a waiting cursor. Nothing runs until you press return."
+    },
+    {
+      "index": 19,
+      "tag": "p",
+      "text": "The Terminal is always standing in a folder. That folder is the working directory , and every relative path is measured from it. When people get lost in a terminal it is nearly always because they forgot where they were standing, so the first command you will ever run is the one that answers that."
+    },
+    {
+      "index": 20,
+      "tag": "th",
+      "text": "You type"
+    },
+    {
+      "index": 21,
+      "tag": "th",
+      "text": "You see"
+    },
+    {
+      "index": 22,
+      "tag": "th",
+      "text": "It means"
+    },
+    {
+      "index": 23,
+      "tag": "td",
+      "text": "pwd"
+    },
+    {
+      "index": 24,
+      "tag": "td",
+      "text": "/Users/malikpeace"
+    },
+    {
+      "index": 25,
+      "tag": "td",
+      "text": "Print working directory. Where am I standing."
+    },
+    {
+      "index": 26,
+      "tag": "td",
+      "text": "ls"
+    },
+    {
+      "index": 27,
+      "tag": "td",
+      "text": "A list of names"
+    },
+    {
+      "index": 28,
+      "tag": "td",
+      "text": "List. What is in this room."
+    },
+    {
+      "index": 29,
+      "tag": "td",
+      "text": "ls -la"
+    },
+    {
+      "index": 30,
+      "tag": "td",
+      "text": "One name per line, with size, date, owner, and the hidden dotfiles"
+    },
+    {
+      "index": 31,
+      "tag": "td",
+      "text": "The same list, told properly. -l is long, -a is all."
+    },
+    {
+      "index": 32,
+      "tag": "td",
+      "text": "cd Downloads"
+    },
+    {
+      "index": 33,
+      "tag": "td",
+      "text": "Nothing"
+    },
+    {
+      "index": 34,
+      "tag": "td",
+      "text": "Change directory. Walk into it. Silence means it worked."
+    },
+    {
+      "index": 35,
+      "tag": "td",
+      "text": "cd .."
+    },
+    {
+      "index": 36,
+      "tag": "td",
+      "text": "Nothing"
+    },
+    {
+      "index": 37,
+      "tag": "td",
+      "text": "Walk back up one."
+    },
+    {
+      "index": 38,
+      "tag": "td",
+      "text": "cd alone, or cd ~"
+    },
+    {
+      "index": 39,
+      "tag": "td",
+      "text": "Nothing"
+    },
+    {
+      "index": 40,
+      "tag": "td",
+      "text": "Go home."
+    },
+    {
+      "index": 41,
+      "tag": "td",
+      "text": "open ."
+    },
+    {
+      "index": 42,
+      "tag": "td",
+      "text": "A Finder window"
+    },
+    {
+      "index": 43,
+      "tag": "td",
+      "text": "Open the current folder in Finder. The bridge between the two worlds."
+    },
+    {
+      "index": 44,
+      "tag": "td",
+      "text": "cat CLAUDE.md"
+    },
+    {
+      "index": 45,
+      "tag": "td",
+      "text": "The whole file, dumped"
+    },
+    {
+      "index": 46,
+      "tag": "td",
+      "text": "Print a file. Good for short files, brutal for long ones."
+    },
+    {
+      "index": 47,
+      "tag": "td",
+      "text": "head -20 file.js"
+    },
+    {
+      "index": 48,
+      "tag": "td",
+      "text": "The first 20 lines"
+    },
+    {
+      "index": 49,
+      "tag": "td",
+      "text": "Just the top. This is how you taste a file."
+    },
+    {
+      "index": 50,
+      "tag": "p",
+      "text": "Two habits make this feel less hostile. Press tab : type cd Down , hit tab, the shell finishes it. Tab completion is a spellchecker, because if tab will not complete it, the thing does not exist. Press the up arrow to bring back the last command and edit it instead of retyping."
+    },
+    {
+      "index": 51,
+      "tag": "p",
+      "text": "One trap: spaces separate a command from its parts, so a name with a space in it must be quoted. Memento's root holds a launcher called Open Memento (new modular).command , and reading it takes cat \"Open Memento (new modular).command\" . Without the quotes you get an error about four files that do not exist."
+    },
+    {
+      "index": 52,
+      "tag": "h3",
+      "text": "Break it: mistype a path"
+    },
+    {
+      "index": 53,
+      "tag": "p",
+      "text": "On purpose: stand in MEMENTO and type cd memento-ap , missing the final p."
+    },
+    {
+      "index": 54,
+      "tag": "p",
+      "text": "Three facts in one line. cd complained. Nothing by that name exists here. The name it tried is quoted back so you can compare it letter by letter with what you meant. Nothing was created, nothing was damaged. Type cd memento-a , press tab, and you are in. That loop, type, read the error literally, fix the letter, run again, is what the work looks like. Engineers do it dozens of times a day."
+    },
+    {
+      "index": 55,
+      "tag": "h3",
+      "text": "Opening code in an editor"
+    },
+    {
+      "index": 56,
+      "tag": "p",
+      "text": "The Terminal is for walking and peeking. Real reading happens in an editor , a program built for a whole folder of text files. You already have one: the Claude desktop app's code view shows the file an agent touched, with line numbers. Engineers mostly use VS Code or Cursor, both free, and you need neither to finish this book. open -a TextEdit somefile.js puts any file on screen."
+    },
+    {
+      "index": 57,
+      "tag": "p",
+      "text": "Four things an editor gives you that cat cannot:"
+    },
+    {
+      "index": 58,
+      "tag": "li",
+      "text": "The file tree. The left sidebar is the figure above, live. Clicking a folder is cd , and the shape of an app becomes obvious in ten seconds."
+    },
+    {
+      "index": 59,
+      "tag": "li",
+      "text": "Project-wide search. Cmd+Shift+F searches every file at once. Type persistState and you get all 25 places in Memento's web app that call it. That one feature is most of what reading a codebase is."
+    },
+    {
+      "index": 60,
+      "tag": "li",
+      "text": "Go to definition. Cmd+click a name to jump to where it was created. Find references does the reverse."
+    },
+    {
+      "index": 61,
+      "tag": "li",
+      "text": "Following a path:line link. When an agent, a test or an error says js/01-state-foundation.js:488 , that is a file and a line number, and an editor turns it into a click. This book cites Memento the same way."
+    },
+    {
+      "index": 62,
+      "tag": "p",
+      "text": "Now the routine for any codebase you have never seen. Ten minutes, in order: read the README, read the top-level folder names and guess each one's job, find the entry file that starts everything ( index.html , index.js , main.ts , src/app/ ), read package.json 's scripts and dependencies, open the biggest file because that is where the mess lives, find the tests folder because it is the closest thing to a spec, then search one feature name and read what comes back."
+    },
+    {
+      "index": 63,
+      "tag": "h2",
+      "text": "See it"
+    },
+    {
+      "index": 64,
+      "tag": "p",
+      "text": "A path is text with slashes in it, and the commands you just learned are string operations with a disk behind them. This one runs on your phone."
+    },
+    {
+      "index": 65,
+      "tag": "p",
+      "text": "That last line is the whole mystery of ~ : the shell swaps in your home folder before the command runs."
+    },
+    {
+      "index": 66,
+      "tag": "h2",
+      "text": "Now in Memento"
+    },
+    {
+      "index": 67,
+      "tag": "div",
+      "text": "ANY APP"
+    },
+    {
+      "index": 68,
+      "tag": "p",
+      "text": "Two ways to organise a codebase."
+    },
+    {
+      "index": 69,
+      "tag": "p",
+      "text": "By load order. Files are numbered and run top to bottom. The number is the architecture. No build step, edit and refresh. But nothing states what needs what, and a file in the wrong position crashes at boot."
+    },
+    {
+      "index": 70,
+      "tag": "p",
+      "text": "By job. Files sit in folders named after what they do, each declaring what it needs, and a tool works out the order. You have to keep that tool. In exchange the dependencies are written down and the folder name tells a newcomer where to look."
+    },
+    {
+      "index": 71,
+      "tag": "div",
+      "text": "MEMENTO"
+    },
+    {
+      "index": 72,
+      "tag": "p",
+      "text": "Memento is both, in one folder, because one is being rebuilt into the other. ls memento-app/js gives 38 files, all numbered:"
+    },
+    {
+      "index": 73,
+      "tag": "p",
+      "text": "The numbers are not decoration. The shell that loads them says so:"
+    },
+    {
+      "index": 74,
+      "tag": "p",
+      "text": "And the rule for humans, at the top of the repo:"
+    },
+    {
+      "index": 75,
+      "tag": "p",
+      "text": "It then lists the js folder file by file so an agent knows which one to open. That list has drifted: CLAUDE.md says 21 js files and 16 css files, ls says 38 and 22. The folder is the truth. A map is a document somebody has to maintain."
+    },
+    {
+      "index": 76,
+      "tag": "p",
+      "text": "Now ls memento-native/src , the rebuild:"
+    },
+    {
+      "index": 77,
+      "tag": "p",
+      "text": "Sixteen folders, no numbers, named after jobs. Nothing loads by position; each file names what it needs."
+    },
+    {
+      "index": 78,
+      "tag": "div",
+      "text": "THE ALTERNATIVE, AND WHY MEMENTO CHOSE THIS"
+    },
+    {
+      "index": 79,
+      "tag": "p",
+      "text": "The web app could have used modules and a bundler from day one, which is what almost every team does. Not doing it was right for what it was: one founder and an agent shipping several times a day, where a build step is one more thing that breaks at 2am. The bill arrived later. 67,000 lines in one shared global scope, a file numbered 33 that exists to catch a deleted name, two files numbered 20, a map that no longer matches the folder. The rebuild pays the tooling cost up front to get the import graph back. Chapter 26 adds up what each one cost."
+    },
+    {
+      "index": 80,
+      "tag": "div",
+      "text": "NEVER TYPE THESE INSIDE ~/Downloads/MEMENTO"
+    },
+    {
+      "index": 81,
+      "tag": "p",
+      "text": "Everything above only reads. These change things, and this folder is a live product two agents work in."
+    },
+    {
+      "index": 82,
+      "tag": "li",
+      "text": "rm deletes, with no Trash and no undo. rm -rf takes a whole folder tree without asking. Recovery means a backup."
+    },
+    {
+      "index": 83,
+      "tag": "li",
+      "text": "git add and git commit record changes. In a shared tree, a blanket add scoops up another agent's half-finished work and ships it. Memento's rules ban git add -A for exactly that."
+    },
+    {
+      "index": 84,
+      "tag": "li",
+      "text": "git checkout and git restore can throw away uncommitted work permanently. Chapter 28, with the safety commit that goes first."
+    },
+    {
+      "index": 85,
+      "tag": "li",
+      "text": "npm install downloads and runs other people's code and rewrites the lockfile. Never in a folder you are visiting. Chapter 19."
+    },
+    {
+      "index": 86,
+      "tag": "p",
+      "text": "Inside MEMENTO you may use ls , cd , pwd , cat , head , open and later grep . Nothing else. Anything that writes goes in the book's sandbox folder, which exists to be broken."
+    },
+    {
+      "index": 87,
+      "tag": "h2",
+      "text": "Do it"
+    },
+    {
+      "index": 88,
+      "tag": "div",
+      "text": "Exercise MAC"
+    },
+    {
+      "index": 89,
+      "tag": "li",
+      "text": "cmd+space, type terminal , return. Type pwd . That is where you are standing."
+    },
+    {
+      "index": 90,
+      "tag": "li",
+      "text": "ls , then ls -la . Find a name starting with a dot. Those are the hidden files."
+    },
+    {
+      "index": 91,
+      "tag": "li",
+      "text": "cd Downloads/MEMENTO , using tab after a few letters, then pwd . Now ls . That crowd of entries is the real repo root: source next to PDFs next to a screen recording. Chapter 26 has opinions."
+    },
+    {
+      "index": 92,
+      "tag": "li",
+      "text": "Break it: cd memento-ap . Read the error out loud. Then cd memento-a plus tab, and you are in."
+    },
+    {
+      "index": 93,
+      "tag": "li",
+      "text": "ls js | head -8 . There is the numbering."
+    },
+    {
+      "index": 94,
+      "tag": "li",
+      "text": "head -20 js/33-action-shim.js . That is the file from chapter 1, in your own hands: twenty lines of a human explaining 6,070 deleted ones."
+    },
+    {
+      "index": 95,
+      "tag": "li",
+      "text": "cd ../memento-native/src , then ls . Same app, sixteen job-named folders, zero numbers."
+    },
+    {
+      "index": 96,
+      "tag": "li",
+      "text": "open . . Finder opens the folder you are standing in. Same place, two windows."
+    },
+    {
+      "index": 97,
+      "tag": "li",
+      "text": "The editor step: open -a TextEdit ~/Downloads/CODE-BOOK/sandbox/v1/app.js . That is Memento Jr, the practice app, not Memento. Scroll it, close with cmd+W, choose Don't Save. If you have VS Code or Cursor, open the whole CODE-BOOK folder there instead and look at the file tree."
+    },
+    {
+      "index": 98,
+      "tag": "li",
+      "text": "cd and return. Home."
+    },
+    {
+      "index": 99,
+      "tag": "div",
+      "text": "ASK THE AGENT WHY (paste this into Codex or Fable)"
+    },
+    {
+      "index": 100,
+      "tag": "div",
+      "text": "WORDS YOU NOW OWN"
+    },
+    {
+      "index": 101,
+      "tag": "dt",
+      "text": "Folder (directory)"
+    },
+    {
+      "index": 102,
+      "tag": "dd",
+      "text": "A named container of files and other folders. The whole machine is one nest of them starting at / ."
+    },
+    {
+      "index": 103,
+      "tag": "dt",
+      "text": "Path"
+    },
+    {
+      "index": 104,
+      "tag": "dd",
+      "text": "The address of a file: the folders you walk through, joined with slashes."
+    },
+    {
+      "index": 105,
+      "tag": "dt",
+      "text": "Absolute and relative path"
+    },
+    {
+      "index": 106,
+      "tag": "dd",
+      "text": "Absolute starts at / or ~ and means the same from anywhere. Relative starts from where you are standing."
+    },
+    {
+      "index": 107,
+      "tag": "dt",
+      "text": "Home folder"
+    },
+    {
+      "index": 108,
+      "tag": "dd",
+      "text": "Your own top-level folder. ~ is shorthand for it. Yours is /Users/malikpeace ."
+    },
+    {
+      "index": 109,
+      "tag": "dt",
+      "text": "Working directory"
+    },
+    {
+      "index": 110,
+      "tag": "dd",
+      "text": "The folder the Terminal is standing in. pwd tells you, cd changes it."
+    },
+    {
+      "index": 111,
+      "tag": "dt",
+      "text": "Hidden file"
+    },
+    {
+      "index": 112,
+      "tag": "dd",
+      "text": "A file whose name starts with a dot. Not secret, just not shown by default. Often the tooling that matters."
+    },
+    {
+      "index": 113,
+      "tag": "dt",
+      "text": "Editor"
+    },
+    {
+      "index": 114,
+      "tag": "dd",
+      "text": "A program for a whole folder of code: file tree, project-wide search, go to definition, clickable path:line links."
+    },
+    {
+      "index": 115,
+      "tag": "div",
+      "text": "WHERE TODAY'S ANALOGY BREAKS"
+    },
+    {
+      "index": 116,
+      "tag": "p",
+      "text": "Breaks when: you leave the Mac. On your iPhone there is no address you can type: each app gets a sealed container, which is why \"where is my Memento data on my phone\" has no path for an answer. A database row is not a file either. And on the disk a file is not one chunk of bytes in one spot, it is scattered pieces the operating system assembles for you. Real model: a path is a name the operating system agrees to resolve to some stored data, and how much of the machine is addressable that way is each operating system's choice. On a Mac, nearly all of it. On iOS, almost none. For this book, the building with rooms is the right picture."
+    },
+    {
+      "index": 117,
+      "tag": "summary",
+      "text": "RABBIT HOLE: why the slashes lean that way"
+    },
+    {
+      "index": 118,
+      "tag": "p",
+      "text": "Mac and Linux separate folders with / . Windows uses \\ , from a 1981 accident: the forward slash was already taken for command options, so paths got the backslash, and software has handled both ever since. Memento never meets the problem, since its files are only read by a browser or a Mac."
+    }
+  ],
+  "segments": [
+    {
+      "blocks": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14
+      ],
+      "text": "Files, folders, paths, and opening code\n\nYour app is a folder. Inside it are files, and every file has an address. Today you open the Terminal for the first time and walk into Memento with your own hands. You cannot break anything, because every command here only looks.\n\nLAST TIME\n\nYou got the real 2026 picture of AI and coding, with receipts: what it can do, what it costs, and the incidents that were all the same bug. You left with five habits: read the plan, read the diff, ask why, demand verification, own the commit. Every one of them needs you to be able to open the thing the agent changed.\n\nQuick check\n\nThe agent guesses what you meant. What does the machine do with the result?\n\nOn the journey map, which stop holds Memento's Anthropic key, and why not the phone?\n\nChapter 3's punchline was \"everything under Memento is old, only the typist is new\". Name two of the old things.\n\nThe idea\n\nChapter 1 said a file is a named chunk of bytes on a disk. The working model is that almost everything on a computer is one. Your code, your photos, the settings. Even a folder (engineers say directory) is a kind of file, one whose contents are a list of other files. Folders sit inside folders, and the whole machine is one nest of them starting at a single top called / , said out loud as \"root\".\n\nA path is the address of a file: the folders you walk through to reach it, joined with slashes.\n\nRead it left to right and you are walking. Top of the disk, into Users , into your account, Downloads, MEMENTO, the web app, js, and there is the file. That is not a picture of the address. That is the address.\n\nANALOGY (TEMPORARY)\n\nA path is a postal address written backwards: country, city, street, building, flat. The Terminal is you standing in one room of that building, always somewhere. Commands mean \"look around this room\", \"walk to that room\", \"read me this page\". Finder is the same building with the lights on.\n\nThree shortcuts you will see everywhere. ~ is your home folder , /Users/malikpeace , so ~/Downloads is a whole address in one character. . is \"the folder I am standing in\". .. is \"the folder above this one\"."
+    },
+    {
+      "blocks": [
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47,
+        48,
+        49,
+        50,
+        51,
+        52,
+        53
+      ],
+      "text": "A path starting with / or ~ is an absolute path and means the same thing from anywhere. A path starting with a name, like js/01-state-foundation.js , is a relative path and means \"from where I am standing right now\". Half of all terminal confusion is one of these used where the other was meant.\n\nFiles whose name starts with a dot, like .git , are hidden files . Finder does not show them and neither does a plain ls . Not secret, just marked \"tooling, not for browsing\", and some of the most important things in a codebase live in them.\n\nOpen the Terminal\n\nPress cmd and space, type terminal , press return. A window opens with a prompt and a waiting cursor. Nothing runs until you press return.\n\nThe Terminal is always standing in a folder. That folder is the working directory , and every relative path is measured from it. When people get lost in a terminal it is nearly always because they forgot where they were standing, so the first command you will ever run is the one that answers that.\n\nYou type\n\nYou see\n\nIt means\n\npwd\n\n/Users/malikpeace\n\nPrint working directory. Where am I standing.\n\nls\n\nA list of names\n\nList. What is in this room.\n\nls -la\n\nOne name per line, with size, date, owner, and the hidden dotfiles\n\nThe same list, told properly. -l is long, -a is all.\n\ncd Downloads\n\nNothing\n\nChange directory. Walk into it. Silence means it worked.\n\ncd ..\n\nNothing\n\nWalk back up one.\n\ncd alone, or cd ~\n\nNothing\n\nGo home.\n\nopen .\n\nA Finder window\n\nOpen the current folder in Finder. The bridge between the two worlds.\n\ncat CLAUDE.md\n\nThe whole file, dumped\n\nPrint a file. Good for short files, brutal for long ones.\n\nhead -20 file.js\n\nThe first 20 lines\n\nJust the top. This is how you taste a file.\n\nTwo habits make this feel less hostile. Press tab : type cd Down , hit tab, the shell finishes it. Tab completion is a spellchecker, because if tab will not complete it, the thing does not exist. Press the up arrow to bring back the last command and edit it instead of retyping.\n\nOne trap: spaces separate a command from its parts, so a name with a space in it must be quoted. Memento's root holds a launcher called Open Memento (new modular).command , and reading it takes cat \"Open Memento (new modular).command\" . Without the quotes you get an error about four files that do not exist.\n\nBreak it: mistype a path\n\nOn purpose: stand in MEMENTO and type cd memento-ap , missing the final p."
+    },
+    {
+      "blocks": [
+        54,
+        55,
+        56,
+        57,
+        58,
+        59,
+        60,
+        61,
+        62,
+        63,
+        64,
+        65,
+        66,
+        67,
+        68
+      ],
+      "text": "Three facts in one line. cd complained. Nothing by that name exists here. The name it tried is quoted back so you can compare it letter by letter with what you meant. Nothing was created, nothing was damaged. Type cd memento-a , press tab, and you are in. That loop, type, read the error literally, fix the letter, run again, is what the work looks like. Engineers do it dozens of times a day.\n\nOpening code in an editor\n\nThe Terminal is for walking and peeking. Real reading happens in an editor , a program built for a whole folder of text files. You already have one: the Claude desktop app's code view shows the file an agent touched, with line numbers. Engineers mostly use VS Code or Cursor, both free, and you need neither to finish this book. open -a TextEdit somefile.js puts any file on screen.\n\nFour things an editor gives you that cat cannot:\n\nThe file tree. The left sidebar is the figure above, live. Clicking a folder is cd , and the shape of an app becomes obvious in ten seconds.\n\nProject-wide search. Cmd+Shift+F searches every file at once. Type persistState and you get all 25 places in Memento's web app that call it. That one feature is most of what reading a codebase is.\n\nGo to definition. Cmd+click a name to jump to where it was created. Find references does the reverse.\n\nFollowing a path:line link. When an agent, a test or an error says js/01-state-foundation.js:488 , that is a file and a line number, and an editor turns it into a click. This book cites Memento the same way.\n\nNow the routine for any codebase you have never seen. Ten minutes, in order: read the README, read the top-level folder names and guess each one's job, find the entry file that starts everything ( index.html , index.js , main.ts , src/app/ ), read package.json 's scripts and dependencies, open the biggest file because that is where the mess lives, find the tests folder because it is the closest thing to a spec, then search one feature name and read what comes back.\n\nSee it\n\nA path is text with slashes in it, and the commands you just learned are string operations with a disk behind them. This one runs on your phone.\n\nThat last line is the whole mystery of ~ : the shell swaps in your home folder before the command runs.\n\nNow in Memento\n\nANY APP\n\nTwo ways to organise a codebase."
+    },
+    {
+      "blocks": [
+        69,
+        70,
+        71,
+        72,
+        73,
+        74,
+        75,
+        76,
+        77,
+        78,
+        79,
+        80,
+        81,
+        82,
+        83,
+        84,
+        85
+      ],
+      "text": "By load order. Files are numbered and run top to bottom. The number is the architecture. No build step, edit and refresh. But nothing states what needs what, and a file in the wrong position crashes at boot.\n\nBy job. Files sit in folders named after what they do, each declaring what it needs, and a tool works out the order. You have to keep that tool. In exchange the dependencies are written down and the folder name tells a newcomer where to look.\n\nMEMENTO\n\nMemento is both, in one folder, because one is being rebuilt into the other. ls memento-app/js gives 38 files, all numbered:\n\nThe numbers are not decoration. The shell that loads them says so:\n\nAnd the rule for humans, at the top of the repo:\n\nIt then lists the js folder file by file so an agent knows which one to open. That list has drifted: CLAUDE.md says 21 js files and 16 css files, ls says 38 and 22. The folder is the truth. A map is a document somebody has to maintain.\n\nNow ls memento-native/src , the rebuild:\n\nSixteen folders, no numbers, named after jobs. Nothing loads by position; each file names what it needs.\n\nTHE ALTERNATIVE, AND WHY MEMENTO CHOSE THIS\n\nThe web app could have used modules and a bundler from day one, which is what almost every team does. Not doing it was right for what it was: one founder and an agent shipping several times a day, where a build step is one more thing that breaks at 2am. The bill arrived later. 67,000 lines in one shared global scope, a file numbered 33 that exists to catch a deleted name, two files numbered 20, a map that no longer matches the folder. The rebuild pays the tooling cost up front to get the import graph back. Chapter 26 adds up what each one cost.\n\nNEVER TYPE THESE INSIDE ~/Downloads/MEMENTO\n\nEverything above only reads. These change things, and this folder is a live product two agents work in.\n\nrm deletes, with no Trash and no undo. rm -rf takes a whole folder tree without asking. Recovery means a backup.\n\ngit add and git commit record changes. In a shared tree, a blanket add scoops up another agent's half-finished work and ships it. Memento's rules ban git add -A for exactly that.\n\ngit checkout and git restore can throw away uncommitted work permanently. Chapter 28, with the safety commit that goes first.\n\nnpm install downloads and runs other people's code and rewrites the lockfile. Never in a folder you are visiting. Chapter 19."
+    },
+    {
+      "blocks": [
+        86,
+        87,
+        88,
+        89,
+        90,
+        91,
+        92,
+        93,
+        94,
+        95,
+        96,
+        97,
+        98,
+        99,
+        100,
+        101,
+        102,
+        103,
+        104,
+        105,
+        106,
+        107,
+        108,
+        109,
+        110,
+        111,
+        112,
+        113,
+        114,
+        115
+      ],
+      "text": "Inside MEMENTO you may use ls , cd , pwd , cat , head , open and later grep . Nothing else. Anything that writes goes in the book's sandbox folder, which exists to be broken.\n\nDo it\n\nExercise MAC\n\ncmd+space, type terminal , return. Type pwd . That is where you are standing.\n\nls , then ls -la . Find a name starting with a dot. Those are the hidden files.\n\ncd Downloads/MEMENTO , using tab after a few letters, then pwd . Now ls . That crowd of entries is the real repo root: source next to PDFs next to a screen recording. Chapter 26 has opinions.\n\nBreak it: cd memento-ap . Read the error out loud. Then cd memento-a plus tab, and you are in.\n\nls js | head -8 . There is the numbering.\n\nhead -20 js/33-action-shim.js . That is the file from chapter 1, in your own hands: twenty lines of a human explaining 6,070 deleted ones.\n\ncd ../memento-native/src , then ls . Same app, sixteen job-named folders, zero numbers.\n\nopen . . Finder opens the folder you are standing in. Same place, two windows.\n\nThe editor step: open -a TextEdit ~/Downloads/CODE-BOOK/sandbox/v1/app.js . That is Memento Jr, the practice app, not Memento. Scroll it, close with cmd+W, choose Don't Save. If you have VS Code or Cursor, open the whole CODE-BOOK folder there instead and look at the file tree.\n\ncd and return. Home.\n\nASK THE AGENT WHY (paste this into Codex or Fable)\n\nWORDS YOU NOW OWN\n\nFolder (directory)\n\nA named container of files and other folders. The whole machine is one nest of them starting at / .\n\nPath\n\nThe address of a file: the folders you walk through, joined with slashes.\n\nAbsolute and relative path\n\nAbsolute starts at / or ~ and means the same from anywhere. Relative starts from where you are standing.\n\nHome folder\n\nYour own top-level folder. ~ is shorthand for it. Yours is /Users/malikpeace .\n\nWorking directory\n\nThe folder the Terminal is standing in. pwd tells you, cd changes it.\n\nHidden file\n\nA file whose name starts with a dot. Not secret, just not shown by default. Often the tooling that matters.\n\nEditor\n\nA program for a whole folder of code: file tree, project-wide search, go to definition, clickable path:line links.\n\nWHERE TODAY'S ANALOGY BREAKS"
+    },
+    {
+      "blocks": [
+        116,
+        117,
+        118
+      ],
+      "text": "Breaks when: you leave the Mac. On your iPhone there is no address you can type: each app gets a sealed container, which is why \"where is my Memento data on my phone\" has no path for an answer. A database row is not a file either. And on the disk a file is not one chunk of bytes in one spot, it is scattered pieces the operating system assembles for you. Real model: a path is a name the operating system agrees to resolve to some stored data, and how much of the machine is addressable that way is each operating system's choice. On a Mac, nearly all of it. On iOS, almost none. For this book, the building with rooms is the right picture.\n\nRABBIT HOLE: why the slashes lean that way\n\nMac and Linux separate folders with / . Windows uses \\ , from a 1981 accident: the forward slash was already taken for command options, so paths got the backslash, and software has handled both ever since. Memento never meets the problem, since its files are only read by a browser or a Mac."
+    }
+  ],
+  "wordCount": 2233
+}

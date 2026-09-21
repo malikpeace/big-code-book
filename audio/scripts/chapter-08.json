@@ -1,0 +1,580 @@
+{
+  "chapter": 8,
+  "slug": "git-2",
+  "title": "Git 2: branches, merges, conflicts, pull requests",
+  "source": "chapters/08-git-2.html",
+  "blocks": [
+    {
+      "index": 0,
+      "tag": "h1",
+      "text": "Git 2: branches, merges, conflicts, pull requests"
+    },
+    {
+      "index": 1,
+      "tag": "p",
+      "text": "Memento has 59 branches. Not 59 copies of the app: 59 sticky labels stuck onto snapshots in one chain. Once that lands, the Fable and Codex protocol you have run for months turns out to be a git diagram."
+    },
+    {
+      "index": 2,
+      "tag": "div",
+      "text": "LAST TIME"
+    },
+    {
+      "index": 3,
+      "tag": "p",
+      "text": "A commit is a complete snapshot of the folder, not a list of changes, and each one points back at its parent to form a chain. Your work lives in three separate places: the working folder, the staging area, and the history in .git . A hash is a fingerprint of a snapshot, which is why you cannot rewrite the past without everyone seeing."
+    },
+    {
+      "index": 4,
+      "tag": "h2",
+      "text": "Quick check"
+    },
+    {
+      "index": 5,
+      "tag": "summary",
+      "text": "Is a commit a record of what changed, or something else?"
+    },
+    {
+      "index": 6,
+      "tag": "summary",
+      "text": "You edit a file, run git diff , then git add it and run git diff again. Nothing prints. Did your change vanish?"
+    },
+    {
+      "index": 7,
+      "tag": "summary",
+      "text": "From chapter 2: Memento's sync sends p_expected_revision . What is that for?"
+    },
+    {
+      "index": 8,
+      "tag": "h2",
+      "text": "The idea"
+    },
+    {
+      "index": 9,
+      "tag": "p",
+      "text": "A branch is a label that points at one commit. That is the entire definition: a small text file inside .git holding one hash. Making one copies nothing and takes about a millisecond however big the project is."
+    },
+    {
+      "index": 10,
+      "tag": "p",
+      "text": "The label moves. When you are standing on a branch and make a commit, the new commit points back at the one the label was on, and the label slides forward onto the new one. So a branch marks the front end of one line of work, and the chain behind it is that line's history."
+    },
+    {
+      "index": 11,
+      "tag": "p",
+      "text": "HEAD is a second label meaning \"where you are right now\". It points at a branch label, which is how git knows which one to slide forward when you commit. Switching branches moves HEAD and rewrites the files in your working folder to match that snapshot. The folder changes. Nothing is copied."
+    },
+    {
+      "index": 12,
+      "tag": "div",
+      "text": "ANALOGY (TEMPORARY)"
+    },
+    {
+      "index": 13,
+      "tag": "p",
+      "text": "Bookmarks in one book, not two books. One history, one stack of pages, and you can have fifty bookmarks in it. Moving to another bookmark does not duplicate the book, it turns you to that page. You write a new page after the page your bookmark is on, then move the bookmark forward. Removing a bookmark does not tear out pages."
+    },
+    {
+      "index": 14,
+      "tag": "h3",
+      "text": "Merging, and the thing everyone panics about"
+    },
+    {
+      "index": 15,
+      "tag": "p",
+      "text": "Two lines of work exist and you want one. Merging is git working out what changed on each since they split and making a new commit with two parents. That commit is where the lines become one, and the graph records forever that they were separate."
+    },
+    {
+      "index": 16,
+      "tag": "p",
+      "text": "Most of the time git does it without asking: if one line touched the Clarity screen and the other the sync code, nothing needs deciding. Git is not being clever. It compares line by line and notices no line was claimed twice."
+    },
+    {
+      "index": 17,
+      "tag": "p",
+      "text": "A conflict is a line claimed twice: both lines changed the same lines of one file, differently. Git has no basis for choosing, so it stops, leaves the file with both versions marked out, and waits for a person. Nothing is broken, nothing is lost. A conflict is git refusing to guess. The markers are plain text in the file:"
+    },
+    {
+      "index": 18,
+      "tag": "p",
+      "text": "Above the ======= is the branch you are standing on, below it the branch you are merging in. Delete the markers, leave the text you want, git add the file to say \"resolved\", and commit. You will do exactly that in a minute."
+    },
+    {
+      "index": 19,
+      "tag": "h3",
+      "text": "Rebase, in one paragraph"
+    },
+    {
+      "index": 20,
+      "tag": "p",
+      "text": "Rebase is the other way to combine work. Instead of tying two lines together with a merge commit, git lifts your commits off, moves you onto the tip of theirs, and replays yours on top. You get one straight line, and the history reads as if you had started from their latest work all along. The catch: replaying makes new snapshots with new hashes, so your old commit ids are gone and anyone who already had them is out of sync. Hence the rule, rebase your own unpushed work and merge everything else. Memento's standing instruction, at CLAUDE.md:72 :"
+    },
+    {
+      "index": 21,
+      "tag": "p",
+      "text": "Read as a sentence: fetch whatever the other agent pushed, replay my commits on top, so history stays one clean line and collisions surface now instead of at push time."
+    },
+    {
+      "index": 22,
+      "tag": "h3",
+      "text": "The words for \"somewhere else\""
+    },
+    {
+      "index": 23,
+      "tag": "p",
+      "text": "A remote is another copy of the repository, usually on a server. origin is the conventional name for the main one; Memento's is a private GitHub repo, malikpeace/memento . git push sends your commits there, git pull brings its commits down and combines them with yours. That is why --rebase is a pull option: it picks how to combine."
+    },
+    {
+      "index": 24,
+      "tag": "p",
+      "text": "A pull request is not a git feature. It is a page on GitHub saying \"here is my branch, every commit and every changed line in it, look before this goes into main\". Comments attach to lines, a robot runs the tests, someone clicks merge. Its value is social: a second pair of eyes becomes required instead of encouraged."
+    },
+    {
+      "index": 25,
+      "tag": "h3",
+      "text": "Undoing: two words, very different consequences"
+    },
+    {
+      "index": 26,
+      "tag": "p",
+      "text": "Revert makes a new commit that undoes an earlier one. History grows, everything stays, and both the bad change and the undo are in the record. That is what \"roll back the deploy\" means, and it is safe even on work other people already have."
+    },
+    {
+      "index": 27,
+      "tag": "div",
+      "text": "DESTRUCTIVE COMMAND. READ BEFORE YOU TYPE"
+    },
+    {
+      "index": 28,
+      "tag": "p",
+      "text": "Reset moves your branch label backwards. git reset --hard <hash> moves the label and overwrites your working folder to match, deleting every uncommitted change with no undo. On pushed work it also rewrites what others are building on. In git-lab , fine. In Memento, never. Reach for revert ."
+    },
+    {
+      "index": 29,
+      "tag": "p",
+      "text": "The safety net is reflog : a private local log of every position HEAD has been in, including ones no label points at. Move a label somewhere stupid and the commits are still there; git reflog finds their hashes. Local, never pushed, entries expire after about 30 to 90 days. A net with a time limit, not a resurrection machine."
+    },
+    {
+      "index": 30,
+      "tag": "h2",
+      "text": "See it"
+    },
+    {
+      "index": 31,
+      "tag": "p",
+      "text": "Branches and a merge, modelled. Watch that branches is only names pointing at ids, that branching adds no commits, and that the merge node is the one with two parents."
+    },
+    {
+      "index": 32,
+      "tag": "p",
+      "text": "Deleting the feature line from branches would remove the label while every commit stays in the array. That is why deleting a branch is not dangerous: you throw away a sticky note, not pages."
+    },
+    {
+      "index": 33,
+      "tag": "h2",
+      "text": "Now in Memento"
+    },
+    {
+      "index": 34,
+      "tag": "div",
+      "text": "READ-ONLY. SAME RULE AS LAST CHAPTER"
+    },
+    {
+      "index": 35,
+      "tag": "p",
+      "text": "In ~/Downloads/MEMENTO : git log , git show , git diff , git status , and git branch with no arguments. Nothing else, ever. That matters more this chapter, because switch , merge , rebase , reset and push all change the tree two agents are standing in. The plan says it plainly: \"Never switch the Downloads checkout's branch out from under the other agent; never touch its dirty files.\" Practice in git-lab ."
+    },
+    {
+      "index": 36,
+      "tag": "div",
+      "text": "ANY APP"
+    },
+    {
+      "index": 37,
+      "tag": "p",
+      "text": "Teams prefix branch names so the label says who owns that line of work. Work happens on a branch, gets reviewed, then joins main, and main is the line allowed to ship. git branch with no arguments lists the labels and marks where you stand. It changes nothing."
+    },
+    {
+      "index": 38,
+      "tag": "div",
+      "text": "MEMENTO"
+    },
+    {
+      "index": 39,
+      "tag": "p",
+      "text": "git -C ~/Downloads/MEMENTO branch listed 59 labels on 20 September 2026. Branch labels are not part of a commit, so that count is a snapshot of that day, not a fact about the pin. The protocol is visible in plain text:"
+    },
+    {
+      "index": 40,
+      "tag": "p",
+      "text": "The prefixes say which agent owns that line. The + means the branch is checked out in a different worktree, the separate working copy the plan gives Codex so the agents are not editing the same files at once."
+    },
+    {
+      "index": 41,
+      "tag": "h3",
+      "text": "The Fable and Codex protocol, read as a git story"
+    },
+    {
+      "index": 42,
+      "tag": "p",
+      "text": "You have run this for months. Here it is, four lines of your own migration plan:"
+    },
+    {
+      "index": 43,
+      "tag": "p",
+      "text": "Three git ideas are compressed in there. \"One owner at a time\" is conflict avoidance by agreement, because git will happily let both agents edit package.json and then hand you a conflict where picking the wrong side breaks the build. \"Named files only, no git add -A \" is the staging area doing its job, from chapter 7. \"Cross-agent channel: MIGRATION/*.md only\" means the agents cannot talk, so the repository is the medium: files and commit messages are the whole conversation, and you are the cable."
+    },
+    {
+      "index": 44,
+      "tag": "p",
+      "text": "Three lines further down, the plan states the gate: \"Self-review alone cannot close this cross-review gate.\" Which brings us to the thing you type every week without knowing you were writing git. Memento has no pull request flow between the agents, so the approval is written into the commit subject:"
+    },
+    {
+      "index": 45,
+      "tag": "p",
+      "text": "Now that a hash is a fingerprint of a snapshot, read approved @ b6e148b2 properly. It does not mean \"the Doors work is approved\". It means this exact snapshot of the entire folder, fingerprint b6e148b2, was reviewed and found good. One snapshot, not the branch. And it cannot be fudged: change one character of one file and the next commit has a different fingerprint, so the old approval visibly does not cover it. That is why the subjects also say what is owed, like \"(Codex re-review owed)\". Every commit after an approval is unpinned until somebody reviews again and writes a new hash down. Check one, read-only:"
+    },
+    {
+      "index": 46,
+      "tag": "p",
+      "text": "A review commit, naming the commit it reviewed. You have been running a hand-built pull request system in commit subjects, and it works because a hash is a promise about content."
+    },
+    {
+      "index": 47,
+      "tag": "div",
+      "text": "THE ALTERNATIVE, AND WHY MEMENTO CHOSE THIS"
+    },
+    {
+      "index": 48,
+      "tag": "p",
+      "text": "The normal alternative is GitHub pull requests: branch, open a PR, get line comments and an approval attached to a commit automatically, merge through a button that can be blocked until the tests pass. It is better at all of that, and Memento will need it the moment a second human touches the code. It was skipped because the reviewers are two AI agents that cannot click a button and communicate only through files in the repo. Writing \"approved @ hash\" into the log is the cheapest thing carrying the same guarantee. The cost: nothing enforces it, so the gate is you."
+    },
+    {
+      "index": 49,
+      "tag": "h2",
+      "text": "Do it"
+    },
+    {
+      "index": 50,
+      "tag": "div",
+      "text": "Exercise MAC"
+    },
+    {
+      "index": 51,
+      "tag": "li",
+      "text": "cd ~/Downloads/CODE-BOOK/git-lab . Not there? Build one by hand: mkdir -p ~/Downloads/CODE-BOOK/git-lab && cd ~/Downloads/CODE-BOOK/git-lab && git init echo \"the north star is: ship the native app\" > north-star.txt echo \"start()\" > app.js git add north-star.txt app.js git commit -m \"first snapshot\" If it already existed, check the file with cat north-star.txt ."
+    },
+    {
+      "index": 52,
+      "tag": "li",
+      "text": "git branch . One label, with a star on it. That is where you are standing."
+    },
+    {
+      "index": 53,
+      "tag": "li",
+      "text": "git switch -c feature makes a branch and moves onto it. git log --oneline : same commits as before. You created a label, not a copy."
+    },
+    {
+      "index": 54,
+      "tag": "li",
+      "text": "Work on the branch and snapshot it: echo \"the north star is: ship the native app, Android too\" > north-star.txt git add north-star.txt git commit -m \"north star mentions Android\""
+    },
+    {
+      "index": 55,
+      "tag": "li",
+      "text": "git switch main , then cat north-star.txt . The Android line is gone. Not lost: you moved to another bookmark and git rewrote the folder to match that snapshot. This is the moment branches click."
+    },
+    {
+      "index": 56,
+      "tag": "li",
+      "text": "Make a conflicting edit on main, on the same line: echo \"the north star is: ship the native app by November\" > north-star.txt git add north-star.txt git commit -m \"north star gets a deadline\""
+    },
+    {
+      "index": 57,
+      "tag": "li",
+      "text": "git merge feature . Expected: it refuses and says CONFLICT in north-star.txt . git status calls the file unmerged."
+    },
+    {
+      "index": 58,
+      "tag": "li",
+      "text": "cat north-star.txt . There are the markers. The file is currently not valid anything, which is normal and temporary."
+    },
+    {
+      "index": 59,
+      "tag": "li",
+      "text": "Resolve by hand. open -e north-star.txt opens TextEdit. Delete all three marker lines, leave one sentence, for example the north star is: ship the native app by November, Android too . Save, then cat north-star.txt and confirm no markers survive. A stray marker left in a file is one of the most common real bugs there is, so look twice."
+    },
+    {
+      "index": 60,
+      "tag": "li",
+      "text": "git add north-star.txt . Adding a conflicted file is how you tell git \"I decided\". Then git commit -m \"merge feature\" ."
+    },
+    {
+      "index": 61,
+      "tag": "li",
+      "text": "git log --oneline --graph --all : two lines, joining. Then git show --stat HEAD . The header has a Merge: line naming two parents. Only merge commits do."
+    },
+    {
+      "index": 62,
+      "tag": "li",
+      "text": "git reflog . Every position HEAD occupied in this exercise. That is the net, and it is a list of hashes you can now read."
+    },
+    {
+      "index": 63,
+      "tag": "div",
+      "text": "ASK THE AGENT WHY (paste this into Codex or Fable)"
+    },
+    {
+      "index": 64,
+      "tag": "div",
+      "text": "WORDS YOU NOW OWN"
+    },
+    {
+      "index": 65,
+      "tag": "dt",
+      "text": "Branch"
+    },
+    {
+      "index": 66,
+      "tag": "dd",
+      "text": "A movable label pointing at one commit, stored as a one-line text file. Making one copies nothing; deleting one throws away the label, not the commits."
+    },
+    {
+      "index": 67,
+      "tag": "dt",
+      "text": "HEAD"
+    },
+    {
+      "index": 68,
+      "tag": "dd",
+      "text": "The label meaning \"where you are standing\". Switching branches moves it and rewrites your working folder to match."
+    },
+    {
+      "index": 69,
+      "tag": "dt",
+      "text": "Merge"
+    },
+    {
+      "index": 70,
+      "tag": "dd",
+      "text": "Joining two lines of history with a commit that has two parents. Usually automatic."
+    },
+    {
+      "index": 71,
+      "tag": "dt",
+      "text": "Conflict"
+    },
+    {
+      "index": 72,
+      "tag": "dd",
+      "text": "Both lines changed the same lines of one file, so git stops and writes both versions in with markers. A request for a decision, not a breakage."
+    },
+    {
+      "index": 73,
+      "tag": "dt",
+      "text": "Rebase"
+    },
+    {
+      "index": 74,
+      "tag": "dd",
+      "text": "Replaying your commits on top of someone else's latest work: one straight line, new hashes. Fine for your own unpushed work."
+    },
+    {
+      "index": 75,
+      "tag": "dt",
+      "text": "Remote and origin"
+    },
+    {
+      "index": 76,
+      "tag": "dd",
+      "text": "A remote is another copy of the repo. origin is the conventional name for the main one. push sends, pull fetches and combines."
+    },
+    {
+      "index": 77,
+      "tag": "dt",
+      "text": "Pull request"
+    },
+    {
+      "index": 78,
+      "tag": "dd",
+      "text": "A GitHub page for reviewing a branch before it joins main: line comments, test results, an approval attached to one commit."
+    },
+    {
+      "index": 79,
+      "tag": "dt",
+      "text": "Revert"
+    },
+    {
+      "index": 80,
+      "tag": "dd",
+      "text": "A new commit that undoes an old one. History grows, nothing is lost, safe on shared work. What \"roll back the deploy\" means."
+    },
+    {
+      "index": 81,
+      "tag": "dt",
+      "text": "Reset"
+    },
+    {
+      "index": 82,
+      "tag": "dd",
+      "text": "Moving your branch label backwards. --hard also overwrites your working folder and destroys uncommitted work. Banned in Memento."
+    },
+    {
+      "index": 83,
+      "tag": "dt",
+      "text": "Reflog"
+    },
+    {
+      "index": 84,
+      "tag": "dd",
+      "text": "A local log of every position HEAD has been in, including ones no label points at. Your way back after a bad move, for a few weeks."
+    },
+    {
+      "index": 85,
+      "tag": "div",
+      "text": "WHERE TODAY'S ANALOGY BREAKS"
+    },
+    {
+      "index": 86,
+      "tag": "p",
+      "text": "Breaks when: you assume the pages are safe forever because you only threw away a bookmark. Git keeps a commit alive as long as something can reach it: a branch label, a tag, or a reflog entry. Delete the last label pointing at a line of work and those commits become unreachable, sit in the reflog for roughly 30 to 90 days, then get swept away by garbage collection. Also, a book has one order of pages and a git history is a graph: a merge commit has two parents, so \"the page before this one\" can have two answers. Real model: a directed graph of immutable snapshots, a few mutable one-line pointers into it, and a reachability rule deciding what is kept. Every git command either adds a node or moves a pointer."
+    },
+    {
+      "index": 87,
+      "tag": "summary",
+      "text": "RABBIT HOLE: why merge conflicts are a people problem"
+    },
+    {
+      "index": 88,
+      "tag": "p",
+      "text": "Git's conflict detection is dumb on purpose: it compares text line by line and has no idea what the code means. So it catches same-line edits and misses the dangerous kind, where one agent renames a function and the other adds a call to the old name in a different file, both merge cleanly, and the app breaks at runtime. That is a semantic conflict. No version control system catches it; only tests and review do. It is the deeper reason the plan insists on one owner at a time for state, auth and the router."
+    }
+  ],
+  "segments": [
+    {
+      "blocks": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15
+      ],
+      "text": "Git 2: branches, merges, conflicts, pull requests\n\nMemento has 59 branches. Not 59 copies of the app: 59 sticky labels stuck onto snapshots in one chain. Once that lands, the Fable and Codex protocol you have run for months turns out to be a git diagram.\n\nLAST TIME\n\nA commit is a complete snapshot of the folder, not a list of changes, and each one points back at its parent to form a chain. Your work lives in three separate places: the working folder, the staging area, and the history in .git . A hash is a fingerprint of a snapshot, which is why you cannot rewrite the past without everyone seeing.\n\nQuick check\n\nIs a commit a record of what changed, or something else?\n\nYou edit a file, run git diff , then git add it and run git diff again. Nothing prints. Did your change vanish?\n\nFrom chapter 2: Memento's sync sends p_expected_revision . What is that for?\n\nThe idea\n\nA branch is a label that points at one commit. That is the entire definition: a small text file inside .git holding one hash. Making one copies nothing and takes about a millisecond however big the project is.\n\nThe label moves. When you are standing on a branch and make a commit, the new commit points back at the one the label was on, and the label slides forward onto the new one. So a branch marks the front end of one line of work, and the chain behind it is that line's history.\n\nHEAD is a second label meaning \"where you are right now\". It points at a branch label, which is how git knows which one to slide forward when you commit. Switching branches moves HEAD and rewrites the files in your working folder to match that snapshot. The folder changes. Nothing is copied.\n\nANALOGY (TEMPORARY)\n\nBookmarks in one book, not two books. One history, one stack of pages, and you can have fifty bookmarks in it. Moving to another bookmark does not duplicate the book, it turns you to that page. You write a new page after the page your bookmark is on, then move the bookmark forward. Removing a bookmark does not tear out pages.\n\nMerging, and the thing everyone panics about\n\nTwo lines of work exist and you want one. Merging is git working out what changed on each since they split and making a new commit with two parents. That commit is where the lines become one, and the graph records forever that they were separate."
+    },
+    {
+      "blocks": [
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25
+      ],
+      "text": "Most of the time git does it without asking: if one line touched the Clarity screen and the other the sync code, nothing needs deciding. Git is not being clever. It compares line by line and notices no line was claimed twice.\n\nA conflict is a line claimed twice: both lines changed the same lines of one file, differently. Git has no basis for choosing, so it stops, leaves the file with both versions marked out, and waits for a person. Nothing is broken, nothing is lost. A conflict is git refusing to guess. The markers are plain text in the file:\n\nAbove the ======= is the branch you are standing on, below it the branch you are merging in. Delete the markers, leave the text you want, git add the file to say \"resolved\", and commit. You will do exactly that in a minute.\n\nRebase, in one paragraph\n\nRebase is the other way to combine work. Instead of tying two lines together with a merge commit, git lifts your commits off, moves you onto the tip of theirs, and replays yours on top. You get one straight line, and the history reads as if you had started from their latest work all along. The catch: replaying makes new snapshots with new hashes, so your old commit ids are gone and anyone who already had them is out of sync. Hence the rule, rebase your own unpushed work and merge everything else. Memento's standing instruction, at CLAUDE.md:72 :\n\nRead as a sentence: fetch whatever the other agent pushed, replay my commits on top, so history stays one clean line and collisions surface now instead of at push time.\n\nThe words for \"somewhere else\"\n\nA remote is another copy of the repository, usually on a server. origin is the conventional name for the main one; Memento's is a private GitHub repo, malikpeace/memento . git push sends your commits there, git pull brings its commits down and combines them with yours. That is why --rebase is a pull option: it picks how to combine.\n\nA pull request is not a git feature. It is a page on GitHub saying \"here is my branch, every commit and every changed line in it, look before this goes into main\". Comments attach to lines, a robot runs the tests, someone clicks merge. Its value is social: a second pair of eyes becomes required instead of encouraged.\n\nUndoing: two words, very different consequences"
+    },
+    {
+      "blocks": [
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39
+      ],
+      "text": "Revert makes a new commit that undoes an earlier one. History grows, everything stays, and both the bad change and the undo are in the record. That is what \"roll back the deploy\" means, and it is safe even on work other people already have.\n\nDESTRUCTIVE COMMAND. READ BEFORE YOU TYPE\n\nReset moves your branch label backwards. git reset --hard <hash> moves the label and overwrites your working folder to match, deleting every uncommitted change with no undo. On pushed work it also rewrites what others are building on. In git-lab , fine. In Memento, never. Reach for revert .\n\nThe safety net is reflog : a private local log of every position HEAD has been in, including ones no label points at. Move a label somewhere stupid and the commits are still there; git reflog finds their hashes. Local, never pushed, entries expire after about 30 to 90 days. A net with a time limit, not a resurrection machine.\n\nSee it\n\nBranches and a merge, modelled. Watch that branches is only names pointing at ids, that branching adds no commits, and that the merge node is the one with two parents.\n\nDeleting the feature line from branches would remove the label while every commit stays in the array. That is why deleting a branch is not dangerous: you throw away a sticky note, not pages.\n\nNow in Memento\n\nREAD-ONLY. SAME RULE AS LAST CHAPTER\n\nIn ~/Downloads/MEMENTO : git log , git show , git diff , git status , and git branch with no arguments. Nothing else, ever. That matters more this chapter, because switch , merge , rebase , reset and push all change the tree two agents are standing in. The plan says it plainly: \"Never switch the Downloads checkout's branch out from under the other agent; never touch its dirty files.\" Practice in git-lab .\n\nANY APP\n\nTeams prefix branch names so the label says who owns that line of work. Work happens on a branch, gets reviewed, then joins main, and main is the line allowed to ship. git branch with no arguments lists the labels and marks where you stand. It changes nothing.\n\nMEMENTO\n\ngit -C ~/Downloads/MEMENTO branch listed 59 labels on 20 September 2026. Branch labels are not part of a commit, so that count is a snapshot of that day, not a fact about the pin. The protocol is visible in plain text:"
+    },
+    {
+      "blocks": [
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47
+      ],
+      "text": "The prefixes say which agent owns that line. The + means the branch is checked out in a different worktree, the separate working copy the plan gives Codex so the agents are not editing the same files at once.\n\nThe Fable and Codex protocol, read as a git story\n\nYou have run this for months. Here it is, four lines of your own migration plan:\n\nThree git ideas are compressed in there. \"One owner at a time\" is conflict avoidance by agreement, because git will happily let both agents edit package.json and then hand you a conflict where picking the wrong side breaks the build. \"Named files only, no git add -A \" is the staging area doing its job, from chapter 7. \"Cross-agent channel: MIGRATION/*.md only\" means the agents cannot talk, so the repository is the medium: files and commit messages are the whole conversation, and you are the cable.\n\nThree lines further down, the plan states the gate: \"Self-review alone cannot close this cross-review gate.\" Which brings us to the thing you type every week without knowing you were writing git. Memento has no pull request flow between the agents, so the approval is written into the commit subject:\n\nNow that a hash is a fingerprint of a snapshot, read approved @ b6e148b2 properly. It does not mean \"the Doors work is approved\". It means this exact snapshot of the entire folder, fingerprint b6e148b2, was reviewed and found good. One snapshot, not the branch. And it cannot be fudged: change one character of one file and the next commit has a different fingerprint, so the old approval visibly does not cover it. That is why the subjects also say what is owed, like \"(Codex re-review owed)\". Every commit after an approval is unpinned until somebody reviews again and writes a new hash down. Check one, read-only:\n\nA review commit, naming the commit it reviewed. You have been running a hand-built pull request system in commit subjects, and it works because a hash is a promise about content.\n\nTHE ALTERNATIVE, AND WHY MEMENTO CHOSE THIS"
+    },
+    {
+      "blocks": [
+        48,
+        49,
+        50,
+        51,
+        52,
+        53,
+        54,
+        55,
+        56,
+        57,
+        58,
+        59
+      ],
+      "text": "The normal alternative is GitHub pull requests: branch, open a PR, get line comments and an approval attached to a commit automatically, merge through a button that can be blocked until the tests pass. It is better at all of that, and Memento will need it the moment a second human touches the code. It was skipped because the reviewers are two AI agents that cannot click a button and communicate only through files in the repo. Writing \"approved @ hash\" into the log is the cheapest thing carrying the same guarantee. The cost: nothing enforces it, so the gate is you.\n\nDo it\n\nExercise MAC\n\ncd ~/Downloads/CODE-BOOK/git-lab . Not there? Build one by hand: mkdir -p ~/Downloads/CODE-BOOK/git-lab && cd ~/Downloads/CODE-BOOK/git-lab && git init echo \"the north star is: ship the native app\" > north-star.txt echo \"start()\" > app.js git add north-star.txt app.js git commit -m \"first snapshot\" If it already existed, check the file with cat north-star.txt .\n\ngit branch . One label, with a star on it. That is where you are standing.\n\ngit switch -c feature makes a branch and moves onto it. git log --oneline : same commits as before. You created a label, not a copy.\n\nWork on the branch and snapshot it: echo \"the north star is: ship the native app, Android too\" > north-star.txt git add north-star.txt git commit -m \"north star mentions Android\"\n\ngit switch main , then cat north-star.txt . The Android line is gone. Not lost: you moved to another bookmark and git rewrote the folder to match that snapshot. This is the moment branches click.\n\nMake a conflicting edit on main, on the same line: echo \"the north star is: ship the native app by November\" > north-star.txt git add north-star.txt git commit -m \"north star gets a deadline\"\n\ngit merge feature . Expected: it refuses and says CONFLICT in north-star.txt . git status calls the file unmerged.\n\ncat north-star.txt . There are the markers. The file is currently not valid anything, which is normal and temporary.\n\nResolve by hand. open -e north-star.txt opens TextEdit. Delete all three marker lines, leave one sentence, for example the north star is: ship the native app by November, Android too . Save, then cat north-star.txt and confirm no markers survive. A stray marker left in a file is one of the most common real bugs there is, so look twice."
+    },
+    {
+      "blocks": [
+        60,
+        61,
+        62,
+        63,
+        64,
+        65,
+        66,
+        67,
+        68,
+        69,
+        70,
+        71,
+        72,
+        73,
+        74,
+        75,
+        76,
+        77,
+        78,
+        79,
+        80,
+        81,
+        82,
+        83,
+        84,
+        85
+      ],
+      "text": "git add north-star.txt . Adding a conflicted file is how you tell git \"I decided\". Then git commit -m \"merge feature\" .\n\ngit log --oneline --graph --all : two lines, joining. Then git show --stat HEAD . The header has a Merge: line naming two parents. Only merge commits do.\n\ngit reflog . Every position HEAD occupied in this exercise. That is the net, and it is a list of hashes you can now read.\n\nASK THE AGENT WHY (paste this into Codex or Fable)\n\nWORDS YOU NOW OWN\n\nBranch\n\nA movable label pointing at one commit, stored as a one-line text file. Making one copies nothing; deleting one throws away the label, not the commits.\n\nHEAD\n\nThe label meaning \"where you are standing\". Switching branches moves it and rewrites your working folder to match.\n\nMerge\n\nJoining two lines of history with a commit that has two parents. Usually automatic.\n\nConflict\n\nBoth lines changed the same lines of one file, so git stops and writes both versions in with markers. A request for a decision, not a breakage.\n\nRebase\n\nReplaying your commits on top of someone else's latest work: one straight line, new hashes. Fine for your own unpushed work.\n\nRemote and origin\n\nA remote is another copy of the repo. origin is the conventional name for the main one. push sends, pull fetches and combines.\n\nPull request\n\nA GitHub page for reviewing a branch before it joins main: line comments, test results, an approval attached to one commit.\n\nRevert\n\nA new commit that undoes an old one. History grows, nothing is lost, safe on shared work. What \"roll back the deploy\" means.\n\nReset\n\nMoving your branch label backwards. --hard also overwrites your working folder and destroys uncommitted work. Banned in Memento.\n\nReflog\n\nA local log of every position HEAD has been in, including ones no label points at. Your way back after a bad move, for a few weeks.\n\nWHERE TODAY'S ANALOGY BREAKS"
+    },
+    {
+      "blocks": [
+        86,
+        87,
+        88
+      ],
+      "text": "Breaks when: you assume the pages are safe forever because you only threw away a bookmark. Git keeps a commit alive as long as something can reach it: a branch label, a tag, or a reflog entry. Delete the last label pointing at a line of work and those commits become unreachable, sit in the reflog for roughly 30 to 90 days, then get swept away by garbage collection. Also, a book has one order of pages and a git history is a graph: a merge commit has two parents, so \"the page before this one\" can have two answers. Real model: a directed graph of immutable snapshots, a few mutable one-line pointers into it, and a reachability rule deciding what is kept. Every git command either adds a node or moves a pointer.\n\nRABBIT HOLE: why merge conflicts are a people problem\n\nGit's conflict detection is dumb on purpose: it compares text line by line and has no idea what the code means. So it catches same-line edits and misses the dangerous kind, where one agent renames a function and the other adds a call to the old name in a different file, both merge cleanly, and the app breaks at runtime. That is a semantic conflict. No version control system catches it; only tests and review do. It is the deeper reason the plan insists on one owner at a time for state, auth and the router."
+    }
+  ],
+  "wordCount": 2524
+}

@@ -1,0 +1,780 @@
+{
+  "chapter": 9,
+  "slug": "js-1-values",
+  "title": "JavaScript 1: values, variables, types",
+  "source": "chapters/09-js-1-values.html",
+  "blocks": [
+    {
+      "index": 0,
+      "tag": "h1",
+      "text": "JavaScript 1: values, variables, types"
+    },
+    {
+      "index": 1,
+      "tag": "p",
+      "text": "Every line of Memento moves values around and hangs names on them. Get the names right and the rest of the language is small. Get them wrong and you will misread code for years."
+    },
+    {
+      "index": 2,
+      "tag": "div",
+      "text": "LAST TIME"
+    },
+    {
+      "index": 3,
+      "tag": "p",
+      "text": "A branch is a movable label pointing at a commit, not a copy of the folder. Merging joins two lines of history, and a conflict is two people editing the same line, which a human settles. That is why Memento gives one owner to each file while two agents work in one tree."
+    },
+    {
+      "index": 4,
+      "tag": "h2",
+      "text": "Quick check"
+    },
+    {
+      "index": 5,
+      "tag": "summary",
+      "text": "Your agent says \"I made a branch.\" What physically got created on the disk?"
+    },
+    {
+      "index": 6,
+      "tag": "summary",
+      "text": "A command in Terminal prints nothing at all. How do you know whether it worked?"
+    },
+    {
+      "index": 7,
+      "tag": "summary",
+      "text": "Name the five habits from chapter 4."
+    },
+    {
+      "index": 8,
+      "tag": "h2",
+      "text": "The idea"
+    },
+    {
+      "index": 9,
+      "tag": "p",
+      "text": "There are two separate things, and almost every beginner welds them into one."
+    },
+    {
+      "index": 10,
+      "tag": "p",
+      "text": "A value is a piece of data. The number 7 . The text \"stellar\" . The answer true . Values exist whether or not anyone has named them. They live in memory, in those numbered slots from chapter 1."
+    },
+    {
+      "index": 11,
+      "tag": "p",
+      "text": "A variable is a name you hang on a value so you can talk about it later. Chapter 1 called it a name tag, not a box, and that phrasing is the whole chapter, so here it is with the consequences attached."
+    },
+    {
+      "index": 12,
+      "tag": "div",
+      "text": "ANALOGY (TEMPORARY)"
+    },
+    {
+      "index": 13,
+      "tag": "p",
+      "text": "Baggage claim. The suitcases are the values. They sit on the carousel whether or not anyone has claimed them. A variable is a luggage tag with a name written on it, tied to one suitcase. streak = 10 means \"tie the tag that says streak onto the suitcase holding 10\". Re-assigning means untying the tag and tying it to a different suitcase. The tag was never a container. Nothing was ever inside the name."
+    },
+    {
+      "index": 14,
+      "tag": "p",
+      "text": "Three things follow from the picture, and each kills a misconception that survives in most people for years."
+    },
+    {
+      "index": 15,
+      "tag": "p",
+      "text": "A name points at exactly one value at a time. Never two. People say \"the variable holds the old value and the new value\" because the box picture lets them imagine a box with two things in it. There is no box. Move the tag and the old suitcase is simply no longer tagged by that name."
+    },
+    {
+      "index": 16,
+      "tag": "p",
+      "text": "The equals sign is not an equation. streak = streak + 1 would be nonsense in maths. In code, = is an instruction: work out the right side, then point the left name at the result. Read it as \"becomes\", never as \"equals\". This single re-reading fixes more confusion than anything else in the chapter."
+    },
+    {
+      "index": 17,
+      "tag": "p",
+      "text": "Tying a second tag copies nothing. let best = streak reads the value streak points at right now and points best at that. From then on the two names are independent. There is a real exception for objects and arrays, it causes genuine bugs, and it is chapter 11's job."
+    },
+    {
+      "index": 18,
+      "tag": "h3",
+      "text": "Types: what kind of thing the value is"
+    },
+    {
+      "index": 19,
+      "tag": "p",
+      "text": "Every value has a type , which is simply what kind of thing it is. The machine uses the type to decide which rule to apply. Six of them cover almost everything you will read in Memento."
+    },
+    {
+      "index": 20,
+      "tag": "th",
+      "text": "Type"
+    },
+    {
+      "index": 21,
+      "tag": "th",
+      "text": "Looks like"
+    },
+    {
+      "index": 22,
+      "tag": "th",
+      "text": "Means"
+    },
+    {
+      "index": 23,
+      "tag": "td",
+      "text": "string"
+    },
+    {
+      "index": 24,
+      "tag": "td",
+      "text": "'stellar' , \"Malik\" , ''"
+    },
+    {
+      "index": 25,
+      "tag": "td",
+      "text": "Text. Quotes make it text. Single or double, pick one."
+    },
+    {
+      "index": 26,
+      "tag": "td",
+      "text": "number"
+    },
+    {
+      "index": 27,
+      "tag": "td",
+      "text": "7 , 0 , 1.5"
+    },
+    {
+      "index": 28,
+      "tag": "td",
+      "text": "A number. No quotes. Whole and decimal are one type here."
+    },
+    {
+      "index": 29,
+      "tag": "td",
+      "text": "boolean"
+    },
+    {
+      "index": 30,
+      "tag": "td",
+      "text": "true , false"
+    },
+    {
+      "index": 31,
+      "tag": "td",
+      "text": "A yes or no. Only two values exist."
+    },
+    {
+      "index": 32,
+      "tag": "td",
+      "text": "null"
+    },
+    {
+      "index": 33,
+      "tag": "td",
+      "text": "null"
+    },
+    {
+      "index": 34,
+      "tag": "td",
+      "text": "Deliberately empty. A human wrote \"there is nothing here on purpose\"."
+    },
+    {
+      "index": 35,
+      "tag": "td",
+      "text": "undefined"
+    },
+    {
+      "index": 36,
+      "tag": "td",
+      "text": "undefined"
+    },
+    {
+      "index": 37,
+      "tag": "td",
+      "text": "Never given a value. Nobody decided anything. The machine's shrug."
+    },
+    {
+      "index": 38,
+      "tag": "td",
+      "text": "array"
+    },
+    {
+      "index": 39,
+      "tag": "td",
+      "text": "[] , ['health', 'work']"
+    },
+    {
+      "index": 40,
+      "tag": "td",
+      "text": "An ordered list. Square brackets."
+    },
+    {
+      "index": 41,
+      "tag": "td",
+      "text": "object"
+    },
+    {
+      "index": 42,
+      "tag": "td",
+      "text": "{ name: 'Malik', streak: 4 }"
+    },
+    {
+      "index": 43,
+      "tag": "td",
+      "text": "A bundle of named values. Curly braces. The workhorse of the language."
+    },
+    {
+      "index": 44,
+      "tag": "p",
+      "text": "The most expensive type bug in the world is a number that arrived as text. Chapter 1 showed you \"7\" + 5 gluing into \"75\" . It happens because a raw form input and a raw localStorage value both come back as a string, every time. Parsing fixes it: JSON.parse hands you real numbers and booleans again. Skip the parse, and a quiet piece of text wanders into your maths. typeof asks a value what it is, and it is the cheapest debugging tool in the language."
+    },
+    {
+      "index": 45,
+      "tag": "h3",
+      "text": "let, const, and what const actually protects"
+    },
+    {
+      "index": 46,
+      "tag": "p",
+      "text": "You create a name with let or const . let means this name may be pointed elsewhere later. const means it may never be moved once tied. Memento uses const by default, so when you read a diff, a let is a small signal that something changes."
+    },
+    {
+      "index": 47,
+      "tag": "p",
+      "text": "Here is the part people get wrong. const freezes the tag, not the suitcase. const state = { streak: 4 } then state.streak = 5 is completely legal, because the tag never moved. Only state = somethingElse is refused. Hold the sentence: const locks the name, not the thing."
+    },
+    {
+      "index": 48,
+      "tag": "h3",
+      "text": "Quotes, backticks, and equals signs"
+    },
+    {
+      "index": 49,
+      "tag": "p",
+      "text": "Text in quotes is literal. Text in backticks is a template literal , which lets you drop a value into the middle with ${...} . Memento's AI prompts and most of its screen copy are built this way. Comparing values uses strict equality , three equals signs: === asks \"same type and same value\". There is also a two-equals version, == , which converts types before comparing and says \"7\" == 7 is true. It exists, you will see it in old code, and you should never write it. Three, always."
+    },
+    {
+      "index": 50,
+      "tag": "p",
+      "text": "Last thing: a comment starts with // and the machine ignores the rest of the line. Comments are humans talking to humans across time. Chapter 1's shim file was twenty lines of exactly that."
+    },
+    {
+      "index": 51,
+      "tag": "h2",
+      "text": "See it"
+    },
+    {
+      "index": 52,
+      "tag": "p",
+      "text": "Five boxes. The rule for every one of them, and for the rest of this book: predict what this prints, out loud or on paper, then run. A wrong prediction is the whole point. It shows you precisely where your picture of the machine and the real machine disagree, which is the only thing worth finding."
+    },
+    {
+      "index": 53,
+      "tag": "p",
+      "text": "Box 3 is the one to remember. \"7\" + 1 gives \"71\" because the machine saw text on the left and applied the glue rule. Number(\"7\") + 1 gives 8 because a human said what they meant. Box 4 shows the other half: \"7\" === 7 is false and \"7\" == 7 is true, and the second one is why == is banned in decent code. A value that is undefined is not null , and both print as nothing-ish, which is exactly how they hide."
+    },
+    {
+      "index": 54,
+      "tag": "h2",
+      "text": "Now in Memento"
+    },
+    {
+      "index": 55,
+      "tag": "div",
+      "text": "ANY APP"
+    },
+    {
+      "index": 56,
+      "tag": "p",
+      "text": "Every app decides what it remembers about a user and writes that shape down somewhere, usually as one object with named keys: a starting template, empty on day one, filled in as the person uses the product. Reading that template is the fastest way to understand any codebase, because it is the list of everything the app believes exists."
+    },
+    {
+      "index": 57,
+      "tag": "p",
+      "text": "Each starting value's type is a promise. '' promises text. 0 promises a number. [] promises a list. null is a slot a human deliberately left empty."
+    },
+    {
+      "index": 58,
+      "tag": "div",
+      "text": "MEMENTO"
+    },
+    {
+      "index": 59,
+      "tag": "p",
+      "text": "Memento's template is a single object called DEFAULT_STATE , opened at line 35 with const DEFAULT_STATE = { . It is a person's life described in types. Line 36, which is one enormous line holding every profile field, is left out here so the rest is readable."
+    },
+    {
+      "index": 60,
+      "tag": "p",
+      "text": "Walk five of those keys and say the type out loud. This is the exercise that turns reading code from decoding into recognising."
+    },
+    {
+      "index": 61,
+      "tag": "th",
+      "text": "Key"
+    },
+    {
+      "index": 62,
+      "tag": "th",
+      "text": "Value"
+    },
+    {
+      "index": 63,
+      "tag": "th",
+      "text": "Type"
+    },
+    {
+      "index": 64,
+      "tag": "th",
+      "text": "What it means"
+    },
+    {
+      "index": 65,
+      "tag": "td",
+      "text": "entitlements"
+    },
+    {
+      "index": 66,
+      "tag": "td",
+      "text": "{ isPaid: false, paidAt: null, plan: '' }"
+    },
+    {
+      "index": 67,
+      "tag": "td",
+      "text": "object"
+    },
+    {
+      "index": 68,
+      "tag": "td",
+      "text": "A bundle of three named values, nested inside the bigger object."
+    },
+    {
+      "index": 69,
+      "tag": "td",
+      "text": "isPaid"
+    },
+    {
+      "index": 70,
+      "tag": "td",
+      "text": "false"
+    },
+    {
+      "index": 71,
+      "tag": "td",
+      "text": "boolean"
+    },
+    {
+      "index": 72,
+      "tag": "td",
+      "text": "Have they paid. Two possible answers, ever."
+    },
+    {
+      "index": 73,
+      "tag": "td",
+      "text": "paidAt"
+    },
+    {
+      "index": 74,
+      "tag": "td",
+      "text": "null"
+    },
+    {
+      "index": 75,
+      "tag": "td",
+      "text": "null"
+    },
+    {
+      "index": 76,
+      "tag": "td",
+      "text": "Deliberately empty. No payment, so no date. A human chose this over inventing one."
+    },
+    {
+      "index": 77,
+      "tag": "td",
+      "text": "theme"
+    },
+    {
+      "index": 78,
+      "tag": "td",
+      "text": "'stellar'"
+    },
+    {
+      "index": 79,
+      "tag": "td",
+      "text": "string"
+    },
+    {
+      "index": 80,
+      "tag": "td",
+      "text": "Text. The quotes are what make it text."
+    },
+    {
+      "index": 81,
+      "tag": "td",
+      "text": "domains"
+    },
+    {
+      "index": 82,
+      "tag": "td",
+      "text": "[]"
+    },
+    {
+      "index": 83,
+      "tag": "td",
+      "text": "array"
+    },
+    {
+      "index": 84,
+      "tag": "td",
+      "text": "An empty list, waiting for the life areas the user picks in Clarity."
+    },
+    {
+      "index": 85,
+      "tag": "td",
+      "text": "dailyTime"
+    },
+    {
+      "index": 86,
+      "tag": "td",
+      "text": "number"
+    },
+    {
+      "index": 87,
+      "tag": "td",
+      "text": "Minutes a day. No quotes, so arithmetic on it works."
+    },
+    {
+      "index": 88,
+      "tag": "p",
+      "text": "Notice dailyTime: 0 sitting on the same line as energyBaseline: '' . One is a number, one is text, and the difference is four characters. If a change ever stored the user's typed minutes without converting them, dailyTime would quietly become \"30\" and every calculation on it would produce text instead."
+    },
+    {
+      "index": 89,
+      "tag": "div",
+      "text": "THE ALTERNATIVE, AND WHY MEMENTO CHOSE THIS"
+    },
+    {
+      "index": 90,
+      "tag": "p",
+      "text": "The alternative is many small variables: userName , isPaid , clarityTheme , a few hundred of them scattered across 38 files. That reads fine in any one spot and is a disaster everywhere else, because saving would mean listing every name by hand and forgetting one means silent data loss. With one object, saving is JSON.stringify(state) , syncing is one parcel, resetting is pointing the name at a fresh copy of DEFAULT_STATE , and adding a feature is adding a key. The cost is that every part of the app can reach into one shared thing, so a careless change anywhere can corrupt anything. Chapter 14 shows the write path, chapter 17 shows the database refusing a blank overwrite."
+    },
+    {
+      "index": 91,
+      "tag": "h2",
+      "text": "Do it"
+    },
+    {
+      "index": 92,
+      "tag": "div",
+      "text": "Exercise phone or Mac"
+    },
+    {
+      "index": 93,
+      "tag": "li",
+      "text": "For boxes 1 to 3, write your prediction down before pressing Run. Writing it down matters, because a prediction kept in your head rewrites itself the moment you see the answer."
+    },
+    {
+      "index": 94,
+      "tag": "li",
+      "text": "Run. Where you were wrong, change one thing and run again until the machine's behaviour matches a rule you can say in a sentence."
+    },
+    {
+      "index": 95,
+      "tag": "li",
+      "text": "Box 4 is yours. Fill in the values and make it print a line about you."
+    },
+    {
+      "index": 96,
+      "tag": "div",
+      "text": "ASK THE AGENT WHY (paste this into Codex or Fable)"
+    },
+    {
+      "index": 97,
+      "tag": "div",
+      "text": "WORDS YOU NOW OWN"
+    },
+    {
+      "index": 98,
+      "tag": "dt",
+      "text": "Value"
+    },
+    {
+      "index": 99,
+      "tag": "dd",
+      "text": "A piece of data living in memory. It exists whether or not it has a name."
+    },
+    {
+      "index": 100,
+      "tag": "dt",
+      "text": "Variable"
+    },
+    {
+      "index": 101,
+      "tag": "dd",
+      "text": "A name tag tied to one value. Never a container. Move the tag and the old value is just untagged."
+    },
+    {
+      "index": 102,
+      "tag": "dt",
+      "text": "Type"
+    },
+    {
+      "index": 103,
+      "tag": "dd",
+      "text": "What kind of thing a value is. The machine picks its rules from the type, which is why text that looks like a number behaves nothing like one."
+    },
+    {
+      "index": 104,
+      "tag": "dt",
+      "text": "string / number / boolean"
+    },
+    {
+      "index": 105,
+      "tag": "dd",
+      "text": "Text in quotes / a number with no quotes / true or false."
+    },
+    {
+      "index": 106,
+      "tag": "dt",
+      "text": "null / undefined"
+    },
+    {
+      "index": 107,
+      "tag": "dd",
+      "text": "Deliberately empty / never set at all. Different, and the difference matters when you are hunting a bug."
+    },
+    {
+      "index": 108,
+      "tag": "dt",
+      "text": "array / object"
+    },
+    {
+      "index": 109,
+      "tag": "dd",
+      "text": "An ordered list in square brackets / a bundle of named values in curly braces."
+    },
+    {
+      "index": 110,
+      "tag": "dt",
+      "text": "let / const"
+    },
+    {
+      "index": 111,
+      "tag": "dd",
+      "text": "A name that may be re-pointed / a name that may not. const locks the tag, not the object behind it."
+    },
+    {
+      "index": 112,
+      "tag": "dt",
+      "text": "typeof"
+    },
+    {
+      "index": 113,
+      "tag": "dd",
+      "text": "Asks a value what type it is. Your first move when a value is behaving strangely."
+    },
+    {
+      "index": 114,
+      "tag": "dt",
+      "text": "==="
+    },
+    {
+      "index": 115,
+      "tag": "dd",
+      "text": "Same type and same value. Use it always. The two-equals version converts types first and lies to you."
+    },
+    {
+      "index": 116,
+      "tag": "dt",
+      "text": "Template literal"
+    },
+    {
+      "index": 117,
+      "tag": "dd",
+      "text": "Text in backticks with ${...} holes you drop values into."
+    },
+    {
+      "index": 118,
+      "tag": "dt",
+      "text": "Comment"
+    },
+    {
+      "index": 119,
+      "tag": "dd",
+      "text": "A line starting with // that the machine skips. Written by a human, for a human."
+    },
+    {
+      "index": 120,
+      "tag": "div",
+      "text": "WHERE TODAY'S ANALOGY BREAKS"
+    },
+    {
+      "index": 121,
+      "tag": "p",
+      "text": "Breaks when: two tags end up on the same suitcase. With plain values that never matters, because you can never edit the number 7. With objects and arrays you can edit the value itself, so two names pointing at one object means a change through either name is visible through both. At baggage claim that would be two tags on one suitcase, and someone repacking it while you watch a different tag. Real model: a variable holds a reference to an object, and assignment copies the reference, not the object. That is chapter 11, and it is where half of all \"but I did not change that\" bugs come from. The tag picture stays correct the whole way through. What changes is what you are allowed to do to the suitcase."
+    },
+    {
+      "index": 122,
+      "tag": "summary",
+      "text": "RABBIT HOLE: why typeof null says \"object\""
+    },
+    {
+      "index": 123,
+      "tag": "p",
+      "text": "Run console.log(typeof null) and it prints \"object\" , which is wrong and everybody knows it is wrong. It is a bug from the first version of JavaScript in 1995, when types were stored as a small tag on each value and the tag for null happened to be all zeroes, the same as the tag for objects. It has never been fixed because fixing it would break an unknown number of pages on the live web. Keep it as a souvenir: production software carries its history forever, and \"we cannot fix it because people depend on the broken behaviour\" is a sentence you will meet again in your own product."
+    }
+  ],
+  "segments": [
+    {
+      "blocks": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16
+      ],
+      "text": "JavaScript 1: values, variables, types\n\nEvery line of Memento moves values around and hangs names on them. Get the names right and the rest of the language is small. Get them wrong and you will misread code for years.\n\nLAST TIME\n\nA branch is a movable label pointing at a commit, not a copy of the folder. Merging joins two lines of history, and a conflict is two people editing the same line, which a human settles. That is why Memento gives one owner to each file while two agents work in one tree.\n\nQuick check\n\nYour agent says \"I made a branch.\" What physically got created on the disk?\n\nA command in Terminal prints nothing at all. How do you know whether it worked?\n\nName the five habits from chapter 4.\n\nThe idea\n\nThere are two separate things, and almost every beginner welds them into one.\n\nA value is a piece of data. The number 7 . The text \"stellar\" . The answer true . Values exist whether or not anyone has named them. They live in memory, in those numbered slots from chapter 1.\n\nA variable is a name you hang on a value so you can talk about it later. Chapter 1 called it a name tag, not a box, and that phrasing is the whole chapter, so here it is with the consequences attached.\n\nANALOGY (TEMPORARY)\n\nBaggage claim. The suitcases are the values. They sit on the carousel whether or not anyone has claimed them. A variable is a luggage tag with a name written on it, tied to one suitcase. streak = 10 means \"tie the tag that says streak onto the suitcase holding 10\". Re-assigning means untying the tag and tying it to a different suitcase. The tag was never a container. Nothing was ever inside the name.\n\nThree things follow from the picture, and each kills a misconception that survives in most people for years.\n\nA name points at exactly one value at a time. Never two. People say \"the variable holds the old value and the new value\" because the box picture lets them imagine a box with two things in it. There is no box. Move the tag and the old suitcase is simply no longer tagged by that name.\n\nThe equals sign is not an equation. streak = streak + 1 would be nonsense in maths. In code, = is an instruction: work out the right side, then point the left name at the result. Read it as \"becomes\", never as \"equals\". This single re-reading fixes more confusion than anything else in the chapter."
+    },
+    {
+      "blocks": [
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47,
+        48
+      ],
+      "text": "Tying a second tag copies nothing. let best = streak reads the value streak points at right now and points best at that. From then on the two names are independent. There is a real exception for objects and arrays, it causes genuine bugs, and it is chapter 11's job.\n\nTypes: what kind of thing the value is\n\nEvery value has a type , which is simply what kind of thing it is. The machine uses the type to decide which rule to apply. Six of them cover almost everything you will read in Memento.\n\nType\n\nLooks like\n\nMeans\n\nstring\n\n'stellar' , \"Malik\" , ''\n\nText. Quotes make it text. Single or double, pick one.\n\nnumber\n\n7 , 0 , 1.5\n\nA number. No quotes. Whole and decimal are one type here.\n\nboolean\n\ntrue , false\n\nA yes or no. Only two values exist.\n\nnull\n\nnull\n\nDeliberately empty. A human wrote \"there is nothing here on purpose\".\n\nundefined\n\nundefined\n\nNever given a value. Nobody decided anything. The machine's shrug.\n\narray\n\n[] , ['health', 'work']\n\nAn ordered list. Square brackets.\n\nobject\n\n{ name: 'Malik', streak: 4 }\n\nA bundle of named values. Curly braces. The workhorse of the language.\n\nThe most expensive type bug in the world is a number that arrived as text. Chapter 1 showed you \"7\" + 5 gluing into \"75\" . It happens because a raw form input and a raw localStorage value both come back as a string, every time. Parsing fixes it: JSON.parse hands you real numbers and booleans again. Skip the parse, and a quiet piece of text wanders into your maths. typeof asks a value what it is, and it is the cheapest debugging tool in the language.\n\nlet, const, and what const actually protects\n\nYou create a name with let or const . let means this name may be pointed elsewhere later. const means it may never be moved once tied. Memento uses const by default, so when you read a diff, a let is a small signal that something changes.\n\nHere is the part people get wrong. const freezes the tag, not the suitcase. const state = { streak: 4 } then state.streak = 5 is completely legal, because the tag never moved. Only state = somethingElse is refused. Hold the sentence: const locks the name, not the thing.\n\nQuotes, backticks, and equals signs"
+    },
+    {
+      "blocks": [
+        49,
+        50,
+        51,
+        52,
+        53,
+        54,
+        55,
+        56,
+        57,
+        58,
+        59,
+        60,
+        61,
+        62,
+        63,
+        64,
+        65,
+        66,
+        67
+      ],
+      "text": "Text in quotes is literal. Text in backticks is a template literal , which lets you drop a value into the middle with ${...} . Memento's AI prompts and most of its screen copy are built this way. Comparing values uses strict equality , three equals signs: === asks \"same type and same value\". There is also a two-equals version, == , which converts types before comparing and says \"7\" == 7 is true. It exists, you will see it in old code, and you should never write it. Three, always.\n\nLast thing: a comment starts with // and the machine ignores the rest of the line. Comments are humans talking to humans across time. Chapter 1's shim file was twenty lines of exactly that.\n\nSee it\n\nFive boxes. The rule for every one of them, and for the rest of this book: predict what this prints, out loud or on paper, then run. A wrong prediction is the whole point. It shows you precisely where your picture of the machine and the real machine disagree, which is the only thing worth finding.\n\nBox 3 is the one to remember. \"7\" + 1 gives \"71\" because the machine saw text on the left and applied the glue rule. Number(\"7\") + 1 gives 8 because a human said what they meant. Box 4 shows the other half: \"7\" === 7 is false and \"7\" == 7 is true, and the second one is why == is banned in decent code. A value that is undefined is not null , and both print as nothing-ish, which is exactly how they hide.\n\nNow in Memento\n\nANY APP\n\nEvery app decides what it remembers about a user and writes that shape down somewhere, usually as one object with named keys: a starting template, empty on day one, filled in as the person uses the product. Reading that template is the fastest way to understand any codebase, because it is the list of everything the app believes exists.\n\nEach starting value's type is a promise. '' promises text. 0 promises a number. [] promises a list. null is a slot a human deliberately left empty.\n\nMEMENTO\n\nMemento's template is a single object called DEFAULT_STATE , opened at line 35 with const DEFAULT_STATE = { . It is a person's life described in types. Line 36, which is one enormous line holding every profile field, is left out here so the rest is readable.\n\nWalk five of those keys and say the type out loud. This is the exercise that turns reading code from decoding into recognising.\n\nKey\n\nValue\n\nType\n\nWhat it means\n\nentitlements\n\n{ isPaid: false, paidAt: null, plan: '' }\n\nobject"
+    },
+    {
+      "blocks": [
+        68,
+        69,
+        70,
+        71,
+        72,
+        73,
+        74,
+        75,
+        76,
+        77,
+        78,
+        79,
+        80,
+        81,
+        82,
+        83,
+        84,
+        85,
+        86,
+        87,
+        88,
+        89,
+        90,
+        91,
+        92,
+        93,
+        94,
+        95,
+        96,
+        97,
+        98,
+        99,
+        100,
+        101,
+        102,
+        103,
+        104
+      ],
+      "text": "A bundle of three named values, nested inside the bigger object.\n\nisPaid\n\nfalse\n\nboolean\n\nHave they paid. Two possible answers, ever.\n\npaidAt\n\nnull\n\nnull\n\nDeliberately empty. No payment, so no date. A human chose this over inventing one.\n\ntheme\n\n'stellar'\n\nstring\n\nText. The quotes are what make it text.\n\ndomains\n\n[]\n\narray\n\nAn empty list, waiting for the life areas the user picks in Clarity.\n\ndailyTime\n\nnumber\n\nMinutes a day. No quotes, so arithmetic on it works.\n\nNotice dailyTime: 0 sitting on the same line as energyBaseline: '' . One is a number, one is text, and the difference is four characters. If a change ever stored the user's typed minutes without converting them, dailyTime would quietly become \"30\" and every calculation on it would produce text instead.\n\nTHE ALTERNATIVE, AND WHY MEMENTO CHOSE THIS\n\nThe alternative is many small variables: userName , isPaid , clarityTheme , a few hundred of them scattered across 38 files. That reads fine in any one spot and is a disaster everywhere else, because saving would mean listing every name by hand and forgetting one means silent data loss. With one object, saving is JSON.stringify(state) , syncing is one parcel, resetting is pointing the name at a fresh copy of DEFAULT_STATE , and adding a feature is adding a key. The cost is that every part of the app can reach into one shared thing, so a careless change anywhere can corrupt anything. Chapter 14 shows the write path, chapter 17 shows the database refusing a blank overwrite.\n\nDo it\n\nExercise phone or Mac\n\nFor boxes 1 to 3, write your prediction down before pressing Run. Writing it down matters, because a prediction kept in your head rewrites itself the moment you see the answer.\n\nRun. Where you were wrong, change one thing and run again until the machine's behaviour matches a rule you can say in a sentence.\n\nBox 4 is yours. Fill in the values and make it print a line about you.\n\nASK THE AGENT WHY (paste this into Codex or Fable)\n\nWORDS YOU NOW OWN\n\nValue\n\nA piece of data living in memory. It exists whether or not it has a name.\n\nVariable\n\nA name tag tied to one value. Never a container. Move the tag and the old value is just untagged.\n\nType\n\nWhat kind of thing a value is. The machine picks its rules from the type, which is why text that looks like a number behaves nothing like one.\n\nstring / number / boolean"
+    },
+    {
+      "blocks": [
+        105,
+        106,
+        107,
+        108,
+        109,
+        110,
+        111,
+        112,
+        113,
+        114,
+        115,
+        116,
+        117,
+        118,
+        119,
+        120,
+        121,
+        122,
+        123
+      ],
+      "text": "Text in quotes / a number with no quotes / true or false.\n\nnull / undefined\n\nDeliberately empty / never set at all. Different, and the difference matters when you are hunting a bug.\n\narray / object\n\nAn ordered list in square brackets / a bundle of named values in curly braces.\n\nlet / const\n\nA name that may be re-pointed / a name that may not. const locks the tag, not the object behind it.\n\ntypeof\n\nAsks a value what type it is. Your first move when a value is behaving strangely.\n\n===\n\nSame type and same value. Use it always. The two-equals version converts types first and lies to you.\n\nTemplate literal\n\nText in backticks with ${...} holes you drop values into.\n\nComment\n\nA line starting with // that the machine skips. Written by a human, for a human.\n\nWHERE TODAY'S ANALOGY BREAKS\n\nBreaks when: two tags end up on the same suitcase. With plain values that never matters, because you can never edit the number 7. With objects and arrays you can edit the value itself, so two names pointing at one object means a change through either name is visible through both. At baggage claim that would be two tags on one suitcase, and someone repacking it while you watch a different tag. Real model: a variable holds a reference to an object, and assignment copies the reference, not the object. That is chapter 11, and it is where half of all \"but I did not change that\" bugs come from. The tag picture stays correct the whole way through. What changes is what you are allowed to do to the suitcase.\n\nRABBIT HOLE: why typeof null says \"object\"\n\nRun console.log(typeof null) and it prints \"object\" , which is wrong and everybody knows it is wrong. It is a bug from the first version of JavaScript in 1995, when types were stored as a small tag on each value and the tag for null happened to be all zeroes, the same as the tag for objects. It has never been fixed because fixing it would break an unknown number of pages on the live web. Keep it as a souvenir: production software carries its history forever, and \"we cannot fix it because people depend on the broken behaviour\" is a sentence you will meet again in your own product."
+    }
+  ],
+  "wordCount": 2019
+}

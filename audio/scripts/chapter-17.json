@@ -1,0 +1,832 @@
+{
+  "chapter": 17,
+  "slug": "databases",
+  "title": "Databases, SQL, migrations, and the trust-boundary bug",
+  "source": "chapters/17-databases.html",
+  "blocks": [
+    {
+      "index": 0,
+      "tag": "h1",
+      "text": "Databases, SQL, migrations, and the trust-boundary bug"
+    },
+    {
+      "index": 1,
+      "tag": "p",
+      "text": "The database is the last stop on the journey and the only one that remembers. It is also the one place where a single missing rule hands every user's data to a stranger. That rule has a name, Memento has it switched on, and three of the four incidents from chapter 4 are companies that did not."
+    },
+    {
+      "index": 2,
+      "tag": "div",
+      "text": "LAST TIME"
+    },
+    {
+      "index": 3,
+      "tag": "p",
+      "text": "A server is a program that listens on an address and runs a function for each request. A route is a function attached to an address. Memento's ai-proxy edge function is a server someone else keeps warm: it checks the origin, checks the rate limit, adds the secret key, calls Anthropic, and scrubs the error on the way back."
+    },
+    {
+      "index": 4,
+      "tag": "h2",
+      "text": "Quick check"
+    },
+    {
+      "index": 5,
+      "tag": "summary",
+      "text": "What is the difference between a 401 and a 404?"
+    },
+    {
+      "index": 6,
+      "tag": "summary",
+      "text": "Why does the ai-proxy read the Anthropic key from the environment instead of the request?"
+    },
+    {
+      "index": 7,
+      "tag": "summary",
+      "text": "A function returns nothing. What do you get back, and why does that bite?"
+    },
+    {
+      "index": 8,
+      "tag": "h2",
+      "text": "The idea"
+    },
+    {
+      "index": 9,
+      "tag": "p",
+      "text": "A database is a filing system that answers questions, and everything in it lives in tables. A table is a grid. Every column has a name and a kind of value it may hold, and every row is one thing: one user, one saved state, one payment. Picture a spreadsheet."
+    },
+    {
+      "index": 10,
+      "tag": "p",
+      "text": "Two rows must never be confusable, so one column is the primary key : the value that identifies that row and appears nowhere else. In Memento's user_state table it is user_id . One row per person, forever."
+    },
+    {
+      "index": 11,
+      "tag": "p",
+      "text": "Tables point at each other with a foreign key : a column holding another table's primary key. The user_id in user_state also points at the auth row that is you, which is how the database knows the saved blob and the email address belong to one human."
+    },
+    {
+      "index": 12,
+      "tag": "p",
+      "text": "The tables, columns, types and keys together are the schema : a promise. \"Every row here has a revision , and it is a whole number.\" Everything downstream is written against that promise, which is why changing a schema is a bigger deal than changing code."
+    },
+    {
+      "index": 13,
+      "tag": "div",
+      "text": "ANALOGY (TEMPORARY)"
+    },
+    {
+      "index": 14,
+      "tag": "p",
+      "text": "A filing room. Each table is a cabinet, each row a folder, each column a printed field on its cover. The primary key is the folder number, and a foreign key is that number written on another folder. The schema is the blank form the whole room agreed to use. And on the door there is a clerk who reads your badge and hands you only the folders with your name on them. That clerk is the part everybody forgets to hire."
+    },
+    {
+      "index": 15,
+      "tag": "h3",
+      "text": "SQL: the four sentences"
+    },
+    {
+      "index": 16,
+      "tag": "p",
+      "text": "SQL is the language you talk to the database in. It reads almost like English, and for reading purposes there are four sentences, here on a tiny two-table Memento."
+    },
+    {
+      "index": 17,
+      "tag": "th",
+      "text": "Statement"
+    },
+    {
+      "index": 18,
+      "tag": "th",
+      "text": "In plain words"
+    },
+    {
+      "index": 19,
+      "tag": "td",
+      "text": "select email from users where id = 'u_2';"
+    },
+    {
+      "index": 20,
+      "tag": "td",
+      "text": "Give me the email column, from the users table, only for the row whose id is u_2."
+    },
+    {
+      "index": 21,
+      "tag": "td",
+      "text": "insert into user_state (user_id, revision) values ('u_2', 1);"
+    },
+    {
+      "index": 22,
+      "tag": "td",
+      "text": "Add a new row to user_state with those two columns filled in."
+    },
+    {
+      "index": 23,
+      "tag": "td",
+      "text": "update user_state set revision = revision + 1 where user_id = 'u_2';"
+    },
+    {
+      "index": 24,
+      "tag": "td",
+      "text": "Find that row, add one to its revision, leave everything else alone."
+    },
+    {
+      "index": 25,
+      "tag": "td",
+      "text": "delete from user_state where user_id = 'u_2';"
+    },
+    {
+      "index": 26,
+      "tag": "td",
+      "text": "Remove that row."
+    },
+    {
+      "index": 27,
+      "tag": "p",
+      "text": "The important word is where . It is the filter, and it is the difference between \"update one row\" and \"update every row in the company\". Leave it off an update or a delete and the database cheerfully does it to all of them, without asking. Chapter 1's intern, still employed."
+    },
+    {
+      "index": 28,
+      "tag": "p",
+      "text": "One more word: an index . Without one, \"find the row where id is u_2\" means reading every row until it matches: fine at a thousand rows, awful at ten million. An index is a pre-sorted lookup kept beside the table so the database jumps straight there. Primary keys get one free."
+    },
+    {
+      "index": 29,
+      "tag": "h3",
+      "text": "Migrations: the schema has a history"
+    },
+    {
+      "index": 30,
+      "tag": "p",
+      "text": "You cannot edit a live database's shape by hand and hope, because other copies exist: local, production, maybe staging. So schema changes are written as files. A migration is one dated file of SQL moving the schema from the shape it had to the shape it should have, applied in filename order, once each, forward-only."
+    },
+    {
+      "index": 31,
+      "tag": "p",
+      "text": "That is why \"just add a column\" is a migration. Every environment takes the change in the same order, or two databases that should be identical quietly stop being identical, and the bug that follows looks like code and is not."
+    },
+    {
+      "index": 32,
+      "tag": "p",
+      "text": "Memento's database is Postgres , thirty years old and open source, rented running from Supabase with accounts and edge functions on top. Postgres also holds a database function : logic that lives and runs inside the database. That matters next."
+    },
+    {
+      "index": 33,
+      "tag": "h3",
+      "text": "Row Level Security: the clerk on the door"
+    },
+    {
+      "index": 34,
+      "tag": "p",
+      "text": "Here is the part everybody gets wrong. Every Supabase app ships with a public key so it can talk to the database at all. That key cannot be a secret, it sits in JavaScript on every phone. So \"who may read this table\" cannot be answered by the app. The app is the stranger."
+    },
+    {
+      "index": 35,
+      "tag": "p",
+      "text": "Row Level Security is Postgres answering it instead. Switch it on for a table, then write a policy : a rule the database applies to every query by itself, deciding which rows this signed-in user may see or change. On with no policy, nobody gets anything. With the right policy, the exact same select * from user_state returns your row when you run it and their row when they run it. Not an error. Just fewer rows."
+    },
+    {
+      "index": 36,
+      "tag": "p",
+      "text": "That is the trust boundary : the line past which you stop believing what you are told. Everything on the phone's side is a claim from a stranger. The database is the last place that can still say no."
+    },
+    {
+      "index": 37,
+      "tag": "h2",
+      "text": "See it"
+    },
+    {
+      "index": 38,
+      "tag": "p",
+      "text": "Three simulators, none of them a real database. First, a table and the four sentences, in JavaScript."
+    },
+    {
+      "index": 39,
+      "tag": "p",
+      "text": "Look at the last two lines: same function, one missing filter, every row reset. Second, migrations, dated files applied in order."
+    },
+    {
+      "index": 40,
+      "tag": "p",
+      "text": "Third, the one to sit with. SIMULATOR. Real Row Level Security runs inside Postgres, not a browser. Same idea: one query function, and the only thing changing between calls is who is asking."
+    },
+    {
+      "index": 41,
+      "tag": "h2",
+      "text": "Now in Memento"
+    },
+    {
+      "index": 42,
+      "tag": "div",
+      "text": "ANY APP: the schema has a history"
+    },
+    {
+      "index": 43,
+      "tag": "p",
+      "text": "Schema changes live in dated files, applied in order, never edited afterwards. The filenames are the history, and you can read a product's security posture off them."
+    },
+    {
+      "index": 44,
+      "tag": "div",
+      "text": "MEMENTO: 33 migrations"
+    },
+    {
+      "index": 45,
+      "tag": "p",
+      "text": "Date, time, then what it does. Sorted alphabetically they sort chronologically, the whole reason for the format."
+    },
+    {
+      "index": 46,
+      "tag": "div",
+      "text": "ANY APP: rules in the database"
+    },
+    {
+      "index": 47,
+      "tag": "p",
+      "text": "Some rules are too important to live in the app, because the app runs on a stranger's device. \"Never let a blank save wipe real work\" is one. Written in the database, it is true for every client."
+    },
+    {
+      "index": 48,
+      "tag": "div",
+      "text": "MEMENTO: business rules in SQL"
+    },
+    {
+      "index": 49,
+      "tag": "p",
+      "text": "Line 5 adds a column. Line 7 starts a database function answering one question: does this blob contain a real life, or is it empty?"
+    },
+    {
+      "index": 50,
+      "tag": "div",
+      "text": "ANY APP: the server decides who you are"
+    },
+    {
+      "index": 51,
+      "tag": "p",
+      "text": "The client says \"save this for me\". It does not get to say who \"me\" is. The server asks the auth system and uses that answer."
+    },
+    {
+      "index": 52,
+      "tag": "div",
+      "text": "MEMENTO: auth.uid(), then the revision"
+    },
+    {
+      "index": 53,
+      "tag": "p",
+      "text": "auth.uid() is the database asking the auth system who is on the line. The client never supplies it. Then: saving on top of a version you have not seen is refused as stale_revision . A few lines later a second refusal, blank_would_overwrite_meaningful_state , catches a fresh phone saving nothing over a real life."
+    },
+    {
+      "index": 54,
+      "tag": "div",
+      "text": "ANY APP: the policy"
+    },
+    {
+      "index": 55,
+      "tag": "p",
+      "text": "Switch RLS on, then write the smallest rule that is true: \"you may read the row whose owner column equals you.\" Reads and writes get separate rules."
+    },
+    {
+      "index": 56,
+      "tag": "div",
+      "text": "MEMENTO: the read policy"
+    },
+    {
+      "index": 57,
+      "tag": "p",
+      "text": "Four lines. Reads only, signed-in callers only, your row only. The same migration drops the old insert and update policies, because sync_user_state is now the only write path, then revokes broad privileges from anon and authenticated rather than leaning on RLS as the only barrier."
+    },
+    {
+      "index": 58,
+      "tag": "div",
+      "text": "ANY APP: one column or many tables"
+    },
+    {
+      "index": 59,
+      "tag": "p",
+      "text": "Model the data properly, one table per kind of thing, or put the whole app's state in one column as a blob. Both are real choices, trading the same thing in opposite directions."
+    },
+    {
+      "index": 60,
+      "tag": "div",
+      "text": "MEMENTO: one jsonb column"
+    },
+    {
+      "index": 61,
+      "tag": "p",
+      "text": "Everything a user has ever done is one object in one jsonb column called state . Top-level keys: profile, dev, entitlements, clarity, action, goalProgress, perfectWeek, goalDone, rewards, dayRecords, actionPlan, clarityNotes, streak, flow, mori, lifestats, checkins, reflection, support, spotify, deepwork, distraction, inbox, timeblocks, people, vivere, widgetOrder, hiddenWidgets, introsSeen, meta, ui, prefs, aiCache, proofEvents, analytics."
+    },
+    {
+      "index": 62,
+      "tag": "p",
+      "text": "Thirty-five keys. Normalised, that becomes a schema of tables and columns with foreign keys back to the user. Some of these keys would collapse into columns on one table, and one nested list could need a few tables of its own. Either way it is a real schema to design and migrate, instead of one column."
+    },
+    {
+      "index": 63,
+      "tag": "div",
+      "text": "THE ALTERNATIVE, AND WHY MEMENTO CHOSE THIS"
+    },
+    {
+      "index": 64,
+      "tag": "p",
+      "text": "Firebase is Google's version: documents, not tables, with its own rules language. It works, it is not SQL, and your data is harder to take elsewhere. Your own Postgres gives total control, plus backups, upgrades, patching and a pager at three in the morning. A plain JSON file is what the practice sandbox uses: db.json , rewritten whole on every save. Fine for learning, useless the moment two people save at once. Supabase won because it is real Postgres, so the data stays portable and the queries ordinary, and because it puts the trust boundary where a client cannot argue with it. The cost is rent and a vendor whose defaults you check yourself. The one jsonb column won because state was already one JavaScript object, so phone and cloud hold the identical thing with nothing between them to drift. That bill is real: no counting users who finished Clarity without digging through JSON, and no indexing fields you never declared."
+    },
+    {
+      "index": 65,
+      "tag": "h3",
+      "text": "The incidents, as four separate cases"
+    },
+    {
+      "index": 66,
+      "tag": "p",
+      "text": "Chapter 4 listed these. You now have the vocabulary to see that three are one missing clerk and the fourth is something else."
+    },
+    {
+      "index": 67,
+      "tag": "th",
+      "text": "Case"
+    },
+    {
+      "index": 68,
+      "tag": "th",
+      "text": "What was missing"
+    },
+    {
+      "index": 69,
+      "tag": "th",
+      "text": "What an attacker did"
+    },
+    {
+      "index": 70,
+      "tag": "th",
+      "text": "What would have stopped it"
+    },
+    {
+      "index": 71,
+      "tag": "td",
+      "text": "EnrichLead, Mar 2025"
+    },
+    {
+      "index": 72,
+      "tag": "td",
+      "text": "Keys sitting in the frontend, no auth on the server, an open database"
+    },
+    {
+      "index": 73,
+      "tag": "td",
+      "text": "Read and used the keys, called the backend with no identity, bypassed the paid features"
+    },
+    {
+      "index": 74,
+      "tag": "td",
+      "text": "Secrets on the server only, an auth check on every route, and a policy on the tables. Three separate fixes, because it was three separate holes"
+    },
+    {
+      "index": 75,
+      "tag": "td",
+      "text": "170 Lovable apps, 2025 (CVE-2025-48757)"
+    },
+    {
+      "index": 76,
+      "tag": "td",
+      "text": "Row Level Security never switched on"
+    },
+    {
+      "index": 77,
+      "tag": "td",
+      "text": "Used the public key that ships inside every one of those apps and read whole tables, with no exploit, just ordinary queries"
+    },
+    {
+      "index": 78,
+      "tag": "td",
+      "text": "One alter table ... enable row level security plus a policy, per table. Memento has both, table by table, across its migrations"
+    },
+    {
+      "index": 79,
+      "tag": "td",
+      "text": "Moltbook, Jan 2026"
+    },
+    {
+      "index": 80,
+      "tag": "td",
+      "text": "Misconfigured Supabase, no row rules"
+    },
+    {
+      "index": 81,
+      "tag": "td",
+      "text": "Researchers pulled 1.5M auth tokens and 35,000 emails inside three days using ordinary API calls. Wiz, the firm that found it, says the exposure was secured within hours of disclosure"
+    },
+    {
+      "index": 82,
+      "tag": "td",
+      "text": "The same one fix as Lovable. Different company, same missing line"
+    },
+    {
+      "index": 83,
+      "tag": "td",
+      "text": "Replit, Jul 2025"
+    },
+    {
+      "index": 84,
+      "tag": "td",
+      "text": "Nothing to do with row rules. No separation between practice and real, and an agent with destructive powers"
+    },
+    {
+      "index": 85,
+      "tag": "td",
+      "text": "The agent itself deleted a live production database during an explicit freeze, then reported rollback was impossible. It was not"
+    },
+    {
+      "index": 86,
+      "tag": "td",
+      "text": "Separate development and production databases, and no agent holding a key that can drop a production table. Replit shipped both within days"
+    },
+    {
+      "index": 87,
+      "tag": "p",
+      "text": "The first three are the same bug wearing different logos, in the one part of the stack Memento shares with them. The fourth is the reminder that a perfect policy does not protect you from your own agent with the wrong key."
+    },
+    {
+      "index": 88,
+      "tag": "h2",
+      "text": "Do it"
+    },
+    {
+      "index": 89,
+      "tag": "div",
+      "text": "Exercise phone or Mac"
+    },
+    {
+      "index": 90,
+      "tag": "li",
+      "text": "Say out loud what each of these does, then open the answer. select user_id, revision from user_state where revision > 10; update user_state set device = 'iPhone' where user_id = 'u_2'; delete from user_state;"
+    },
+    {
+      "index": 91,
+      "tag": "p",
+      "text": "select user_id, revision from user_state where revision > 10;"
+    },
+    {
+      "index": 92,
+      "tag": "p",
+      "text": "update user_state set device = 'iPhone' where user_id = 'u_2';"
+    },
+    {
+      "index": 93,
+      "tag": "p",
+      "text": "delete from user_state;"
+    },
+    {
+      "index": 94,
+      "tag": "li",
+      "text": "In the RLS simulator, change query(\"u_1\") to query(\"u_3\") and run it. A different row. Nothing else changed."
+    },
+    {
+      "index": 95,
+      "tag": "li",
+      "text": "Break it: change the policy to return true; and run again. Every row, to everybody. That is CVE-2025-48757 in one line."
+    },
+    {
+      "index": 96,
+      "tag": "li",
+      "text": "Put it back to row.user_id === currentUser , then read Memento's four-line policy again and notice it says exactly that."
+    },
+    {
+      "index": 97,
+      "tag": "summary",
+      "text": "Answers to step 1"
+    },
+    {
+      "index": 98,
+      "tag": "p",
+      "text": "One. Give me the user_id and revision columns from user_state, for every row whose revision is above ten. Reads only."
+    },
+    {
+      "index": 99,
+      "tag": "p",
+      "text": "Two. Find the row whose user_id is u_2 and set its device column to \"iPhone\". One row, because user_id is the primary key."
+    },
+    {
+      "index": 100,
+      "tag": "p",
+      "text": "Three. Delete every row in user_state. No where , so all of them, and nothing asks if you are sure. This is the shape behind the Replit incident, and why practice and production must not be the same database."
+    },
+    {
+      "index": 101,
+      "tag": "div",
+      "text": "ASK THE AGENT WHY (paste this into Codex or Fable)"
+    },
+    {
+      "index": 102,
+      "tag": "div",
+      "text": "WORDS YOU NOW OWN"
+    },
+    {
+      "index": 103,
+      "tag": "dt",
+      "text": "Table / row / column"
+    },
+    {
+      "index": 104,
+      "tag": "dd",
+      "text": "A grid, one thing per row, a named and typed field per column."
+    },
+    {
+      "index": 105,
+      "tag": "dt",
+      "text": "Primary key"
+    },
+    {
+      "index": 106,
+      "tag": "dd",
+      "text": "The column that identifies a row and repeats nowhere else. Memento's user_state uses user_id ."
+    },
+    {
+      "index": 107,
+      "tag": "dt",
+      "text": "Foreign key"
+    },
+    {
+      "index": 108,
+      "tag": "dd",
+      "text": "A column holding another table's primary key. How rows in different tables know they belong together."
+    },
+    {
+      "index": 109,
+      "tag": "dt",
+      "text": "Schema"
+    },
+    {
+      "index": 110,
+      "tag": "dd",
+      "text": "The promise about what shape the data has: tables, columns, types, keys."
+    },
+    {
+      "index": 111,
+      "tag": "dt",
+      "text": "SQL"
+    },
+    {
+      "index": 112,
+      "tag": "dd",
+      "text": "The language for asking and changing. Four sentences do most of it: select, insert, update, delete. where is the filter, and forgetting it is the classic disaster."
+    },
+    {
+      "index": 113,
+      "tag": "dt",
+      "text": "Index"
+    },
+    {
+      "index": 114,
+      "tag": "dd",
+      "text": "A pre-sorted lookup so the database can jump to a row instead of reading every row. Costs a little on every write."
+    },
+    {
+      "index": 115,
+      "tag": "dt",
+      "text": "Migration"
+    },
+    {
+      "index": 116,
+      "tag": "dd",
+      "text": "One dated, forward-only file of SQL that changes the schema. Applied in order, once each, in every environment."
+    },
+    {
+      "index": 117,
+      "tag": "dt",
+      "text": "Postgres"
+    },
+    {
+      "index": 118,
+      "tag": "dd",
+      "text": "The database Memento rents a running copy of from Supabase. Thirty years old, open source, ordinary SQL."
+    },
+    {
+      "index": 119,
+      "tag": "dt",
+      "text": "Database function"
+    },
+    {
+      "index": 120,
+      "tag": "dd",
+      "text": "Logic living inside the database. Memento's sync_user_state and is_memento_state_meaningful are two."
+    },
+    {
+      "index": 121,
+      "tag": "dt",
+      "text": "Row Level Security"
+    },
+    {
+      "index": 122,
+      "tag": "dd",
+      "text": "The database deciding, per query, which rows this signed-in user may see or change. Off by default. Three of chapter 4's four incidents are this being off."
+    },
+    {
+      "index": 123,
+      "tag": "dt",
+      "text": "Policy"
+    },
+    {
+      "index": 124,
+      "tag": "dd",
+      "text": "The rule RLS applies. Memento's read policy is using (auth.uid() = user_id) ."
+    },
+    {
+      "index": 125,
+      "tag": "dt",
+      "text": "Trust boundary"
+    },
+    {
+      "index": 126,
+      "tag": "dd",
+      "text": "The line past which you stop believing what you are told. Everything from a phone is a claim."
+    },
+    {
+      "index": 127,
+      "tag": "div",
+      "text": "WHERE TODAY'S ANALOGY BREAKS"
+    },
+    {
+      "index": 128,
+      "tag": "p",
+      "text": "Breaks when: you picture the clerk serving one person at a time. A real database answers thousands of queries at once, two of which can hit the same row in the same millisecond. That is why sync_user_state contains for update , and why it carries a revision at all: two of your own devices can both save, and something has to pick a winner. Real model: a concurrent, transactional store where every statement either fully happens or fully does not, with a policy engine inside every query. \"Who may see this row\" has exactly one correct place to be answered, and it is not the phone."
+    },
+    {
+      "index": 129,
+      "tag": "summary",
+      "text": "RABBIT HOLE: what \"security definer\" means, and why it is a loaded gun"
+    },
+    {
+      "index": 130,
+      "tag": "p",
+      "text": "sync_user_state is declared security definer : it runs with its creator's permissions, usually an admin, not the caller's. That is how it writes to a table the caller may not touch directly, which is the design, since direct writes are dropped and this function is the only door. It is also how you build a hole, because anyone can call it. Two guards, both in the quoted lines: it raises 'Authentication required' when auth.uid() is empty, and it sets search_path to nothing, so an attacker cannot plant a same-named table the database would find first."
+    }
+  ],
+  "segments": [
+    {
+      "blocks": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15
+      ],
+      "text": "Databases, SQL, migrations, and the trust-boundary bug\n\nThe database is the last stop on the journey and the only one that remembers. It is also the one place where a single missing rule hands every user's data to a stranger. That rule has a name, Memento has it switched on, and three of the four incidents from chapter 4 are companies that did not.\n\nLAST TIME\n\nA server is a program that listens on an address and runs a function for each request. A route is a function attached to an address. Memento's ai-proxy edge function is a server someone else keeps warm: it checks the origin, checks the rate limit, adds the secret key, calls Anthropic, and scrubs the error on the way back.\n\nQuick check\n\nWhat is the difference between a 401 and a 404?\n\nWhy does the ai-proxy read the Anthropic key from the environment instead of the request?\n\nA function returns nothing. What do you get back, and why does that bite?\n\nThe idea\n\nA database is a filing system that answers questions, and everything in it lives in tables. A table is a grid. Every column has a name and a kind of value it may hold, and every row is one thing: one user, one saved state, one payment. Picture a spreadsheet.\n\nTwo rows must never be confusable, so one column is the primary key : the value that identifies that row and appears nowhere else. In Memento's user_state table it is user_id . One row per person, forever.\n\nTables point at each other with a foreign key : a column holding another table's primary key. The user_id in user_state also points at the auth row that is you, which is how the database knows the saved blob and the email address belong to one human.\n\nThe tables, columns, types and keys together are the schema : a promise. \"Every row here has a revision , and it is a whole number.\" Everything downstream is written against that promise, which is why changing a schema is a bigger deal than changing code.\n\nANALOGY (TEMPORARY)\n\nA filing room. Each table is a cabinet, each row a folder, each column a printed field on its cover. The primary key is the folder number, and a foreign key is that number written on another folder. The schema is the blank form the whole room agreed to use. And on the door there is a clerk who reads your badge and hands you only the folders with your name on them. That clerk is the part everybody forgets to hire.\n\nSQL: the four sentences"
+    },
+    {
+      "blocks": [
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34
+      ],
+      "text": "SQL is the language you talk to the database in. It reads almost like English, and for reading purposes there are four sentences, here on a tiny two-table Memento.\n\nStatement\n\nIn plain words\n\nselect email from users where id = 'u_2';\n\nGive me the email column, from the users table, only for the row whose id is u_2.\n\ninsert into user_state (user_id, revision) values ('u_2', 1);\n\nAdd a new row to user_state with those two columns filled in.\n\nupdate user_state set revision = revision + 1 where user_id = 'u_2';\n\nFind that row, add one to its revision, leave everything else alone.\n\ndelete from user_state where user_id = 'u_2';\n\nRemove that row.\n\nThe important word is where . It is the filter, and it is the difference between \"update one row\" and \"update every row in the company\". Leave it off an update or a delete and the database cheerfully does it to all of them, without asking. Chapter 1's intern, still employed.\n\nOne more word: an index . Without one, \"find the row where id is u_2\" means reading every row until it matches: fine at a thousand rows, awful at ten million. An index is a pre-sorted lookup kept beside the table so the database jumps straight there. Primary keys get one free.\n\nMigrations: the schema has a history\n\nYou cannot edit a live database's shape by hand and hope, because other copies exist: local, production, maybe staging. So schema changes are written as files. A migration is one dated file of SQL moving the schema from the shape it had to the shape it should have, applied in filename order, once each, forward-only.\n\nThat is why \"just add a column\" is a migration. Every environment takes the change in the same order, or two databases that should be identical quietly stop being identical, and the bug that follows looks like code and is not.\n\nMemento's database is Postgres , thirty years old and open source, rented running from Supabase with accounts and edge functions on top. Postgres also holds a database function : logic that lives and runs inside the database. That matters next.\n\nRow Level Security: the clerk on the door\n\nHere is the part everybody gets wrong. Every Supabase app ships with a public key so it can talk to the database at all. That key cannot be a secret, it sits in JavaScript on every phone. So \"who may read this table\" cannot be answered by the app. The app is the stranger."
+    },
+    {
+      "blocks": [
+        35,
+        36,
+        37,
+        38,
+        39,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47,
+        48,
+        49,
+        50,
+        51,
+        52,
+        53,
+        54
+      ],
+      "text": "Row Level Security is Postgres answering it instead. Switch it on for a table, then write a policy : a rule the database applies to every query by itself, deciding which rows this signed-in user may see or change. On with no policy, nobody gets anything. With the right policy, the exact same select * from user_state returns your row when you run it and their row when they run it. Not an error. Just fewer rows.\n\nThat is the trust boundary : the line past which you stop believing what you are told. Everything on the phone's side is a claim from a stranger. The database is the last place that can still say no.\n\nSee it\n\nThree simulators, none of them a real database. First, a table and the four sentences, in JavaScript.\n\nLook at the last two lines: same function, one missing filter, every row reset. Second, migrations, dated files applied in order.\n\nThird, the one to sit with. SIMULATOR. Real Row Level Security runs inside Postgres, not a browser. Same idea: one query function, and the only thing changing between calls is who is asking.\n\nNow in Memento\n\nANY APP: the schema has a history\n\nSchema changes live in dated files, applied in order, never edited afterwards. The filenames are the history, and you can read a product's security posture off them.\n\nMEMENTO: 33 migrations\n\nDate, time, then what it does. Sorted alphabetically they sort chronologically, the whole reason for the format.\n\nANY APP: rules in the database\n\nSome rules are too important to live in the app, because the app runs on a stranger's device. \"Never let a blank save wipe real work\" is one. Written in the database, it is true for every client.\n\nMEMENTO: business rules in SQL\n\nLine 5 adds a column. Line 7 starts a database function answering one question: does this blob contain a real life, or is it empty?\n\nANY APP: the server decides who you are\n\nThe client says \"save this for me\". It does not get to say who \"me\" is. The server asks the auth system and uses that answer.\n\nMEMENTO: auth.uid(), then the revision\n\nauth.uid() is the database asking the auth system who is on the line. The client never supplies it. Then: saving on top of a version you have not seen is refused as stale_revision . A few lines later a second refusal, blank_would_overwrite_meaningful_state , catches a fresh phone saving nothing over a real life.\n\nANY APP: the policy"
+    },
+    {
+      "blocks": [
+        55,
+        56,
+        57,
+        58,
+        59,
+        60,
+        61,
+        62,
+        63
+      ],
+      "text": "Switch RLS on, then write the smallest rule that is true: \"you may read the row whose owner column equals you.\" Reads and writes get separate rules.\n\nMEMENTO: the read policy\n\nFour lines. Reads only, signed-in callers only, your row only. The same migration drops the old insert and update policies, because sync_user_state is now the only write path, then revokes broad privileges from anon and authenticated rather than leaning on RLS as the only barrier.\n\nANY APP: one column or many tables\n\nModel the data properly, one table per kind of thing, or put the whole app's state in one column as a blob. Both are real choices, trading the same thing in opposite directions.\n\nMEMENTO: one jsonb column\n\nEverything a user has ever done is one object in one jsonb column called state . Top-level keys: profile, dev, entitlements, clarity, action, goalProgress, perfectWeek, goalDone, rewards, dayRecords, actionPlan, clarityNotes, streak, flow, mori, lifestats, checkins, reflection, support, spotify, deepwork, distraction, inbox, timeblocks, people, vivere, widgetOrder, hiddenWidgets, introsSeen, meta, ui, prefs, aiCache, proofEvents, analytics.\n\nThirty-five keys. Normalised, that becomes a schema of tables and columns with foreign keys back to the user. Some of these keys would collapse into columns on one table, and one nested list could need a few tables of its own. Either way it is a real schema to design and migrate, instead of one column.\n\nTHE ALTERNATIVE, AND WHY MEMENTO CHOSE THIS"
+    },
+    {
+      "blocks": [
+        64,
+        65,
+        66,
+        67,
+        68,
+        69,
+        70,
+        71,
+        72,
+        73,
+        74,
+        75,
+        76,
+        77,
+        78,
+        79,
+        80,
+        81,
+        82,
+        83,
+        84
+      ],
+      "text": "Firebase is Google's version: documents, not tables, with its own rules language. It works, it is not SQL, and your data is harder to take elsewhere. Your own Postgres gives total control, plus backups, upgrades, patching and a pager at three in the morning. A plain JSON file is what the practice sandbox uses: db.json , rewritten whole on every save. Fine for learning, useless the moment two people save at once. Supabase won because it is real Postgres, so the data stays portable and the queries ordinary, and because it puts the trust boundary where a client cannot argue with it. The cost is rent and a vendor whose defaults you check yourself. The one jsonb column won because state was already one JavaScript object, so phone and cloud hold the identical thing with nothing between them to drift. That bill is real: no counting users who finished Clarity without digging through JSON, and no indexing fields you never declared.\n\nThe incidents, as four separate cases\n\nChapter 4 listed these. You now have the vocabulary to see that three are one missing clerk and the fourth is something else.\n\nCase\n\nWhat was missing\n\nWhat an attacker did\n\nWhat would have stopped it\n\nEnrichLead, Mar 2025\n\nKeys sitting in the frontend, no auth on the server, an open database\n\nRead and used the keys, called the backend with no identity, bypassed the paid features\n\nSecrets on the server only, an auth check on every route, and a policy on the tables. Three separate fixes, because it was three separate holes\n\n170 Lovable apps, 2025 (CVE-2025-48757)\n\nRow Level Security never switched on\n\nUsed the public key that ships inside every one of those apps and read whole tables, with no exploit, just ordinary queries\n\nOne alter table ... enable row level security plus a policy, per table. Memento has both, table by table, across its migrations\n\nMoltbook, Jan 2026\n\nMisconfigured Supabase, no row rules\n\nResearchers pulled 1.5M auth tokens and 35,000 emails inside three days using ordinary API calls. Wiz, the firm that found it, says the exposure was secured within hours of disclosure\n\nThe same one fix as Lovable. Different company, same missing line\n\nReplit, Jul 2025\n\nNothing to do with row rules. No separation between practice and real, and an agent with destructive powers"
+    },
+    {
+      "blocks": [
+        85,
+        86,
+        87,
+        88,
+        89,
+        90,
+        91,
+        92,
+        93,
+        94,
+        95,
+        96,
+        97,
+        98,
+        99,
+        100,
+        101,
+        102,
+        103,
+        104,
+        105,
+        106,
+        107,
+        108,
+        109,
+        110,
+        111,
+        112,
+        113
+      ],
+      "text": "The agent itself deleted a live production database during an explicit freeze, then reported rollback was impossible. It was not\n\nSeparate development and production databases, and no agent holding a key that can drop a production table. Replit shipped both within days\n\nThe first three are the same bug wearing different logos, in the one part of the stack Memento shares with them. The fourth is the reminder that a perfect policy does not protect you from your own agent with the wrong key.\n\nDo it\n\nExercise phone or Mac\n\nSay out loud what each of these does, then open the answer. select user_id, revision from user_state where revision > 10; update user_state set device = 'iPhone' where user_id = 'u_2'; delete from user_state;\n\nselect user_id, revision from user_state where revision > 10;\n\nupdate user_state set device = 'iPhone' where user_id = 'u_2';\n\ndelete from user_state;\n\nIn the RLS simulator, change query(\"u_1\") to query(\"u_3\") and run it. A different row. Nothing else changed.\n\nBreak it: change the policy to return true; and run again. Every row, to everybody. That is CVE-2025-48757 in one line.\n\nPut it back to row.user_id === currentUser , then read Memento's four-line policy again and notice it says exactly that.\n\nAnswers to step 1\n\nOne. Give me the user_id and revision columns from user_state, for every row whose revision is above ten. Reads only.\n\nTwo. Find the row whose user_id is u_2 and set its device column to \"iPhone\". One row, because user_id is the primary key.\n\nThree. Delete every row in user_state. No where , so all of them, and nothing asks if you are sure. This is the shape behind the Replit incident, and why practice and production must not be the same database.\n\nASK THE AGENT WHY (paste this into Codex or Fable)\n\nWORDS YOU NOW OWN\n\nTable / row / column\n\nA grid, one thing per row, a named and typed field per column.\n\nPrimary key\n\nThe column that identifies a row and repeats nowhere else. Memento's user_state uses user_id .\n\nForeign key\n\nA column holding another table's primary key. How rows in different tables know they belong together.\n\nSchema\n\nThe promise about what shape the data has: tables, columns, types, keys.\n\nSQL\n\nThe language for asking and changing. Four sentences do most of it: select, insert, update, delete. where is the filter, and forgetting it is the classic disaster.\n\nIndex"
+    },
+    {
+      "blocks": [
+        114,
+        115,
+        116,
+        117,
+        118,
+        119,
+        120,
+        121,
+        122,
+        123,
+        124,
+        125,
+        126,
+        127,
+        128,
+        129,
+        130
+      ],
+      "text": "A pre-sorted lookup so the database can jump to a row instead of reading every row. Costs a little on every write.\n\nMigration\n\nOne dated, forward-only file of SQL that changes the schema. Applied in order, once each, in every environment.\n\nPostgres\n\nThe database Memento rents a running copy of from Supabase. Thirty years old, open source, ordinary SQL.\n\nDatabase function\n\nLogic living inside the database. Memento's sync_user_state and is_memento_state_meaningful are two.\n\nRow Level Security\n\nThe database deciding, per query, which rows this signed-in user may see or change. Off by default. Three of chapter 4's four incidents are this being off.\n\nPolicy\n\nThe rule RLS applies. Memento's read policy is using (auth.uid() = user_id) .\n\nTrust boundary\n\nThe line past which you stop believing what you are told. Everything from a phone is a claim.\n\nWHERE TODAY'S ANALOGY BREAKS\n\nBreaks when: you picture the clerk serving one person at a time. A real database answers thousands of queries at once, two of which can hit the same row in the same millisecond. That is why sync_user_state contains for update , and why it carries a revision at all: two of your own devices can both save, and something has to pick a winner. Real model: a concurrent, transactional store where every statement either fully happens or fully does not, with a policy engine inside every query. \"Who may see this row\" has exactly one correct place to be answered, and it is not the phone.\n\nRABBIT HOLE: what \"security definer\" means, and why it is a loaded gun\n\nsync_user_state is declared security definer : it runs with its creator's permissions, usually an admin, not the caller's. That is how it writes to a table the caller may not touch directly, which is the design, since direct writes are dropped and this function is the only door. It is also how you build a hole, because anyone can call it. Two guards, both in the quoted lines: it raises 'Authentication required' when auth.uid() is empty, and it sets search_path to nothing, so an attacker cannot plant a same-named table the database would find first."
+    }
+  ],
+  "wordCount": 2617
+}

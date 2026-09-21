@@ -1,0 +1,1023 @@
+{
+  "chapter": 15,
+  "slug": "how-the-web-works",
+  "title": "How the web works: client, server, HTTP, APIs, JSON",
+  "source": "chapters/15-how-the-web-works.html",
+  "blocks": [
+    {
+      "index": 0,
+      "tag": "h1",
+      "text": "How the web works: client, server, HTTP, APIs, JSON"
+    },
+    {
+      "index": 1,
+      "tag": "p",
+      "text": "Every screen that ever showed you fresh data did the same small thing. It wrote a parcel, posted it to an address, and waited for one to come back with a three digit number stamped on the front. Learn the parts of that parcel and half of \"backend\" stops being a mystery."
+    },
+    {
+      "index": 2,
+      "tag": "div",
+      "text": "LAST TIME"
+    },
+    {
+      "index": 3,
+      "tag": "p",
+      "text": "State is the app's one copy of the truth, and the screen is drawn from it. Events change state, then the screen gets updated from the new state, never edited on its own and left to drift. Memento's web app does that update imperatively, by hand; React does it declaratively, by redrawing from a description."
+    },
+    {
+      "index": 4,
+      "tag": "h2",
+      "text": "Quick check"
+    },
+    {
+      "index": 5,
+      "tag": "summary",
+      "text": "Your code hits await on a network request. Does the phone freeze for those two seconds?"
+    },
+    {
+      "index": 6,
+      "tag": "summary",
+      "text": "A user taps \"done\" and the streak on screen goes to 4. Where did the 4 come from?"
+    },
+    {
+      "index": 7,
+      "tag": "summary",
+      "text": "A command prints on two channels and ends with a number. Name all three."
+    },
+    {
+      "index": 8,
+      "tag": "h2",
+      "text": "The idea"
+    },
+    {
+      "index": 9,
+      "tag": "p",
+      "text": "Two computers. One asks, one answers. The asker is the client : your phone, this page, the Memento app. The answerer is the server : a program on a computer elsewhere, sitting awake, waiting. The asking is a request , the answer a response . That is the entire shape of the internet."
+    },
+    {
+      "index": 10,
+      "tag": "p",
+      "text": "The rules for how those two parcels are written down are called HTTP . Not a program, not a company. An agreement about where the address goes, where your instructions go, and where the contents go, so a server written by one stranger and a phone made by another understand each other with no prior conversation."
+    },
+    {
+      "index": 11,
+      "tag": "div",
+      "text": "ANALOGY (TEMPORARY)"
+    },
+    {
+      "index": 12,
+      "tag": "p",
+      "text": "Posting a parcel to a company's mailroom. On the front, the address : which building, which department. On the top line, what you want done : \"reading copy, return it\" or \"please file this\". Down the side, labels : what is inside, who authorised it. Then the contents . Later a parcel comes back with a three digit reference number on it that tells you, before you open anything, whether it worked, whether you addressed it wrong, or whether their building is on fire."
+    },
+    {
+      "index": 13,
+      "tag": "h3",
+      "text": "The address"
+    },
+    {
+      "index": 14,
+      "tag": "p",
+      "text": "A URL is an address with named fields, the way a postal address has a street and a city. One of Memento's real ones, taken apart:"
+    },
+    {
+      "index": 15,
+      "tag": "th",
+      "text": "Part"
+    },
+    {
+      "index": 16,
+      "tag": "th",
+      "text": "Example"
+    },
+    {
+      "index": 17,
+      "tag": "th",
+      "text": "Plain meaning"
+    },
+    {
+      "index": 18,
+      "tag": "td",
+      "text": "scheme"
+    },
+    {
+      "index": 19,
+      "tag": "td",
+      "text": "https"
+    },
+    {
+      "index": 20,
+      "tag": "td",
+      "text": "Which rules to use. The s means the parcel is sealed so nobody in between can read it."
+    },
+    {
+      "index": 21,
+      "tag": "td",
+      "text": "host"
+    },
+    {
+      "index": 22,
+      "tag": "td",
+      "text": "lipuxymlsowdrbummqxw.supabase.co"
+    },
+    {
+      "index": 23,
+      "tag": "td",
+      "text": "Which computer. A name that gets looked up and turned into a number. That one is Memento's, hardcoded at memento-app/js/12-cloud-sync.js:20 , public on purpose."
+    },
+    {
+      "index": 24,
+      "tag": "td",
+      "text": "path"
+    },
+    {
+      "index": 25,
+      "tag": "td",
+      "text": "/functions/v1/clarity-ai-proxy"
+    },
+    {
+      "index": 26,
+      "tag": "td",
+      "text": "Which thing on that computer. The department, inside the building."
+    },
+    {
+      "index": 27,
+      "tag": "td",
+      "text": "query"
+    },
+    {
+      "index": 28,
+      "tag": "td",
+      "text": "?demo=founder"
+    },
+    {
+      "index": 29,
+      "tag": "td",
+      "text": "Extra notes on the address line. Optional, visible to everyone, never a place for secrets."
+    },
+    {
+      "index": 30,
+      "tag": "p",
+      "text": "You will type a local one in a minute: http://localhost:4321/api/sync . localhost means \"this very computer\", so the parcel never leaves the machine, and 4321 is a port : one computer can run several servers, and the port says which."
+    },
+    {
+      "index": 31,
+      "tag": "h3",
+      "text": "The verb"
+    },
+    {
+      "index": 32,
+      "tag": "p",
+      "text": "The address says where. The verb says what you want done. Two of them do almost all the work."
+    },
+    {
+      "index": 33,
+      "tag": "th",
+      "text": "Verb"
+    },
+    {
+      "index": 34,
+      "tag": "th",
+      "text": "Means"
+    },
+    {
+      "index": 35,
+      "tag": "th",
+      "text": "Rule of thumb"
+    },
+    {
+      "index": 36,
+      "tag": "td",
+      "text": "GET"
+    },
+    {
+      "index": 37,
+      "tag": "td",
+      "text": "Give me a copy."
+    },
+    {
+      "index": 38,
+      "tag": "td",
+      "text": "Changes nothing. Safe to repeat. No body."
+    },
+    {
+      "index": 39,
+      "tag": "td",
+      "text": "POST"
+    },
+    {
+      "index": 40,
+      "tag": "td",
+      "text": "Here, take this and do something."
+    },
+    {
+      "index": 41,
+      "tag": "td",
+      "text": "Has a body. Repeating it usually does the thing twice."
+    },
+    {
+      "index": 42,
+      "tag": "td",
+      "text": "PUT"
+    },
+    {
+      "index": 43,
+      "tag": "td",
+      "text": "Replace what is at this address with this."
+    },
+    {
+      "index": 44,
+      "tag": "td",
+      "text": "Repeating it lands on the same result."
+    },
+    {
+      "index": 45,
+      "tag": "td",
+      "text": "DELETE"
+    },
+    {
+      "index": 46,
+      "tag": "td",
+      "text": "Remove what is at this address."
+    },
+    {
+      "index": 47,
+      "tag": "td",
+      "text": "Exactly as scary as it reads."
+    },
+    {
+      "index": 48,
+      "tag": "p",
+      "text": "Verb plus path is what identifies a request. GET /api/sync and POST /api/sync share an address and are two different asks. A server may answer one and refuse the other."
+    },
+    {
+      "index": 49,
+      "tag": "h3",
+      "text": "The headers"
+    },
+    {
+      "index": 50,
+      "tag": "p",
+      "text": "Headers are name and value labels on the envelope: they describe the parcel without being the parcel. Two matter today. Content-Type: application/json says \"what is inside is JSON\", so the server knows how to open it. Authorization carries proof of who is asking. Chapter 18 does tokens properly. For now: \"who may do this\" travels in a header, never in the query."
+    },
+    {
+      "index": 51,
+      "tag": "h3",
+      "text": "The body and JSON"
+    },
+    {
+      "index": 52,
+      "tag": "p",
+      "text": "The body is the contents. It can be anything, but for an API it is almost always JSON : text that looks exactly like a JavaScript object and is nothing more than that. Braces, keys in quotes, values, commas."
+    },
+    {
+      "index": 53,
+      "tag": "p",
+      "text": "Two functions move between the object and the text. JSON.stringify(obj) flattens an object into a string you can post. JSON.parse(text) inflates it back into a real object. JSON crosses the network as text. JSON keeps numbers, strings, booleans, null, arrays and objects, and has no idea what a date or a function is, which is why every API sends dates as strings."
+    },
+    {
+      "index": 54,
+      "tag": "h3",
+      "text": "The status code"
+    },
+    {
+      "index": 55,
+      "tag": "p",
+      "text": "The response's first line carries a status code : the outcome in three digits, readable before you open anything. The first digit is the headline. 2 worked, 4 the server refused you, 5 the server broke. The ones Memento and Memento Jr actually return:"
+    },
+    {
+      "index": 56,
+      "tag": "th",
+      "text": "Code"
+    },
+    {
+      "index": 57,
+      "tag": "th",
+      "text": "Plain meaning"
+    },
+    {
+      "index": 58,
+      "tag": "th",
+      "text": "Where it shows up"
+    },
+    {
+      "index": 59,
+      "tag": "td",
+      "text": "200"
+    },
+    {
+      "index": 60,
+      "tag": "td",
+      "text": "Fine. Here it is."
+    },
+    {
+      "index": 61,
+      "tag": "td",
+      "text": "Memento Jr answering GET /api/sync ."
+    },
+    {
+      "index": 62,
+      "tag": "td",
+      "text": "201"
+    },
+    {
+      "index": 63,
+      "tag": "td",
+      "text": "Fine, and I made a new thing."
+    },
+    {
+      "index": 64,
+      "tag": "td",
+      "text": "Memento's checkout function, handing back a fresh checkout link."
+    },
+    {
+      "index": 65,
+      "tag": "td",
+      "text": "400"
+    },
+    {
+      "index": 66,
+      "tag": "td",
+      "text": "Your parcel is malformed. Sending the same one again will fail the same way."
+    },
+    {
+      "index": 67,
+      "tag": "td",
+      "text": "Memento Jr on unparseable JSON. Memento's proxy on a badly shaped message list."
+    },
+    {
+      "index": 68,
+      "tag": "td",
+      "text": "401"
+    },
+    {
+      "index": 69,
+      "tag": "td",
+      "text": "I do not know who you are."
+    },
+    {
+      "index": 70,
+      "tag": "td",
+      "text": "The secure version of Memento Jr's server with no token."
+    },
+    {
+      "index": 71,
+      "tag": "td",
+      "text": "403"
+    },
+    {
+      "index": 72,
+      "tag": "td",
+      "text": "I know who you are. You may not do this."
+    },
+    {
+      "index": 73,
+      "tag": "td",
+      "text": "Memento's native app reads this as \"paid feature, this account is free\"."
+    },
+    {
+      "index": 74,
+      "tag": "td",
+      "text": "404"
+    },
+    {
+      "index": 75,
+      "tag": "td",
+      "text": "Nothing lives at that address."
+    },
+    {
+      "index": 76,
+      "tag": "td",
+      "text": "Memento Jr on any path it has no route for."
+    },
+    {
+      "index": 77,
+      "tag": "td",
+      "text": "405"
+    },
+    {
+      "index": 78,
+      "tag": "td",
+      "text": "Right address, wrong verb."
+    },
+    {
+      "index": 79,
+      "tag": "td",
+      "text": "Memento's AI proxy, which answers POST and nothing else."
+    },
+    {
+      "index": 80,
+      "tag": "td",
+      "text": "409"
+    },
+    {
+      "index": 81,
+      "tag": "td",
+      "text": "Conflict. Somebody changed this while you were holding an older copy."
+    },
+    {
+      "index": 82,
+      "tag": "td",
+      "text": "Memento's sync, and its plan jobs when one is already running."
+    },
+    {
+      "index": 83,
+      "tag": "td",
+      "text": "413"
+    },
+    {
+      "index": 84,
+      "tag": "td",
+      "text": "Too big. I will not even read it."
+    },
+    {
+      "index": 85,
+      "tag": "td",
+      "text": "Memento's proxy, on an oversized conversation."
+    },
+    {
+      "index": 86,
+      "tag": "td",
+      "text": "429"
+    },
+    {
+      "index": 87,
+      "tag": "td",
+      "text": "Too many, too fast. Slow down and try later."
+    },
+    {
+      "index": 88,
+      "tag": "td",
+      "text": "Memento's rate limiter, before a single cent is spent."
+    },
+    {
+      "index": 89,
+      "tag": "td",
+      "text": "500"
+    },
+    {
+      "index": 90,
+      "tag": "td",
+      "text": "I broke. Not your fault."
+    },
+    {
+      "index": 91,
+      "tag": "td",
+      "text": "Any server with a bug in a handler."
+    },
+    {
+      "index": 92,
+      "tag": "td",
+      "text": "503"
+    },
+    {
+      "index": 93,
+      "tag": "td",
+      "text": "I am not available right now. Come back shortly."
+    },
+    {
+      "index": 94,
+      "tag": "td",
+      "text": "Memento's proxy when the key is missing, or the limit database is down."
+    },
+    {
+      "index": 95,
+      "tag": "p",
+      "text": "A 4 means the server refused: something about the request, your identity, its own policy, a conflict with what it already has, or how fast you are asking. Often that means fixing the payload. Sometimes it does not: a 409 usually wants a reload and a retry with fresh data, and a 429 wants the same request again after a wait. A 5 or a 429 means the request was reasonable and retrying later might work. Code that treats every failure the same either hammers a server that just told it to stop, or gives up on something that would have worked in two seconds."
+    },
+    {
+      "index": 96,
+      "tag": "h3",
+      "text": "API, latency, and the two kinds of answer"
+    },
+    {
+      "index": 97,
+      "tag": "p",
+      "text": "Put the five parts together and you have an API : a contract. These addresses exist, they take these verbs, they want this JSON with these headers, they hand back that JSON, with these status codes. \"The Anthropic API\" means a document describing exactly those things."
+    },
+    {
+      "index": 98,
+      "tag": "p",
+      "text": "Latency is the cost. Reading a value out of memory takes nanoseconds. A round trip to a server abroad takes a hundred milliseconds before anyone does any work, and a Clarity question takes a second or two on top because a model has to think. That gap is why chapter 12 exists. Nobody invented promises for fun."
+    },
+    {
+      "index": 99,
+      "tag": "p",
+      "text": "A server answers in one of two ways. A static file is read off disk and handed over unchanged, the same bytes for everybody: Memento's index.html , its CSS, its JavaScript. A dynamic answer is computed per request by running code, and differs per caller: the AI proxy's reply. Memento Jr does both, and the next chapter shows the one line where it forks."
+    },
+    {
+      "index": 100,
+      "tag": "h2",
+      "text": "See it"
+    },
+    {
+      "index": 101,
+      "tag": "p",
+      "text": "These boxes run in a locked worker with no network, so a real fetch would fail in here. The server is a plain function instead, and setTimeout plays the slow network. The shapes are real even though the wires are not."
+    },
+    {
+      "index": 102,
+      "tag": "p",
+      "text": "Box 3's last line is the honest one. 302 is a redirect, a perfectly normal code, and this function has no idea what to do with it. Every status handler has a hole like that. So the question to ask of code that talks to a server is which errors it handles, and what it does with the rest."
+    },
+    {
+      "index": 103,
+      "tag": "h2",
+      "text": "Now in Memento"
+    },
+    {
+      "index": 104,
+      "tag": "div",
+      "text": "ANY APP: pick an address, then label the envelope"
+    },
+    {
+      "index": 105,
+      "tag": "p",
+      "text": "Two decisions get made before a request goes out: which address, often a choice between several, and which labels, which is where authorisation goes. In any client's network code, look for a string being built and an object of headers next to it."
+    },
+    {
+      "index": 106,
+      "tag": "div",
+      "text": "MEMENTO: callClaude() picks the address"
+    },
+    {
+      "index": 107,
+      "tag": "p",
+      "text": "Scheme, host, path, glued together from strings. Two paths, free Clarity and paid Action, on one host. The third line, straight to Anthropic, only runs on a developer machine with a personal key pasted in."
+    },
+    {
+      "index": 108,
+      "tag": "p",
+      "text": "Four labels: what is inside, who is asking, which app is asking, and a device id, which is not identity, it is the thing the rate limiter counts. A header starting x- is one somebody invented, which is allowed and common."
+    },
+    {
+      "index": 109,
+      "tag": "div",
+      "text": "ANY APP: turn the number into something a human can act on"
+    },
+    {
+      "index": 110,
+      "tag": "p",
+      "text": "A status code is for the code, not the user. Somewhere near the edge of a good client there is one small function that turns three digits into one of a few named outcomes, and the rest of the app only ever sees the names. Add a status to that one function and the whole app handles it."
+    },
+    {
+      "index": 111,
+      "tag": "div",
+      "text": "MEMENTO NATIVE: codeForStatus"
+    },
+    {
+      "index": 112,
+      "tag": "p",
+      "text": "One dense line, and you can read every branch now. 429 becomes rate-limit , 403 paid-required , 401 unauthorized , 409 job-conflict . Anything else becomes service-unavailable , a deliberate catch-all: better one calm vague sentence than a number thrown at a user. It runs on any response outside the 200s."
+    },
+    {
+      "index": 113,
+      "tag": "div",
+      "text": "ANY APP: the verb is part of the address"
+    },
+    {
+      "index": 114,
+      "tag": "p",
+      "text": "A server that accepts one verb at a path should say so, with the code that means exactly that. 405 tells an honest caller they made a fixable mistake."
+    },
+    {
+      "index": 115,
+      "tag": "div",
+      "text": "MEMENTO: the proxy answers POST, and nothing else"
+    },
+    {
+      "index": 116,
+      "tag": "p",
+      "text": "Three lines, near the top of the file, before anything expensive happens. Note the shape of every reply it sends: a JSON body, then a status code. The next chapter walks that whole file from line 1."
+    },
+    {
+      "index": 117,
+      "tag": "div",
+      "text": "THE ALTERNATIVE, AND WHY MEMENTO CHOSE THIS"
+    },
+    {
+      "index": 118,
+      "tag": "p",
+      "text": "Memento could have sent Clarity's conversation as a GET with the whole thing crammed into the query string. Some APIs do, and it is easier to test: you can type it in a browser. Three reasons it was never on the table. Query strings cap out in the low thousands of characters. They land in server logs, browser history and every proxy in between, so a user's answers about their life get written down in five places nobody audits. And GET promises \"this changes nothing\", a lie when the request spends money. So: POST, JSON body, authorisation in a header. The price is that you cannot test it by typing a URL, which is why the next twenty minutes involve curl ."
+    },
+    {
+      "index": 119,
+      "tag": "h2",
+      "text": "Do it"
+    },
+    {
+      "index": 120,
+      "tag": "div",
+      "text": "Exercise: talk to a server by hand MAC"
+    },
+    {
+      "index": 121,
+      "tag": "p",
+      "text": "curl is a client with no screen. It writes the parcel you describe and prints what comes back. Four flags: -i prints the status line and headers as well as the body, -X sets the verb, -H adds a header, -d supplies the body."
+    },
+    {
+      "index": 122,
+      "tag": "li",
+      "text": "Start the server in one Terminal window: cd ~/Downloads/CODE-BOOK/sandbox/v1 cp secrets.env.example secrets.env node server.js It prints Memento Jr server on http://localhost:4321 and sits there. That is a server: a program that does not exit. Leave it, and open a second Terminal window for the rest."
+    },
+    {
+      "index": 123,
+      "tag": "li",
+      "text": "A GET with no body. Predict the status before you press return. curl -i http://localhost:4321/api/sync HTTP/1.1 200 OK Content-Type: application/json Date: Mon, 21 Sep 2026 02:38:42 GMT Connection: keep-alive Keep-Alive: timeout=5 Transfer-Encoding: chunked {} The whole anatomy in eight lines: status, headers, blank line, body. The body is {} because nothing has ever been synced, and the server said 200 anyway. \"Your request was fine, the answer is empty\" is not an error."
+    },
+    {
+      "index": 124,
+      "tag": "li",
+      "text": "A POST with a body. curl -i -X POST -H 'Content-Type: application/json' -d '{\"message\":\"hi\"}' http://localhost:4321/api/ai HTTP/1.1 200 OK Content-Type: application/json { \"reply\": \"Still working toward hi? One hold a day is enough.\" } (Headers trimmed; yours show the same four.) Notice the wait before it printed: a deliberate 600 millisecond fake latency standing in for a real AI call. And your word came back inside the reply, so the server opened the body, parsed the JSON, and read the message key."
+    },
+    {
+      "index": 125,
+      "tag": "li",
+      "text": "A wrong address. curl -i http://localhost:4321/api/nope HTTP/1.1 404 Not Found Content-Type: application/json { \"error\": \"not found\" }"
+    },
+    {
+      "index": 126,
+      "tag": "li",
+      "text": "A malformed body. Same address that worked in step 3, garbage inside. curl -i -X POST -d 'not json' http://localhost:4321/api/ai HTTP/1.1 400 Bad Request Content-Type: application/json { \"error\": \"bad json\" } Both are your fault, and they are different faults. 404: no such address. 400: the address is real, the parcel was rubbish."
+    },
+    {
+      "index": 127,
+      "tag": "li",
+      "text": "Look at the first Terminal window. The server has been printing one line per request the whole time, including the ones that failed: 10:38:42 PM GET /api/sync 10:38:42 PM POST /api/ai 10:38:43 PM GET /api/nope 10:38:43 PM POST /api/ai That is a log. Chapter 23 reads a real one. Notice the server treated the 404 and the 400 as ordinary events and kept running."
+    },
+    {
+      "index": 128,
+      "tag": "li",
+      "text": "The boundary check. POST a body of your choosing to /api/sync , GET it back, then run ls . Say where your data went and what that file is pretending to be."
+    },
+    {
+      "index": 129,
+      "tag": "p",
+      "text": "On a phone instead: you cannot run a server, but you can be one. The box below answers the same four requests. Read the routing closely; next chapter you write it for real."
+    },
+    {
+      "index": 130,
+      "tag": "div",
+      "text": "ASK THE AGENT WHY (paste this into Codex or Fable)"
+    },
+    {
+      "index": 131,
+      "tag": "div",
+      "text": "WORDS YOU NOW OWN"
+    },
+    {
+      "index": 132,
+      "tag": "dt",
+      "text": "Client / server"
+    },
+    {
+      "index": 133,
+      "tag": "dd",
+      "text": "The one that asks and the one that answers. Your phone is a client. A program sitting awake waiting to be asked is a server."
+    },
+    {
+      "index": 134,
+      "tag": "dt",
+      "text": "Request / response"
+    },
+    {
+      "index": 135,
+      "tag": "dd",
+      "text": "The parcel out and the parcel back. Each has headers and usually a body; the request adds a verb and a path, the response adds a status code."
+    },
+    {
+      "index": 136,
+      "tag": "dt",
+      "text": "HTTP"
+    },
+    {
+      "index": 137,
+      "tag": "dd",
+      "text": "The agreement about where in the parcel each part goes, so strangers' computers can talk with no prior conversation."
+    },
+    {
+      "index": 138,
+      "tag": "dt",
+      "text": "URL"
+    },
+    {
+      "index": 139,
+      "tag": "dd",
+      "text": "An address in named fields: scheme, host, path, and an optional query. Never a place for secrets."
+    },
+    {
+      "index": 140,
+      "tag": "dt",
+      "text": "Port"
+    },
+    {
+      "index": 141,
+      "tag": "dd",
+      "text": "Which server on that computer. One machine, many programs listening, each on its own number."
+    },
+    {
+      "index": 142,
+      "tag": "dt",
+      "text": "Verb (method)"
+    },
+    {
+      "index": 143,
+      "tag": "dd",
+      "text": "The intent. GET reads, POST sends, PUT replaces, DELETE removes. Verb plus path is what identifies a request."
+    },
+    {
+      "index": 144,
+      "tag": "dt",
+      "text": "Header"
+    },
+    {
+      "index": 145,
+      "tag": "dd",
+      "text": "A name and value label on the envelope. Content-Type says what is inside; Authorization says who is asking."
+    },
+    {
+      "index": 146,
+      "tag": "dt",
+      "text": "Body"
+    },
+    {
+      "index": 147,
+      "tag": "dd",
+      "text": "The contents. On a POST it is where the real data goes."
+    },
+    {
+      "index": 148,
+      "tag": "dt",
+      "text": "JSON"
+    },
+    {
+      "index": 149,
+      "tag": "dd",
+      "text": "Text shaped like a JavaScript object. JSON.stringify flattens an object into it, JSON.parse inflates it back."
+    },
+    {
+      "index": 150,
+      "tag": "dt",
+      "text": "Status code"
+    },
+    {
+      "index": 151,
+      "tag": "dd",
+      "text": "The outcome in three digits. 2xx worked, 4xx you were wrong, 5xx the server was wrong. 429 means slow down."
+    },
+    {
+      "index": 152,
+      "tag": "dt",
+      "text": "API"
+    },
+    {
+      "index": 153,
+      "tag": "dd",
+      "text": "The contract: these addresses, these verbs, this JSON in, this JSON out, these status codes."
+    },
+    {
+      "index": 154,
+      "tag": "dt",
+      "text": "Latency"
+    },
+    {
+      "index": 155,
+      "tag": "dd",
+      "text": "The waiting. A thousand times slower than anything else your code does, which is why async exists."
+    },
+    {
+      "index": 156,
+      "tag": "dt",
+      "text": "Static file vs dynamic answer"
+    },
+    {
+      "index": 157,
+      "tag": "dd",
+      "text": "Bytes read off disk unchanged for everybody, versus a reply computed by running code for this one caller."
+    },
+    {
+      "index": 158,
+      "tag": "div",
+      "text": "WHERE TODAY'S ANALOGY BREAKS"
+    },
+    {
+      "index": 159,
+      "tag": "p",
+      "text": "Breaks when: you picture one parcel, posted, arriving whole. A response can arrive in pieces over several seconds while the connection stays open, which is how Memento's native app streams an AI answer word by word. A parcel that comes in instalments is not a parcel. And there is no mailroom clerk remembering you between visits: every request arrives with no memory of the last one, which is why a token is re-sent on every single call. Real model: a connection opens, bytes go out in an agreed order, bytes come back, the connection closes or is reused. HTTP is stateless by design, and every \"logged in\" feeling you have had on the web is a token re-presented, silently, dozens of times a minute. Chapter 18 makes that concrete."
+    },
+    {
+      "index": 160,
+      "tag": "summary",
+      "text": "RABBIT HOLE: what the s in https actually buys you"
+    },
+    {
+      "index": 161,
+      "tag": "p",
+      "text": "Two things. The contents are encrypted in transit, so the coffee shop Wi-Fi sees that you talked to supabase.co and how much, but not what. And the server proves it really is that host with a certificate your device already trusts, which stops a hostile network handing you a fake. What it does not buy is safety once the parcel arrives. A perfectly encrypted request to a server with no rate limit is a perfectly encrypted disaster."
+    }
+  ],
+  "segments": [
+    {
+      "blocks": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22
+      ],
+      "text": "How the web works: client, server, HTTP, APIs, JSON\n\nEvery screen that ever showed you fresh data did the same small thing. It wrote a parcel, posted it to an address, and waited for one to come back with a three digit number stamped on the front. Learn the parts of that parcel and half of \"backend\" stops being a mystery.\n\nLAST TIME\n\nState is the app's one copy of the truth, and the screen is drawn from it. Events change state, then the screen gets updated from the new state, never edited on its own and left to drift. Memento's web app does that update imperatively, by hand; React does it declaratively, by redrawing from a description.\n\nQuick check\n\nYour code hits await on a network request. Does the phone freeze for those two seconds?\n\nA user taps \"done\" and the streak on screen goes to 4. Where did the 4 come from?\n\nA command prints on two channels and ends with a number. Name all three.\n\nThe idea\n\nTwo computers. One asks, one answers. The asker is the client : your phone, this page, the Memento app. The answerer is the server : a program on a computer elsewhere, sitting awake, waiting. The asking is a request , the answer a response . That is the entire shape of the internet.\n\nThe rules for how those two parcels are written down are called HTTP . Not a program, not a company. An agreement about where the address goes, where your instructions go, and where the contents go, so a server written by one stranger and a phone made by another understand each other with no prior conversation.\n\nANALOGY (TEMPORARY)\n\nPosting a parcel to a company's mailroom. On the front, the address : which building, which department. On the top line, what you want done : \"reading copy, return it\" or \"please file this\". Down the side, labels : what is inside, who authorised it. Then the contents . Later a parcel comes back with a three digit reference number on it that tells you, before you open anything, whether it worked, whether you addressed it wrong, or whether their building is on fire.\n\nThe address\n\nA URL is an address with named fields, the way a postal address has a street and a city. One of Memento's real ones, taken apart:\n\nPart\n\nExample\n\nPlain meaning\n\nscheme\n\nhttps\n\nWhich rules to use. The s means the parcel is sealed so nobody in between can read it.\n\nhost\n\nlipuxymlsowdrbummqxw.supabase.co"
+    },
+    {
+      "blocks": [
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47,
+        48,
+        49,
+        50,
+        51,
+        52,
+        53,
+        54
+      ],
+      "text": "Which computer. A name that gets looked up and turned into a number. That one is Memento's, hardcoded at memento-app/js/12-cloud-sync.js:20 , public on purpose.\n\npath\n\n/functions/v1/clarity-ai-proxy\n\nWhich thing on that computer. The department, inside the building.\n\nquery\n\n?demo=founder\n\nExtra notes on the address line. Optional, visible to everyone, never a place for secrets.\n\nYou will type a local one in a minute: http://localhost:4321/api/sync . localhost means \"this very computer\", so the parcel never leaves the machine, and 4321 is a port : one computer can run several servers, and the port says which.\n\nThe verb\n\nThe address says where. The verb says what you want done. Two of them do almost all the work.\n\nVerb\n\nMeans\n\nRule of thumb\n\nGET\n\nGive me a copy.\n\nChanges nothing. Safe to repeat. No body.\n\nPOST\n\nHere, take this and do something.\n\nHas a body. Repeating it usually does the thing twice.\n\nPUT\n\nReplace what is at this address with this.\n\nRepeating it lands on the same result.\n\nDELETE\n\nRemove what is at this address.\n\nExactly as scary as it reads.\n\nVerb plus path is what identifies a request. GET /api/sync and POST /api/sync share an address and are two different asks. A server may answer one and refuse the other.\n\nThe headers\n\nHeaders are name and value labels on the envelope: they describe the parcel without being the parcel. Two matter today. Content-Type: application/json says \"what is inside is JSON\", so the server knows how to open it. Authorization carries proof of who is asking. Chapter 18 does tokens properly. For now: \"who may do this\" travels in a header, never in the query.\n\nThe body and JSON\n\nThe body is the contents. It can be anything, but for an API it is almost always JSON : text that looks exactly like a JavaScript object and is nothing more than that. Braces, keys in quotes, values, commas.\n\nTwo functions move between the object and the text. JSON.stringify(obj) flattens an object into a string you can post. JSON.parse(text) inflates it back into a real object. JSON crosses the network as text. JSON keeps numbers, strings, booleans, null, arrays and objects, and has no idea what a date or a function is, which is why every API sends dates as strings.\n\nThe status code"
+    },
+    {
+      "blocks": [
+        55,
+        56,
+        57,
+        58,
+        59,
+        60,
+        61,
+        62,
+        63,
+        64,
+        65,
+        66,
+        67,
+        68,
+        69,
+        70,
+        71,
+        72,
+        73,
+        74,
+        75,
+        76,
+        77,
+        78,
+        79,
+        80,
+        81,
+        82,
+        83,
+        84,
+        85,
+        86,
+        87,
+        88,
+        89,
+        90,
+        91,
+        92,
+        93,
+        94,
+        95,
+        96
+      ],
+      "text": "The response's first line carries a status code : the outcome in three digits, readable before you open anything. The first digit is the headline. 2 worked, 4 the server refused you, 5 the server broke. The ones Memento and Memento Jr actually return:\n\nCode\n\nPlain meaning\n\nWhere it shows up\n\n200\n\nFine. Here it is.\n\nMemento Jr answering GET /api/sync .\n\n201\n\nFine, and I made a new thing.\n\nMemento's checkout function, handing back a fresh checkout link.\n\n400\n\nYour parcel is malformed. Sending the same one again will fail the same way.\n\nMemento Jr on unparseable JSON. Memento's proxy on a badly shaped message list.\n\n401\n\nI do not know who you are.\n\nThe secure version of Memento Jr's server with no token.\n\n403\n\nI know who you are. You may not do this.\n\nMemento's native app reads this as \"paid feature, this account is free\".\n\n404\n\nNothing lives at that address.\n\nMemento Jr on any path it has no route for.\n\n405\n\nRight address, wrong verb.\n\nMemento's AI proxy, which answers POST and nothing else.\n\n409\n\nConflict. Somebody changed this while you were holding an older copy.\n\nMemento's sync, and its plan jobs when one is already running.\n\n413\n\nToo big. I will not even read it.\n\nMemento's proxy, on an oversized conversation.\n\n429\n\nToo many, too fast. Slow down and try later.\n\nMemento's rate limiter, before a single cent is spent.\n\n500\n\nI broke. Not your fault.\n\nAny server with a bug in a handler.\n\n503\n\nI am not available right now. Come back shortly.\n\nMemento's proxy when the key is missing, or the limit database is down.\n\nA 4 means the server refused: something about the request, your identity, its own policy, a conflict with what it already has, or how fast you are asking. Often that means fixing the payload. Sometimes it does not: a 409 usually wants a reload and a retry with fresh data, and a 429 wants the same request again after a wait. A 5 or a 429 means the request was reasonable and retrying later might work. Code that treats every failure the same either hammers a server that just told it to stop, or gives up on something that would have worked in two seconds.\n\nAPI, latency, and the two kinds of answer"
+    },
+    {
+      "blocks": [
+        97,
+        98,
+        99,
+        100,
+        101,
+        102,
+        103,
+        104,
+        105,
+        106,
+        107,
+        108,
+        109
+      ],
+      "text": "Put the five parts together and you have an API : a contract. These addresses exist, they take these verbs, they want this JSON with these headers, they hand back that JSON, with these status codes. \"The Anthropic API\" means a document describing exactly those things.\n\nLatency is the cost. Reading a value out of memory takes nanoseconds. A round trip to a server abroad takes a hundred milliseconds before anyone does any work, and a Clarity question takes a second or two on top because a model has to think. That gap is why chapter 12 exists. Nobody invented promises for fun.\n\nA server answers in one of two ways. A static file is read off disk and handed over unchanged, the same bytes for everybody: Memento's index.html , its CSS, its JavaScript. A dynamic answer is computed per request by running code, and differs per caller: the AI proxy's reply. Memento Jr does both, and the next chapter shows the one line where it forks.\n\nSee it\n\nThese boxes run in a locked worker with no network, so a real fetch would fail in here. The server is a plain function instead, and setTimeout plays the slow network. The shapes are real even though the wires are not.\n\nBox 3's last line is the honest one. 302 is a redirect, a perfectly normal code, and this function has no idea what to do with it. Every status handler has a hole like that. So the question to ask of code that talks to a server is which errors it handles, and what it does with the rest.\n\nNow in Memento\n\nANY APP: pick an address, then label the envelope\n\nTwo decisions get made before a request goes out: which address, often a choice between several, and which labels, which is where authorisation goes. In any client's network code, look for a string being built and an object of headers next to it.\n\nMEMENTO: callClaude() picks the address\n\nScheme, host, path, glued together from strings. Two paths, free Clarity and paid Action, on one host. The third line, straight to Anthropic, only runs on a developer machine with a personal key pasted in.\n\nFour labels: what is inside, who is asking, which app is asking, and a device id, which is not identity, it is the thing the rate limiter counts. A header starting x- is one somebody invented, which is allowed and common.\n\nANY APP: turn the number into something a human can act on"
+    },
+    {
+      "blocks": [
+        110,
+        111,
+        112,
+        113,
+        114,
+        115,
+        116,
+        117,
+        118,
+        119,
+        120,
+        121,
+        122
+      ],
+      "text": "A status code is for the code, not the user. Somewhere near the edge of a good client there is one small function that turns three digits into one of a few named outcomes, and the rest of the app only ever sees the names. Add a status to that one function and the whole app handles it.\n\nMEMENTO NATIVE: codeForStatus\n\nOne dense line, and you can read every branch now. 429 becomes rate-limit , 403 paid-required , 401 unauthorized , 409 job-conflict . Anything else becomes service-unavailable , a deliberate catch-all: better one calm vague sentence than a number thrown at a user. It runs on any response outside the 200s.\n\nANY APP: the verb is part of the address\n\nA server that accepts one verb at a path should say so, with the code that means exactly that. 405 tells an honest caller they made a fixable mistake.\n\nMEMENTO: the proxy answers POST, and nothing else\n\nThree lines, near the top of the file, before anything expensive happens. Note the shape of every reply it sends: a JSON body, then a status code. The next chapter walks that whole file from line 1.\n\nTHE ALTERNATIVE, AND WHY MEMENTO CHOSE THIS\n\nMemento could have sent Clarity's conversation as a GET with the whole thing crammed into the query string. Some APIs do, and it is easier to test: you can type it in a browser. Three reasons it was never on the table. Query strings cap out in the low thousands of characters. They land in server logs, browser history and every proxy in between, so a user's answers about their life get written down in five places nobody audits. And GET promises \"this changes nothing\", a lie when the request spends money. So: POST, JSON body, authorisation in a header. The price is that you cannot test it by typing a URL, which is why the next twenty minutes involve curl .\n\nDo it\n\nExercise: talk to a server by hand MAC\n\ncurl is a client with no screen. It writes the parcel you describe and prints what comes back. Four flags: -i prints the status line and headers as well as the body, -X sets the verb, -H adds a header, -d supplies the body.\n\nStart the server in one Terminal window: cd ~/Downloads/CODE-BOOK/sandbox/v1 cp secrets.env.example secrets.env node server.js It prints Memento Jr server on http://localhost:4321 and sits there. That is a server: a program that does not exit. Leave it, and open a second Terminal window for the rest."
+    },
+    {
+      "blocks": [
+        123,
+        124,
+        125,
+        126,
+        127,
+        128,
+        129,
+        130,
+        131,
+        132,
+        133,
+        134
+      ],
+      "text": "A GET with no body. Predict the status before you press return. curl -i http://localhost:4321/api/sync HTTP/1.1 200 OK Content-Type: application/json Date: Mon, 21 Sep 2026 02:38:42 GMT Connection: keep-alive Keep-Alive: timeout=5 Transfer-Encoding: chunked {} The whole anatomy in eight lines: status, headers, blank line, body. The body is {} because nothing has ever been synced, and the server said 200 anyway. \"Your request was fine, the answer is empty\" is not an error.\n\nA POST with a body. curl -i -X POST -H 'Content-Type: application/json' -d '{\"message\":\"hi\"}' http://localhost:4321/api/ai HTTP/1.1 200 OK Content-Type: application/json { \"reply\": \"Still working toward hi? One hold a day is enough.\" } (Headers trimmed; yours show the same four.) Notice the wait before it printed: a deliberate 600 millisecond fake latency standing in for a real AI call. And your word came back inside the reply, so the server opened the body, parsed the JSON, and read the message key.\n\nA wrong address. curl -i http://localhost:4321/api/nope HTTP/1.1 404 Not Found Content-Type: application/json { \"error\": \"not found\" }\n\nA malformed body. Same address that worked in step 3, garbage inside. curl -i -X POST -d 'not json' http://localhost:4321/api/ai HTTP/1.1 400 Bad Request Content-Type: application/json { \"error\": \"bad json\" } Both are your fault, and they are different faults. 404: no such address. 400: the address is real, the parcel was rubbish.\n\nLook at the first Terminal window. The server has been printing one line per request the whole time, including the ones that failed: 10:38:42 PM GET /api/sync 10:38:42 PM POST /api/ai 10:38:43 PM GET /api/nope 10:38:43 PM POST /api/ai That is a log. Chapter 23 reads a real one. Notice the server treated the 404 and the 400 as ordinary events and kept running.\n\nThe boundary check. POST a body of your choosing to /api/sync , GET it back, then run ls . Say where your data went and what that file is pretending to be.\n\nOn a phone instead: you cannot run a server, but you can be one. The box below answers the same four requests. Read the routing closely; next chapter you write it for real.\n\nASK THE AGENT WHY (paste this into Codex or Fable)\n\nWORDS YOU NOW OWN\n\nClient / server\n\nThe one that asks and the one that answers. Your phone is a client. A program sitting awake waiting to be asked is a server.\n\nRequest / response"
+    },
+    {
+      "blocks": [
+        135,
+        136,
+        137,
+        138,
+        139,
+        140,
+        141,
+        142,
+        143,
+        144,
+        145,
+        146,
+        147,
+        148,
+        149,
+        150,
+        151,
+        152,
+        153,
+        154,
+        155,
+        156,
+        157,
+        158,
+        159,
+        160
+      ],
+      "text": "The parcel out and the parcel back. Each has headers and usually a body; the request adds a verb and a path, the response adds a status code.\n\nHTTP\n\nThe agreement about where in the parcel each part goes, so strangers' computers can talk with no prior conversation.\n\nURL\n\nAn address in named fields: scheme, host, path, and an optional query. Never a place for secrets.\n\nPort\n\nWhich server on that computer. One machine, many programs listening, each on its own number.\n\nVerb (method)\n\nThe intent. GET reads, POST sends, PUT replaces, DELETE removes. Verb plus path is what identifies a request.\n\nHeader\n\nA name and value label on the envelope. Content-Type says what is inside; Authorization says who is asking.\n\nBody\n\nThe contents. On a POST it is where the real data goes.\n\nJSON\n\nText shaped like a JavaScript object. JSON.stringify flattens an object into it, JSON.parse inflates it back.\n\nStatus code\n\nThe outcome in three digits. 2xx worked, 4xx you were wrong, 5xx the server was wrong. 429 means slow down.\n\nAPI\n\nThe contract: these addresses, these verbs, this JSON in, this JSON out, these status codes.\n\nLatency\n\nThe waiting. A thousand times slower than anything else your code does, which is why async exists.\n\nStatic file vs dynamic answer\n\nBytes read off disk unchanged for everybody, versus a reply computed by running code for this one caller.\n\nWHERE TODAY'S ANALOGY BREAKS\n\nBreaks when: you picture one parcel, posted, arriving whole. A response can arrive in pieces over several seconds while the connection stays open, which is how Memento's native app streams an AI answer word by word. A parcel that comes in instalments is not a parcel. And there is no mailroom clerk remembering you between visits: every request arrives with no memory of the last one, which is why a token is re-sent on every single call. Real model: a connection opens, bytes go out in an agreed order, bytes come back, the connection closes or is reused. HTTP is stateless by design, and every \"logged in\" feeling you have had on the web is a token re-presented, silently, dozens of times a minute. Chapter 18 makes that concrete.\n\nRABBIT HOLE: what the s in https actually buys you"
+    },
+    {
+      "blocks": [
+        161
+      ],
+      "text": "Two things. The contents are encrypted in transit, so the coffee shop Wi-Fi sees that you talked to supabase.co and how much, but not what. And the server proves it really is that host with a certificate your device already trusts, which stops a hostile network handing you a fake. What it does not buy is safety once the parcel arrives. A perfectly encrypted request to a server with no rate limit is a perfectly encrypted disaster."
+    }
+  ],
+  "wordCount": 2916
+}

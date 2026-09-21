@@ -1,0 +1,778 @@
+{
+  "chapter": 25,
+  "slug": "security-performance",
+  "title": "Security and performance, the junior version",
+  "source": "chapters/25-security-performance.html",
+  "blocks": [
+    {
+      "index": 0,
+      "tag": "h1",
+      "text": "Security and performance, the junior version"
+    },
+    {
+      "index": 1,
+      "tag": "p",
+      "text": "Two subjects that sound like specialist work and are one habit each. Security: decide where you stop believing what you are told. Performance: measure before you touch anything."
+    },
+    {
+      "index": 2,
+      "tag": "div",
+      "text": "LAST TIME"
+    },
+    {
+      "index": 3,
+      "tag": "p",
+      "text": "A test is an executable expectation, written once and re-run forever. Unit, integration and end to end answer different questions, and coverage measures how much code ran, not whether it was right. Memento's native side has a runner and a test that uses the frozen web code as the oracle; the web side has no runner at all."
+    },
+    {
+      "index": 4,
+      "tag": "h2",
+      "text": "Quick check"
+    },
+    {
+      "index": 5,
+      "tag": "summary",
+      "text": "Why is Memento's Supabase anon key sitting in a public file, while the Anthropic key is not?"
+    },
+    {
+      "index": 6,
+      "tag": "summary",
+      "text": "A request comes back with status 429. What does the app now know?"
+    },
+    {
+      "index": 7,
+      "tag": "summary",
+      "text": "What does a migration do that editing the database by hand does not?"
+    },
+    {
+      "index": 8,
+      "tag": "h2",
+      "text": "The idea, part one: security is a boundary question"
+    },
+    {
+      "index": 9,
+      "tag": "p",
+      "text": "Every app has a line running through it. On one side is code you control. On the other is everything a stranger can touch: the phone, the browser, the network, the request body, the headers, the URL. That line is a trust boundary , and almost every security bug is one sentence: someone believed something that arrived from the far side of it."
+    },
+    {
+      "index": 10,
+      "tag": "p",
+      "text": "The far side includes your own app. Memento's JavaScript in Safari feels like yours because you wrote it. It is running on a computer a stranger owns, and they can open the developer tools, edit any value, and send whatever they like to your server. Anything the phone sends can be forged. The button that says \"I am a paid user\" is a claim, not a fact."
+    },
+    {
+      "index": 11,
+      "tag": "div",
+      "text": "ANALOGY (TEMPORARY)"
+    },
+    {
+      "index": 12,
+      "tag": "p",
+      "text": "A nightclub. Inside, nobody checks anything, because getting in was the check. The door is the trust boundary. The bouncer does four things and only four: is this person who they say (authentication), are they on the list for this room (authorization), is that bag a reasonable size (validation), and how many people are already inside (rate limit). A bouncer who lets someone in because they said \"I was here last week, mate\" is not a bouncer. And if the guest list system goes down, a good bouncer stops the queue. He does not wave everyone through."
+    },
+    {
+      "index": 13,
+      "tag": "p",
+      "text": "Four habits sit on that boundary. They cover most of what a junior engineer is expected to know."
+    },
+    {
+      "index": 14,
+      "tag": "p",
+      "text": "Validate at the edges. The first thing the server does with a request is check its shape: size, type, range. Not because users are hostile, but because the check is cheap and the alternative is your code discovering the problem twenty lines deeper, holding half a write. Validation means refusing early and saying why, in one plain sentence."
+    },
+    {
+      "index": 15,
+      "tag": "p",
+      "text": "Least privilege. Every key, token and database role gets the smallest power that still does the job. That is why the key that reads a table is not the key that drops it, and why Memento's browser holds a key that can only act as the signed-in user. Least privilege , in one line."
+    },
+    {
+      "index": 16,
+      "tag": "p",
+      "text": "Secrets never ship. A secret is a value your code needs and must never contain. It arrives from the environment at runtime, on the server, never in git. A secret that reaches a browser is burned. Rotate it, do not hide it."
+    },
+    {
+      "index": 17,
+      "tag": "p",
+      "text": "Rate limits that fail closed. A rate limit caps how often one caller may do an expensive thing. The interesting part is what happens when the limiter breaks. Fail closed : if I cannot tell whether you are over the limit, the answer is no. Fail open is how a database blip becomes an unbounded bill."
+    },
+    {
+      "index": 18,
+      "tag": "h3",
+      "text": "The OWASP short list, in plain words"
+    },
+    {
+      "index": 19,
+      "tag": "p",
+      "text": "Security people keep a ranked list of how apps get broken. You need four entries from it."
+    },
+    {
+      "index": 20,
+      "tag": "th",
+      "text": "Name"
+    },
+    {
+      "index": 21,
+      "tag": "th",
+      "text": "What it actually is"
+    },
+    {
+      "index": 22,
+      "tag": "th",
+      "text": "The habit that kills it"
+    },
+    {
+      "index": 23,
+      "tag": "td",
+      "text": "Injection"
+    },
+    {
+      "index": 24,
+      "tag": "td",
+      "text": "Data gets treated as code. Text a user typed ends up inside a database command or a shell command and changes what it means."
+    },
+    {
+      "index": 25,
+      "tag": "td",
+      "text": "Never build a command by gluing strings. Pass values as values (chapter 17's parameters)."
+    },
+    {
+      "index": 26,
+      "tag": "td",
+      "text": "XSS"
+    },
+    {
+      "index": 27,
+      "tag": "td",
+      "text": "Someone else's script runs inside your page, with your user's session. Usually text that was written straight into the page as HTML."
+    },
+    {
+      "index": 28,
+      "tag": "td",
+      "text": "Escape anything a human typed before it becomes HTML. Memento has an _esc helper for exactly this."
+    },
+    {
+      "index": 29,
+      "tag": "td",
+      "text": "Broken auth"
+    },
+    {
+      "index": 30,
+      "tag": "td",
+      "text": "Trusting a flag. The client says \"paid\" or \"admin\" and the server believes it."
+    },
+    {
+      "index": 31,
+      "tag": "td",
+      "text": "The server re-derives the answer from something it owns. A receipt, a session, a row."
+    },
+    {
+      "index": 32,
+      "tag": "td",
+      "text": "Open database"
+    },
+    {
+      "index": 33,
+      "tag": "td",
+      "text": "The data is reachable by anyone who knows the address, because no rule says who owns which row."
+    },
+    {
+      "index": 34,
+      "tag": "td",
+      "text": "Row Level Security on, per table, deny by default. This is the exact hole in the incidents from chapter 4."
+    },
+    {
+      "index": 35,
+      "tag": "p",
+      "text": "One sentence to retire permanently: \"nobody would do that.\" Nobody is not a control. A bored teenager with the network tab open is not nobody, and neither is a script crawling the internet for open Supabase projects. That script is how the 170 Lovable apps in chapter 4 got found."
+    },
+    {
+      "index": 36,
+      "tag": "h2",
+      "text": "The idea, part two: performance is a measurement question"
+    },
+    {
+      "index": 37,
+      "tag": "p",
+      "text": "Slow software is a feeling. Optimising is a change. The gap between them is where engineers waste weeks, because the part you think is slow is almost never the part that is slow. The rule is blunt: measure first, change second, measure again."
+    },
+    {
+      "index": 38,
+      "tag": "p",
+      "text": "Two words keep you honest. Latency is how long one thing takes, from the user's finger. Throughput is how many fit in a second. They trade against each other: batching raises throughput and can make one person's wait longer."
+    },
+    {
+      "index": 39,
+      "tag": "p",
+      "text": "After that, the same four suspects turn up over and over."
+    },
+    {
+      "index": 40,
+      "tag": "li",
+      "text": "The N+1 query . The code asks the database once for the list, then once more for each row. Thirty rows, thirty one round trips. One query for everything is usually far faster and looks almost identical in the code. The most common real performance bug in web apps."
+    },
+    {
+      "index": 41,
+      "tag": "li",
+      "text": "Bundle size . Every kilobyte the phone downloads is time before the first pixel. The one number that predicts how an app feels on a cheap phone."
+    },
+    {
+      "index": 42,
+      "tag": "li",
+      "text": "Caching . Keep the answer so you do not compute or fetch it twice. Caching turns a slow thing into a fast thing and introduces exactly one new problem: knowing when the kept copy is stale."
+    },
+    {
+      "index": 43,
+      "tag": "li",
+      "text": "Debouncing . When something fires constantly, wait for it to stop before acting. Saving on every keystroke is a hundred writes a minute. Wait 150 milliseconds after the last one and save once."
+    },
+    {
+      "index": 44,
+      "tag": "p",
+      "text": "The cheap opening move, before any profiler: look at the biggest file. Size is not proof of slowness, but the file that grew to ten thousand lines is where the work accumulated."
+    },
+    {
+      "index": 45,
+      "tag": "h2",
+      "text": "See it"
+    },
+    {
+      "index": 46,
+      "tag": "p",
+      "text": "Four small programs: two security habits, two performance habits."
+    },
+    {
+      "index": 47,
+      "tag": "h2",
+      "text": "Now in Memento"
+    },
+    {
+      "index": 48,
+      "tag": "div",
+      "text": "ANY APP"
+    },
+    {
+      "index": 49,
+      "tag": "p",
+      "text": "The door lives in one file and everything expensive happens behind it, in a fixed order: reject the wrong origin, reject the wrong method, rate limit, then read the body with a cap on it. Rate limiting comes before parsing, because parsing a huge body is itself a cost an attacker can make you pay. When the limiter's own storage fails, the request is refused rather than allowed, so the spend control survives the outage."
+    },
+    {
+      "index": 50,
+      "tag": "div",
+      "text": "MEMENTO"
+    },
+    {
+      "index": 51,
+      "tag": "p",
+      "text": "Memento's AI proxy states its posture in the file header, then does exactly that:"
+    },
+    {
+      "index": 52,
+      "tag": "p",
+      "text": "And the branch that makes it true. unavailable means the limiter could not answer, so the request is refused:"
+    },
+    {
+      "index": 53,
+      "tag": "p",
+      "text": "The door checks, in order, before anything is spent:"
+    },
+    {
+      "index": 54,
+      "tag": "p",
+      "text": "The body cap is a named constant: MAX_AI_REQUEST_BYTES = 512_000 and MAX_AI_RESPONSE_BYTES = 2_000_000 in _shared/ai-request.ts:3-4 , applied at index.ts:136 and 182 . Both directions bounded."
+    },
+    {
+      "index": 55,
+      "tag": "div",
+      "text": "ANY APP"
+    },
+    {
+      "index": 56,
+      "tag": "p",
+      "text": "The phone has a door pointed the other way: data loaded off the disk is untrusted too, because an older version of your own app wrote it, or someone edited it. A validator walks the saved tree, refuses anything absurdly large or deep, and strips values that should never have been stored. Saving is debounced, so a burst of changes becomes one write."
+    },
+    {
+      "index": 57,
+      "tag": "div",
+      "text": "MEMENTO"
+    },
+    {
+      "index": 58,
+      "tag": "p",
+      "text": "The native app caps the saved state before trusting it. One counter, one depth limit, one early false:"
+    },
+    {
+      "index": 59,
+      "tag": "p",
+      "text": "And it names the one path that must be scrubbed, with a comment that limits its own blast radius:"
+    },
+    {
+      "index": 60,
+      "tag": "p",
+      "text": "The web app's debounce is six lines, and you have already read them in chapter 10:"
+    },
+    {
+      "index": 61,
+      "tag": "p",
+      "text": "On the performance side, Memento tells you where to look first without a profiler. Real sizes, read off disk at the frozen pin."
+    },
+    {
+      "index": 62,
+      "tag": "th",
+      "text": "File"
+    },
+    {
+      "index": 63,
+      "tag": "th",
+      "text": "Size"
+    },
+    {
+      "index": 64,
+      "tag": "th",
+      "text": "Why it is the first suspect"
+    },
+    {
+      "index": 65,
+      "tag": "td",
+      "text": "memento-app/css/dashboard.css"
+    },
+    {
+      "index": 66,
+      "tag": "td",
+      "text": "411,050 bytes"
+    },
+    {
+      "index": 67,
+      "tag": "td",
+      "text": "The biggest stylesheet by a distance. Every byte is download time and parse time before the home screen can paint."
+    },
+    {
+      "index": 68,
+      "tag": "td",
+      "text": "memento-app/css/action.css"
+    },
+    {
+      "index": 69,
+      "tag": "td",
+      "text": "283,557 bytes"
+    },
+    {
+      "index": 70,
+      "tag": "td",
+      "text": "Second. The three biggest CSS files together are larger than most whole apps."
+    },
+    {
+      "index": 71,
+      "tag": "td",
+      "text": "memento-app/js/08-cards-grid-share.js"
+    },
+    {
+      "index": 72,
+      "tag": "td",
+      "text": "10,478 lines"
+    },
+    {
+      "index": 73,
+      "tag": "td",
+      "text": "The biggest script. Parsed on every page load whether or not the user opens a card."
+    },
+    {
+      "index": 74,
+      "tag": "td",
+      "text": "memento-app/js/09-controllers.js"
+    },
+    {
+      "index": 75,
+      "tag": "td",
+      "text": "7,064 lines"
+    },
+    {
+      "index": 76,
+      "tag": "td",
+      "text": "Shared wiring, so it also loads every time."
+    },
+    {
+      "index": 77,
+      "tag": "p",
+      "text": "Memento's caching story is the opposite problem, solved by hand. Every local script tag carries a ?v= cache-buster, bumped by hand when that file changes. At the pin the 57 tags hold 14 different versions, and only two of them say v1378 . The app checks the stamp against itself at boot:"
+    },
+    {
+      "index": 78,
+      "tag": "p",
+      "text": "That is caching's one hard problem: the phone kept the answer, the answer changed, nobody told the phone. The version string is the telling."
+    },
+    {
+      "index": 79,
+      "tag": "p",
+      "text": "The last control is about money rather than speed, same shape. The AI spend ceiling lives in a dated migration, in the database, not in app code:"
+    },
+    {
+      "index": 80,
+      "tag": "p",
+      "text": "A ceiling enforced where the counting happens cannot be argued with by a client."
+    },
+    {
+      "index": 81,
+      "tag": "div",
+      "text": "THE ALTERNATIVE, AND WHY MEMENTO CHOSE THIS"
+    },
+    {
+      "index": 82,
+      "tag": "p",
+      "text": "The proxy could fail open: if the rate-limit table is unreachable, let the call through so real users are never blocked by an outage. That is the friendlier choice and plenty of teams make it. It also means one database wobble removes every spend control at once, on an endpoint that costs real money per call, reachable anonymously. Memento chose the unfriendly branch and pays for it with a 503 that a real user might see during an outage. The cost is written in the file header rather than left for someone to discover on a bill."
+    },
+    {
+      "index": 83,
+      "tag": "h2",
+      "text": "Do it"
+    },
+    {
+      "index": 84,
+      "tag": "div",
+      "text": "Exercise: audit a server, then read the fixes MAC"
+    },
+    {
+      "index": 85,
+      "tag": "li",
+      "text": "Open sandbox/v1/server.js and read readBody at lines 37-44 and the two /api/sync routes. Write down three things a stranger could do to this server. Do it before step 2."
+    },
+    {
+      "index": 86,
+      "tag": "li",
+      "text": "The three holes: no size limit ( raw += chunk accepts a body of any size, all in memory), no validation (whatever JSON parses is written straight to db.json ), and no error wall (a crash inside a handler escapes as a raw stack trace instead of a clean 500). Bonus: one file for everyone, no owner."
+    },
+    {
+      "index": 87,
+      "tag": "li",
+      "text": "Now diff the two versions: cd ~/Downloads/CODE-BOOK diff sandbox/v1/server.js sandbox/v1-secure/server.js | head -60"
+    },
+    {
+      "index": 88,
+      "tag": "li",
+      "text": "Match each hole to its fix in sandbox/v1-secure/server.js . Size limit: line 12 ( MAX_BODY_BYTES = 50 * 1024 ) plus the early refusal at 45-50, a 413 and a destroyed request. Validation: validateState at 88-96, the checks you ran above. Error wall: handle at 148-156. Those three carry a CHAPTER 18 tag in the file, because that is where the habit was introduced. Only the owner slot and the revision conflict, at lines 112 and 114, are tagged CHAPTER 25 ."
+    },
+    {
+      "index": 89,
+      "tag": "li",
+      "text": "One question to sit with: the fixed server trusts a header called FAKE_TOKEN whose value is written in the file. Which of today's four habits does that break, and which does it satisfy?"
+    },
+    {
+      "index": 90,
+      "tag": "div",
+      "text": "Phone alternative phone"
+    },
+    {
+      "index": 91,
+      "tag": "li",
+      "text": "Add a fifth rule to validate : reject a streak above 20000, with a plain message."
+    },
+    {
+      "index": 92,
+      "tag": "li",
+      "text": "Add a call at the bottom that sends { northStar: \"ship it\", streak: 99999 } and check you get your message."
+    },
+    {
+      "index": 93,
+      "tag": "li",
+      "text": "Delete the first line of validate and call it with \"paid=true\" again. Read the error. That is a missing shape check."
+    },
+    {
+      "index": 94,
+      "tag": "div",
+      "text": "ASK THE AGENT WHY (paste this into Codex or Fable)"
+    },
+    {
+      "index": 95,
+      "tag": "div",
+      "text": "WORDS YOU NOW OWN"
+    },
+    {
+      "index": 96,
+      "tag": "dt",
+      "text": "Trust boundary"
+    },
+    {
+      "index": 97,
+      "tag": "dd",
+      "text": "The line between code you control and everything a stranger can edit. Every rule that matters is enforced on your side of it."
+    },
+    {
+      "index": 98,
+      "tag": "dt",
+      "text": "Validation"
+    },
+    {
+      "index": 99,
+      "tag": "dd",
+      "text": "Checking size, type and range at the door, and refusing with one plain sentence. Cheap, early, boring, and it prevents a whole category of bugs."
+    },
+    {
+      "index": 100,
+      "tag": "dt",
+      "text": "Least privilege"
+    },
+    {
+      "index": 101,
+      "tag": "dd",
+      "text": "Each key, token and role gets the smallest power that still does the job, so a leak costs less."
+    },
+    {
+      "index": 102,
+      "tag": "dt",
+      "text": "Secret"
+    },
+    {
+      "index": 103,
+      "tag": "dd",
+      "text": "A value the code needs and must never contain. It arrives from the environment, on the server, and is never in git or a browser."
+    },
+    {
+      "index": 104,
+      "tag": "dt",
+      "text": "Rate limit, fail closed"
+    },
+    {
+      "index": 105,
+      "tag": "dd",
+      "text": "A cap on how often something expensive may happen. Fail closed means that when the limiter cannot answer, the request is refused."
+    },
+    {
+      "index": 106,
+      "tag": "dt",
+      "text": "Injection and XSS"
+    },
+    {
+      "index": 107,
+      "tag": "dd",
+      "text": "Data treated as code, in a database command or in your page. Killed by passing values as values and escaping anything a human typed."
+    },
+    {
+      "index": 108,
+      "tag": "dt",
+      "text": "Latency and throughput"
+    },
+    {
+      "index": 109,
+      "tag": "dd",
+      "text": "How long one thing takes, versus how many fit in a second. They trade against each other."
+    },
+    {
+      "index": 110,
+      "tag": "dt",
+      "text": "N+1"
+    },
+    {
+      "index": 111,
+      "tag": "dd",
+      "text": "One query for the list plus one per row. The most common real performance bug, and it looks harmless in the code."
+    },
+    {
+      "index": 112,
+      "tag": "dt",
+      "text": "Bundle size"
+    },
+    {
+      "index": 113,
+      "tag": "dd",
+      "text": "How much the phone must download before anything appears. The number that decides how the app feels on a bad connection."
+    },
+    {
+      "index": 114,
+      "tag": "dt",
+      "text": "Debounce"
+    },
+    {
+      "index": 115,
+      "tag": "dd",
+      "text": "Wait for the storm to stop, then act once. Memento saves 150 milliseconds after the last change."
+    },
+    {
+      "index": 116,
+      "tag": "div",
+      "text": "WHERE TODAY'S ANALOGY BREAKS"
+    },
+    {
+      "index": 117,
+      "tag": "p",
+      "text": "Breaks when: you picture one door. A real app has many, and the dangerous ones are the doors nobody drew: a database reachable directly with a public key, a storage bucket, a webhook, an old function still deployed. The bouncer also implies that once you are inside you can go anywhere, which is the assumption Row Level Security exists to destroy: the rule is per row, re-checked on every read. Real model: every place data crosses from something you do not control into something you do is its own boundary, with its own four checks. Chapter 26 asks the structural version: where should a rule live so it cannot be bypassed by accident."
+    },
+    {
+      "index": 118,
+      "tag": "summary",
+      "text": "RABBIT HOLE: why \"measure first\" is not a slogan"
+    },
+    {
+      "index": 119,
+      "tag": "p",
+      "text": "Programs spend most of their time in a small part of their code, and humans are terrible at guessing which part. The usual story is that a team spends a week making a function twice as fast, and the function accounted for two percent of the time, so the app got one percent faster and nobody noticed. There is an arithmetic law behind this: the best possible speedup from optimising one part is capped by how much of the total that part was. If a piece is 5% of the runtime, deleting it entirely buys you 5%. That is why the measurement is not a formality, it is the thing that tells you whether the work is worth doing at all. The same law is why the biggest file is a good first guess and a bad conclusion."
+    },
+    {
+      "index": 120,
+      "tag": "summary",
+      "text": "RABBIT HOLE: what a 500 should say"
+    },
+    {
+      "index": 121,
+      "tag": "p",
+      "text": "Two audiences, two messages. The user gets \"something went wrong on the server\", with no detail, because details are a map of your internals: file paths, library versions, table names, sometimes a fragment of a query with data in it. The log gets everything, because it is yours. Memento's native transport takes the same line from the other direction: it catches errors and only surfaces messages from a short allowlist, so an unexpected error message can never be painted onto a screen. Chapter 23 read that allowlist."
+    }
+  ],
+  "segments": [
+    {
+      "blocks": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13
+      ],
+      "text": "Security and performance, the junior version\n\nTwo subjects that sound like specialist work and are one habit each. Security: decide where you stop believing what you are told. Performance: measure before you touch anything.\n\nLAST TIME\n\nA test is an executable expectation, written once and re-run forever. Unit, integration and end to end answer different questions, and coverage measures how much code ran, not whether it was right. Memento's native side has a runner and a test that uses the frozen web code as the oracle; the web side has no runner at all.\n\nQuick check\n\nWhy is Memento's Supabase anon key sitting in a public file, while the Anthropic key is not?\n\nA request comes back with status 429. What does the app now know?\n\nWhat does a migration do that editing the database by hand does not?\n\nThe idea, part one: security is a boundary question\n\nEvery app has a line running through it. On one side is code you control. On the other is everything a stranger can touch: the phone, the browser, the network, the request body, the headers, the URL. That line is a trust boundary , and almost every security bug is one sentence: someone believed something that arrived from the far side of it.\n\nThe far side includes your own app. Memento's JavaScript in Safari feels like yours because you wrote it. It is running on a computer a stranger owns, and they can open the developer tools, edit any value, and send whatever they like to your server. Anything the phone sends can be forged. The button that says \"I am a paid user\" is a claim, not a fact.\n\nANALOGY (TEMPORARY)\n\nA nightclub. Inside, nobody checks anything, because getting in was the check. The door is the trust boundary. The bouncer does four things and only four: is this person who they say (authentication), are they on the list for this room (authorization), is that bag a reasonable size (validation), and how many people are already inside (rate limit). A bouncer who lets someone in because they said \"I was here last week, mate\" is not a bouncer. And if the guest list system goes down, a good bouncer stops the queue. He does not wave everyone through.\n\nFour habits sit on that boundary. They cover most of what a junior engineer is expected to know."
+    },
+    {
+      "blocks": [
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34
+      ],
+      "text": "Validate at the edges. The first thing the server does with a request is check its shape: size, type, range. Not because users are hostile, but because the check is cheap and the alternative is your code discovering the problem twenty lines deeper, holding half a write. Validation means refusing early and saying why, in one plain sentence.\n\nLeast privilege. Every key, token and database role gets the smallest power that still does the job. That is why the key that reads a table is not the key that drops it, and why Memento's browser holds a key that can only act as the signed-in user. Least privilege , in one line.\n\nSecrets never ship. A secret is a value your code needs and must never contain. It arrives from the environment at runtime, on the server, never in git. A secret that reaches a browser is burned. Rotate it, do not hide it.\n\nRate limits that fail closed. A rate limit caps how often one caller may do an expensive thing. The interesting part is what happens when the limiter breaks. Fail closed : if I cannot tell whether you are over the limit, the answer is no. Fail open is how a database blip becomes an unbounded bill.\n\nThe OWASP short list, in plain words\n\nSecurity people keep a ranked list of how apps get broken. You need four entries from it.\n\nName\n\nWhat it actually is\n\nThe habit that kills it\n\nInjection\n\nData gets treated as code. Text a user typed ends up inside a database command or a shell command and changes what it means.\n\nNever build a command by gluing strings. Pass values as values (chapter 17's parameters).\n\nXSS\n\nSomeone else's script runs inside your page, with your user's session. Usually text that was written straight into the page as HTML.\n\nEscape anything a human typed before it becomes HTML. Memento has an _esc helper for exactly this.\n\nBroken auth\n\nTrusting a flag. The client says \"paid\" or \"admin\" and the server believes it.\n\nThe server re-derives the answer from something it owns. A receipt, a session, a row.\n\nOpen database\n\nThe data is reachable by anyone who knows the address, because no rule says who owns which row.\n\nRow Level Security on, per table, deny by default. This is the exact hole in the incidents from chapter 4."
+    },
+    {
+      "blocks": [
+        35,
+        36,
+        37,
+        38,
+        39,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47,
+        48,
+        49,
+        50
+      ],
+      "text": "One sentence to retire permanently: \"nobody would do that.\" Nobody is not a control. A bored teenager with the network tab open is not nobody, and neither is a script crawling the internet for open Supabase projects. That script is how the 170 Lovable apps in chapter 4 got found.\n\nThe idea, part two: performance is a measurement question\n\nSlow software is a feeling. Optimising is a change. The gap between them is where engineers waste weeks, because the part you think is slow is almost never the part that is slow. The rule is blunt: measure first, change second, measure again.\n\nTwo words keep you honest. Latency is how long one thing takes, from the user's finger. Throughput is how many fit in a second. They trade against each other: batching raises throughput and can make one person's wait longer.\n\nAfter that, the same four suspects turn up over and over.\n\nThe N+1 query . The code asks the database once for the list, then once more for each row. Thirty rows, thirty one round trips. One query for everything is usually far faster and looks almost identical in the code. The most common real performance bug in web apps.\n\nBundle size . Every kilobyte the phone downloads is time before the first pixel. The one number that predicts how an app feels on a cheap phone.\n\nCaching . Keep the answer so you do not compute or fetch it twice. Caching turns a slow thing into a fast thing and introduces exactly one new problem: knowing when the kept copy is stale.\n\nDebouncing . When something fires constantly, wait for it to stop before acting. Saving on every keystroke is a hundred writes a minute. Wait 150 milliseconds after the last one and save once.\n\nThe cheap opening move, before any profiler: look at the biggest file. Size is not proof of slowness, but the file that grew to ten thousand lines is where the work accumulated.\n\nSee it\n\nFour small programs: two security habits, two performance habits.\n\nNow in Memento\n\nANY APP\n\nThe door lives in one file and everything expensive happens behind it, in a fixed order: reject the wrong origin, reject the wrong method, rate limit, then read the body with a cap on it. Rate limiting comes before parsing, because parsing a huge body is itself a cost an attacker can make you pay. When the limiter's own storage fails, the request is refused rather than allowed, so the spend control survives the outage.\n\nMEMENTO"
+    },
+    {
+      "blocks": [
+        51,
+        52,
+        53,
+        54,
+        55,
+        56,
+        57,
+        58,
+        59,
+        60,
+        61,
+        62,
+        63,
+        64,
+        65,
+        66,
+        67,
+        68,
+        69,
+        70,
+        71,
+        72,
+        73,
+        74,
+        75,
+        76,
+        77,
+        78,
+        79
+      ],
+      "text": "Memento's AI proxy states its posture in the file header, then does exactly that:\n\nAnd the branch that makes it true. unavailable means the limiter could not answer, so the request is refused:\n\nThe door checks, in order, before anything is spent:\n\nThe body cap is a named constant: MAX_AI_REQUEST_BYTES = 512_000 and MAX_AI_RESPONSE_BYTES = 2_000_000 in _shared/ai-request.ts:3-4 , applied at index.ts:136 and 182 . Both directions bounded.\n\nANY APP\n\nThe phone has a door pointed the other way: data loaded off the disk is untrusted too, because an older version of your own app wrote it, or someone edited it. A validator walks the saved tree, refuses anything absurdly large or deep, and strips values that should never have been stored. Saving is debounced, so a burst of changes becomes one write.\n\nMEMENTO\n\nThe native app caps the saved state before trusting it. One counter, one depth limit, one early false:\n\nAnd it names the one path that must be scrubbed, with a comment that limits its own blast radius:\n\nThe web app's debounce is six lines, and you have already read them in chapter 10:\n\nOn the performance side, Memento tells you where to look first without a profiler. Real sizes, read off disk at the frozen pin.\n\nFile\n\nSize\n\nWhy it is the first suspect\n\nmemento-app/css/dashboard.css\n\n411,050 bytes\n\nThe biggest stylesheet by a distance. Every byte is download time and parse time before the home screen can paint.\n\nmemento-app/css/action.css\n\n283,557 bytes\n\nSecond. The three biggest CSS files together are larger than most whole apps.\n\nmemento-app/js/08-cards-grid-share.js\n\n10,478 lines\n\nThe biggest script. Parsed on every page load whether or not the user opens a card.\n\nmemento-app/js/09-controllers.js\n\n7,064 lines\n\nShared wiring, so it also loads every time.\n\nMemento's caching story is the opposite problem, solved by hand. Every local script tag carries a ?v= cache-buster, bumped by hand when that file changes. At the pin the 57 tags hold 14 different versions, and only two of them say v1378 . The app checks the stamp against itself at boot:\n\nThat is caching's one hard problem: the phone kept the answer, the answer changed, nobody told the phone. The version string is the telling.\n\nThe last control is about money rather than speed, same shape. The AI spend ceiling lives in a dated migration, in the database, not in app code:"
+    },
+    {
+      "blocks": [
+        80,
+        81,
+        82,
+        83,
+        84,
+        85,
+        86,
+        87,
+        88,
+        89,
+        90,
+        91,
+        92,
+        93,
+        94,
+        95,
+        96
+      ],
+      "text": "A ceiling enforced where the counting happens cannot be argued with by a client.\n\nTHE ALTERNATIVE, AND WHY MEMENTO CHOSE THIS\n\nThe proxy could fail open: if the rate-limit table is unreachable, let the call through so real users are never blocked by an outage. That is the friendlier choice and plenty of teams make it. It also means one database wobble removes every spend control at once, on an endpoint that costs real money per call, reachable anonymously. Memento chose the unfriendly branch and pays for it with a 503 that a real user might see during an outage. The cost is written in the file header rather than left for someone to discover on a bill.\n\nDo it\n\nExercise: audit a server, then read the fixes MAC\n\nOpen sandbox/v1/server.js and read readBody at lines 37-44 and the two /api/sync routes. Write down three things a stranger could do to this server. Do it before step 2.\n\nThe three holes: no size limit ( raw += chunk accepts a body of any size, all in memory), no validation (whatever JSON parses is written straight to db.json ), and no error wall (a crash inside a handler escapes as a raw stack trace instead of a clean 500). Bonus: one file for everyone, no owner.\n\nNow diff the two versions: cd ~/Downloads/CODE-BOOK diff sandbox/v1/server.js sandbox/v1-secure/server.js | head -60\n\nMatch each hole to its fix in sandbox/v1-secure/server.js . Size limit: line 12 ( MAX_BODY_BYTES = 50 * 1024 ) plus the early refusal at 45-50, a 413 and a destroyed request. Validation: validateState at 88-96, the checks you ran above. Error wall: handle at 148-156. Those three carry a CHAPTER 18 tag in the file, because that is where the habit was introduced. Only the owner slot and the revision conflict, at lines 112 and 114, are tagged CHAPTER 25 .\n\nOne question to sit with: the fixed server trusts a header called FAKE_TOKEN whose value is written in the file. Which of today's four habits does that break, and which does it satisfy?\n\nPhone alternative phone\n\nAdd a fifth rule to validate : reject a streak above 20000, with a plain message.\n\nAdd a call at the bottom that sends { northStar: \"ship it\", streak: 99999 } and check you get your message.\n\nDelete the first line of validate and call it with \"paid=true\" again. Read the error. That is a missing shape check.\n\nASK THE AGENT WHY (paste this into Codex or Fable)\n\nWORDS YOU NOW OWN\n\nTrust boundary"
+    },
+    {
+      "blocks": [
+        97,
+        98,
+        99,
+        100,
+        101,
+        102,
+        103,
+        104,
+        105,
+        106,
+        107,
+        108,
+        109,
+        110,
+        111,
+        112,
+        113,
+        114,
+        115,
+        116,
+        117,
+        118
+      ],
+      "text": "The line between code you control and everything a stranger can edit. Every rule that matters is enforced on your side of it.\n\nValidation\n\nChecking size, type and range at the door, and refusing with one plain sentence. Cheap, early, boring, and it prevents a whole category of bugs.\n\nLeast privilege\n\nEach key, token and role gets the smallest power that still does the job, so a leak costs less.\n\nSecret\n\nA value the code needs and must never contain. It arrives from the environment, on the server, and is never in git or a browser.\n\nRate limit, fail closed\n\nA cap on how often something expensive may happen. Fail closed means that when the limiter cannot answer, the request is refused.\n\nInjection and XSS\n\nData treated as code, in a database command or in your page. Killed by passing values as values and escaping anything a human typed.\n\nLatency and throughput\n\nHow long one thing takes, versus how many fit in a second. They trade against each other.\n\nN+1\n\nOne query for the list plus one per row. The most common real performance bug, and it looks harmless in the code.\n\nBundle size\n\nHow much the phone must download before anything appears. The number that decides how the app feels on a bad connection.\n\nDebounce\n\nWait for the storm to stop, then act once. Memento saves 150 milliseconds after the last change.\n\nWHERE TODAY'S ANALOGY BREAKS\n\nBreaks when: you picture one door. A real app has many, and the dangerous ones are the doors nobody drew: a database reachable directly with a public key, a storage bucket, a webhook, an old function still deployed. The bouncer also implies that once you are inside you can go anywhere, which is the assumption Row Level Security exists to destroy: the rule is per row, re-checked on every read. Real model: every place data crosses from something you do not control into something you do is its own boundary, with its own four checks. Chapter 26 asks the structural version: where should a rule live so it cannot be bypassed by accident.\n\nRABBIT HOLE: why \"measure first\" is not a slogan"
+    },
+    {
+      "blocks": [
+        119,
+        120,
+        121
+      ],
+      "text": "Programs spend most of their time in a small part of their code, and humans are terrible at guessing which part. The usual story is that a team spends a week making a function twice as fast, and the function accounted for two percent of the time, so the app got one percent faster and nobody noticed. There is an arithmetic law behind this: the best possible speedup from optimising one part is capped by how much of the total that part was. If a piece is 5% of the runtime, deleting it entirely buys you 5%. That is why the measurement is not a formality, it is the thing that tells you whether the work is worth doing at all. The same law is why the biggest file is a good first guess and a bad conclusion.\n\nRABBIT HOLE: what a 500 should say\n\nTwo audiences, two messages. The user gets \"something went wrong on the server\", with no detail, because details are a map of your internals: file paths, library versions, table names, sometimes a fragment of a query with data in it. The log gets everything, because it is yours. Memento's native transport takes the same line from the other direction: it catches errors and only surfaces messages from a short allowlist, so an unexpected error message can never be painted onto a screen. Chapter 23 read that allowlist."
+    }
+  ],
+  "wordCount": 2625
+}

@@ -1,0 +1,521 @@
+{
+  "chapter": 16,
+  "slug": "backends",
+  "title": "Backends: servers, routes, handlers, edge functions",
+  "source": "chapters/16-backends.html",
+  "blocks": [
+    {
+      "index": 0,
+      "tag": "h1",
+      "text": "Backends: servers, routes, handlers, edge functions"
+    },
+    {
+      "index": 1,
+      "tag": "p",
+      "text": "A server is not a machine in a rack, and it is not magic. It is a program that sits awake on an address, and for every parcel that arrives it looks up which function to run. Today you read Memento's real one from line 1, then add a route to your own."
+    },
+    {
+      "index": 2,
+      "tag": "div",
+      "text": "LAST TIME"
+    },
+    {
+      "index": 3,
+      "tag": "p",
+      "text": "A client asks and a server answers, in parcels with five parts: a verb, a path, headers, a body, and a three digit status code coming back. JSON is the parcel's language, and an API is the contract that says which parcels an address accepts. You sent four of them by hand with curl ."
+    },
+    {
+      "index": 4,
+      "tag": "h2",
+      "text": "Quick check"
+    },
+    {
+      "index": 5,
+      "tag": "summary",
+      "text": "401 and 403 both mean no. What is the difference?"
+    },
+    {
+      "index": 6,
+      "tag": "summary",
+      "text": "What is the difference between defining a function and handing it to something else?"
+    },
+    {
+      "index": 7,
+      "tag": "summary",
+      "text": "Why does Memento's phone app never talk to Anthropic directly?"
+    },
+    {
+      "index": 8,
+      "tag": "h2",
+      "text": "The idea"
+    },
+    {
+      "index": 9,
+      "tag": "p",
+      "text": "Take the word apart. A server is a program that repeats three things forever: it listens on a port, it waits, and when a request arrives it runs a function and writes a response. The program you started with node server.js was a server the moment it printed its line and refused to exit."
+    },
+    {
+      "index": 10,
+      "tag": "p",
+      "text": "The interesting part is the lookup in the middle. A route is a pair: this verb plus this path goes to this function. That function is a handler . The code that reads the verb and path and picks the handler is a router . That is the architecture of every backend ever written, from ten lines to ten million."
+    },
+    {
+      "index": 11,
+      "tag": "div",
+      "text": "ANALOGY (TEMPORARY)"
+    },
+    {
+      "index": 12,
+      "tag": "p",
+      "text": "A reception desk with a laminated list of extensions. Somebody walks in, says what they want, and the receptionist reads the list: \"deliveries, extension 4\" or \"accounts, extension 9\". The receptionist does no actual work. They match what was said against the list and pass it on. Anything not on the list gets the same flat answer: nobody here does that. A route is a line on the laminated list. A handler is whoever picks up at the extension."
+    },
+    {
+      "index": 13,
+      "tag": "p",
+      "text": "Where the server runs is a separate question with three common answers. Rent a whole computer and keep your program running on it, which means you also own patching it, restarting it at 3am, and paying for it while it sits idle. Pay a platform to run a container for you. Or write one file, hand it over, and let the platform start it when a request arrives and stop it when nobody is calling. That last one gets called serverless , a marketing word, because there is obviously still a server. Honest version: a server somebody else keeps warm, started from a file, billed per call."
+    },
+    {
+      "index": 14,
+      "tag": "p",
+      "text": "Memento's version is a Supabase edge function , and it is also a proxy : a server of Memento's own standing between the phone and Anthropic. One file of TypeScript, deployed with one command, run on machines near whoever called. Memento pays per invocation and owns no computer."
+    },
+    {
+      "index": 15,
+      "tag": "p",
+      "text": "Two more words before the real file. The environment is the set of named values the platform hands a program at boot, and it is where secrets live: not in the code, not in git. And a rate limit is a counter that refuses a caller who asks too often, which for an app that spends money per request is the spending cap."
+    },
+    {
+      "index": 16,
+      "tag": "h2",
+      "text": "See it"
+    },
+    {
+      "index": 17,
+      "tag": "p",
+      "text": "A router is a lookup, and a lookup is an object. These boxes are a whole backend in miniature, with no network near them."
+    },
+    {
+      "index": 18,
+      "tag": "p",
+      "text": "Box 3 is the one worth sitting with. When the thing that counts your calls breaks, there are two choices. Fail open: \"the counter is down, let everybody through\", which keeps users happy and hands an attacker an unlimited budget on your card. Fail closed : \"the counter is down, nobody goes through\", which annoys users for a few minutes and cannot be turned into a bill. Memento fails closed, in writing, at the top of its proxy."
+    },
+    {
+      "index": 19,
+      "tag": "h2",
+      "text": "Now in Memento"
+    },
+    {
+      "index": 20,
+      "tag": "h3",
+      "text": "First, the toy: Memento Jr's server, top to bottom"
+    },
+    {
+      "index": 21,
+      "tag": "p",
+      "text": "Ninety-six lines, and lines 3 and 4 tell you not to copy it. It requires three built-in Node modules, reads secrets.env into an object and exits if the key is missing, then defines four helpers: sendJSON , readBody , fakeReply , serveFile . Then the router."
+    },
+    {
+      "index": 22,
+      "tag": "p",
+      "text": "Five decisions. Line 71 throws away the query string, so /api/sync?x=1 routes the same as /api/sync . Line 72 logs every request: the log you watched scroll past. Line 73 is chapter 15's static versus dynamic fork, since anything not starting /api/ is a file on disk handed over unchanged. Line 74 is a route, spelled out as a verb check and a path check. Lines 75 to 78 are the handler, itself a function handed to readBody to be called later once the whole body has arrived, exactly like chapter 10's callback. The 400 and the 600 millisecond delay you met by hand are right there."
+    },
+    {
+      "index": 23,
+      "tag": "p",
+      "text": "The file ends the way every router ends:"
+    },
+    {
+      "index": 24,
+      "tag": "p",
+      "text": "A flat 404 for anything unmatched, then two lines that are the actual server: hand the router to createServer , and listen on the port. That is what \"listening\" means in code."
+    },
+    {
+      "index": 25,
+      "tag": "h3",
+      "text": "Then the real one: ai-proxy/index.ts , in order"
+    },
+    {
+      "index": 26,
+      "tag": "div",
+      "text": "ANY APP: the file's first job is to state its own rules"
+    },
+    {
+      "index": 27,
+      "tag": "p",
+      "text": "A file holding the only copy of a secret should open by saying so, in words. Not for style points: the next thing to touch it will be an AI agent taking instructions from a founder in a hurry, and the comment is what stands between them and a shortcut."
+    },
+    {
+      "index": 28,
+      "tag": "div",
+      "text": "MEMENTO: lines 1 to 4"
+    },
+    {
+      "index": 29,
+      "tag": "p",
+      "text": "Now the body of the function, in the order it runs. Every step is a gate, and the expensive work is last on purpose."
+    },
+    {
+      "index": 30,
+      "tag": "p",
+      "text": "The door (lines 98 to 106). Deno.serve(async (req) => { is the listen step: one handler for every request, no router at all, because an edge function is one address. Then an origin check, then the verb check you already read: anything that is not a POST gets 405."
+    },
+    {
+      "index": 31,
+      "tag": "p",
+      "text": "The key (108 to 118)."
+    },
+    {
+      "index": 32,
+      "tag": "p",
+      "text": "The environment, in one line. The secret is not in this file, not in the repository, not in any commit. It was set once with supabase secrets set and handed to the program at boot. If it is missing, the function records a failure and returns 503, because \"I am not configured\" is the server's problem, not the caller's."
+    },
+    {
+      "index": 33,
+      "tag": "p",
+      "text": "The spending cap (120 to 132), before the body is even read. The comment says why: \"Rate limit before spending anything upstream or parsing a large payload.\" Here is the fail-closed branch it calls:"
+    },
+    {
+      "index": 34,
+      "tag": "p",
+      "text": "Read the order. If the limiter itself is unavailable, refuse with 503. Only then, if allowed, return null and let the request through. That is box 3, in production, guarding a real card. Below it, a 429 with a Retry-After header telling the caller how long to wait."
+    },
+    {
+      "index": 35,
+      "tag": "p",
+      "text": "The contract (134 to 146). The body is read with a byte ceiling, and then built = buildClarityRequest(body); at line 143 turns whatever arrived into the exact request the server is willing to make: the server picks the model, the system prompt and the token limit from the operation name. The caller sends an intent, not a shopping list. That single decision is why an anonymous caller cannot point Memento's free path at an expensive model."
+    },
+    {
+      "index": 36,
+      "tag": "p",
+      "text": "The forward (238 to 248)."
+    },
+    {
+      "index": 37,
+      "tag": "p",
+      "text": "The server becomes a client. Same five parts as chapter 15. The one difference from the phone's version is 'x-api-key': apiKey , the secret, on a machine allowed to hold it. The signal is a 120 second leash, because a request with no timeout can hang forever."
+    },
+    {
+      "index": 38,
+      "tag": "p",
+      "text": "The scrub. On the Luna path there is a rule written down in a comment and then obeyed:"
+    },
+    {
+      "index": 39,
+      "tag": "p",
+      "text": "A provider's error message can quote your request back at you, so passing it through to a browser leaks what the server was sent. The status survives, the wording does not. The Anthropic path ends the same way in its catch: 504 for a timeout, 502 for anything else, fixed sentences."
+    },
+    {
+      "index": 40,
+      "tag": "div",
+      "text": "THE ALTERNATIVE, AND WHY MEMENTO CHOSE THIS"
+    },
+    {
+      "index": 41,
+      "tag": "p",
+      "text": "Call Anthropic from the phone. Simplest thing that works, one less moving part, and a key shipped to every user. Memento did this once, and the comment recording it is still in the client: // SECURITY: no API key ships in client code. (A live key used to sit here and / // is in git history; it MUST be revoked, see overnight/AI_PROXY_SETUP.md.) ( memento-app/js/03-ai-integration.js:10-11 , web pin ca8afc8). That is not a hypothetical. That is the origin story of the file you just read. Run your own server. Full control, any language, no platform limits, and you now own uptime, patching, scaling and a bill that runs whether anyone calls or not. An edge function. One file, one deploy command, billed per call, near the caller, and the platform owns the machine. The cost is real: cold starts, a vendor's runtime, execution limits, and your backend logic living somewhere that is not your main repo's normal flow. For a solo founder with one AI call to protect, that trade is not close."
+    },
+    {
+      "index": 42,
+      "tag": "h2",
+      "text": "Do it"
+    },
+    {
+      "index": 43,
+      "tag": "div",
+      "text": "Exercise: add a route MAC"
+    },
+    {
+      "index": 44,
+      "tag": "p",
+      "text": "Your first real code change in a real file. Nine words of logic."
+    },
+    {
+      "index": 45,
+      "tag": "li",
+      "text": "Open sandbox/v1/server.js . Find the last line inside handle() , the flat sendJSON(res, 404, ...) at line 91. Predict first: what happens if you put your new route below that line instead of above it?"
+    },
+    {
+      "index": 46,
+      "tag": "li",
+      "text": "Insert these three lines immediately above that 404 line: if (req.method === \"GET\" && url === \"/api/ping\") { return sendJSON(res, 200, { ok: true }); }"
+    },
+    {
+      "index": 47,
+      "tag": "li",
+      "text": "Restart the server. A running Node program does not notice a changed file, so Ctrl + C in the window where it is running, then node server.js again. This catches everybody once."
+    },
+    {
+      "index": 48,
+      "tag": "li",
+      "text": "Call it: curl -i http://localhost:4321/api/ping HTTP/1.1 200 OK Content-Type: application/json { \"ok\": true }"
+    },
+    {
+      "index": 49,
+      "tag": "li",
+      "text": "The assertion. Run curl -i http://localhost:4321/api/nope and confirm it is still a 404. You added a route, you did not break the fallback. One change, two things checked."
+    },
+    {
+      "index": 50,
+      "tag": "li",
+      "text": "The boundary check. Run curl -i -X POST http://localhost:4321/api/ping . Predict the code first. You wrote req.method === \"GET\" , so a POST falls past your route to the 404 at the bottom. A purist would answer 405 there. Decide which you think is right and say why in one sentence."
+    },
+    {
+      "index": 51,
+      "tag": "p",
+      "text": "On a phone instead: do box 2 above. Same change, same shape: a route is an entry in a lookup, and the fallback catches everything you did not name."
+    },
+    {
+      "index": 52,
+      "tag": "div",
+      "text": "ASK THE AGENT WHY (paste this into Codex or Fable)"
+    },
+    {
+      "index": 53,
+      "tag": "div",
+      "text": "WORDS YOU NOW OWN"
+    },
+    {
+      "index": 54,
+      "tag": "dt",
+      "text": "Server"
+    },
+    {
+      "index": 55,
+      "tag": "dd",
+      "text": "A program that listens on a port, waits, and runs a function for each request. It does not exit."
+    },
+    {
+      "index": 56,
+      "tag": "dt",
+      "text": "Listen"
+    },
+    {
+      "index": 57,
+      "tag": "dd",
+      "text": "Claiming a port and sitting awake on it. Two programs cannot listen on the same port."
+    },
+    {
+      "index": 58,
+      "tag": "dt",
+      "text": "Route"
+    },
+    {
+      "index": 59,
+      "tag": "dd",
+      "text": "A pair: this verb plus this path goes to this function."
+    },
+    {
+      "index": 60,
+      "tag": "dt",
+      "text": "Handler"
+    },
+    {
+      "index": 61,
+      "tag": "dd",
+      "text": "The function a route points at. Takes the request, returns a status and a body."
+    },
+    {
+      "index": 62,
+      "tag": "dt",
+      "text": "Router / dispatcher"
+    },
+    {
+      "index": 63,
+      "tag": "dd",
+      "text": "The code that reads verb and path and picks the handler. Always ends with a fallback 404."
+    },
+    {
+      "index": 64,
+      "tag": "dt",
+      "text": "Serverless / edge function"
+    },
+    {
+      "index": 65,
+      "tag": "dd",
+      "text": "A server somebody else keeps warm, started from one file, billed per call. Memento's backend is a handful of them."
+    },
+    {
+      "index": 66,
+      "tag": "dt",
+      "text": "Environment"
+    },
+    {
+      "index": 67,
+      "tag": "dd",
+      "text": "Named values the platform hands a program at boot. Where secrets live, because they are not in the code and not in git."
+    },
+    {
+      "index": 68,
+      "tag": "dt",
+      "text": "Proxy"
+    },
+    {
+      "index": 69,
+      "tag": "dd",
+      "text": "A server of your own that stands between your app and someone else's API, so the secret, the model choice and the spending cap live on your side."
+    },
+    {
+      "index": 70,
+      "tag": "dt",
+      "text": "Rate limit"
+    },
+    {
+      "index": 71,
+      "tag": "dd",
+      "text": "A counter that refuses callers who ask too often. For a paid API it is a spending cap, not politeness."
+    },
+    {
+      "index": 72,
+      "tag": "dt",
+      "text": "Fail closed"
+    },
+    {
+      "index": 73,
+      "tag": "dd",
+      "text": "When the safety check itself breaks, refuse. The opposite, fail open, turns an outage into an unlimited bill."
+    },
+    {
+      "index": 74,
+      "tag": "dt",
+      "text": "Deno / Node"
+    },
+    {
+      "index": 75,
+      "tag": "dd",
+      "text": "Two ways to run JavaScript outside a browser. Supabase functions use Deno; Memento Jr uses Node."
+    },
+    {
+      "index": 76,
+      "tag": "div",
+      "text": "WHERE TODAY'S ANALOGY BREAKS"
+    },
+    {
+      "index": 77,
+      "tag": "p",
+      "text": "Breaks when: you picture one receptionist, at one desk, remembering the morning. An edge function has no desk. Dozens of copies of it can be running at once in different cities, any of them can be shut down the moment it stops being called, and the next request may be answered by a copy that has never run before and remembers nothing. That is why the rate limit counts in a shared database instead of a variable in the file: a variable would be counting one copy's morning, which is worth nothing. It is also why the first call after a quiet spell is slower, a cold start. Real model: a handler is a pure-ish function that receives a request and returns a response, run on a machine that may not exist five seconds later. Every piece of memory that has to outlive one request belongs in a database. Chapter 17 is that database."
+    },
+    {
+      "index": 78,
+      "tag": "summary",
+      "text": "CAMEO: Deno vs Node, and why Memento uses both"
+    },
+    {
+      "index": 79,
+      "tag": "p",
+      "text": "Both run JavaScript outside a browser, which for most of the language's life was a niche curiosity and since Node in 2009 is ordinary. Node came first and brought npm with it; Memento Jr is Node, which is why its first lines say require(\"http\") . Deno is the newer one, built by the same person, and it runs TypeScript directly with no build step and reads its environment through Deno.env . Supabase's edge functions run on Deno, so Memento's backend is Deno and its practice server is Node. The language is the same. The standard library and the import style differ, which is exactly the kind of difference that makes an AI agent write confidently wrong code if you do not tell it which runtime it is in."
+    }
+  ],
+  "segments": [
+    {
+      "blocks": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ],
+      "text": "Backends: servers, routes, handlers, edge functions\n\nA server is not a machine in a rack, and it is not magic. It is a program that sits awake on an address, and for every parcel that arrives it looks up which function to run. Today you read Memento's real one from line 1, then add a route to your own.\n\nLAST TIME\n\nA client asks and a server answers, in parcels with five parts: a verb, a path, headers, a body, and a three digit status code coming back. JSON is the parcel's language, and an API is the contract that says which parcels an address accepts. You sent four of them by hand with curl .\n\nQuick check\n\n401 and 403 both mean no. What is the difference?\n\nWhat is the difference between defining a function and handing it to something else?\n\nWhy does Memento's phone app never talk to Anthropic directly?\n\nThe idea\n\nTake the word apart. A server is a program that repeats three things forever: it listens on a port, it waits, and when a request arrives it runs a function and writes a response. The program you started with node server.js was a server the moment it printed its line and refused to exit.\n\nThe interesting part is the lookup in the middle. A route is a pair: this verb plus this path goes to this function. That function is a handler . The code that reads the verb and path and picks the handler is a router . That is the architecture of every backend ever written, from ten lines to ten million.\n\nANALOGY (TEMPORARY)\n\nA reception desk with a laminated list of extensions. Somebody walks in, says what they want, and the receptionist reads the list: \"deliveries, extension 4\" or \"accounts, extension 9\". The receptionist does no actual work. They match what was said against the list and pass it on. Anything not on the list gets the same flat answer: nobody here does that. A route is a line on the laminated list. A handler is whoever picks up at the extension."
+    },
+    {
+      "blocks": [
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21
+      ],
+      "text": "Where the server runs is a separate question with three common answers. Rent a whole computer and keep your program running on it, which means you also own patching it, restarting it at 3am, and paying for it while it sits idle. Pay a platform to run a container for you. Or write one file, hand it over, and let the platform start it when a request arrives and stop it when nobody is calling. That last one gets called serverless , a marketing word, because there is obviously still a server. Honest version: a server somebody else keeps warm, started from a file, billed per call.\n\nMemento's version is a Supabase edge function , and it is also a proxy : a server of Memento's own standing between the phone and Anthropic. One file of TypeScript, deployed with one command, run on machines near whoever called. Memento pays per invocation and owns no computer.\n\nTwo more words before the real file. The environment is the set of named values the platform hands a program at boot, and it is where secrets live: not in the code, not in git. And a rate limit is a counter that refuses a caller who asks too often, which for an app that spends money per request is the spending cap.\n\nSee it\n\nA router is a lookup, and a lookup is an object. These boxes are a whole backend in miniature, with no network near them.\n\nBox 3 is the one worth sitting with. When the thing that counts your calls breaks, there are two choices. Fail open: \"the counter is down, let everybody through\", which keeps users happy and hands an attacker an unlimited budget on your card. Fail closed : \"the counter is down, nobody goes through\", which annoys users for a few minutes and cannot be turned into a bill. Memento fails closed, in writing, at the top of its proxy.\n\nNow in Memento\n\nFirst, the toy: Memento Jr's server, top to bottom\n\nNinety-six lines, and lines 3 and 4 tell you not to copy it. It requires three built-in Node modules, reads secrets.env into an object and exits if the key is missing, then defines four helpers: sendJSON , readBody , fakeReply , serveFile . Then the router."
+    },
+    {
+      "blocks": [
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34
+      ],
+      "text": "Five decisions. Line 71 throws away the query string, so /api/sync?x=1 routes the same as /api/sync . Line 72 logs every request: the log you watched scroll past. Line 73 is chapter 15's static versus dynamic fork, since anything not starting /api/ is a file on disk handed over unchanged. Line 74 is a route, spelled out as a verb check and a path check. Lines 75 to 78 are the handler, itself a function handed to readBody to be called later once the whole body has arrived, exactly like chapter 10's callback. The 400 and the 600 millisecond delay you met by hand are right there.\n\nThe file ends the way every router ends:\n\nA flat 404 for anything unmatched, then two lines that are the actual server: hand the router to createServer , and listen on the port. That is what \"listening\" means in code.\n\nThen the real one: ai-proxy/index.ts , in order\n\nANY APP: the file's first job is to state its own rules\n\nA file holding the only copy of a secret should open by saying so, in words. Not for style points: the next thing to touch it will be an AI agent taking instructions from a founder in a hurry, and the comment is what stands between them and a shortcut.\n\nMEMENTO: lines 1 to 4\n\nNow the body of the function, in the order it runs. Every step is a gate, and the expensive work is last on purpose.\n\nThe door (lines 98 to 106). Deno.serve(async (req) => { is the listen step: one handler for every request, no router at all, because an edge function is one address. Then an origin check, then the verb check you already read: anything that is not a POST gets 405.\n\nThe key (108 to 118).\n\nThe environment, in one line. The secret is not in this file, not in the repository, not in any commit. It was set once with supabase secrets set and handed to the program at boot. If it is missing, the function records a failure and returns 503, because \"I am not configured\" is the server's problem, not the caller's.\n\nThe spending cap (120 to 132), before the body is even read. The comment says why: \"Rate limit before spending anything upstream or parsing a large payload.\" Here is the fail-closed branch it calls:\n\nRead the order. If the limiter itself is unavailable, refuse with 503. Only then, if allowed, return null and let the request through. That is box 3, in production, guarding a real card. Below it, a 429 with a Retry-After header telling the caller how long to wait."
+    },
+    {
+      "blocks": [
+        35,
+        36,
+        37,
+        38,
+        39,
+        40,
+        41,
+        42,
+        43,
+        44
+      ],
+      "text": "The contract (134 to 146). The body is read with a byte ceiling, and then built = buildClarityRequest(body); at line 143 turns whatever arrived into the exact request the server is willing to make: the server picks the model, the system prompt and the token limit from the operation name. The caller sends an intent, not a shopping list. That single decision is why an anonymous caller cannot point Memento's free path at an expensive model.\n\nThe forward (238 to 248).\n\nThe server becomes a client. Same five parts as chapter 15. The one difference from the phone's version is 'x-api-key': apiKey , the secret, on a machine allowed to hold it. The signal is a 120 second leash, because a request with no timeout can hang forever.\n\nThe scrub. On the Luna path there is a rule written down in a comment and then obeyed:\n\nA provider's error message can quote your request back at you, so passing it through to a browser leaks what the server was sent. The status survives, the wording does not. The Anthropic path ends the same way in its catch: 504 for a timeout, 502 for anything else, fixed sentences.\n\nTHE ALTERNATIVE, AND WHY MEMENTO CHOSE THIS\n\nCall Anthropic from the phone. Simplest thing that works, one less moving part, and a key shipped to every user. Memento did this once, and the comment recording it is still in the client: // SECURITY: no API key ships in client code. (A live key used to sit here and / // is in git history; it MUST be revoked, see overnight/AI_PROXY_SETUP.md.) ( memento-app/js/03-ai-integration.js:10-11 , web pin ca8afc8). That is not a hypothetical. That is the origin story of the file you just read. Run your own server. Full control, any language, no platform limits, and you now own uptime, patching, scaling and a bill that runs whether anyone calls or not. An edge function. One file, one deploy command, billed per call, near the caller, and the platform owns the machine. The cost is real: cold starts, a vendor's runtime, execution limits, and your backend logic living somewhere that is not your main repo's normal flow. For a solo founder with one AI call to protect, that trade is not close.\n\nDo it\n\nExercise: add a route MAC\n\nYour first real code change in a real file. Nine words of logic."
+    },
+    {
+      "blocks": [
+        45,
+        46,
+        47,
+        48,
+        49,
+        50,
+        51,
+        52,
+        53,
+        54,
+        55,
+        56,
+        57,
+        58,
+        59,
+        60,
+        61,
+        62,
+        63,
+        64,
+        65,
+        66,
+        67,
+        68,
+        69,
+        70,
+        71,
+        72
+      ],
+      "text": "Open sandbox/v1/server.js . Find the last line inside handle() , the flat sendJSON(res, 404, ...) at line 91. Predict first: what happens if you put your new route below that line instead of above it?\n\nInsert these three lines immediately above that 404 line: if (req.method === \"GET\" && url === \"/api/ping\") { return sendJSON(res, 200, { ok: true }); }\n\nRestart the server. A running Node program does not notice a changed file, so Ctrl + C in the window where it is running, then node server.js again. This catches everybody once.\n\nCall it: curl -i http://localhost:4321/api/ping HTTP/1.1 200 OK Content-Type: application/json { \"ok\": true }\n\nThe assertion. Run curl -i http://localhost:4321/api/nope and confirm it is still a 404. You added a route, you did not break the fallback. One change, two things checked.\n\nThe boundary check. Run curl -i -X POST http://localhost:4321/api/ping . Predict the code first. You wrote req.method === \"GET\" , so a POST falls past your route to the 404 at the bottom. A purist would answer 405 there. Decide which you think is right and say why in one sentence.\n\nOn a phone instead: do box 2 above. Same change, same shape: a route is an entry in a lookup, and the fallback catches everything you did not name.\n\nASK THE AGENT WHY (paste this into Codex or Fable)\n\nWORDS YOU NOW OWN\n\nServer\n\nA program that listens on a port, waits, and runs a function for each request. It does not exit.\n\nListen\n\nClaiming a port and sitting awake on it. Two programs cannot listen on the same port.\n\nRoute\n\nA pair: this verb plus this path goes to this function.\n\nHandler\n\nThe function a route points at. Takes the request, returns a status and a body.\n\nRouter / dispatcher\n\nThe code that reads verb and path and picks the handler. Always ends with a fallback 404.\n\nServerless / edge function\n\nA server somebody else keeps warm, started from one file, billed per call. Memento's backend is a handful of them.\n\nEnvironment\n\nNamed values the platform hands a program at boot. Where secrets live, because they are not in the code and not in git.\n\nProxy\n\nA server of your own that stands between your app and someone else's API, so the secret, the model choice and the spending cap live on your side.\n\nRate limit\n\nA counter that refuses callers who ask too often. For a paid API it is a spending cap, not politeness.\n\nFail closed"
+    },
+    {
+      "blocks": [
+        73,
+        74,
+        75,
+        76,
+        77,
+        78,
+        79
+      ],
+      "text": "When the safety check itself breaks, refuse. The opposite, fail open, turns an outage into an unlimited bill.\n\nDeno / Node\n\nTwo ways to run JavaScript outside a browser. Supabase functions use Deno; Memento Jr uses Node.\n\nWHERE TODAY'S ANALOGY BREAKS\n\nBreaks when: you picture one receptionist, at one desk, remembering the morning. An edge function has no desk. Dozens of copies of it can be running at once in different cities, any of them can be shut down the moment it stops being called, and the next request may be answered by a copy that has never run before and remembers nothing. That is why the rate limit counts in a shared database instead of a variable in the file: a variable would be counting one copy's morning, which is worth nothing. It is also why the first call after a quiet spell is slower, a cold start. Real model: a handler is a pure-ish function that receives a request and returns a response, run on a machine that may not exist five seconds later. Every piece of memory that has to outlive one request belongs in a database. Chapter 17 is that database.\n\nCAMEO: Deno vs Node, and why Memento uses both\n\nBoth run JavaScript outside a browser, which for most of the language's life was a niche curiosity and since Node in 2009 is ordinary. Node came first and brought npm with it; Memento Jr is Node, which is why its first lines say require(\"http\") . Deno is the newer one, built by the same person, and it runs TypeScript directly with no build step and reads its environment through Deno.env . Supabase's edge functions run on Deno, so Memento's backend is Deno and its practice server is Node. The language is the same. The standard library and the import style differ, which is exactly the kind of difference that makes an AI agent write confidently wrong code if you do not tell it which runtime it is in."
+    }
+  ],
+  "wordCount": 2313
+}

@@ -359,6 +359,17 @@
     });
   }
 
+  /* ---------- 11b. Audiobook ---------- */
+  function audiobook() {
+    window.BIG_CODE_BOOK_AUDIO = { root: root, chapter: chapterNo, chapters: CHAPTERS };
+    var style = document.createElement('link');
+    style.rel = 'stylesheet'; style.href = root + 'css/audiobook.css';
+    document.head.appendChild(style);
+    var script = document.createElement('script');
+    script.src = root + 'js/audiobook.js';
+    document.body.appendChild(script);
+  }
+
   /* ---------- 12. Boot ---------- */
   applyTheme();
   applyFocus();
@@ -369,6 +380,7 @@
     chips();
     glossaryPage();
     sandboxes();
+    audiobook();
     // Figures scroll sideways on a phone instead of shrinking to unreadable.
     $$('figure > svg').forEach(function (s) { var w = el('div', { class: 'figscroll' }); s.parentNode.insertBefore(w, s); w.appendChild(s); });
     var cov = $('#cover-weeks');

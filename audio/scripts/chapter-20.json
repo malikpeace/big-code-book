@@ -1,0 +1,748 @@
+{
+  "chapter": 20,
+  "slug": "deploy-operate",
+  "title": "Deploy and operate",
+  "source": "chapters/20-deploy-operate.html",
+  "blocks": [
+    {
+      "index": 0,
+      "tag": "h1",
+      "text": "Deploy and operate"
+    },
+    {
+      "index": 1,
+      "tag": "p",
+      "text": "Code on your Mac helps nobody. This chapter is the last hop of the journey: how a change becomes something on a stranger's phone, what stands between the two, and what the job turns into once it is live."
+    },
+    {
+      "index": 2,
+      "tag": "div",
+      "text": "LAST TIME"
+    },
+    {
+      "index": 3,
+      "tag": "p",
+      "text": "A dependency is borrowed code with a version number, package.json is what you asked for and the lockfile is what you got. Humans run npm install , robots run npm ci . A secret is a value the code needs and must never contain, so it arrives from the environment at run time, and a leaked key gets revoked, not deleted."
+    },
+    {
+      "index": 4,
+      "tag": "h2",
+      "text": "Quick check"
+    },
+    {
+      "index": 5,
+      "tag": "summary",
+      "text": "Why do robots run npm ci instead of npm install ?"
+    },
+    {
+      "index": 6,
+      "tag": "summary",
+      "text": "Chapter 17: what is a migration, and why are they forward-only?"
+    },
+    {
+      "index": 7,
+      "tag": "summary",
+      "text": "Chapter 15: what is a status code for?"
+    },
+    {
+      "index": 8,
+      "tag": "h2",
+      "text": "The idea"
+    },
+    {
+      "index": 9,
+      "tag": "p",
+      "text": "There is more than one copy of your app, and the copies are not equal. An environment is one running copy, with its own data, its own settings, and its own audience. Three are normal."
+    },
+    {
+      "index": 10,
+      "tag": "th",
+      "text": "Environment"
+    },
+    {
+      "index": 11,
+      "tag": "th",
+      "text": "Who sees it"
+    },
+    {
+      "index": 12,
+      "tag": "th",
+      "text": "What breaking it costs"
+    },
+    {
+      "index": 13,
+      "tag": "td",
+      "text": "local"
+    },
+    {
+      "index": 14,
+      "tag": "td",
+      "text": "You, on your Mac"
+    },
+    {
+      "index": 15,
+      "tag": "td",
+      "text": "Nothing. Break it constantly."
+    },
+    {
+      "index": 16,
+      "tag": "td",
+      "text": "staging or dev"
+    },
+    {
+      "index": 17,
+      "tag": "td",
+      "text": "You and your testers"
+    },
+    {
+      "index": 18,
+      "tag": "td",
+      "text": "An hour. Fake data only."
+    },
+    {
+      "index": 19,
+      "tag": "td",
+      "text": "production"
+    },
+    {
+      "index": 20,
+      "tag": "td",
+      "text": "Real users, real money"
+    },
+    {
+      "index": 21,
+      "tag": "td",
+      "text": "Trust, and sometimes data you cannot get back."
+    },
+    {
+      "index": 22,
+      "tag": "p",
+      "text": "The separation is the whole point. Production has real people's notes in it, so if the only copy is production, every experiment is an experiment on your customers. The day an agent decides to tidy the database is the day you find out you had no other copy. That is the Replit incident from chapter 4."
+    },
+    {
+      "index": 23,
+      "tag": "p",
+      "text": "Now the two verbs people mix up. A build turns source into the thing that actually runs: it bundles files, strips comments, shrinks names, and produces an output folder. Running happens afterwards. Not every app needs a build. Memento's web app has none, because a browser reads its files directly. The native app needs one, because a phone cannot read a folder of TypeScript."
+    },
+    {
+      "index": 24,
+      "tag": "p",
+      "text": "Between \"I finished\" and \"users have it\" sits a robot. Continuous integration , CI, is a machine that wakes up on every push, checks out your code on a clean rented computer, and runs your checks. No opinions, no bad days. If a check exits non-zero, it refuses, which is chapter 6's exit code doing the most important job it will ever do."
+    },
+    {
+      "index": 25,
+      "tag": "p",
+      "text": "If the checks pass, the robot can deploy : copy this exact version to the place users reach. That place is hosting , a computer somewhere that answers when someone knocks. The knocking works because of DNS , the internet's phone book, which turns a name like mementoapp.co into the number of a machine. You rent the name, point it at your host, and the phone book spreads the answer around the world over the next few hours."
+    },
+    {
+      "index": 26,
+      "tag": "div",
+      "text": "ANALOGY (TEMPORARY)"
+    },
+    {
+      "index": 27,
+      "tag": "p",
+      "text": "A newspaper. Your laptop is the reporter's notebook: scribble anything, nobody cares. Staging is the proof copy, printed once, read by two people looking for typos. Production is the print run on the truck. The robot is the sub-editor who will not let a page through with a hole in it. Deploying is the truck leaving. And DNS is the phone book that tells a stranger which address the paper comes from. Once the truck is gone, you cannot un-print. You can only print a correction and send another truck."
+    },
+    {
+      "index": 28,
+      "tag": "h3",
+      "text": "Cache busting, and why it is the bug you will hit"
+    },
+    {
+      "index": 29,
+      "tag": "p",
+      "text": "Browsers and phones keep copies of files so pages load fast. That is a feature until you ship a fix and the user keeps getting yesterday's file, because as far as the browser knows, app.js is app.js . The fix is to change the address: app.js?v=1378 is a different URL, so nothing cached can answer it. That is cache busting . A bundler does it for you with a hash of the file's contents in the filename. By hand it works exactly as well, right up until a human forgets."
+    },
+    {
+      "index": 30,
+      "tag": "h3",
+      "text": "When it goes wrong"
+    },
+    {
+      "index": 31,
+      "tag": "p",
+      "text": "Every version you ship is a commit, so undoing a bad deploy is undoing a commit. Rollback is git revert of the offending commit and a push, and the robot deploys the corrected version the same way it deployed the broken one. Note what you do not do: edit production by hand, or force-push history away. A revert is a new commit saying \"undo that\", which keeps the record, and the record is how you stop it happening twice."
+    },
+    {
+      "index": 32,
+      "tag": "p",
+      "text": "Then there is the day something is wrong and you do not know what. Three moves, in this order, and the order is the lesson."
+    },
+    {
+      "index": 33,
+      "tag": "li",
+      "text": "Stop the bleeding. Roll back, or flip the feature off. Do not debug a live fire."
+    },
+    {
+      "index": 34,
+      "tag": "li",
+      "text": "Tell the users. Before they tell you. A short honest line beats silence every time."
+    },
+    {
+      "index": 35,
+      "tag": "li",
+      "text": "Then find the cause. Calmly, with the logs, once nobody is being hurt by it."
+    },
+    {
+      "index": 36,
+      "tag": "p",
+      "text": "Step three needs somewhere to look. A log is the app writing down what it did, and every layer keeps its own: the browser console for the phone, the backend dashboard for the server, the CI run log for the deploy. Knowing which of the three to open is most of the skill."
+    },
+    {
+      "index": 37,
+      "tag": "p",
+      "text": "Two more operator facts. A backup is a scheduled copy of the data, and restoring one puts the database back to a moment in time, throwing away everything after it. A backup you have never restored is a hope. And cost: some vendors bill per month, some per call, and the per-call ones are the ones that surprise you, because a loop with a bug spends money at machine speed."
+    },
+    {
+      "index": 38,
+      "tag": "h2",
+      "text": "See it"
+    },
+    {
+      "index": 39,
+      "tag": "p",
+      "text": "A CI pipeline, whole, in fifteen lines. Checks in order, stop at the first failure, hand back an exit code. Everything after this is the same idea with more YAML."
+    },
+    {
+      "index": 40,
+      "tag": "p",
+      "text": "Notice the break . Deploy is the last item in the list, so a red test is a closed door, not a warning. Flip the tests to true , run it again, and watch it open."
+    },
+    {
+      "index": 41,
+      "tag": "h3",
+      "text": "Same file, different address"
+    },
+    {
+      "index": 42,
+      "tag": "p",
+      "text": "Three downloads from three addresses, for one file. The browser is matching strings, nothing more. That is the entire mechanism behind every \"it works on my machine but his phone shows the old version\" conversation you will ever have."
+    },
+    {
+      "index": 43,
+      "tag": "h3",
+      "text": "Which copy am I?"
+    },
+    {
+      "index": 44,
+      "tag": "p",
+      "text": "Code that can ask where it is running can also refuse to do dangerous things there. That is the shape of a kill switch , and Memento has a real one."
+    },
+    {
+      "index": 45,
+      "tag": "h2",
+      "text": "Now in Memento"
+    },
+    {
+      "index": 46,
+      "tag": "div",
+      "text": "ANY APP"
+    },
+    {
+      "index": 47,
+      "tag": "p",
+      "text": "A deploy pipeline answers four questions, and you can read any project's by looking for them."
+    },
+    {
+      "index": 48,
+      "tag": "p",
+      "text": "When does it run? A trigger: which branch, which files."
+    },
+    {
+      "index": 49,
+      "tag": "p",
+      "text": "What must pass? The gate: the checks, and whether it stops at the first red."
+    },
+    {
+      "index": 50,
+      "tag": "p",
+      "text": "Where does it copy to? The target, and with what permission."
+    },
+    {
+      "index": 51,
+      "tag": "p",
+      "text": "How do I undo it? Revert and push, or nothing, which is not an answer."
+    },
+    {
+      "index": 52,
+      "tag": "div",
+      "text": "MEMENTO"
+    },
+    {
+      "index": 53,
+      "tag": "p",
+      "text": "The trigger. One branch, one folder:"
+    },
+    {
+      "index": 54,
+      "tag": "p",
+      "text": "A push to main that touches memento-app/** is the deploy, and so is a manual dispatch. Nobody uploads anything. A push to a feature branch deploys nothing, and neither does a change outside memento-app/ ."
+    },
+    {
+      "index": 55,
+      "tag": "p",
+      "text": "The gate, first half. Every JavaScript file is parsed before anything moves:"
+    },
+    {
+      "index": 56,
+      "tag": "p",
+      "text": "node --check parses a file without running it. For an app with no build step and no compiler, it is the only thing standing between a stray bracket and a white screen on every customer's phone."
+    },
+    {
+      "index": 57,
+      "tag": "p",
+      "text": "The gate, second half. Thirty-odd scripts, named one at a time:"
+    },
+    {
+      "index": 58,
+      "tag": "p",
+      "text": "They run under set -e , so the first non-zero exit kills the job and live never changes. The cost of having no test runner: this list is hand-maintained, and a test file nobody adds to this block is a test that never runs."
+    },
+    {
+      "index": 59,
+      "tag": "p",
+      "text": "The copy. Note the token, by name only:"
+    },
+    {
+      "index": 60,
+      "tag": "p",
+      "text": "--delete means the destination ends up identical to the source, including files that were removed. The comment above says why that matters, and why one folder is exempt:"
+    },
+    {
+      "index": 61,
+      "tag": "p",
+      "text": "An operations decision written down at the point of impact: a security property, the bug it caused, the exemption, the tradeoff. The secret that lets the robot push appears by name only, LIVE_DEPLOY_TOKEN , with its value in the repository's Actions secrets. Chapter 19's rule, applied to a robot."
+    },
+    {
+      "index": 62,
+      "tag": "p",
+      "text": "The native side has its own robot, and it is the chapter-19 rules in a job:"
+    },
+    {
+      "index": 63,
+      "tag": "p",
+      "text": "npm ci reproduces the lockfile. npm run check is the type checker and then the tests, joined by && from chapter 6. The two expo export lines are the build, proving the app can be produced for both phones. This workflow checks and builds, it does not ship: getting a native app to users means the App Store, which is a later chapter."
+    },
+    {
+      "index": 64,
+      "tag": "p",
+      "text": "Now the cache. The version stamp in the shell says v1378. Count the tags on the script URLs:"
+    },
+    {
+      "index": 65,
+      "tag": "p",
+      "text": "Fifty-seven tags, fourteen different versions. That is not rot, it is a record: a tag is bumped by hand when that file changes, so the numbers show which release each file was last stamped in, not what changed in any one release. Two tags read v1378, js/01-state-foundation.js and js/11-init.js . Put one next to a neighbour and the contrast is the point:"
+    },
+    {
+      "index": 66,
+      "tag": "p",
+      "text": "A bundler would compute every one of those from the file's contents, so forgetting would be impossible. By hand, forgetting is a Tuesday. Hence a second net, bolted on after it happened:"
+    },
+    {
+      "index": 67,
+      "tag": "p",
+      "text": "The shell declares a version, the scripts declare a version, the boot code compares them. Mismatch means the phone is running a stale mix, so it repairs itself once. Three times in one day is why that code exists: an operations problem solved inside the app."
+    },
+    {
+      "index": 68,
+      "tag": "p",
+      "text": "Where the app actually lives. The domain is real and the server knows it:"
+    },
+    {
+      "index": 69,
+      "tag": "p",
+      "text": "Two names for one app: the GitHub Pages address serving memento-live , and the bought domain pointed at it by DNS. Day to day, neither is used:"
+    },
+    {
+      "index": 70,
+      "tag": "p",
+      "text": "Localhost is free and instant, Netlify costs credits, production is for finished work. Environments chosen by cost."
+    },
+    {
+      "index": 71,
+      "tag": "p",
+      "text": "Last, the kill switch. Real billing does not turn on because code shipped, it turns on because an environment variable says so:"
+    },
+    {
+      "index": 72,
+      "tag": "p",
+      "text": "Read the default. Anything unset, misspelled or unrecognised lands on disabled . Turning real payments on is one setting in a dashboard, and turning them off in an incident is the same setting, with no deploy and no waiting. That is what an operations control looks like."
+    },
+    {
+      "index": 73,
+      "tag": "div",
+      "text": "THE ALTERNATIVE, AND WHY MEMENTO CHOSE THIS"
+    },
+    {
+      "index": 74,
+      "tag": "p",
+      "text": "The obvious alternative is one repo, made public, served straight from Pages. Simpler, and wrong here: the repo holds migrations, workflow files, internal handoff documents and the whole agent protocol, none of which is anyone's business. So the private repo stays private and a robot mirrors only memento-app/ into a public one, which also means the public repo can never hold a file the app does not serve. The second alternative is a real host with a build step, giving automatic cache busting and proper environments, at the cost of a build, an install, and a pipeline that can break on its own. Memento bought the no-build simplicity and pays for it in hand-written ?v= tags and a hand-listed test block, with the boot-time build stamp as the net for the one failure mode that trade creates."
+    },
+    {
+      "index": 75,
+      "tag": "h2",
+      "text": "Do it"
+    },
+    {
+      "index": 76,
+      "tag": "div",
+      "text": "Exercise READ"
+    },
+    {
+      "index": 77,
+      "tag": "li",
+      "text": "Open https://github.com/malikpeace/memento/actions and sign in."
+    },
+    {
+      "index": 78,
+      "tag": "li",
+      "text": "In the left sidebar, find the workflow named Deploy to live . Click it. You now see only its runs, newest first."
+    },
+    {
+      "index": 79,
+      "tag": "li",
+      "text": "Read the list. Each row is one push: a commit message, a green tick or a red cross, who pushed it, and how long it took. Find the most recent green one and note the duration."
+    },
+    {
+      "index": 80,
+      "tag": "li",
+      "text": "Click that run. You get the job, called deploy . Click the job name to open the steps."
+    },
+    {
+      "index": 81,
+      "tag": "li",
+      "text": "Write down the three main steps in order, in your own words. They are the ones you read above: check out the code, run the safety gate, mirror the folder. Everything else is setup."
+    },
+    {
+      "index": 82,
+      "tag": "li",
+      "text": "Expand Release safety gate and scroll to the bottom. The last line is All release safety checks passed. Above it, every test script that ran, in the order the file lists them."
+    },
+    {
+      "index": 83,
+      "tag": "li",
+      "text": "Expand Mirror memento-app/ to the live repo and find the final line naming the short commit that was deployed. That string is the version of Memento the phone is running."
+    },
+    {
+      "index": 84,
+      "tag": "li",
+      "text": "If there is a red run in the list, open it. The failed step carries a red cross and its log stops at the line that failed. Nothing after it ran: the break from the sandbox, in real life."
+    },
+    {
+      "index": 85,
+      "tag": "div",
+      "text": "Mac alternative, if you would rather not open a browser MAC"
+    },
+    {
+      "index": 86,
+      "tag": "li",
+      "text": "git -C ~/Downloads/MEMENTO log --oneline -5 -- memento-app"
+    },
+    {
+      "index": 87,
+      "tag": "li",
+      "text": "All five touched memento-app/ , so each would have woken the robot and, if the gate passed, changed what the phone loads. The top line is v1378."
+    },
+    {
+      "index": 88,
+      "tag": "li",
+      "text": "Now drop the -- memento-app and run it again. More commits, and the extra ones are the pushes that deployed nothing. That difference is the paths: filter, doing its job."
+    },
+    {
+      "index": 89,
+      "tag": "div",
+      "text": "ASK THE AGENT WHY (paste this into Codex or Fable)"
+    },
+    {
+      "index": 90,
+      "tag": "div",
+      "text": "WORDS YOU NOW OWN"
+    },
+    {
+      "index": 91,
+      "tag": "dt",
+      "text": "Environment"
+    },
+    {
+      "index": 92,
+      "tag": "dd",
+      "text": "One running copy of the app with its own data and settings. Local, staging, production. Keeping them apart is what stops an experiment becoming an incident."
+    },
+    {
+      "index": 93,
+      "tag": "dt",
+      "text": "Build"
+    },
+    {
+      "index": 94,
+      "tag": "dd",
+      "text": "Turning source into the thing that runs. Memento's web app skips it entirely; the native app does it with expo export ."
+    },
+    {
+      "index": 95,
+      "tag": "dt",
+      "text": "CI"
+    },
+    {
+      "index": 96,
+      "tag": "dd",
+      "text": "A robot that checks out every push on a clean machine and runs your checks. A non-zero exit code means it refuses."
+    },
+    {
+      "index": 97,
+      "tag": "dt",
+      "text": "Deploy"
+    },
+    {
+      "index": 98,
+      "tag": "dd",
+      "text": "Copying one exact version to where users reach it. In Memento it is an rsync from a private repo into a public one, triggered by a push."
+    },
+    {
+      "index": 99,
+      "tag": "dt",
+      "text": "Hosting"
+    },
+    {
+      "index": 100,
+      "tag": "dd",
+      "text": "The computer that answers when someone knocks. Memento's web app is served by GitHub Pages out of the mirrored repo."
+    },
+    {
+      "index": 101,
+      "tag": "dt",
+      "text": "DNS"
+    },
+    {
+      "index": 102,
+      "tag": "dd",
+      "text": "The phone book from a name to a machine. It is why mementoapp.co and a github.io address can be the same app."
+    },
+    {
+      "index": 103,
+      "tag": "dt",
+      "text": "Cache busting"
+    },
+    {
+      "index": 104,
+      "tag": "dd",
+      "text": "Changing the address so a cached copy cannot answer. A bundler does it with a content hash; Memento does it by hand with ?v=v1378 ."
+    },
+    {
+      "index": 105,
+      "tag": "dt",
+      "text": "Rollback"
+    },
+    {
+      "index": 106,
+      "tag": "dd",
+      "text": "Revert the commit, push, let the robot deploy the corrected version. Never edit production by hand."
+    },
+    {
+      "index": 107,
+      "tag": "dt",
+      "text": "Log"
+    },
+    {
+      "index": 108,
+      "tag": "dd",
+      "text": "The app writing down what it did. Browser console for the phone, Supabase dashboard for the edge functions, the Actions run log for the deploy."
+    },
+    {
+      "index": 109,
+      "tag": "dt",
+      "text": "Backup and restore"
+    },
+    {
+      "index": 110,
+      "tag": "dd",
+      "text": "A scheduled copy of the data, and putting the database back to a moment in time, which discards everything after it. Untested backups do not count."
+    },
+    {
+      "index": 111,
+      "tag": "dt",
+      "text": "Kill switch"
+    },
+    {
+      "index": 112,
+      "tag": "dd",
+      "text": "A setting that turns a dangerous capability off without a deploy. POLAR_PRODUCTION_MODE defaults to disabled, so unset means off."
+    },
+    {
+      "index": 113,
+      "tag": "div",
+      "text": "WHERE TODAY'S ANALOGY BREAKS"
+    },
+    {
+      "index": 114,
+      "tag": "p",
+      "text": "Breaks when: you think the truck delivers everything at once. A web deploy lands on the server instantly, but each phone picks it up only when that phone next asks, which is why caches and service workers can leave one user on last week's version while everyone else has today's. There is no single moment when everyone is on the new version, and pretending otherwise is how you ship a change that assumes old and new clients cannot coexist. The newspaper also has no database: a printed correction cannot un-write data, but a bad migration can, and no rollback of the code brings back a column you dropped. Real model: a deploy makes a new version available at an address. Clients converge on it at their own pace. Code can be reverted because it is versioned. Data cannot, which is why backups, not rollbacks, are the safety net that matters, and why the database and the code have to be able to survive each other being one step out of date."
+    },
+    {
+      "index": 115,
+      "tag": "summary",
+      "text": "RABBIT HOLE: why a DNS change \"takes time\""
+    },
+    {
+      "index": 116,
+      "tag": "p",
+      "text": "Nobody asks the authoritative server every time. Answers are cached, all the way down the chain: your phone, your router, your internet provider, and the resolvers in between. Every answer comes with a TTL, a time to live, which says how long it may be reused. So when you point a name at a new machine, the old answer keeps being handed out until the TTLs expire, and different people switch over at different times. That is the whole reason for the advice to lower the TTL a day before a move: you are asking the world to stop holding the old answer for so long. It is the same mechanism as the ?v= tags, one layer down, and it fails the same way."
+    }
+  ],
+  "segments": [
+    {
+      "blocks": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24
+      ],
+      "text": "Deploy and operate\n\nCode on your Mac helps nobody. This chapter is the last hop of the journey: how a change becomes something on a stranger's phone, what stands between the two, and what the job turns into once it is live.\n\nLAST TIME\n\nA dependency is borrowed code with a version number, package.json is what you asked for and the lockfile is what you got. Humans run npm install , robots run npm ci . A secret is a value the code needs and must never contain, so it arrives from the environment at run time, and a leaked key gets revoked, not deleted.\n\nQuick check\n\nWhy do robots run npm ci instead of npm install ?\n\nChapter 17: what is a migration, and why are they forward-only?\n\nChapter 15: what is a status code for?\n\nThe idea\n\nThere is more than one copy of your app, and the copies are not equal. An environment is one running copy, with its own data, its own settings, and its own audience. Three are normal.\n\nEnvironment\n\nWho sees it\n\nWhat breaking it costs\n\nlocal\n\nYou, on your Mac\n\nNothing. Break it constantly.\n\nstaging or dev\n\nYou and your testers\n\nAn hour. Fake data only.\n\nproduction\n\nReal users, real money\n\nTrust, and sometimes data you cannot get back.\n\nThe separation is the whole point. Production has real people's notes in it, so if the only copy is production, every experiment is an experiment on your customers. The day an agent decides to tidy the database is the day you find out you had no other copy. That is the Replit incident from chapter 4.\n\nNow the two verbs people mix up. A build turns source into the thing that actually runs: it bundles files, strips comments, shrinks names, and produces an output folder. Running happens afterwards. Not every app needs a build. Memento's web app has none, because a browser reads its files directly. The native app needs one, because a phone cannot read a folder of TypeScript.\n\nBetween \"I finished\" and \"users have it\" sits a robot. Continuous integration , CI, is a machine that wakes up on every push, checks out your code on a clean rented computer, and runs your checks. No opinions, no bad days. If a check exits non-zero, it refuses, which is chapter 6's exit code doing the most important job it will ever do."
+    },
+    {
+      "blocks": [
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35
+      ],
+      "text": "If the checks pass, the robot can deploy : copy this exact version to the place users reach. That place is hosting , a computer somewhere that answers when someone knocks. The knocking works because of DNS , the internet's phone book, which turns a name like mementoapp.co into the number of a machine. You rent the name, point it at your host, and the phone book spreads the answer around the world over the next few hours.\n\nANALOGY (TEMPORARY)\n\nA newspaper. Your laptop is the reporter's notebook: scribble anything, nobody cares. Staging is the proof copy, printed once, read by two people looking for typos. Production is the print run on the truck. The robot is the sub-editor who will not let a page through with a hole in it. Deploying is the truck leaving. And DNS is the phone book that tells a stranger which address the paper comes from. Once the truck is gone, you cannot un-print. You can only print a correction and send another truck.\n\nCache busting, and why it is the bug you will hit\n\nBrowsers and phones keep copies of files so pages load fast. That is a feature until you ship a fix and the user keeps getting yesterday's file, because as far as the browser knows, app.js is app.js . The fix is to change the address: app.js?v=1378 is a different URL, so nothing cached can answer it. That is cache busting . A bundler does it for you with a hash of the file's contents in the filename. By hand it works exactly as well, right up until a human forgets.\n\nWhen it goes wrong\n\nEvery version you ship is a commit, so undoing a bad deploy is undoing a commit. Rollback is git revert of the offending commit and a push, and the robot deploys the corrected version the same way it deployed the broken one. Note what you do not do: edit production by hand, or force-push history away. A revert is a new commit saying \"undo that\", which keeps the record, and the record is how you stop it happening twice.\n\nThen there is the day something is wrong and you do not know what. Three moves, in this order, and the order is the lesson.\n\nStop the bleeding. Roll back, or flip the feature off. Do not debug a live fire.\n\nTell the users. Before they tell you. A short honest line beats silence every time.\n\nThen find the cause. Calmly, with the logs, once nobody is being hurt by it."
+    },
+    {
+      "blocks": [
+        36,
+        37,
+        38,
+        39,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47,
+        48,
+        49,
+        50,
+        51,
+        52,
+        53,
+        54,
+        55,
+        56,
+        57
+      ],
+      "text": "Step three needs somewhere to look. A log is the app writing down what it did, and every layer keeps its own: the browser console for the phone, the backend dashboard for the server, the CI run log for the deploy. Knowing which of the three to open is most of the skill.\n\nTwo more operator facts. A backup is a scheduled copy of the data, and restoring one puts the database back to a moment in time, throwing away everything after it. A backup you have never restored is a hope. And cost: some vendors bill per month, some per call, and the per-call ones are the ones that surprise you, because a loop with a bug spends money at machine speed.\n\nSee it\n\nA CI pipeline, whole, in fifteen lines. Checks in order, stop at the first failure, hand back an exit code. Everything after this is the same idea with more YAML.\n\nNotice the break . Deploy is the last item in the list, so a red test is a closed door, not a warning. Flip the tests to true , run it again, and watch it open.\n\nSame file, different address\n\nThree downloads from three addresses, for one file. The browser is matching strings, nothing more. That is the entire mechanism behind every \"it works on my machine but his phone shows the old version\" conversation you will ever have.\n\nWhich copy am I?\n\nCode that can ask where it is running can also refuse to do dangerous things there. That is the shape of a kill switch , and Memento has a real one.\n\nNow in Memento\n\nANY APP\n\nA deploy pipeline answers four questions, and you can read any project's by looking for them.\n\nWhen does it run? A trigger: which branch, which files.\n\nWhat must pass? The gate: the checks, and whether it stops at the first red.\n\nWhere does it copy to? The target, and with what permission.\n\nHow do I undo it? Revert and push, or nothing, which is not an answer.\n\nMEMENTO\n\nThe trigger. One branch, one folder:\n\nA push to main that touches memento-app/** is the deploy, and so is a manual dispatch. Nobody uploads anything. A push to a feature branch deploys nothing, and neither does a change outside memento-app/ .\n\nThe gate, first half. Every JavaScript file is parsed before anything moves:\n\nnode --check parses a file without running it. For an app with no build step and no compiler, it is the only thing standing between a stray bracket and a white screen on every customer's phone.\n\nThe gate, second half. Thirty-odd scripts, named one at a time:"
+    },
+    {
+      "blocks": [
+        58,
+        59,
+        60,
+        61,
+        62,
+        63,
+        64,
+        65,
+        66,
+        67,
+        68,
+        69,
+        70
+      ],
+      "text": "They run under set -e , so the first non-zero exit kills the job and live never changes. The cost of having no test runner: this list is hand-maintained, and a test file nobody adds to this block is a test that never runs.\n\nThe copy. Note the token, by name only:\n\n--delete means the destination ends up identical to the source, including files that were removed. The comment above says why that matters, and why one folder is exempt:\n\nAn operations decision written down at the point of impact: a security property, the bug it caused, the exemption, the tradeoff. The secret that lets the robot push appears by name only, LIVE_DEPLOY_TOKEN , with its value in the repository's Actions secrets. Chapter 19's rule, applied to a robot.\n\nThe native side has its own robot, and it is the chapter-19 rules in a job:\n\nnpm ci reproduces the lockfile. npm run check is the type checker and then the tests, joined by && from chapter 6. The two expo export lines are the build, proving the app can be produced for both phones. This workflow checks and builds, it does not ship: getting a native app to users means the App Store, which is a later chapter.\n\nNow the cache. The version stamp in the shell says v1378. Count the tags on the script URLs:\n\nFifty-seven tags, fourteen different versions. That is not rot, it is a record: a tag is bumped by hand when that file changes, so the numbers show which release each file was last stamped in, not what changed in any one release. Two tags read v1378, js/01-state-foundation.js and js/11-init.js . Put one next to a neighbour and the contrast is the point:\n\nA bundler would compute every one of those from the file's contents, so forgetting would be impossible. By hand, forgetting is a Tuesday. Hence a second net, bolted on after it happened:\n\nThe shell declares a version, the scripts declare a version, the boot code compares them. Mismatch means the phone is running a stale mix, so it repairs itself once. Three times in one day is why that code exists: an operations problem solved inside the app.\n\nWhere the app actually lives. The domain is real and the server knows it:\n\nTwo names for one app: the GitHub Pages address serving memento-live , and the bought domain pointed at it by DNS. Day to day, neither is used:\n\nLocalhost is free and instant, Netlify costs credits, production is for finished work. Environments chosen by cost."
+    },
+    {
+      "blocks": [
+        71,
+        72,
+        73,
+        74,
+        75,
+        76,
+        77,
+        78,
+        79,
+        80,
+        81,
+        82,
+        83
+      ],
+      "text": "Last, the kill switch. Real billing does not turn on because code shipped, it turns on because an environment variable says so:\n\nRead the default. Anything unset, misspelled or unrecognised lands on disabled . Turning real payments on is one setting in a dashboard, and turning them off in an incident is the same setting, with no deploy and no waiting. That is what an operations control looks like.\n\nTHE ALTERNATIVE, AND WHY MEMENTO CHOSE THIS\n\nThe obvious alternative is one repo, made public, served straight from Pages. Simpler, and wrong here: the repo holds migrations, workflow files, internal handoff documents and the whole agent protocol, none of which is anyone's business. So the private repo stays private and a robot mirrors only memento-app/ into a public one, which also means the public repo can never hold a file the app does not serve. The second alternative is a real host with a build step, giving automatic cache busting and proper environments, at the cost of a build, an install, and a pipeline that can break on its own. Memento bought the no-build simplicity and pays for it in hand-written ?v= tags and a hand-listed test block, with the boot-time build stamp as the net for the one failure mode that trade creates.\n\nDo it\n\nExercise READ\n\nOpen https://github.com/malikpeace/memento/actions and sign in.\n\nIn the left sidebar, find the workflow named Deploy to live . Click it. You now see only its runs, newest first.\n\nRead the list. Each row is one push: a commit message, a green tick or a red cross, who pushed it, and how long it took. Find the most recent green one and note the duration.\n\nClick that run. You get the job, called deploy . Click the job name to open the steps.\n\nWrite down the three main steps in order, in your own words. They are the ones you read above: check out the code, run the safety gate, mirror the folder. Everything else is setup.\n\nExpand Release safety gate and scroll to the bottom. The last line is All release safety checks passed. Above it, every test script that ran, in the order the file lists them.\n\nExpand Mirror memento-app/ to the live repo and find the final line naming the short commit that was deployed. That string is the version of Memento the phone is running."
+    },
+    {
+      "blocks": [
+        84,
+        85,
+        86,
+        87,
+        88,
+        89,
+        90,
+        91,
+        92,
+        93,
+        94,
+        95,
+        96,
+        97,
+        98,
+        99,
+        100,
+        101,
+        102,
+        103,
+        104,
+        105,
+        106,
+        107,
+        108,
+        109,
+        110,
+        111,
+        112,
+        113
+      ],
+      "text": "If there is a red run in the list, open it. The failed step carries a red cross and its log stops at the line that failed. Nothing after it ran: the break from the sandbox, in real life.\n\nMac alternative, if you would rather not open a browser MAC\n\ngit -C ~/Downloads/MEMENTO log --oneline -5 -- memento-app\n\nAll five touched memento-app/ , so each would have woken the robot and, if the gate passed, changed what the phone loads. The top line is v1378.\n\nNow drop the -- memento-app and run it again. More commits, and the extra ones are the pushes that deployed nothing. That difference is the paths: filter, doing its job.\n\nASK THE AGENT WHY (paste this into Codex or Fable)\n\nWORDS YOU NOW OWN\n\nEnvironment\n\nOne running copy of the app with its own data and settings. Local, staging, production. Keeping them apart is what stops an experiment becoming an incident.\n\nBuild\n\nTurning source into the thing that runs. Memento's web app skips it entirely; the native app does it with expo export .\n\nCI\n\nA robot that checks out every push on a clean machine and runs your checks. A non-zero exit code means it refuses.\n\nDeploy\n\nCopying one exact version to where users reach it. In Memento it is an rsync from a private repo into a public one, triggered by a push.\n\nHosting\n\nThe computer that answers when someone knocks. Memento's web app is served by GitHub Pages out of the mirrored repo.\n\nDNS\n\nThe phone book from a name to a machine. It is why mementoapp.co and a github.io address can be the same app.\n\nCache busting\n\nChanging the address so a cached copy cannot answer. A bundler does it with a content hash; Memento does it by hand with ?v=v1378 .\n\nRollback\n\nRevert the commit, push, let the robot deploy the corrected version. Never edit production by hand.\n\nLog\n\nThe app writing down what it did. Browser console for the phone, Supabase dashboard for the edge functions, the Actions run log for the deploy.\n\nBackup and restore\n\nA scheduled copy of the data, and putting the database back to a moment in time, which discards everything after it. Untested backups do not count.\n\nKill switch\n\nA setting that turns a dangerous capability off without a deploy. POLAR_PRODUCTION_MODE defaults to disabled, so unset means off.\n\nWHERE TODAY'S ANALOGY BREAKS"
+    },
+    {
+      "blocks": [
+        114,
+        115,
+        116
+      ],
+      "text": "Breaks when: you think the truck delivers everything at once. A web deploy lands on the server instantly, but each phone picks it up only when that phone next asks, which is why caches and service workers can leave one user on last week's version while everyone else has today's. There is no single moment when everyone is on the new version, and pretending otherwise is how you ship a change that assumes old and new clients cannot coexist. The newspaper also has no database: a printed correction cannot un-write data, but a bad migration can, and no rollback of the code brings back a column you dropped. Real model: a deploy makes a new version available at an address. Clients converge on it at their own pace. Code can be reverted because it is versioned. Data cannot, which is why backups, not rollbacks, are the safety net that matters, and why the database and the code have to be able to survive each other being one step out of date.\n\nRABBIT HOLE: why a DNS change \"takes time\"\n\nNobody asks the authoritative server every time. Answers are cached, all the way down the chain: your phone, your router, your internet provider, and the resolvers in between. Every answer comes with a TTL, a time to live, which says how long it may be reused. So when you point a name at a new machine, the old answer keeps being handed out until the TTLs expire, and different people switch over at different times. That is the whole reason for the advice to lower the TTL a day before a move: you are asking the world to stop holding the old answer for so long. It is the same mechanism as the ?v= tags, one layer down, and it fails the same way."
+    }
+  ],
+  "wordCount": 2779
+}

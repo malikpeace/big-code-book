@@ -1,0 +1,688 @@
+{
+  "chapter": 18,
+  "slug": "auth",
+  "title": "Auth: who you are and what you may do",
+  "source": "chapters/18-auth.html",
+  "blocks": [
+    {
+      "index": 0,
+      "tag": "h1",
+      "text": "Auth: who you are and what you may do"
+    },
+    {
+      "index": 1,
+      "tag": "p",
+      "text": "Two questions that look like one. Who is this? And is this person allowed to do that? Mixing them up is how a paywall becomes decorative, and Memento's own decision log says its web paywall currently is."
+    },
+    {
+      "index": 2,
+      "tag": "div",
+      "text": "LAST TIME"
+    },
+    {
+      "index": 3,
+      "tag": "p",
+      "text": "A database is tables of rows, related by keys, described by a schema that migrations change one dated file at a time. Row Level Security is Postgres deciding, inside every query, which rows the signed-in user may touch. Three of chapter 4's four incidents are that rule being absent."
+    },
+    {
+      "index": 4,
+      "tag": "h2",
+      "text": "Quick check"
+    },
+    {
+      "index": 5,
+      "tag": "summary",
+      "text": "What does using (auth.uid() = user_id) actually do?"
+    },
+    {
+      "index": 6,
+      "tag": "summary",
+      "text": "Why can the Supabase public key sit in JavaScript on every phone without that being a disaster?"
+    },
+    {
+      "index": 7,
+      "tag": "summary",
+      "text": "A request comes back with 401. What did the server mean?"
+    },
+    {
+      "index": 8,
+      "tag": "h2",
+      "text": "The idea"
+    },
+    {
+      "index": 9,
+      "tag": "p",
+      "text": "Authentication is who are you . You prove it once: a code to your email, a password, a face. The answer is an identity, nothing more."
+    },
+    {
+      "index": 10,
+      "tag": "p",
+      "text": "Authorization is what may you do . Given that identity, may you read this row, call this route, use the paid model. Yes or no, per action."
+    },
+    {
+      "index": 11,
+      "tag": "p",
+      "text": "Knowing who someone is tells you nothing about what they may do. Every hotel understands this: the desk checks your ID once, and the key card opens your room and the gym and not the wine cellar."
+    },
+    {
+      "index": 12,
+      "tag": "div",
+      "text": "ANALOGY (TEMPORARY)"
+    },
+    {
+      "index": 13,
+      "tag": "p",
+      "text": "The hotel. You show your passport at the desk once: authentication. They hand you a key card: the session , proof you were checked, valid for your stay. The number on the card is the token . You present it at every door, and the door has no idea what your passport looked like. Cards expire, can be reissued, and can be cancelled while you stand in the lift. The valet gets a different key entirely, one that starts the car and will not open the boot. That valet key is OAuth ."
+    },
+    {
+      "index": 14,
+      "tag": "h3",
+      "text": "The token, properly"
+    },
+    {
+      "index": 15,
+      "tag": "p",
+      "text": "A token is a string, sent in a header with every request, usually as Authorization: Bearer <the string> . Four things about it are the model."
+    },
+    {
+      "index": 16,
+      "tag": "th",
+      "text": "Property"
+    },
+    {
+      "index": 17,
+      "tag": "th",
+      "text": "Why it exists"
+    },
+    {
+      "index": 18,
+      "tag": "td",
+      "text": "It is issued by the auth system, not made up by the client"
+    },
+    {
+      "index": 19,
+      "tag": "td",
+      "text": "It is signed, so the server tells a real one from a guess with no lookup."
+    },
+    {
+      "index": 20,
+      "tag": "td",
+      "text": "It expires, usually in an hour"
+    },
+    {
+      "index": 21,
+      "tag": "td",
+      "text": "So a stolen one stops working soon. Memento's native session stores expiresAt per session."
+    },
+    {
+      "index": 22,
+      "tag": "td",
+      "text": "It can be refreshed"
+    },
+    {
+      "index": 23,
+      "tag": "td",
+      "text": "A second, longer-lived refresh token quietly trades itself for a new access token, so you are not signed out every hour."
+    },
+    {
+      "index": 24,
+      "tag": "td",
+      "text": "It can be revoked"
+    },
+    {
+      "index": 25,
+      "tag": "td",
+      "text": "Signing out, or an admin killing the session, stops it working before it expires."
+    },
+    {
+      "index": 26,
+      "tag": "p",
+      "text": "So a token is not a password. It is a temporary, cancellable stand-in, which is why apps hand them around instead of storing passwords anywhere."
+    },
+    {
+      "index": 27,
+      "tag": "h3",
+      "text": "OAuth, and the key you do not give away"
+    },
+    {
+      "index": 28,
+      "tag": "p",
+      "text": "\"Continue with Google\" is not Memento asking for your Google password. Memento sends you to Google, Google authenticates you on its own page, and Google returns a signed statement saying \"this is a real account, here is its id and email\". Memento never sees the password, so it could not leak it if it tried. And you can revoke the connection later, which you could not do after typing a password into somebody's form."
+    },
+    {
+      "index": 29,
+      "tag": "h3",
+      "text": "Public keys, secret keys, and one flag that means nothing"
+    },
+    {
+      "index": 30,
+      "tag": "p",
+      "text": "Some keys identify an application. Some authorize spending money. Treating them alike is how founders get four-figure bills."
+    },
+    {
+      "index": 31,
+      "tag": "p",
+      "text": "Supabase's anon key is the first kind: a long string inside every copy of the app, visible to anyone who opens the developer tools. It says \"requests from the Memento app\", not who you are. It is still a real credential the API accepts, so it is not powerless. It is publishable because its power was deliberately cut down: the database role it maps to gets almost no grants, and RLS decides access per row from the signed-in identity. Public by design, safe only because of the previous chapter."
+    },
+    {
+      "index": 32,
+      "tag": "p",
+      "text": "The Anthropic key is a secret key , the second kind: anyone holding it can spend Memento's money. It lives in the edge function's environment and nowhere else, which is the entire reason the chapter 16 proxy exists."
+    },
+    {
+      "index": 33,
+      "tag": "p",
+      "text": "Then the flag. An entitlement is what an account has paid for, and a real one lives on a server. Memento's entitlements.isPaid is a boolean on the user's own device, editable in ten seconds. Fine as a hint about which screen to draw, never evidence. A client can say it is paid. Only a server can know."
+    },
+    {
+      "index": 34,
+      "tag": "h2",
+      "text": "See it"
+    },
+    {
+      "index": 35,
+      "tag": "p",
+      "text": "A fake sign-in that issues a token, and a door that checks it. Real tokens are signed so they cannot be forged. These are just objects."
+    },
+    {
+      "index": 36,
+      "tag": "p",
+      "text": "Now the second question. Same token, different doors, and authentication passing does not make the answer yes."
+    },
+    {
+      "index": 37,
+      "tag": "p",
+      "text": "And the bug: the client sends its own isPaid and the server believes it. Run it, then read the fix."
+    },
+    {
+      "index": 38,
+      "tag": "p",
+      "text": "The fix is not better validation of isPaid . The field is gone from the decision: the server uses the identity the token proved, and its own records."
+    },
+    {
+      "index": 39,
+      "tag": "h2",
+      "text": "Now in Memento"
+    },
+    {
+      "index": 40,
+      "tag": "div",
+      "text": "ANY APP: the key that is meant to be seen"
+    },
+    {
+      "index": 41,
+      "tag": "p",
+      "text": "A publishable client key identifies the app and maps to a deliberately weak database role: grants stripped back, row rules deciding access from the signed-in user. Publishing it is safe because its authority is small, not because it has none. Write that next to the key so nobody \"fixes\" it."
+    },
+    {
+      "index": 42,
+      "tag": "div",
+      "text": "MEMENTO: the anon key, with its reason"
+    },
+    {
+      "index": 43,
+      "tag": "p",
+      "text": "The key itself is on line 21: a long base64 string, in the public repo on purpose. The comment is the important part, because it names what actually protects the data, and it is not the key."
+    },
+    {
+      "index": 44,
+      "tag": "div",
+      "text": "ANY APP: a sign-in method behind a switch"
+    },
+    {
+      "index": 45,
+      "tag": "p",
+      "text": "A new sign-in provider is half configuration in someone else's dashboard. Flag it so the button does not exist until that half is done."
+    },
+    {
+      "index": 46,
+      "tag": "div",
+      "text": "MEMENTO: Google, flagged then wired"
+    },
+    {
+      "index": 47,
+      "tag": "p",
+      "text": "One line does the whole valet-key dance: leave for Google, come back to the same page with a session. redirectTo is the address Google may return you to, and it is checked, or it would be a way to send the token somewhere else."
+    },
+    {
+      "index": 48,
+      "tag": "div",
+      "text": "ANY APP: anonymous work and paid work take different doors"
+    },
+    {
+      "index": 49,
+      "tag": "p",
+      "text": "Free features can be anonymous if the server tightly controls what they do. Paid features carry a real identity, and the code refuses rather than falls back."
+    },
+    {
+      "index": 50,
+      "tag": "div",
+      "text": "MEMENTO: the header fork"
+    },
+    {
+      "index": 51,
+      "tag": "p",
+      "text": "Free Clarity sends the public app key as the bearer. Paid Action sends your session token, and with no session it throws instead of quietly sending the public key and hoping. That throw is the most important line here."
+    },
+    {
+      "index": 52,
+      "tag": "div",
+      "text": "ANY APP: do not trust your own sign-in reply"
+    },
+    {
+      "index": 53,
+      "tag": "p",
+      "text": "A sign-in response is data that arrived over a network. Ask the auth server who the token really belongs to and check it matches. And keep \"you are rejected\" apart from \"I could not reach anyone\", because they deserve opposite reactions."
+    },
+    {
+      "index": 54,
+      "tag": "div",
+      "text": "MEMENTO NATIVE: re-verify, then match"
+    },
+    {
+      "index": 55,
+      "tag": "p",
+      "text": "Four checks in five lines. Shape, a round trip asking who the token is really for, the ids must match, and only then is it a session. Note the split: 401 or 403 means genuinely signed out, anything else means the network failed, which must never erase an offline session."
+    },
+    {
+      "index": 56,
+      "tag": "div",
+      "text": "ANY APP: the receipt is a picture, not a permit"
+    },
+    {
+      "index": 57,
+      "tag": "p",
+      "text": "Cache the entitlement so the interface is right instantly and works offline, then write in the code that the cache is never authority for a server request."
+    },
+    {
+      "index": 58,
+      "tag": "div",
+      "text": "MEMENTO NATIVE: paidServerAuthority is a literal false"
+    },
+    {
+      "index": 59,
+      "tag": "p",
+      "text": "That field's type is not boolean . It is the literal false , so the compiler refuses any code that sets it true. And validateReceipt recomputes the receipt's expiry, so a receipt edited to grant itself six more months fails its own arithmetic."
+    },
+    {
+      "index": 60,
+      "tag": "div",
+      "text": "ANY APP: tokens do not live with the data"
+    },
+    {
+      "index": 61,
+      "tag": "p",
+      "text": "Saved app data gets copied, backed up, exported and logged. A token in there is a token in all of those places. Use the operating system's locked store instead."
+    },
+    {
+      "index": 62,
+      "tag": "div",
+      "text": "MEMENTO NATIVE: the keychain, this device only"
+    },
+    {
+      "index": 63,
+      "tag": "p",
+      "text": "expo-secure-store is the iOS keychain, the operating system's secure store . WHEN_UNLOCKED_THIS_DEVICE_ONLY means readable only while the phone is unlocked, never carried to a new device in a backup. The state blob, which does get copied around, holds no credentials."
+    },
+    {
+      "index": 64,
+      "tag": "div",
+      "text": "THE ALTERNATIVE, AND WHY MEMENTO CHOSE THIS"
+    },
+    {
+      "index": 65,
+      "tag": "p",
+      "text": "The alternative is passwords you store yourself: hashing, reset emails, breach notifications, permanent liability, zero product value. Memento does not have one. Web sign-in is a six-digit code to your email plus Google; native is the same code path. The cost is real, since a code email in a spam folder is a failed sign-in and your support ticket. What Memento buys is that it never holds a password, so it can never leak one. The honest gap. The web paywall is not enforced anywhere, and Memento's own decision log says so: \"The paywall is UI-only today: Unlock sets state.entitlements.isPaid = true on the client (js/13), no payment collected, so the paid gate is currently bypassable. Real billing enforcement is the #1 pre-launch gap.\" That is DECISIONS.md:18-21 (web pin ca8afc8): the third sandbox's bug, in production, written down by the people who built it. The native side is where it gets fixed, which is why paidServerAuthority was born as a literal false ."
+    },
+    {
+      "index": 66,
+      "tag": "h2",
+      "text": "Do it"
+    },
+    {
+      "index": 67,
+      "tag": "div",
+      "text": "Exercise MAC"
+    },
+    {
+      "index": 68,
+      "tag": "p",
+      "text": "FAKE_TOKEN is a stand-in, not real auth. One word, hardcoded, the same for everybody, never expiring. Real auth issues a signed, expiring, revocable token per person. The sandbox uses a fake one so you see the shape of the check without a login system in the way. Do not ship anything like it."
+    },
+    {
+      "index": 69,
+      "tag": "li",
+      "text": "Start it. Two commands, then leave it running. cd ~/Downloads/CODE-BOOK/sandbox/v1-secure cp secrets.env.example secrets.env cp server.js server.js.bak node server.js"
+    },
+    {
+      "index": 70,
+      "tag": "li",
+      "text": "Open a second Terminal tab. Knock without a token. curl -i -s -X POST http://localhost:4321/api/sync \\ -d '{\"northStar\":\"Read my own code\",\"streak\":1,\"revision\":0}' 401 , missing or wrong FAKE_TOKEN or X-Owner . Authentication failed, so authorization never happened."
+    },
+    {
+      "index": 71,
+      "tag": "p",
+      "text": "401 , missing or wrong FAKE_TOKEN or X-Owner . Authentication failed, so authorization never happened."
+    },
+    {
+      "index": 72,
+      "tag": "li",
+      "text": "Now with it, as yourself. curl -i -s -X POST http://localhost:4321/api/sync \\ -H \"FAKE_TOKEN: letmein\" -H \"X-Owner: malik\" \\ -d '{\"northStar\":\"Read my own code\",\"streak\":1,\"revision\":0}' 200 and {\"ok\": true, \"revision\": 1} . Run it again and you get 409 conflict : you sent revision 0, the server is on 1. Chapter 17's revision check, in miniature."
+    },
+    {
+      "index": 73,
+      "tag": "p",
+      "text": "200 and {\"ok\": true, \"revision\": 1} . Run it again and you get 409 conflict : you sent revision 0, the server is on 1. Chapter 17's revision check, in miniature."
+    },
+    {
+      "index": 74,
+      "tag": "li",
+      "text": "Be somebody else: same token, different owner. curl -s -H \"FAKE_TOKEN: letmein\" -H \"X-Owner: stranger\" http://localhost:4321/api/sync {} . Their own empty slot. Your north star is right there in db.json and they do not get it, because handleGetSync returns loadDB()[owner] , not loadDB() . One pair of square brackets, the whole idea of row-level access by hand."
+    },
+    {
+      "index": 75,
+      "tag": "p",
+      "text": "{} . Their own empty slot. Your north star is right there in db.json and they do not get it, because handleGetSync returns loadDB()[owner] , not loadDB() . One pair of square brackets, the whole idea of row-level access by hand."
+    },
+    {
+      "index": 76,
+      "tag": "li",
+      "text": "Break it. In server.js , delete the line in checkAuth reading if (req.headers[\"fake_token\"] !== FAKE_TOKEN) return null; , then in handleGetSync change loadDB()[owner] || {} to loadDB() . Ctrl-C, start it again."
+    },
+    {
+      "index": 77,
+      "tag": "li",
+      "text": "Knock as nobody. curl -s -H \"X-Owner: anyone\" http://localhost:4321/api/sync Everyone's data, to a caller with no token. Two deletions, two holes: no identity check, no per-user scoping. EnrichLead and the 170 Lovable apps in one command, on your own machine, where it costs nothing."
+    },
+    {
+      "index": 78,
+      "tag": "p",
+      "text": "Everyone's data, to a caller with no token. Two deletions, two holes: no identity check, no per-user scoping. EnrichLead and the 170 Lovable apps in one command, on your own machine, where it costs nothing."
+    },
+    {
+      "index": 79,
+      "tag": "li",
+      "text": "Put it back: mv server.js.bak server.js , restart, run step 6 again, get 401 . Then rm db.json secrets.env ."
+    },
+    {
+      "index": 80,
+      "tag": "p",
+      "text": "On a phone instead: use the first sandbox. Sign in with the wrong code, then the right one, then call whoIs with the token, with nothing, and with a guess. Then change 2000 to 10 and watch a token expire between being issued and being used."
+    },
+    {
+      "index": 81,
+      "tag": "div",
+      "text": "ASK THE AGENT WHY (paste this into Codex or Fable)"
+    },
+    {
+      "index": 82,
+      "tag": "div",
+      "text": "WORDS YOU NOW OWN"
+    },
+    {
+      "index": 83,
+      "tag": "dt",
+      "text": "Authentication"
+    },
+    {
+      "index": 84,
+      "tag": "dd",
+      "text": "Who are you. Proved once, producing an identity."
+    },
+    {
+      "index": 85,
+      "tag": "dt",
+      "text": "Authorization"
+    },
+    {
+      "index": 86,
+      "tag": "dd",
+      "text": "What may you do. Asked again at every door, per action."
+    },
+    {
+      "index": 87,
+      "tag": "dt",
+      "text": "Session"
+    },
+    {
+      "index": 88,
+      "tag": "dd",
+      "text": "The record that you were checked, valid for a while. The hotel key card."
+    },
+    {
+      "index": 89,
+      "tag": "dt",
+      "text": "Token"
+    },
+    {
+      "index": 90,
+      "tag": "dd",
+      "text": "The string you send with each request that stands for the session. Signed, expiring, refreshable, revocable. Never a password."
+    },
+    {
+      "index": 91,
+      "tag": "dt",
+      "text": "Refresh token"
+    },
+    {
+      "index": 92,
+      "tag": "dd",
+      "text": "A longer-lived second token whose only job is to get you a fresh access token without signing in again."
+    },
+    {
+      "index": 93,
+      "tag": "dt",
+      "text": "OAuth"
+    },
+    {
+      "index": 94,
+      "tag": "dd",
+      "text": "Another service vouching for you. Google authenticates you on its own page and hands back a signed statement. Memento never sees the password."
+    },
+    {
+      "index": 95,
+      "tag": "dt",
+      "text": "Anon key / public key"
+    },
+    {
+      "index": 96,
+      "tag": "dd",
+      "text": "A publishable credential that identifies the app and carries a deliberately limited database role. Safe to publish because grants and Row Level Security keep its authority small, not because it has none."
+    },
+    {
+      "index": 97,
+      "tag": "dt",
+      "text": "Secret key"
+    },
+    {
+      "index": 98,
+      "tag": "dd",
+      "text": "Spends money or grants power. Lives in a server's environment and nowhere else. Memento's Anthropic key is one."
+    },
+    {
+      "index": 99,
+      "tag": "dt",
+      "text": "Entitlement"
+    },
+    {
+      "index": 100,
+      "tag": "dd",
+      "text": "What a given account has paid for. Real ones live on a server. isPaid on a phone is a drawing hint, not evidence."
+    },
+    {
+      "index": 101,
+      "tag": "dt",
+      "text": "Secure store / keychain"
+    },
+    {
+      "index": 102,
+      "tag": "dd",
+      "text": "The operating system's locked box for credentials. Tokens go there, not in the app's saved data."
+    },
+    {
+      "index": 103,
+      "tag": "div",
+      "text": "WHERE TODAY'S ANALOGY BREAKS"
+    },
+    {
+      "index": 104,
+      "tag": "p",
+      "text": "Breaks when: you picture the door phoning the front desk. Most tokens are signed, so the door verifies the signature itself with no call, which is also why revoking is not instant: a signed token stays valid until it expires unless something extra checks a revocation list. The hotel also has one guest per card, where real sessions live on several devices at once, and signing out on one does not sign out the others. Real model: a signed, short-lived, scoped claim about an identity, issued by a party both sides trust, verified independently at each boundary, with a refresh path and a way to revoke. You will not build one. You will decide, over and over, whether a check is asking the client or asking the server."
+    },
+    {
+      "index": 105,
+      "tag": "summary",
+      "text": "RABBIT HOLE: what is actually inside a token"
+    },
+    {
+      "index": 106,
+      "tag": "p",
+      "text": "Most of these are JWTs, JSON Web Tokens: three chunks separated by dots. The first two are plain JSON, encoded but not encrypted, holding the algorithm and the claims, which include the subject (your user id), an issuer, an audience, and exp , the expiry. Anyone can read them. The third is a signature over the first two, made with a key only the issuer has. So the contents are not hidden; holding it is what proves you were given it. That is why the database can call auth.uid() with no lookup, and why the native app keeps tokens in the keychain. To see one, sign in on the web and look at the sb- entry in localStorage. Paste it nowhere."
+    }
+  ],
+  "segments": [
+    {
+      "blocks": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24
+      ],
+      "text": "Auth: who you are and what you may do\n\nTwo questions that look like one. Who is this? And is this person allowed to do that? Mixing them up is how a paywall becomes decorative, and Memento's own decision log says its web paywall currently is.\n\nLAST TIME\n\nA database is tables of rows, related by keys, described by a schema that migrations change one dated file at a time. Row Level Security is Postgres deciding, inside every query, which rows the signed-in user may touch. Three of chapter 4's four incidents are that rule being absent.\n\nQuick check\n\nWhat does using (auth.uid() = user_id) actually do?\n\nWhy can the Supabase public key sit in JavaScript on every phone without that being a disaster?\n\nA request comes back with 401. What did the server mean?\n\nThe idea\n\nAuthentication is who are you . You prove it once: a code to your email, a password, a face. The answer is an identity, nothing more.\n\nAuthorization is what may you do . Given that identity, may you read this row, call this route, use the paid model. Yes or no, per action.\n\nKnowing who someone is tells you nothing about what they may do. Every hotel understands this: the desk checks your ID once, and the key card opens your room and the gym and not the wine cellar.\n\nANALOGY (TEMPORARY)\n\nThe hotel. You show your passport at the desk once: authentication. They hand you a key card: the session , proof you were checked, valid for your stay. The number on the card is the token . You present it at every door, and the door has no idea what your passport looked like. Cards expire, can be reissued, and can be cancelled while you stand in the lift. The valet gets a different key entirely, one that starts the car and will not open the boot. That valet key is OAuth .\n\nThe token, properly\n\nA token is a string, sent in a header with every request, usually as Authorization: Bearer <the string> . Four things about it are the model.\n\nProperty\n\nWhy it exists\n\nIt is issued by the auth system, not made up by the client\n\nIt is signed, so the server tells a real one from a guess with no lookup.\n\nIt expires, usually in an hour\n\nSo a stolen one stops working soon. Memento's native session stores expiresAt per session.\n\nIt can be refreshed\n\nA second, longer-lived refresh token quietly trades itself for a new access token, so you are not signed out every hour.\n\nIt can be revoked"
+    },
+    {
+      "blocks": [
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37
+      ],
+      "text": "Signing out, or an admin killing the session, stops it working before it expires.\n\nSo a token is not a password. It is a temporary, cancellable stand-in, which is why apps hand them around instead of storing passwords anywhere.\n\nOAuth, and the key you do not give away\n\n\"Continue with Google\" is not Memento asking for your Google password. Memento sends you to Google, Google authenticates you on its own page, and Google returns a signed statement saying \"this is a real account, here is its id and email\". Memento never sees the password, so it could not leak it if it tried. And you can revoke the connection later, which you could not do after typing a password into somebody's form.\n\nPublic keys, secret keys, and one flag that means nothing\n\nSome keys identify an application. Some authorize spending money. Treating them alike is how founders get four-figure bills.\n\nSupabase's anon key is the first kind: a long string inside every copy of the app, visible to anyone who opens the developer tools. It says \"requests from the Memento app\", not who you are. It is still a real credential the API accepts, so it is not powerless. It is publishable because its power was deliberately cut down: the database role it maps to gets almost no grants, and RLS decides access per row from the signed-in identity. Public by design, safe only because of the previous chapter.\n\nThe Anthropic key is a secret key , the second kind: anyone holding it can spend Memento's money. It lives in the edge function's environment and nowhere else, which is the entire reason the chapter 16 proxy exists.\n\nThen the flag. An entitlement is what an account has paid for, and a real one lives on a server. Memento's entitlements.isPaid is a boolean on the user's own device, editable in ten seconds. Fine as a hint about which screen to draw, never evidence. A client can say it is paid. Only a server can know.\n\nSee it\n\nA fake sign-in that issues a token, and a door that checks it. Real tokens are signed so they cannot be forged. These are just objects.\n\nNow the second question. Same token, different doors, and authentication passing does not make the answer yes.\n\nAnd the bug: the client sends its own isPaid and the server believes it. Run it, then read the fix."
+    },
+    {
+      "blocks": [
+        38,
+        39,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47,
+        48,
+        49,
+        50,
+        51,
+        52,
+        53,
+        54,
+        55,
+        56
+      ],
+      "text": "The fix is not better validation of isPaid . The field is gone from the decision: the server uses the identity the token proved, and its own records.\n\nNow in Memento\n\nANY APP: the key that is meant to be seen\n\nA publishable client key identifies the app and maps to a deliberately weak database role: grants stripped back, row rules deciding access from the signed-in user. Publishing it is safe because its authority is small, not because it has none. Write that next to the key so nobody \"fixes\" it.\n\nMEMENTO: the anon key, with its reason\n\nThe key itself is on line 21: a long base64 string, in the public repo on purpose. The comment is the important part, because it names what actually protects the data, and it is not the key.\n\nANY APP: a sign-in method behind a switch\n\nA new sign-in provider is half configuration in someone else's dashboard. Flag it so the button does not exist until that half is done.\n\nMEMENTO: Google, flagged then wired\n\nOne line does the whole valet-key dance: leave for Google, come back to the same page with a session. redirectTo is the address Google may return you to, and it is checked, or it would be a way to send the token somewhere else.\n\nANY APP: anonymous work and paid work take different doors\n\nFree features can be anonymous if the server tightly controls what they do. Paid features carry a real identity, and the code refuses rather than falls back.\n\nMEMENTO: the header fork\n\nFree Clarity sends the public app key as the bearer. Paid Action sends your session token, and with no session it throws instead of quietly sending the public key and hoping. That throw is the most important line here.\n\nANY APP: do not trust your own sign-in reply\n\nA sign-in response is data that arrived over a network. Ask the auth server who the token really belongs to and check it matches. And keep \"you are rejected\" apart from \"I could not reach anyone\", because they deserve opposite reactions.\n\nMEMENTO NATIVE: re-verify, then match\n\nFour checks in five lines. Shape, a round trip asking who the token is really for, the ids must match, and only then is it a session. Note the split: 401 or 403 means genuinely signed out, anything else means the network failed, which must never erase an offline session.\n\nANY APP: the receipt is a picture, not a permit"
+    },
+    {
+      "blocks": [
+        57,
+        58,
+        59,
+        60,
+        61,
+        62,
+        63,
+        64,
+        65,
+        66,
+        67,
+        68
+      ],
+      "text": "Cache the entitlement so the interface is right instantly and works offline, then write in the code that the cache is never authority for a server request.\n\nMEMENTO NATIVE: paidServerAuthority is a literal false\n\nThat field's type is not boolean . It is the literal false , so the compiler refuses any code that sets it true. And validateReceipt recomputes the receipt's expiry, so a receipt edited to grant itself six more months fails its own arithmetic.\n\nANY APP: tokens do not live with the data\n\nSaved app data gets copied, backed up, exported and logged. A token in there is a token in all of those places. Use the operating system's locked store instead.\n\nMEMENTO NATIVE: the keychain, this device only\n\nexpo-secure-store is the iOS keychain, the operating system's secure store . WHEN_UNLOCKED_THIS_DEVICE_ONLY means readable only while the phone is unlocked, never carried to a new device in a backup. The state blob, which does get copied around, holds no credentials.\n\nTHE ALTERNATIVE, AND WHY MEMENTO CHOSE THIS\n\nThe alternative is passwords you store yourself: hashing, reset emails, breach notifications, permanent liability, zero product value. Memento does not have one. Web sign-in is a six-digit code to your email plus Google; native is the same code path. The cost is real, since a code email in a spam folder is a failed sign-in and your support ticket. What Memento buys is that it never holds a password, so it can never leak one. The honest gap. The web paywall is not enforced anywhere, and Memento's own decision log says so: \"The paywall is UI-only today: Unlock sets state.entitlements.isPaid = true on the client (js/13), no payment collected, so the paid gate is currently bypassable. Real billing enforcement is the #1 pre-launch gap.\" That is DECISIONS.md:18-21 (web pin ca8afc8): the third sandbox's bug, in production, written down by the people who built it. The native side is where it gets fixed, which is why paidServerAuthority was born as a literal false .\n\nDo it\n\nExercise MAC\n\nFAKE_TOKEN is a stand-in, not real auth. One word, hardcoded, the same for everybody, never expiring. Real auth issues a signed, expiring, revocable token per person. The sandbox uses a fake one so you see the shape of the check without a login system in the way. Do not ship anything like it."
+    },
+    {
+      "blocks": [
+        69,
+        70,
+        71,
+        72,
+        73,
+        74,
+        75,
+        76,
+        77,
+        78
+      ],
+      "text": "Start it. Two commands, then leave it running. cd ~/Downloads/CODE-BOOK/sandbox/v1-secure cp secrets.env.example secrets.env cp server.js server.js.bak node server.js\n\nOpen a second Terminal tab. Knock without a token. curl -i -s -X POST http://localhost:4321/api/sync \\ -d '{\"northStar\":\"Read my own code\",\"streak\":1,\"revision\":0}' 401 , missing or wrong FAKE_TOKEN or X-Owner . Authentication failed, so authorization never happened.\n\n401 , missing or wrong FAKE_TOKEN or X-Owner . Authentication failed, so authorization never happened.\n\nNow with it, as yourself. curl -i -s -X POST http://localhost:4321/api/sync \\ -H \"FAKE_TOKEN: letmein\" -H \"X-Owner: malik\" \\ -d '{\"northStar\":\"Read my own code\",\"streak\":1,\"revision\":0}' 200 and {\"ok\": true, \"revision\": 1} . Run it again and you get 409 conflict : you sent revision 0, the server is on 1. Chapter 17's revision check, in miniature.\n\n200 and {\"ok\": true, \"revision\": 1} . Run it again and you get 409 conflict : you sent revision 0, the server is on 1. Chapter 17's revision check, in miniature.\n\nBe somebody else: same token, different owner. curl -s -H \"FAKE_TOKEN: letmein\" -H \"X-Owner: stranger\" http://localhost:4321/api/sync {} . Their own empty slot. Your north star is right there in db.json and they do not get it, because handleGetSync returns loadDB()[owner] , not loadDB() . One pair of square brackets, the whole idea of row-level access by hand.\n\n{} . Their own empty slot. Your north star is right there in db.json and they do not get it, because handleGetSync returns loadDB()[owner] , not loadDB() . One pair of square brackets, the whole idea of row-level access by hand.\n\nBreak it. In server.js , delete the line in checkAuth reading if (req.headers[\"fake_token\"] !== FAKE_TOKEN) return null; , then in handleGetSync change loadDB()[owner] || {} to loadDB() . Ctrl-C, start it again.\n\nKnock as nobody. curl -s -H \"X-Owner: anyone\" http://localhost:4321/api/sync Everyone's data, to a caller with no token. Two deletions, two holes: no identity check, no per-user scoping. EnrichLead and the 170 Lovable apps in one command, on your own machine, where it costs nothing.\n\nEveryone's data, to a caller with no token. Two deletions, two holes: no identity check, no per-user scoping. EnrichLead and the 170 Lovable apps in one command, on your own machine, where it costs nothing."
+    },
+    {
+      "blocks": [
+        79,
+        80,
+        81,
+        82,
+        83,
+        84,
+        85,
+        86,
+        87,
+        88,
+        89,
+        90,
+        91,
+        92,
+        93,
+        94,
+        95,
+        96,
+        97,
+        98,
+        99,
+        100,
+        101,
+        102,
+        103
+      ],
+      "text": "Put it back: mv server.js.bak server.js , restart, run step 6 again, get 401 . Then rm db.json secrets.env .\n\nOn a phone instead: use the first sandbox. Sign in with the wrong code, then the right one, then call whoIs with the token, with nothing, and with a guess. Then change 2000 to 10 and watch a token expire between being issued and being used.\n\nASK THE AGENT WHY (paste this into Codex or Fable)\n\nWORDS YOU NOW OWN\n\nAuthentication\n\nWho are you. Proved once, producing an identity.\n\nAuthorization\n\nWhat may you do. Asked again at every door, per action.\n\nSession\n\nThe record that you were checked, valid for a while. The hotel key card.\n\nToken\n\nThe string you send with each request that stands for the session. Signed, expiring, refreshable, revocable. Never a password.\n\nRefresh token\n\nA longer-lived second token whose only job is to get you a fresh access token without signing in again.\n\nOAuth\n\nAnother service vouching for you. Google authenticates you on its own page and hands back a signed statement. Memento never sees the password.\n\nAnon key / public key\n\nA publishable credential that identifies the app and carries a deliberately limited database role. Safe to publish because grants and Row Level Security keep its authority small, not because it has none.\n\nSecret key\n\nSpends money or grants power. Lives in a server's environment and nowhere else. Memento's Anthropic key is one.\n\nEntitlement\n\nWhat a given account has paid for. Real ones live on a server. isPaid on a phone is a drawing hint, not evidence.\n\nSecure store / keychain\n\nThe operating system's locked box for credentials. Tokens go there, not in the app's saved data.\n\nWHERE TODAY'S ANALOGY BREAKS"
+    },
+    {
+      "blocks": [
+        104,
+        105,
+        106
+      ],
+      "text": "Breaks when: you picture the door phoning the front desk. Most tokens are signed, so the door verifies the signature itself with no call, which is also why revoking is not instant: a signed token stays valid until it expires unless something extra checks a revocation list. The hotel also has one guest per card, where real sessions live on several devices at once, and signing out on one does not sign out the others. Real model: a signed, short-lived, scoped claim about an identity, issued by a party both sides trust, verified independently at each boundary, with a refresh path and a way to revoke. You will not build one. You will decide, over and over, whether a check is asking the client or asking the server.\n\nRABBIT HOLE: what is actually inside a token\n\nMost of these are JWTs, JSON Web Tokens: three chunks separated by dots. The first two are plain JSON, encoded but not encrypted, holding the algorithm and the claims, which include the subject (your user id), an issuer, an audience, and exp , the expiry. Anyone can read them. The third is a signature over the first two, made with a key only the issuer has. So the contents are not hidden; holding it is what proves you were given it. That is why the database can call auth.uid() with no lookup, and why the native app keeps tokens in the keychain. To see one, sign in on the web and look at the sb- entry in localStorage. Paste it nowhere."
+    }
+  ],
+  "wordCount": 2551
+}

@@ -1,0 +1,574 @@
+{
+  "chapter": 29,
+  "slug": "run-native",
+  "title": "Run Memento's native app yourself",
+  "source": "chapters/29-run-native.html",
+  "blocks": [
+    {
+      "index": 0,
+      "tag": "h1",
+      "text": "Run Memento's native app yourself"
+    },
+    {
+      "index": 1,
+      "tag": "p",
+      "text": "You have read the native code for eight chapters. Tonight you make it move. A fake iPhone opens on your Mac, Memento boots inside it, and the last piece of magic dies: the thing on the phone came from these files, and you can point at the file that drew the screen."
+    },
+    {
+      "index": 2,
+      "tag": "div",
+      "text": "LAST TIME"
+    },
+    {
+      "index": 3,
+      "tag": "p",
+      "text": "Duplicate systems get born when nobody greps first, so Memento has two paywalls and two event styles. Scope creep is the agent improving code you did not ask about, and one sentence in the request stops it. When it goes wrong: look before you touch, make a safety commit, then restore one named file, revert a commit, or read the reflog."
+    },
+    {
+      "index": 4,
+      "tag": "p",
+      "text": "This is a Mac chapter. Reading it on your phone is fine and worth doing. The doing part needs Terminal, Xcode and a simulator, so the exercise waits for the Mac."
+    },
+    {
+      "index": 5,
+      "tag": "h2",
+      "text": "Quick check"
+    },
+    {
+      "index": 6,
+      "tag": "summary",
+      "text": "What is the difference between npm install and npm ci ?"
+    },
+    {
+      "index": 7,
+      "tag": "summary",
+      "text": "In React, what is a component?"
+    },
+    {
+      "index": 8,
+      "tag": "summary",
+      "text": "What does \"build\" mean, as opposed to \"run\"?"
+    },
+    {
+      "index": 9,
+      "tag": "h2",
+      "text": "The idea"
+    },
+    {
+      "index": 10,
+      "tag": "p",
+      "text": "An app on an iPhone is one installed thing, so it feels like one lump. While it is being built, it is two."
+    },
+    {
+      "index": 11,
+      "tag": "p",
+      "text": "The first part is the native shell : real compiled code, packaged into the thing iOS installs. It owns the window, the fonts, the keyboard, the secure storage. Building it needs Xcode and takes minutes."
+    },
+    {
+      "index": 12,
+      "tag": "p",
+      "text": "The second part is the JavaScript. Every screen and every piece of logic you have been reading in src/ is TypeScript, which becomes JavaScript, and it is not compiled into the shell. It is loaded when the app starts, like a web page loading a script."
+    },
+    {
+      "index": 13,
+      "tag": "p",
+      "text": "That split is the whole trick. Build the shell once, then change the JavaScript all day and the app reloads in a second. The shell that does this is a dev build : a normal native app with one extra ability, which is to fetch its JavaScript from your Mac instead of carrying its own copy."
+    },
+    {
+      "index": 14,
+      "tag": "p",
+      "text": "The program on your Mac that serves it is Metro , React Native's bundler . It reads the entry file, follows every import , glues the graph into one big JavaScript file, hands it over on request, then watches your files. Save one, Metro rebuilds what changed and pushes it, and the running app swaps the new code in without restarting. That is Fast Refresh , which everyone calls hot reload."
+    },
+    {
+      "index": 15,
+      "tag": "p",
+      "text": "The simulator is the fourth piece: a real copy of iOS running on your Mac, pretending to be a phone. It boots, installs apps, has a home screen. No camera, no cell radio, no App Store, and it reports safe-area insets of zero unless told otherwise. Close enough for tonight."
+    },
+    {
+      "index": 16,
+      "tag": "div",
+      "text": "ANALOGY (TEMPORARY)"
+    },
+    {
+      "index": 17,
+      "tag": "p",
+      "text": "The dev build is a television set. Building it is manufacturing the set: slow, done once, needs a factory (Xcode). Metro is a small broadcast tower on your Mac. The television has no programming of its own, it tunes to the tower. Change the show at the tower and the picture changes immediately, with no new television. The simulator is the showroom: a fake living room on your desk."
+    },
+    {
+      "index": 18,
+      "tag": "h3",
+      "text": "The four commands, and what each actually does"
+    },
+    {
+      "index": 19,
+      "tag": "dt",
+      "text": "npm ci"
+    },
+    {
+      "index": 20,
+      "tag": "dd",
+      "text": "Reads package-lock.json and installs those exact package versions into node_modules/ . Borrowed code, chapter 19. It downloads a lot and prints a lot. Nothing runs."
+    },
+    {
+      "index": 21,
+      "tag": "dt",
+      "text": "npm run check"
+    },
+    {
+      "index": 22,
+      "tag": "dd",
+      "text": "Runs whatever the project defined under the name check . In Memento that is the typechecker and then the test suite. This is the same gate the robot runs on every push, so if it passes here, the code is in the state CI expects."
+    },
+    {
+      "index": 23,
+      "tag": "dt",
+      "text": "npx expo run:ios"
+    },
+    {
+      "index": 24,
+      "tag": "dd",
+      "text": "The heavy one. Generates the iOS project, installs the native dependencies, compiles the shell with Xcode, boots a simulator, installs the app, starts Metro, opens the app. First time: many minutes. Afterwards the shell is already built and it is fast."
+    },
+    {
+      "index": 25,
+      "tag": "dt",
+      "text": "npx expo start --dev-client"
+    },
+    {
+      "index": 26,
+      "tag": "dd",
+      "text": "Metro only. Use it once the dev build exists on the simulator. Seconds, not minutes. --dev-client means \"the app that will connect is a dev build of this project\", not the generic Expo Go app."
+    },
+    {
+      "index": 27,
+      "tag": "p",
+      "text": "Two places talk to you. The Metro terminal prints bundle progress, every reload, and anything the app writes with console.log or console.warn . The simulator shows errors on screen with a stack trace, the kind you learned to read in chapter 23. Cmd and D with the simulator focused opens the developer menu."
+    },
+    {
+      "index": 28,
+      "tag": "h3",
+      "text": "Finding the file that drew a screen"
+    },
+    {
+      "index": 29,
+      "tag": "p",
+      "text": "Memento's native app uses expo-router : file-based routing, where the file's path is the URL. src/app/index.tsx is the screen at / ; src/app/settings.tsx would be /settings . Nobody writes a route list. The folder is the list. _layout.tsx is the exception: the underscore means \"not a screen\", it is the wrapper the screens render into."
+    },
+    {
+      "index": 30,
+      "tag": "p",
+      "text": "Which gives you a two-step way to find any screen in any React Native app. Read a word off the screen, grep for that word, and the file holding the text is the file that drew it."
+    },
+    {
+      "index": 31,
+      "tag": "h2",
+      "text": "See it"
+    },
+    {
+      "index": 32,
+      "tag": "p",
+      "text": "File-based routing in fifteen lines: a map from paths to screens, and a function that resolves a URL against it. Predict the last three lines before you run."
+    },
+    {
+      "index": 33,
+      "tag": "p",
+      "text": "The real router is more careful, but the shape is honest: no route table, only a folder, and a missing screen is a missing file."
+    },
+    {
+      "index": 34,
+      "tag": "h2",
+      "text": "Now in Memento"
+    },
+    {
+      "index": 35,
+      "tag": "div",
+      "text": "EVERYTHING TONIGHT HAPPENS IN THE LAB"
+    },
+    {
+      "index": 36,
+      "tag": "p",
+      "text": "npm ci writes a large node_modules/ folder and the native build writes an ios/ folder. Both happen in ~/Downloads/CODE-BOOK/lab/memento-native , a throwaway copy. Never in ~/Downloads/MEMENTO : two agents are standing in that folder, and a stray build artifact there is a mess you get to explain. The lab is disposable on purpose. rm -rf ~/Downloads/CODE-BOOK/lab and make it again. Nothing in it is precious, which is exactly why you are allowed to break it."
+    },
+    {
+      "index": 37,
+      "tag": "div",
+      "text": "ANY APP"
+    },
+    {
+      "index": 38,
+      "tag": "p",
+      "text": "A project's package.json has a scripts block: the project's list of verbs, the commands its own authors use. Read it before you read any code, because it says how to start the thing, how to test it, and what the robot on the server runs. npm run with no name lists them all."
+    },
+    {
+      "index": 39,
+      "tag": "div",
+      "text": "MEMENTO"
+    },
+    {
+      "index": 40,
+      "tag": "p",
+      "text": "Six verbs, and every one of them is a command from this chapter:"
+    },
+    {
+      "index": 41,
+      "tag": "p",
+      "text": "check is two commands with && between them, meaning \"and only if that succeeded\". Typecheck first, fast and catches the stupid things; tests second. --runInBand runs the test files one at a time instead of in parallel: slower, far easier to read."
+    },
+    {
+      "index": 42,
+      "tag": "h3",
+      "text": "What boots first"
+    },
+    {
+      "index": 43,
+      "tag": "p",
+      "text": "Two files decide what you see. The router wraps the matched screen in _layout.tsx , so the layout is first:"
+    },
+    {
+      "index": 44,
+      "tag": "p",
+      "text": "Read the shape, not the details. It loads three font files. While they load it returns null , which draws nothing, which is why the splash screen is still up. When they are ready it returns a black stack with no header, and <Stack /> is the hole the matched screen renders into."
+    },
+    {
+      "index": 45,
+      "tag": "p",
+      "text": "Then the screen. src/app/index.tsx is 150 lines and the part that matters is the last four:"
+    },
+    {
+      "index": 46,
+      "tag": "p",
+      "text": "The first screen is a three-way fork. Two branches are dev-only previews switched on by environment variables (chapter 19) and guarded by __DEV__ , so a release build cannot reach them. With no flags set you get RootGate , the real boot gate, and that is why the screen may be sparse. The rebuild is mid-flight, and the README has said so since the first commit: \"This is a native boot screen, not the migrated product.\" What RootGate renders depends on which branch of its own gate wins. Reading the source, a clean simulator with no preview flags and no saved session settles on \"Sign-in is not connected yet.\"; a ready saved session gets BootScreen ; blocked storage gets the recovery copy. Nobody has booted a real simulator to confirm that yet, so treat it as read from the code, not observed."
+    },
+    {
+      "index": 47,
+      "tag": "h3",
+      "text": "What Codex had to do to put this on a real phone"
+    },
+    {
+      "index": 48,
+      "tag": "p",
+      "text": "The simulator is the easy version. MIGRATION/PHONE-TEST-SETUP.md records the hard one:"
+    },
+    {
+      "index": 49,
+      "tag": "p",
+      "text": "Line 66 is the whole chapter in one string: the phone being told where the tower is, using the dev build's URL scheme memento-dev from app.json plus the address of Metro on the home network. The simulator needs none of that, being already on your Mac. Note what the file admits at lines 10 and 11: the Android dev launcher \"did not attach through its attempted localhost URL\". Networking between a fake device and its host is the commonest reason these setups fail."
+    },
+    {
+      "index": 50,
+      "tag": "div",
+      "text": "THE ALTERNATIVE, AND WHY MEMENTO CHOSE THIS"
+    },
+    {
+      "index": 51,
+      "tag": "p",
+      "text": "The alternative to a dev build is Expo Go, a ready-made app from the App Store that loads your JavaScript with no Xcode and no build step. Memento cannot use it, because Expo Go only contains the native code Expo shipped inside it, and Memento depends on Skia for the star, MMKV for storage, Reanimated, secure-store and a gesture handler. Those are native modules. Wanting them means shipping your own shell, which means Xcode and the long first build. The other alternative is bare React Native, which hands you the same Xcode project plus every configuration file to maintain by hand. Expo with a dev build is the middle: your own shell, someone else's plumbing."
+    },
+    {
+      "index": 52,
+      "tag": "h2",
+      "text": "Do it"
+    },
+    {
+      "index": 53,
+      "tag": "div",
+      "text": "Exercise MAC"
+    },
+    {
+      "index": 54,
+      "tag": "li",
+      "text": "Make the lab. Run bash ~/Downloads/CODE-BOOK/tools/make-native-lab.sh if it exists. If it does not: mkdir -p ~/Downloads/CODE-BOOK/lab && git -C ~/Downloads/MEMENTO archive 93bfa796 memento-native | tar -x -C ~/Downloads/CODE-BOOK/lab/ git archive reads a commit and writes a tar stream of those files out. It only reads: it checks nothing out, moves no branch, touches no working file, and the agents in that repo cannot tell it ran. tar -x -C unpacks it into the lab. You now have the native app as it was at commit 93bfa796 , with no git history attached. If you see fatal: not a valid object name : the pin is not in that repo. Check with git -C ~/Downloads/MEMENTO log -1 93bfa796 ."
+    },
+    {
+      "index": 55,
+      "tag": "p",
+      "text": "git archive reads a commit and writes a tar stream of those files out. It only reads: it checks nothing out, moves no branch, touches no working file, and the agents in that repo cannot tell it ran. tar -x -C unpacks it into the lab. You now have the native app as it was at commit 93bfa796 , with no git history attached."
+    },
+    {
+      "index": 56,
+      "tag": "p",
+      "text": "If you see fatal: not a valid object name : the pin is not in that repo. Check with git -C ~/Downloads/MEMENTO log -1 93bfa796 ."
+    },
+    {
+      "index": 57,
+      "tag": "li",
+      "text": "Go there. cd ~/Downloads/CODE-BOOK/lab/memento-native , then pwd . If the output has MEMENTO in capitals, stop and fix that before you type anything else."
+    },
+    {
+      "index": 58,
+      "tag": "li",
+      "text": "Install the borrowed code. npm ci . Expected: minutes of noise, then a line counting the packages added. If you see npm ERR! ... lock file , the lockfile and package.json disagree, which should not happen in a clean export. Delete the lab and redo step 1."
+    },
+    {
+      "index": 59,
+      "tag": "li",
+      "text": "Run the gate. npm run check . The typechecker prints nothing at all, which is what success looks like. Then Jest prints a summary shaped like this: Test Suites: 43 passed, 43 total Tests: 965 passed, 965 total Snapshots: 0 total Time: <a number of seconds> That is the real result from the lab copy: typecheck clean, 43 suites, 965 tests, all passing. The time is whatever your Mac takes. The shape will not change. Suites are files, tests are individual expectations, and the number that matters is how many failed. If you see a red FAIL block, read it top down, note the file, and do not fix it. A fresh lab that fails is a finding, not a task."
+    },
+    {
+      "index": 60,
+      "tag": "p",
+      "text": "That is the real result from the lab copy: typecheck clean, 43 suites, 965 tests, all passing. The time is whatever your Mac takes. The shape will not change. Suites are files, tests are individual expectations, and the number that matters is how many failed. If you see a red FAIL block, read it top down, note the file, and do not fix it. A fresh lab that fails is a finding, not a task."
+    },
+    {
+      "index": 61,
+      "tag": "li",
+      "text": "Build the dev build. npx expo run:ios . Xcode is already installed. Expected: it generates ios/ , installs native dependencies, then compiles for several minutes with little to look at. A simulator window appears and boots iOS, which takes its own half minute. If you see xcode-select: error or a licence prompt, run sudo xcodebuild -license accept once and retry. If you see a CocoaPods failure, its error line names the pod."
+    },
+    {
+      "index": 62,
+      "tag": "li",
+      "text": "Watch the boot. Watch the terminal, not the simulator. Metro starts, then a line shaped like iOS Bundled <milliseconds> index.js (<count> modules) . Nobody has run this on a real simulator yet, so the numbers here are not quoted, only the shape: a few seconds, a module count in the thousands, glued into one bundle and handed to the app. Then the app appears."
+    },
+    {
+      "index": 63,
+      "tag": "li",
+      "text": "Tap one screen. Whatever Memento shows you, touch it. Write down the exact words on screen, capitals and full stop included."
+    },
+    {
+      "index": 64,
+      "tag": "li",
+      "text": "Find the file. grep -rn \"Your saved data is not ready\" src/ , or whatever text you actually read. Expected: three hits, in src/app/index.tsx , src/runtime/EntryGate.tsx and src/runtime/RootGate.tsx . Three files saying the same sentence is a small piece of duplication you now know how to name. The one you are looking at is the one the router reached."
+    },
+    {
+      "index": 65,
+      "tag": "li",
+      "text": "Read the return. grep -n 'export default' src/app/index.tsx gives 147:export default function Index() { . Read the four lines from there and say out loud which branch your simulator took, and why."
+    },
+    {
+      "index": 66,
+      "tag": "li",
+      "text": "Change nothing. Not one character. Tonight proves the connection between a file and a pixel, and an unedited lab is a clean baseline for chapter 30."
+    },
+    {
+      "index": 67,
+      "tag": "li",
+      "text": "Stop. Ctrl-C in the Metro terminal. The app loses its tower and will error if you touch it. Quit the simulator. Nothing is broken: npx expo start --dev-client brings the tower back in seconds, because the shell is still installed."
+    },
+    {
+      "index": 68,
+      "tag": "div",
+      "text": "ASK THE AGENT WHY (paste this into Codex or Fable)"
+    },
+    {
+      "index": 69,
+      "tag": "div",
+      "text": "WORDS YOU NOW OWN"
+    },
+    {
+      "index": 70,
+      "tag": "dt",
+      "text": "Native shell"
+    },
+    {
+      "index": 71,
+      "tag": "dd",
+      "text": "The compiled part of a React Native app: the window, the fonts, the storage, the native modules. Built by Xcode, changed rarely."
+    },
+    {
+      "index": 72,
+      "tag": "dt",
+      "text": "Dev build"
+    },
+    {
+      "index": 73,
+      "tag": "dd",
+      "text": "A native shell built once with one extra ability: it loads its JavaScript from a server on your Mac instead of carrying its own copy."
+    },
+    {
+      "index": 74,
+      "tag": "dt",
+      "text": "Bundler (upgraded)"
+    },
+    {
+      "index": 75,
+      "tag": "dd",
+      "text": "The program that follows the imports from one entry file and produces a single file the runtime can load. Metro is React Native's."
+    },
+    {
+      "index": 76,
+      "tag": "dt",
+      "text": "Metro"
+    },
+    {
+      "index": 77,
+      "tag": "dd",
+      "text": "React Native's bundler. Follows every import from the entry file, glues them into one JavaScript bundle, serves it, and watches for changes."
+    },
+    {
+      "index": 78,
+      "tag": "dt",
+      "text": "Fast Refresh (hot reload)"
+    },
+    {
+      "index": 79,
+      "tag": "dd",
+      "text": "Save a file, the running app swaps in the new code without restarting and usually without losing what is on screen."
+    },
+    {
+      "index": 80,
+      "tag": "dt",
+      "text": "Simulator"
+    },
+    {
+      "index": 81,
+      "tag": "dd",
+      "text": "A real copy of iOS running on your Mac, pretending to be a phone. No camera, no radio, no App Store, and it reports safe-area insets of zero unless you tell it otherwise."
+    },
+    {
+      "index": 82,
+      "tag": "dt",
+      "text": "expo-router"
+    },
+    {
+      "index": 83,
+      "tag": "dd",
+      "text": "File-based routing. A file in src/app/ is a screen and its path is its URL. _layout.tsx is a wrapper, not a screen."
+    },
+    {
+      "index": 84,
+      "tag": "div",
+      "text": "WHERE TODAY'S ANALOGY BREAKS"
+    },
+    {
+      "index": 85,
+      "tag": "p",
+      "text": "Breaks when: you think the television is dumb. The dev build runs the JavaScript itself, on the device, in its own engine, calling into real native code the whole time. Metro sends text, not pixels. It also breaks the moment you ship: a release build has no tower, because the bundle is compiled in and frozen. Real model: two artifacts with different build cycles, and one connection between them that exists only in development. The app you eventually put on the App Store carries its JavaScript inside it, and everything you did tonight is gone from it."
+    },
+    {
+      "index": 86,
+      "tag": "summary",
+      "text": "RABBIT HOLE: what expo prebuild actually generated"
+    },
+    {
+      "index": 87,
+      "tag": "p",
+      "text": "The repo has no ios/ folder. npx expo run:ios makes one from app.json : the bundle identifier co.mementoapp.foundation , the scheme memento-dev , the splash screen, the fonts, the plugin list. The Xcode project is an output, not a source, so it can be deleted and regenerated and never argued over in a diff. The cost: hand-editing it is pointless, the next prebuild overwrites you, so anything you need must be expressible as a config plugin. Those development identifiers are deliberately separate from production, and the README says not to register them as the store identity."
+    }
+  ],
+  "segments": [
+    {
+      "blocks": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14
+      ],
+      "text": "Run Memento's native app yourself\n\nYou have read the native code for eight chapters. Tonight you make it move. A fake iPhone opens on your Mac, Memento boots inside it, and the last piece of magic dies: the thing on the phone came from these files, and you can point at the file that drew the screen.\n\nLAST TIME\n\nDuplicate systems get born when nobody greps first, so Memento has two paywalls and two event styles. Scope creep is the agent improving code you did not ask about, and one sentence in the request stops it. When it goes wrong: look before you touch, make a safety commit, then restore one named file, revert a commit, or read the reflog.\n\nThis is a Mac chapter. Reading it on your phone is fine and worth doing. The doing part needs Terminal, Xcode and a simulator, so the exercise waits for the Mac.\n\nQuick check\n\nWhat is the difference between npm install and npm ci ?\n\nIn React, what is a component?\n\nWhat does \"build\" mean, as opposed to \"run\"?\n\nThe idea\n\nAn app on an iPhone is one installed thing, so it feels like one lump. While it is being built, it is two.\n\nThe first part is the native shell : real compiled code, packaged into the thing iOS installs. It owns the window, the fonts, the keyboard, the secure storage. Building it needs Xcode and takes minutes.\n\nThe second part is the JavaScript. Every screen and every piece of logic you have been reading in src/ is TypeScript, which becomes JavaScript, and it is not compiled into the shell. It is loaded when the app starts, like a web page loading a script.\n\nThat split is the whole trick. Build the shell once, then change the JavaScript all day and the app reloads in a second. The shell that does this is a dev build : a normal native app with one extra ability, which is to fetch its JavaScript from your Mac instead of carrying its own copy.\n\nThe program on your Mac that serves it is Metro , React Native's bundler . It reads the entry file, follows every import , glues the graph into one big JavaScript file, hands it over on request, then watches your files. Save one, Metro rebuilds what changed and pushes it, and the running app swaps the new code in without restarting. That is Fast Refresh , which everyone calls hot reload."
+    },
+    {
+      "blocks": [
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29
+      ],
+      "text": "The simulator is the fourth piece: a real copy of iOS running on your Mac, pretending to be a phone. It boots, installs apps, has a home screen. No camera, no cell radio, no App Store, and it reports safe-area insets of zero unless told otherwise. Close enough for tonight.\n\nANALOGY (TEMPORARY)\n\nThe dev build is a television set. Building it is manufacturing the set: slow, done once, needs a factory (Xcode). Metro is a small broadcast tower on your Mac. The television has no programming of its own, it tunes to the tower. Change the show at the tower and the picture changes immediately, with no new television. The simulator is the showroom: a fake living room on your desk.\n\nThe four commands, and what each actually does\n\nnpm ci\n\nReads package-lock.json and installs those exact package versions into node_modules/ . Borrowed code, chapter 19. It downloads a lot and prints a lot. Nothing runs.\n\nnpm run check\n\nRuns whatever the project defined under the name check . In Memento that is the typechecker and then the test suite. This is the same gate the robot runs on every push, so if it passes here, the code is in the state CI expects.\n\nnpx expo run:ios\n\nThe heavy one. Generates the iOS project, installs the native dependencies, compiles the shell with Xcode, boots a simulator, installs the app, starts Metro, opens the app. First time: many minutes. Afterwards the shell is already built and it is fast.\n\nnpx expo start --dev-client\n\nMetro only. Use it once the dev build exists on the simulator. Seconds, not minutes. --dev-client means \"the app that will connect is a dev build of this project\", not the generic Expo Go app.\n\nTwo places talk to you. The Metro terminal prints bundle progress, every reload, and anything the app writes with console.log or console.warn . The simulator shows errors on screen with a stack trace, the kind you learned to read in chapter 23. Cmd and D with the simulator focused opens the developer menu.\n\nFinding the file that drew a screen\n\nMemento's native app uses expo-router : file-based routing, where the file's path is the URL. src/app/index.tsx is the screen at / ; src/app/settings.tsx would be /settings . Nobody writes a route list. The folder is the list. _layout.tsx is the exception: the underscore means \"not a screen\", it is the wrapper the screens render into."
+    },
+    {
+      "blocks": [
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45
+      ],
+      "text": "Which gives you a two-step way to find any screen in any React Native app. Read a word off the screen, grep for that word, and the file holding the text is the file that drew it.\n\nSee it\n\nFile-based routing in fifteen lines: a map from paths to screens, and a function that resolves a URL against it. Predict the last three lines before you run.\n\nThe real router is more careful, but the shape is honest: no route table, only a folder, and a missing screen is a missing file.\n\nNow in Memento\n\nEVERYTHING TONIGHT HAPPENS IN THE LAB\n\nnpm ci writes a large node_modules/ folder and the native build writes an ios/ folder. Both happen in ~/Downloads/CODE-BOOK/lab/memento-native , a throwaway copy. Never in ~/Downloads/MEMENTO : two agents are standing in that folder, and a stray build artifact there is a mess you get to explain. The lab is disposable on purpose. rm -rf ~/Downloads/CODE-BOOK/lab and make it again. Nothing in it is precious, which is exactly why you are allowed to break it.\n\nANY APP\n\nA project's package.json has a scripts block: the project's list of verbs, the commands its own authors use. Read it before you read any code, because it says how to start the thing, how to test it, and what the robot on the server runs. npm run with no name lists them all.\n\nMEMENTO\n\nSix verbs, and every one of them is a command from this chapter:\n\ncheck is two commands with && between them, meaning \"and only if that succeeded\". Typecheck first, fast and catches the stupid things; tests second. --runInBand runs the test files one at a time instead of in parallel: slower, far easier to read.\n\nWhat boots first\n\nTwo files decide what you see. The router wraps the matched screen in _layout.tsx , so the layout is first:\n\nRead the shape, not the details. It loads three font files. While they load it returns null , which draws nothing, which is why the splash screen is still up. When they are ready it returns a black stack with no header, and <Stack /> is the hole the matched screen renders into.\n\nThen the screen. src/app/index.tsx is 150 lines and the part that matters is the last four:"
+    },
+    {
+      "blocks": [
+        46,
+        47,
+        48,
+        49,
+        50,
+        51,
+        52,
+        53
+      ],
+      "text": "The first screen is a three-way fork. Two branches are dev-only previews switched on by environment variables (chapter 19) and guarded by __DEV__ , so a release build cannot reach them. With no flags set you get RootGate , the real boot gate, and that is why the screen may be sparse. The rebuild is mid-flight, and the README has said so since the first commit: \"This is a native boot screen, not the migrated product.\" What RootGate renders depends on which branch of its own gate wins. Reading the source, a clean simulator with no preview flags and no saved session settles on \"Sign-in is not connected yet.\"; a ready saved session gets BootScreen ; blocked storage gets the recovery copy. Nobody has booted a real simulator to confirm that yet, so treat it as read from the code, not observed.\n\nWhat Codex had to do to put this on a real phone\n\nThe simulator is the easy version. MIGRATION/PHONE-TEST-SETUP.md records the hard one:\n\nLine 66 is the whole chapter in one string: the phone being told where the tower is, using the dev build's URL scheme memento-dev from app.json plus the address of Metro on the home network. The simulator needs none of that, being already on your Mac. Note what the file admits at lines 10 and 11: the Android dev launcher \"did not attach through its attempted localhost URL\". Networking between a fake device and its host is the commonest reason these setups fail.\n\nTHE ALTERNATIVE, AND WHY MEMENTO CHOSE THIS\n\nThe alternative to a dev build is Expo Go, a ready-made app from the App Store that loads your JavaScript with no Xcode and no build step. Memento cannot use it, because Expo Go only contains the native code Expo shipped inside it, and Memento depends on Skia for the star, MMKV for storage, Reanimated, secure-store and a gesture handler. Those are native modules. Wanting them means shipping your own shell, which means Xcode and the long first build. The other alternative is bare React Native, which hands you the same Xcode project plus every configuration file to maintain by hand. Expo with a dev build is the middle: your own shell, someone else's plumbing.\n\nDo it\n\nExercise MAC"
+    },
+    {
+      "blocks": [
+        54,
+        55,
+        56,
+        57,
+        58,
+        59
+      ],
+      "text": "Make the lab. Run bash ~/Downloads/CODE-BOOK/tools/make-native-lab.sh if it exists. If it does not: mkdir -p ~/Downloads/CODE-BOOK/lab && git -C ~/Downloads/MEMENTO archive 93bfa796 memento-native | tar -x -C ~/Downloads/CODE-BOOK/lab/ git archive reads a commit and writes a tar stream of those files out. It only reads: it checks nothing out, moves no branch, touches no working file, and the agents in that repo cannot tell it ran. tar -x -C unpacks it into the lab. You now have the native app as it was at commit 93bfa796 , with no git history attached. If you see fatal: not a valid object name : the pin is not in that repo. Check with git -C ~/Downloads/MEMENTO log -1 93bfa796 .\n\ngit archive reads a commit and writes a tar stream of those files out. It only reads: it checks nothing out, moves no branch, touches no working file, and the agents in that repo cannot tell it ran. tar -x -C unpacks it into the lab. You now have the native app as it was at commit 93bfa796 , with no git history attached.\n\nIf you see fatal: not a valid object name : the pin is not in that repo. Check with git -C ~/Downloads/MEMENTO log -1 93bfa796 .\n\nGo there. cd ~/Downloads/CODE-BOOK/lab/memento-native , then pwd . If the output has MEMENTO in capitals, stop and fix that before you type anything else.\n\nInstall the borrowed code. npm ci . Expected: minutes of noise, then a line counting the packages added. If you see npm ERR! ... lock file , the lockfile and package.json disagree, which should not happen in a clean export. Delete the lab and redo step 1.\n\nRun the gate. npm run check . The typechecker prints nothing at all, which is what success looks like. Then Jest prints a summary shaped like this: Test Suites: 43 passed, 43 total Tests: 965 passed, 965 total Snapshots: 0 total Time: <a number of seconds> That is the real result from the lab copy: typecheck clean, 43 suites, 965 tests, all passing. The time is whatever your Mac takes. The shape will not change. Suites are files, tests are individual expectations, and the number that matters is how many failed. If you see a red FAIL block, read it top down, note the file, and do not fix it. A fresh lab that fails is a finding, not a task."
+    },
+    {
+      "blocks": [
+        60,
+        61,
+        62,
+        63,
+        64,
+        65,
+        66,
+        67,
+        68,
+        69,
+        70
+      ],
+      "text": "That is the real result from the lab copy: typecheck clean, 43 suites, 965 tests, all passing. The time is whatever your Mac takes. The shape will not change. Suites are files, tests are individual expectations, and the number that matters is how many failed. If you see a red FAIL block, read it top down, note the file, and do not fix it. A fresh lab that fails is a finding, not a task.\n\nBuild the dev build. npx expo run:ios . Xcode is already installed. Expected: it generates ios/ , installs native dependencies, then compiles for several minutes with little to look at. A simulator window appears and boots iOS, which takes its own half minute. If you see xcode-select: error or a licence prompt, run sudo xcodebuild -license accept once and retry. If you see a CocoaPods failure, its error line names the pod.\n\nWatch the boot. Watch the terminal, not the simulator. Metro starts, then a line shaped like iOS Bundled <milliseconds> index.js (<count> modules) . Nobody has run this on a real simulator yet, so the numbers here are not quoted, only the shape: a few seconds, a module count in the thousands, glued into one bundle and handed to the app. Then the app appears.\n\nTap one screen. Whatever Memento shows you, touch it. Write down the exact words on screen, capitals and full stop included.\n\nFind the file. grep -rn \"Your saved data is not ready\" src/ , or whatever text you actually read. Expected: three hits, in src/app/index.tsx , src/runtime/EntryGate.tsx and src/runtime/RootGate.tsx . Three files saying the same sentence is a small piece of duplication you now know how to name. The one you are looking at is the one the router reached.\n\nRead the return. grep -n 'export default' src/app/index.tsx gives 147:export default function Index() { . Read the four lines from there and say out loud which branch your simulator took, and why.\n\nChange nothing. Not one character. Tonight proves the connection between a file and a pixel, and an unedited lab is a clean baseline for chapter 30.\n\nStop. Ctrl-C in the Metro terminal. The app loses its tower and will error if you touch it. Quit the simulator. Nothing is broken: npx expo start --dev-client brings the tower back in seconds, because the shell is still installed.\n\nASK THE AGENT WHY (paste this into Codex or Fable)\n\nWORDS YOU NOW OWN\n\nNative shell"
+    },
+    {
+      "blocks": [
+        71,
+        72,
+        73,
+        74,
+        75,
+        76,
+        77,
+        78,
+        79,
+        80,
+        81,
+        82,
+        83,
+        84,
+        85,
+        86,
+        87
+      ],
+      "text": "The compiled part of a React Native app: the window, the fonts, the storage, the native modules. Built by Xcode, changed rarely.\n\nDev build\n\nA native shell built once with one extra ability: it loads its JavaScript from a server on your Mac instead of carrying its own copy.\n\nBundler (upgraded)\n\nThe program that follows the imports from one entry file and produces a single file the runtime can load. Metro is React Native's.\n\nMetro\n\nReact Native's bundler. Follows every import from the entry file, glues them into one JavaScript bundle, serves it, and watches for changes.\n\nFast Refresh (hot reload)\n\nSave a file, the running app swaps in the new code without restarting and usually without losing what is on screen.\n\nSimulator\n\nA real copy of iOS running on your Mac, pretending to be a phone. No camera, no radio, no App Store, and it reports safe-area insets of zero unless you tell it otherwise.\n\nexpo-router\n\nFile-based routing. A file in src/app/ is a screen and its path is its URL. _layout.tsx is a wrapper, not a screen.\n\nWHERE TODAY'S ANALOGY BREAKS\n\nBreaks when: you think the television is dumb. The dev build runs the JavaScript itself, on the device, in its own engine, calling into real native code the whole time. Metro sends text, not pixels. It also breaks the moment you ship: a release build has no tower, because the bundle is compiled in and frozen. Real model: two artifacts with different build cycles, and one connection between them that exists only in development. The app you eventually put on the App Store carries its JavaScript inside it, and everything you did tonight is gone from it.\n\nRABBIT HOLE: what expo prebuild actually generated\n\nThe repo has no ios/ folder. npx expo run:ios makes one from app.json : the bundle identifier co.mementoapp.foundation , the scheme memento-dev , the splash screen, the fonts, the plugin list. The Xcode project is an output, not a source, so it can be deleted and regenerated and never argued over in a diff. The cost: hand-editing it is pointless, the next prebuild overwrites you, so anything you need must be expressible as a config plugin. Those development identifiers are deliberately separate from production, and the README says not to register them as the store identity."
+    }
+  ],
+  "wordCount": 2767
+}

@@ -1,0 +1,801 @@
+{
+  "chapter": 26,
+  "slug": "architecture-debt",
+  "title": "Why engineers structure software this way, and what technical debt looks like",
+  "source": "chapters/26-architecture-debt.html",
+  "blocks": [
+    {
+      "index": 0,
+      "tag": "h1",
+      "text": "Why engineers structure software this way, and what technical debt looks like"
+    },
+    {
+      "index": 1,
+      "tag": "p",
+      "text": "Architecture is two questions: where does this live, and what is it allowed to touch. Technical debt is what you owe when you answered those questions fast. Both are visible in your own repo, in numbers you can read today."
+    },
+    {
+      "index": 2,
+      "tag": "div",
+      "text": "LAST TIME"
+    },
+    {
+      "index": 3,
+      "tag": "p",
+      "text": "Security is a boundary question: decide where you stop believing what you are told, then check size, identity, permission and rate on your side of that line. Performance is a measurement question: latency versus throughput, N+1, bundle size, caching, debouncing, and never optimise before you measure. Memento's proxy fails closed and its biggest CSS file is 411 KB."
+    },
+    {
+      "index": 4,
+      "tag": "h2",
+      "text": "Quick check"
+    },
+    {
+      "index": 5,
+      "tag": "summary",
+      "text": "What does \"fail closed\" mean, and where does Memento do it?"
+    },
+    {
+      "index": 6,
+      "tag": "summary",
+      "text": "A test fails. Is that bad news?"
+    },
+    {
+      "index": 7,
+      "tag": "summary",
+      "text": "Why does index.html load Memento's scripts in a fixed numbered order?"
+    },
+    {
+      "index": 8,
+      "tag": "h2",
+      "text": "The idea"
+    },
+    {
+      "index": 9,
+      "tag": "p",
+      "text": "Take any working program and cut it into pieces. There are a thousand ways to cut it and they all run identically. They differ only in what happens the next time someone wants to change something. That is all architecture is: the arrangement that decides how expensive tomorrow is."
+    },
+    {
+      "index": 10,
+      "tag": "p",
+      "text": "Two words carry most of the weight. Coupling is how much one piece has to know about another piece's insides. If changing a detail inside A forces an edit inside B, A and B are coupled. Cohesion is how much one file is about one thing. A file where everything belongs together is cohesive. A file that holds the card renderer, the share sheet, the grid layout and four helpers nobody could place elsewhere is not."
+    },
+    {
+      "index": 11,
+      "tag": "p",
+      "text": "The aim is low coupling and high cohesion, and the reason is mechanical rather than aesthetic: you want the blast radius of a change to be small and predictable. A boundary is the deal you strike to get that. It says: here is what I promise, the rest is mine, and you may not reach past this line. Memento's native app has a boundary written as a single comment, src/clarity/aiPort.ts line 1: the Clarity screens know an interface, never a URL. Swap the transport and the screens do not move."
+    },
+    {
+      "index": 12,
+      "tag": "div",
+      "text": "ANALOGY (TEMPORARY)"
+    },
+    {
+      "index": 13,
+      "tag": "p",
+      "text": "A restaurant kitchen. Stations: grill, cold, pastry, pass. High cohesion means everything at the grill station is about grilling. Low coupling means the pastry chef does not reach into the grill chef's drawer for a spoon; they ask at the pass. When a new person joins, you say \"you own cold\" and that sentence means something, because the station has edges. The day someone starts storing the desserts in the grill fridge because it was closer, nothing breaks. It just gets slightly harder to know where anything is, forever."
+    },
+    {
+      "index": 14,
+      "tag": "p",
+      "text": "Files get split for the same reason rooms have walls: so that two people can work without standing on each other, and so that you can hold one piece in your head at a time. A file you cannot read in one sitting is a file nobody fully knows, which means every change to it is partly a guess."
+    },
+    {
+      "index": 15,
+      "tag": "p",
+      "text": "Frameworks exist because most apps need the same boring machinery: routing, drawing, data flow, navigation. A framework hands you that machinery plus a set of opinions about where things live. You pay in freedom and in versions to upgrade. You get back the thing you cannot buy any other way, which is that a new person, or a new agent, already knows the shape of your app before they open it."
+    },
+    {
+      "index": 16,
+      "tag": "p",
+      "text": "The habit underneath all of this is smaller than it sounds: write the trade-off down . Every structural choice costs something. An engineer who says \"this is better\" has not finished. An engineer who says \"this is better, and here is what it costs us, and here is when that bill arrives\" has."
+    },
+    {
+      "index": 17,
+      "tag": "h2",
+      "text": "See it"
+    },
+    {
+      "index": 18,
+      "tag": "h2",
+      "text": "Now in Memento"
+    },
+    {
+      "index": 19,
+      "tag": "p",
+      "text": "You own two apps with opposite architectures, built eighteen months apart, sitting in one folder. That is a rare teaching gift. Neither is wrong. They bought different things."
+    },
+    {
+      "index": 20,
+      "tag": "th",
+      "text": "memento-app/ (the web app)"
+    },
+    {
+      "index": 21,
+      "tag": "th",
+      "text": "memento-native/ (the rebuild)"
+    },
+    {
+      "index": 22,
+      "tag": "td",
+      "text": "Unit of code"
+    },
+    {
+      "index": 23,
+      "tag": "td",
+      "text": "38 files in js/ , numbered, all sharing one global scope"
+    },
+    {
+      "index": 24,
+      "tag": "td",
+      "text": "16 folders under src/ , each file importing what it needs"
+    },
+    {
+      "index": 25,
+      "tag": "td",
+      "text": "Dependency graph"
+    },
+    {
+      "index": 26,
+      "tag": "td",
+      "text": "The load order in index.html . It is not written down anywhere else"
+    },
+    {
+      "index": 27,
+      "tag": "td",
+      "text": "The imports. A machine can read it"
+    },
+    {
+      "index": 28,
+      "tag": "td",
+      "text": "Build step"
+    },
+    {
+      "index": 29,
+      "tag": "td",
+      "text": "None. Edit a file, refresh"
+    },
+    {
+      "index": 30,
+      "tag": "td",
+      "text": "TypeScript compile, bundle, export"
+    },
+    {
+      "index": 31,
+      "tag": "td",
+      "text": "Tests"
+    },
+    {
+      "index": 32,
+      "tag": "td",
+      "text": "47 hand-written scripts in tools/ , 29 of them named one by one in the deploy workflow"
+    },
+    {
+      "index": 33,
+      "tag": "td",
+      "text": "One runner, 43 test files"
+    },
+    {
+      "index": 34,
+      "tag": "td",
+      "text": "Wrong order costs"
+    },
+    {
+      "index": 35,
+      "tag": "td",
+      "text": "A crash at runtime, in front of a user"
+    },
+    {
+      "index": 36,
+      "tag": "td",
+      "text": "A compile error, before anything ships"
+    },
+    {
+      "index": 37,
+      "tag": "td",
+      "text": "Ownership"
+    },
+    {
+      "index": 38,
+      "tag": "td",
+      "text": "By convention, written in CLAUDE.md"
+    },
+    {
+      "index": 39,
+      "tag": "td",
+      "text": "By folder, assigned per agent in MIGRATION/01-MIGRATION-PLAN.md"
+    },
+    {
+      "index": 40,
+      "tag": "div",
+      "text": "ANY APP"
+    },
+    {
+      "index": 41,
+      "tag": "p",
+      "text": "The no-build version is the oldest arrangement on the web and it is still the fastest to work in. Files load top to bottom, everything can see everything, and a change is live the moment you refresh. The price is that nothing declares what it needs, so the correct order exists only in one HTML file and in people's heads."
+    },
+    {
+      "index": 42,
+      "tag": "p",
+      "text": "The typed version inverts every one of those. Slower to set up, safer to change, and the compiler holds the map so no human has to."
+    },
+    {
+      "index": 43,
+      "tag": "div",
+      "text": "MEMENTO"
+    },
+    {
+      "index": 44,
+      "tag": "p",
+      "text": "The web app states its own architecture in a comment above the script tags:"
+    },
+    {
+      "index": 45,
+      "tag": "p",
+      "text": "And again at the top of the first file it loads:"
+    },
+    {
+      "index": 46,
+      "tag": "p",
+      "text": "\"Order matters\" is the whole design in two words. There is no import graph , so the number in the filename is the dependency graph, and it is enforced by a human reading a list."
+    },
+    {
+      "index": 47,
+      "tag": "h3",
+      "text": "Technical debt, with your own specimens"
+    },
+    {
+      "index": 48,
+      "tag": "p",
+      "text": "Technical debt is a loan. You take it when you ship something faster than the clean version, and you pay interest on every future change that touches it. Like a real loan it is not a moral failure and it is often the right call. The failure mode is the unrecorded loan: the one nobody decided to take, that nobody can find, that shows up as \"why is this taking three days\"."
+    },
+    {
+      "index": 49,
+      "tag": "p",
+      "text": "Memento's debt is unusual in one specific way: most of it is self-documented. The comments say what happened and why. That is the difference between a loan and a mess. Here is the survey, verified at the pin, stated as numbers."
+    },
+    {
+      "index": 50,
+      "tag": "th",
+      "text": "Specimen"
+    },
+    {
+      "index": 51,
+      "tag": "th",
+      "text": "The fact"
+    },
+    {
+      "index": 52,
+      "tag": "th",
+      "text": "The interest"
+    },
+    {
+      "index": 53,
+      "tag": "td",
+      "text": "One file holds a quarter of a feature area"
+    },
+    {
+      "index": 54,
+      "tag": "td",
+      "text": "js/08-cards-grid-share.js is 10,478 lines. js/09-controllers.js is 7,064. js/03-ai-integration.js is 7,021"
+    },
+    {
+      "index": 55,
+      "tag": "td",
+      "text": "Nobody reads them whole. CLAUDE.md says so out loud: grep for the relevant part first"
+    },
+    {
+      "index": 56,
+      "tag": "td",
+      "text": "Four numbers used twice"
+    },
+    {
+      "index": 57,
+      "tag": "td",
+      "text": "00-backup-security and 00-error-reporting ; 19-dev-beats and 19-dev-loader ; 20-push and 20-sound ; 22-billing and 22-prompt-lab"
+    },
+    {
+      "index": 58,
+      "tag": "td",
+      "text": "The number no longer tells you the order on its own, in an app where order is the architecture"
+    },
+    {
+      "index": 59,
+      "tag": "td",
+      "text": "The map drifted from the territory"
+    },
+    {
+      "index": 60,
+      "tag": "td",
+      "text": "CLAUDE.md:48 says \"(No 16-* ; numbering has a gap.)\" while js/16-doors.js exists and loads. CLAUDE.md:40 and :42 list 21-descent.js and 23-action-states.js ; neither file is there now"
+    },
+    {
+      "index": 61,
+      "tag": "td",
+      "text": "The document agents read first is wrong in three places, so every agent starts slightly lost"
+    },
+    {
+      "index": 62,
+      "tag": "td",
+      "text": "A tombstone"
+    },
+    {
+      "index": 63,
+      "tag": "td",
+      "text": "js/33-action-shim.js , 37 lines, roughly half of them comment, standing in for 6,070 deleted lines and around 80 call sites still saying the old name"
+    },
+    {
+      "index": 64,
+      "tag": "td",
+      "text": "Small and honest. The interest is one extra hop for anyone tracing the old name"
+    },
+    {
+      "index": 65,
+      "tag": "td",
+      "text": "Two systems in one problem area"
+    },
+    {
+      "index": 66,
+      "tag": "td",
+      "text": "js/13-clarity-paywall.js owns the paywall screen and asks PolarBilling.hasVerifiedAccess() for the truth (13:41-43). js/22-billing.js , 921 lines, is that real billing. DECISIONS.md still describes the older arrangement: \"The paywall is UI-only today: Unlock sets state.entitlements.isPaid = true on the client (js/13), no payment collected, so the paid gate is currently bypassable\""
+    },
+    {
+      "index": 67,
+      "tag": "td",
+      "text": "The code moved and the decision record did not, so two documents disagree about how your money works"
+    },
+    {
+      "index": 68,
+      "tag": "td",
+      "text": "A scar kept as a sign"
+    },
+    {
+      "index": 69,
+      "tag": "td",
+      "text": "js/03-ai-integration.js:10-11 : \"A live key used to sit here and is in git history; it MUST be revoked\""
+    },
+    {
+      "index": 70,
+      "tag": "td",
+      "text": "None, as long as the revocation happened. The comment is the cheapest control in the repo"
+    },
+    {
+      "index": 71,
+      "tag": "td",
+      "text": "Append-only history"
+    },
+    {
+      "index": 72,
+      "tag": "td",
+      "text": "HANDOFF.md is 189,019 bytes"
+    },
+    {
+      "index": 73,
+      "tag": "td",
+      "text": "Everything is in it, which is close to nothing being findable in it"
+    },
+    {
+      "index": 74,
+      "tag": "td",
+      "text": "Tests without a runner"
+    },
+    {
+      "index": 75,
+      "tag": "td",
+      "text": "47 test scripts exist in tools/ , 40 of them .mjs ; 29 are named individually in .github/workflows/deploy-live.yml , 27 of those .mjs"
+    },
+    {
+      "index": 76,
+      "tag": "td",
+      "text": "A new test protects nothing until someone remembers to add its line to the workflow"
+    },
+    {
+      "index": 77,
+      "tag": "p",
+      "text": "Chapter 4 measured the mechanism at scale so you do not have to take my word for it: GitClear's study of 211 million changed lines found duplicated blocks up eight times in 2024, with copy-paste passing refactoring for the first time on record, and DORA found AI raises delivery speed and instability together unless testing and version control are strong. Agents make writing cheap. Nothing about them makes deciding where a thing belongs cheap. So the natural outcome of fast agent work is more code, more of it duplicated, and a structure that drifts from whatever the documentation says. Every specimen in the table above is that mechanism, not a character flaw."
+    },
+    {
+      "index": 78,
+      "tag": "h3",
+      "text": "The antidotes you already run"
+    },
+    {
+      "index": 79,
+      "tag": "p",
+      "text": "The interesting part of this chapter is that you built the countermeasures before you had the vocabulary for them."
+    },
+    {
+      "index": 80,
+      "tag": "li",
+      "text": "The freeze. MIGRATION/FROZEN-AT reads version: v1378 / commit: ca8afc8 / frozen: 2026-09-11 , and CLAUDE.md:52-53 makes it law: the web app is frozen, bug fixes only. A frozen system stops accruing new debt while its replacement is built. That is the single highest-leverage move available to someone rewriting an app."
+    },
+    {
+      "index": 81,
+      "tag": "li",
+      "text": "The log. MIGRATION/FREEZE-LOG.md asks for one line per fix: version, file, what changed, why it could not wait, approved by. It currently reads \"(none yet)\", which is the strongest possible evidence the freeze is holding."
+    },
+    {
+      "index": 82,
+      "tag": "li",
+      "text": "One owner per file. The migration plan assigns folders to Fable or Codex and insists on one owner at a time for manifests, config, router, state and auth. That is a boundary enforced socially instead of by a compiler, and it works for the same reason boundaries in code work."
+    },
+    {
+      "index": 83,
+      "tag": "li",
+      "text": "The review gate. \"APPROVED @ <sha>\" pins an approval to an exact commit, so approval cannot drift onto later work nobody read."
+    },
+    {
+      "index": 84,
+      "tag": "li",
+      "text": "Grep before you build. The habit that prevents the second system from being born at all. Two minutes of searching beats a year of two paywalls."
+    },
+    {
+      "index": 85,
+      "tag": "p",
+      "text": "And the business version, which is one sentence: debt is a loan, so take it on purpose, at a size you chose, and write the row down where the next person will look. The model for that row is already in your repo. The shim 's comment block is longer than its code, and it tells whoever finds it what happened, why, and what would break without it. That is what a well-taken loan looks like."
+    },
+    {
+      "index": 86,
+      "tag": "div",
+      "text": "THE ALTERNATIVE, AND WHY MEMENTO CHOSE THIS"
+    },
+    {
+      "index": 87,
+      "tag": "p",
+      "text": "The web app could have adopted a bundler and modules at any point, which would turn load order into declared imports and make a wrong order a build error instead of a crash on someone's phone. It would also add a build step between editing a file and seeing it, and a class of tooling failures that plain script tags simply do not have, on a project where one person ships several times a day. Memento chose speed of iteration and paid with the numbered filenames, the hand-written ?v= cache busting, and 29 test scripts listed by hand. The rebuild makes the opposite trade deliberately, which is the honest way to change an architecture: not by fixing the old one in place, but by starting a new one with the old one frozen beside it."
+    },
+    {
+      "index": 88,
+      "tag": "h2",
+      "text": "Do it"
+    },
+    {
+      "index": 89,
+      "tag": "div",
+      "text": "Exercise: review a proposal in three sentences phone or Mac"
+    },
+    {
+      "index": 90,
+      "tag": "p",
+      "text": "An agent sends you this plan. Read it twice."
+    },
+    {
+      "index": 91,
+      "tag": "li",
+      "text": "Write one sentence: where should this live , and why there."
+    },
+    {
+      "index": 92,
+      "tag": "li",
+      "text": "Write one sentence: what does it couple to . Name the specific things this code would have to know about."
+    },
+    {
+      "index": 93,
+      "tag": "li",
+      "text": "Write one sentence: what debt does it create , and what the interest is."
+    },
+    {
+      "index": 94,
+      "tag": "li",
+      "text": "Then open the model answer and compare. Yours does not have to match. It has to name a cost."
+    },
+    {
+      "index": 95,
+      "tag": "summary",
+      "text": "Model answer"
+    },
+    {
+      "index": 96,
+      "tag": "p",
+      "text": "Where: not in a screen component. Streak counting is a rule, and the native app already has a home for rules, src/rules/ , which holds logic ported from the web deliberately; a screen should ask for the number, not know how it is produced."
+    },
+    {
+      "index": 97,
+      "tag": "p",
+      "text": "Couples to: the shape of the day records, the date handling, and, invisibly, the web app's version of the same rule, because step 2 copies it. Copying creates a coupling with no line connecting the two files, which is the worst kind: it binds them without telling anyone."
+    },
+    {
+      "index": 98,
+      "tag": "p",
+      "text": "Debt: a second implementation of one rule. The interest is paid the first time the rule changes, because a fix to one side produces two apps showing a user two different streaks, exactly like the second sandbox above. Step 6 removes the one thing that would have caught it. The cheaper version: move the rule into src/rules/ once, have both screens call it, and if the port must be a copy, write the row in the ledger saying it is a copy of a named file and what happens when they drift."
+    },
+    {
+      "index": 99,
+      "tag": "div",
+      "text": "Mac alternative: see that the numbers are real MAC"
+    },
+    {
+      "index": 100,
+      "tag": "p",
+      "text": "The fourth command prints one file. CLAUDE.md says that number does not exist and that two others do. Reading a repo means preferring the ls to the document, always."
+    },
+    {
+      "index": 101,
+      "tag": "div",
+      "text": "ASK THE AGENT WHY (paste this into Codex or Fable)"
+    },
+    {
+      "index": 102,
+      "tag": "div",
+      "text": "WORDS YOU NOW OWN"
+    },
+    {
+      "index": 103,
+      "tag": "dt",
+      "text": "Coupling"
+    },
+    {
+      "index": 104,
+      "tag": "dd",
+      "text": "How much one piece has to know about another's insides. High coupling means a change over here forces a change over there."
+    },
+    {
+      "index": 105,
+      "tag": "dt",
+      "text": "Cohesion"
+    },
+    {
+      "index": 106,
+      "tag": "dd",
+      "text": "How much a file is about one thing. A 10,478-line file that holds four unrelated jobs has low cohesion."
+    },
+    {
+      "index": 107,
+      "tag": "dt",
+      "text": "Boundary"
+    },
+    {
+      "index": 108,
+      "tag": "dd",
+      "text": "A promise between two pieces: this is what I guarantee, the rest is mine, do not reach past it. An interface instead of a URL."
+    },
+    {
+      "index": 109,
+      "tag": "dt",
+      "text": "Import graph"
+    },
+    {
+      "index": 110,
+      "tag": "dd",
+      "text": "The machine-readable map of which file needs which. The web app has none, so its map is the load order in one HTML file."
+    },
+    {
+      "index": 111,
+      "tag": "dt",
+      "text": "Technical debt"
+    },
+    {
+      "index": 112,
+      "tag": "dd",
+      "text": "A loan taken to move faster. Interest is paid on every future change that touches the shortcut. Fine when recorded, expensive when nobody decided to take it."
+    },
+    {
+      "index": 113,
+      "tag": "dt",
+      "text": "Shim"
+    },
+    {
+      "index": 114,
+      "tag": "dd",
+      "text": "A small forwarder that keeps an old name working after the thing behind it moved or died. Debt, done in the open."
+    },
+    {
+      "index": 115,
+      "tag": "dt",
+      "text": "Refactor"
+    },
+    {
+      "index": 116,
+      "tag": "dd",
+      "text": "Changing the shape of code without changing what it does. This is how debt gets repaid, and why a test suite is what makes repayment affordable."
+    },
+    {
+      "index": 117,
+      "tag": "dt",
+      "text": "The trade-off written down"
+    },
+    {
+      "index": 118,
+      "tag": "dd",
+      "text": "The habit that separates a decision from a drift. Name the cost and when the bill arrives, in the place the next person will look."
+    },
+    {
+      "index": 119,
+      "tag": "div",
+      "text": "WHERE TODAY'S ANALOGY BREAKS"
+    },
+    {
+      "index": 120,
+      "tag": "p",
+      "text": "Breaks when: you picture stations that stay put. A kitchen's layout is physical and changing it takes a weekend; a codebase's layout is rearranged by every commit, including ones nobody thought of as structural. The ledger picture also suggests debt is a list of known items, and the expensive ones are almost always the items nobody wrote down, because they were never decided. Real model: architecture is not a diagram you draw once, it is the accumulated result of thousands of small \"where should this go\" answers, most of them given in a hurry, now increasingly given by agents that do not carry your intent between sessions. The countermeasure is not a better diagram. It is the freeze, the owner, the gate, and the row in the log, which is the system you already run."
+    },
+    {
+      "index": 121,
+      "tag": "summary",
+      "text": "RABBIT HOLE: where the term came from"
+    },
+    {
+      "index": 122,
+      "tag": "p",
+      "text": "Ward Cunningham coined \"technical debt\" in 1992 to describe shipping code that is not quite right about the problem, on purpose, to learn faster, as long as you go back and refactor once you understand the problem better. The part that survived is \"debt\". The part usually dropped is the second half: the loan is only worth taking if the repayment is real. Martin Fowler later split it four ways: reckless or prudent, deliberate or inadvertent. Prudent-deliberate is the shim in chapter 1. Prudent-inadvertent is the one that matters most to a founder: you did it the best way you knew, then learned more, and now the old shape is wrong. That one is not avoidable by being smarter up front. It is only manageable by noticing."
+    },
+    {
+      "index": 123,
+      "tag": "summary",
+      "text": "RABBIT HOLE: why \"just rewrite it\" is usually wrong, and when it is not"
+    },
+    {
+      "index": 124,
+      "tag": "p",
+      "text": "The standard warning is that a rewrite throws away years of accumulated fixes, most of which look like ugly lines that are actually a bug someone hit at 2am. The counter-case is when the constraints themselves changed, so the old code is not wrong so much as pointed at a different target. Memento's rebuild is the second kind: the web app was built for a browser and the goal is now an App Store binary on two platforms, which is not a refactor, it is a different machine. Notice the two things that make it survivable. The old app is frozen rather than abandoned, so it keeps serving users while the new one grows. And __tests__/ai-transport.test.ts runs the original code and compares outputs against the TypeScript version, which makes the old app the oracle for the new one. That is how you rewrite without re-losing every fix."
+    }
+  ],
+  "segments": [
+    {
+      "blocks": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ],
+      "text": "Why engineers structure software this way, and what technical debt looks like\n\nArchitecture is two questions: where does this live, and what is it allowed to touch. Technical debt is what you owe when you answered those questions fast. Both are visible in your own repo, in numbers you can read today.\n\nLAST TIME\n\nSecurity is a boundary question: decide where you stop believing what you are told, then check size, identity, permission and rate on your side of that line. Performance is a measurement question: latency versus throughput, N+1, bundle size, caching, debouncing, and never optimise before you measure. Memento's proxy fails closed and its biggest CSS file is 411 KB.\n\nQuick check\n\nWhat does \"fail closed\" mean, and where does Memento do it?\n\nA test fails. Is that bad news?\n\nWhy does index.html load Memento's scripts in a fixed numbered order?\n\nThe idea\n\nTake any working program and cut it into pieces. There are a thousand ways to cut it and they all run identically. They differ only in what happens the next time someone wants to change something. That is all architecture is: the arrangement that decides how expensive tomorrow is.\n\nTwo words carry most of the weight. Coupling is how much one piece has to know about another piece's insides. If changing a detail inside A forces an edit inside B, A and B are coupled. Cohesion is how much one file is about one thing. A file where everything belongs together is cohesive. A file that holds the card renderer, the share sheet, the grid layout and four helpers nobody could place elsewhere is not.\n\nThe aim is low coupling and high cohesion, and the reason is mechanical rather than aesthetic: you want the blast radius of a change to be small and predictable. A boundary is the deal you strike to get that. It says: here is what I promise, the rest is mine, and you may not reach past this line. Memento's native app has a boundary written as a single comment, src/clarity/aiPort.ts line 1: the Clarity screens know an interface, never a URL. Swap the transport and the screens do not move.\n\nANALOGY (TEMPORARY)"
+    },
+    {
+      "blocks": [
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38
+      ],
+      "text": "A restaurant kitchen. Stations: grill, cold, pastry, pass. High cohesion means everything at the grill station is about grilling. Low coupling means the pastry chef does not reach into the grill chef's drawer for a spoon; they ask at the pass. When a new person joins, you say \"you own cold\" and that sentence means something, because the station has edges. The day someone starts storing the desserts in the grill fridge because it was closer, nothing breaks. It just gets slightly harder to know where anything is, forever.\n\nFiles get split for the same reason rooms have walls: so that two people can work without standing on each other, and so that you can hold one piece in your head at a time. A file you cannot read in one sitting is a file nobody fully knows, which means every change to it is partly a guess.\n\nFrameworks exist because most apps need the same boring machinery: routing, drawing, data flow, navigation. A framework hands you that machinery plus a set of opinions about where things live. You pay in freedom and in versions to upgrade. You get back the thing you cannot buy any other way, which is that a new person, or a new agent, already knows the shape of your app before they open it.\n\nThe habit underneath all of this is smaller than it sounds: write the trade-off down . Every structural choice costs something. An engineer who says \"this is better\" has not finished. An engineer who says \"this is better, and here is what it costs us, and here is when that bill arrives\" has.\n\nSee it\n\nNow in Memento\n\nYou own two apps with opposite architectures, built eighteen months apart, sitting in one folder. That is a rare teaching gift. Neither is wrong. They bought different things.\n\nmemento-app/ (the web app)\n\nmemento-native/ (the rebuild)\n\nUnit of code\n\n38 files in js/ , numbered, all sharing one global scope\n\n16 folders under src/ , each file importing what it needs\n\nDependency graph\n\nThe load order in index.html . It is not written down anywhere else\n\nThe imports. A machine can read it\n\nBuild step\n\nNone. Edit a file, refresh\n\nTypeScript compile, bundle, export\n\nTests\n\n47 hand-written scripts in tools/ , 29 of them named one by one in the deploy workflow\n\nOne runner, 43 test files\n\nWrong order costs\n\nA crash at runtime, in front of a user\n\nA compile error, before anything ships\n\nOwnership\n\nBy convention, written in CLAUDE.md"
+    },
+    {
+      "blocks": [
+        39,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47,
+        48,
+        49,
+        50,
+        51,
+        52,
+        53,
+        54,
+        55,
+        56,
+        57,
+        58,
+        59,
+        60,
+        61,
+        62
+      ],
+      "text": "By folder, assigned per agent in MIGRATION/01-MIGRATION-PLAN.md\n\nANY APP\n\nThe no-build version is the oldest arrangement on the web and it is still the fastest to work in. Files load top to bottom, everything can see everything, and a change is live the moment you refresh. The price is that nothing declares what it needs, so the correct order exists only in one HTML file and in people's heads.\n\nThe typed version inverts every one of those. Slower to set up, safer to change, and the compiler holds the map so no human has to.\n\nMEMENTO\n\nThe web app states its own architecture in a comment above the script tags:\n\nAnd again at the top of the first file it loads:\n\n\"Order matters\" is the whole design in two words. There is no import graph , so the number in the filename is the dependency graph, and it is enforced by a human reading a list.\n\nTechnical debt, with your own specimens\n\nTechnical debt is a loan. You take it when you ship something faster than the clean version, and you pay interest on every future change that touches it. Like a real loan it is not a moral failure and it is often the right call. The failure mode is the unrecorded loan: the one nobody decided to take, that nobody can find, that shows up as \"why is this taking three days\".\n\nMemento's debt is unusual in one specific way: most of it is self-documented. The comments say what happened and why. That is the difference between a loan and a mess. Here is the survey, verified at the pin, stated as numbers.\n\nSpecimen\n\nThe fact\n\nThe interest\n\nOne file holds a quarter of a feature area\n\njs/08-cards-grid-share.js is 10,478 lines. js/09-controllers.js is 7,064. js/03-ai-integration.js is 7,021\n\nNobody reads them whole. CLAUDE.md says so out loud: grep for the relevant part first\n\nFour numbers used twice\n\n00-backup-security and 00-error-reporting ; 19-dev-beats and 19-dev-loader ; 20-push and 20-sound ; 22-billing and 22-prompt-lab\n\nThe number no longer tells you the order on its own, in an app where order is the architecture\n\nThe map drifted from the territory\n\nCLAUDE.md:48 says \"(No 16-* ; numbering has a gap.)\" while js/16-doors.js exists and loads. CLAUDE.md:40 and :42 list 21-descent.js and 23-action-states.js ; neither file is there now\n\nThe document agents read first is wrong in three places, so every agent starts slightly lost\n\nA tombstone"
+    },
+    {
+      "blocks": [
+        63,
+        64,
+        65,
+        66,
+        67,
+        68,
+        69,
+        70,
+        71,
+        72,
+        73,
+        74,
+        75,
+        76,
+        77,
+        78,
+        79
+      ],
+      "text": "js/33-action-shim.js , 37 lines, roughly half of them comment, standing in for 6,070 deleted lines and around 80 call sites still saying the old name\n\nSmall and honest. The interest is one extra hop for anyone tracing the old name\n\nTwo systems in one problem area\n\njs/13-clarity-paywall.js owns the paywall screen and asks PolarBilling.hasVerifiedAccess() for the truth (13:41-43). js/22-billing.js , 921 lines, is that real billing. DECISIONS.md still describes the older arrangement: \"The paywall is UI-only today: Unlock sets state.entitlements.isPaid = true on the client (js/13), no payment collected, so the paid gate is currently bypassable\"\n\nThe code moved and the decision record did not, so two documents disagree about how your money works\n\nA scar kept as a sign\n\njs/03-ai-integration.js:10-11 : \"A live key used to sit here and is in git history; it MUST be revoked\"\n\nNone, as long as the revocation happened. The comment is the cheapest control in the repo\n\nAppend-only history\n\nHANDOFF.md is 189,019 bytes\n\nEverything is in it, which is close to nothing being findable in it\n\nTests without a runner\n\n47 test scripts exist in tools/ , 40 of them .mjs ; 29 are named individually in .github/workflows/deploy-live.yml , 27 of those .mjs\n\nA new test protects nothing until someone remembers to add its line to the workflow\n\nChapter 4 measured the mechanism at scale so you do not have to take my word for it: GitClear's study of 211 million changed lines found duplicated blocks up eight times in 2024, with copy-paste passing refactoring for the first time on record, and DORA found AI raises delivery speed and instability together unless testing and version control are strong. Agents make writing cheap. Nothing about them makes deciding where a thing belongs cheap. So the natural outcome of fast agent work is more code, more of it duplicated, and a structure that drifts from whatever the documentation says. Every specimen in the table above is that mechanism, not a character flaw.\n\nThe antidotes you already run\n\nThe interesting part of this chapter is that you built the countermeasures before you had the vocabulary for them."
+    },
+    {
+      "blocks": [
+        80,
+        81,
+        82,
+        83,
+        84,
+        85,
+        86,
+        87,
+        88,
+        89,
+        90
+      ],
+      "text": "The freeze. MIGRATION/FROZEN-AT reads version: v1378 / commit: ca8afc8 / frozen: 2026-09-11 , and CLAUDE.md:52-53 makes it law: the web app is frozen, bug fixes only. A frozen system stops accruing new debt while its replacement is built. That is the single highest-leverage move available to someone rewriting an app.\n\nThe log. MIGRATION/FREEZE-LOG.md asks for one line per fix: version, file, what changed, why it could not wait, approved by. It currently reads \"(none yet)\", which is the strongest possible evidence the freeze is holding.\n\nOne owner per file. The migration plan assigns folders to Fable or Codex and insists on one owner at a time for manifests, config, router, state and auth. That is a boundary enforced socially instead of by a compiler, and it works for the same reason boundaries in code work.\n\nThe review gate. \"APPROVED @ <sha>\" pins an approval to an exact commit, so approval cannot drift onto later work nobody read.\n\nGrep before you build. The habit that prevents the second system from being born at all. Two minutes of searching beats a year of two paywalls.\n\nAnd the business version, which is one sentence: debt is a loan, so take it on purpose, at a size you chose, and write the row down where the next person will look. The model for that row is already in your repo. The shim 's comment block is longer than its code, and it tells whoever finds it what happened, why, and what would break without it. That is what a well-taken loan looks like.\n\nTHE ALTERNATIVE, AND WHY MEMENTO CHOSE THIS\n\nThe web app could have adopted a bundler and modules at any point, which would turn load order into declared imports and make a wrong order a build error instead of a crash on someone's phone. It would also add a build step between editing a file and seeing it, and a class of tooling failures that plain script tags simply do not have, on a project where one person ships several times a day. Memento chose speed of iteration and paid with the numbered filenames, the hand-written ?v= cache busting, and 29 test scripts listed by hand. The rebuild makes the opposite trade deliberately, which is the honest way to change an architecture: not by fixing the old one in place, but by starting a new one with the old one frozen beside it.\n\nDo it\n\nExercise: review a proposal in three sentences phone or Mac\n\nAn agent sends you this plan. Read it twice."
+    },
+    {
+      "blocks": [
+        91,
+        92,
+        93,
+        94,
+        95,
+        96,
+        97,
+        98,
+        99,
+        100,
+        101,
+        102,
+        103,
+        104,
+        105,
+        106,
+        107,
+        108,
+        109,
+        110,
+        111,
+        112,
+        113
+      ],
+      "text": "Write one sentence: where should this live , and why there.\n\nWrite one sentence: what does it couple to . Name the specific things this code would have to know about.\n\nWrite one sentence: what debt does it create , and what the interest is.\n\nThen open the model answer and compare. Yours does not have to match. It has to name a cost.\n\nModel answer\n\nWhere: not in a screen component. Streak counting is a rule, and the native app already has a home for rules, src/rules/ , which holds logic ported from the web deliberately; a screen should ask for the number, not know how it is produced.\n\nCouples to: the shape of the day records, the date handling, and, invisibly, the web app's version of the same rule, because step 2 copies it. Copying creates a coupling with no line connecting the two files, which is the worst kind: it binds them without telling anyone.\n\nDebt: a second implementation of one rule. The interest is paid the first time the rule changes, because a fix to one side produces two apps showing a user two different streaks, exactly like the second sandbox above. Step 6 removes the one thing that would have caught it. The cheaper version: move the rule into src/rules/ once, have both screens call it, and if the port must be a copy, write the row in the ledger saying it is a copy of a named file and what happens when they drift.\n\nMac alternative: see that the numbers are real MAC\n\nThe fourth command prints one file. CLAUDE.md says that number does not exist and that two others do. Reading a repo means preferring the ls to the document, always.\n\nASK THE AGENT WHY (paste this into Codex or Fable)\n\nWORDS YOU NOW OWN\n\nCoupling\n\nHow much one piece has to know about another's insides. High coupling means a change over here forces a change over there.\n\nCohesion\n\nHow much a file is about one thing. A 10,478-line file that holds four unrelated jobs has low cohesion.\n\nBoundary\n\nA promise between two pieces: this is what I guarantee, the rest is mine, do not reach past it. An interface instead of a URL.\n\nImport graph\n\nThe machine-readable map of which file needs which. The web app has none, so its map is the load order in one HTML file.\n\nTechnical debt\n\nA loan taken to move faster. Interest is paid on every future change that touches the shortcut. Fine when recorded, expensive when nobody decided to take it.\n\nShim"
+    },
+    {
+      "blocks": [
+        114,
+        115,
+        116,
+        117,
+        118,
+        119,
+        120,
+        121,
+        122,
+        123
+      ],
+      "text": "A small forwarder that keeps an old name working after the thing behind it moved or died. Debt, done in the open.\n\nRefactor\n\nChanging the shape of code without changing what it does. This is how debt gets repaid, and why a test suite is what makes repayment affordable.\n\nThe trade-off written down\n\nThe habit that separates a decision from a drift. Name the cost and when the bill arrives, in the place the next person will look.\n\nWHERE TODAY'S ANALOGY BREAKS\n\nBreaks when: you picture stations that stay put. A kitchen's layout is physical and changing it takes a weekend; a codebase's layout is rearranged by every commit, including ones nobody thought of as structural. The ledger picture also suggests debt is a list of known items, and the expensive ones are almost always the items nobody wrote down, because they were never decided. Real model: architecture is not a diagram you draw once, it is the accumulated result of thousands of small \"where should this go\" answers, most of them given in a hurry, now increasingly given by agents that do not carry your intent between sessions. The countermeasure is not a better diagram. It is the freeze, the owner, the gate, and the row in the log, which is the system you already run.\n\nRABBIT HOLE: where the term came from\n\nWard Cunningham coined \"technical debt\" in 1992 to describe shipping code that is not quite right about the problem, on purpose, to learn faster, as long as you go back and refactor once you understand the problem better. The part that survived is \"debt\". The part usually dropped is the second half: the loan is only worth taking if the repayment is real. Martin Fowler later split it four ways: reckless or prudent, deliberate or inadvertent. Prudent-deliberate is the shim in chapter 1. Prudent-inadvertent is the one that matters most to a founder: you did it the best way you knew, then learned more, and now the old shape is wrong. That one is not avoidable by being smarter up front. It is only manageable by noticing.\n\nRABBIT HOLE: why \"just rewrite it\" is usually wrong, and when it is not"
+    },
+    {
+      "blocks": [
+        124
+      ],
+      "text": "The standard warning is that a rewrite throws away years of accumulated fixes, most of which look like ugly lines that are actually a bug someone hit at 2am. The counter-case is when the constraints themselves changed, so the old code is not wrong so much as pointed at a different target. Memento's rebuild is the second kind: the web app was built for a browser and the goal is now an App Store binary on two platforms, which is not a refactor, it is a different machine. Notice the two things that make it survivable. The old app is frozen rather than abandoned, so it keeps serving users while the new one grows. And __tests__/ai-transport.test.ts runs the original code and compares outputs against the TypeScript version, which makes the old app the oracle for the new one. That is how you rewrite without re-losing every fix."
+    }
+  ],
+  "wordCount": 2928
+}

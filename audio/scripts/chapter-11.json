@@ -1,0 +1,707 @@
+{
+  "chapter": 11,
+  "slug": "js-3-flow",
+  "title": "JavaScript 3: control flow, loops, objects, references",
+  "source": "chapters/11-js-3-flow.html",
+  "blocks": [
+    {
+      "index": 0,
+      "tag": "h1",
+      "text": "JavaScript 3: control flow, loops, objects, references"
+    },
+    {
+      "index": 1,
+      "tag": "p",
+      "text": "One finger, one line at a time. That finger can skip, it can go round in circles, and it can be handed the same object under two different names. The last one is where \"but I never touched that\" bugs are born."
+    },
+    {
+      "index": 2,
+      "tag": "div",
+      "text": "LAST TIME"
+    },
+    {
+      "index": 3,
+      "tag": "p",
+      "text": "A function is a recipe: writing it does nothing, calling it runs it. return hands a value back and stops the function on the spot, which is what makes guard clauses work. The call stack is a pile of index cards, one per function in progress, and only the top card is running."
+    },
+    {
+      "index": 4,
+      "tag": "h2",
+      "text": "Quick check"
+    },
+    {
+      "index": 5,
+      "tag": "summary",
+      "text": "A function does its job but printing its result gives undefined . What is wrong?"
+    },
+    {
+      "index": 6,
+      "tag": "summary",
+      "text": "const goal = { days: 30 }; then goal.days = 60; . Legal or not?"
+    },
+    {
+      "index": 7,
+      "tag": "summary",
+      "text": "Why does Memento's CLAUDE.md ban git add -A ?"
+    },
+    {
+      "index": 8,
+      "tag": "h2",
+      "text": "The idea"
+    },
+    {
+      "index": 9,
+      "tag": "p",
+      "text": "Chapter 1 gave you an intern reading a to-do list top to bottom. Everything in this chapter is a way of moving that intern's finger somewhere other than the next line down."
+    },
+    {
+      "index": 10,
+      "tag": "p",
+      "text": "There are only three moves, and every program ever written is made of them. Go to the next line. Skip some lines. Go back and do some lines again. That is it. Control flow is the name for which line the finger is on and where it goes next."
+    },
+    {
+      "index": 11,
+      "tag": "h3",
+      "text": "if / else: skip some lines"
+    },
+    {
+      "index": 12,
+      "tag": "p",
+      "text": "An if statement asks a yes-or-no question and runs its block only when the answer is yes. An else block is what runs when it is no. The finger takes one path or the other, never both, and then both paths rejoin at the line after."
+    },
+    {
+      "index": 13,
+      "tag": "p",
+      "text": "The question inside the brackets does not have to be a true or false. JavaScript will accept any value and decide for itself. A value that counts as yes is called truthy ; one that counts as no is falsy . There are exactly six falsy values worth memorising: false , 0 , \"\" (empty text), null , undefined , and NaN . Everything else is truthy, including the empty array [] and the empty object {} , which trips up nearly everyone the first time."
+    },
+    {
+      "index": 14,
+      "tag": "p",
+      "text": "That is why chapter 10's guard clause read if (!text || aiChatLoading) return; instead of comparing anything. !text means \"text is falsy\", which covers empty, never-set, and deliberately-empty in one character."
+    },
+    {
+      "index": 15,
+      "tag": "h3",
+      "text": "Loops: go back and do it again"
+    },
+    {
+      "index": 16,
+      "tag": "p",
+      "text": "A loop repeats a block. The single most important thing to hold in your head is this: a loop does not run all at once. It runs its block, finishes it completely, then starts the block again from the top. One pass of the finger, then another. Ten items means ten separate passes, in order, one after the other. Nothing in a loop is simultaneous."
+    },
+    {
+      "index": 17,
+      "tag": "p",
+      "text": "Three spellings cover everything you will read in Memento."
+    },
+    {
+      "index": 18,
+      "tag": "th",
+      "text": "Spelling"
+    },
+    {
+      "index": 19,
+      "tag": "th",
+      "text": "Reads as"
+    },
+    {
+      "index": 20,
+      "tag": "th",
+      "text": "Use when"
+    },
+    {
+      "index": 21,
+      "tag": "td",
+      "text": "for (let i = 0; i < 5; i++)"
+    },
+    {
+      "index": 22,
+      "tag": "td",
+      "text": "\"start at 0, keep going while under 5, add one each pass\""
+    },
+    {
+      "index": 23,
+      "tag": "td",
+      "text": "You need the position number."
+    },
+    {
+      "index": 24,
+      "tag": "td",
+      "text": "for (const item of list)"
+    },
+    {
+      "index": 25,
+      "tag": "td",
+      "text": "\"for each thing in this list, one at a time\""
+    },
+    {
+      "index": 26,
+      "tag": "td",
+      "text": "You just want the items. The common case."
+    },
+    {
+      "index": 27,
+      "tag": "td",
+      "text": "while (condition)"
+    },
+    {
+      "index": 28,
+      "tag": "td",
+      "text": "\"keep going as long as this stays true\""
+    },
+    {
+      "index": 29,
+      "tag": "td",
+      "text": "You do not know how many passes there will be."
+    },
+    {
+      "index": 30,
+      "tag": "p",
+      "text": "The classic for has three parts separated by semicolons: where to start, when to keep going, what to change each pass. Chapter 1's sandbox 5 forgot the third part, so the condition never changed and the finger went round forever. That is the ordinary failure, not an exotic one."
+    },
+    {
+      "index": 31,
+      "tag": "h3",
+      "text": "Arrays and the five methods you will actually read"
+    },
+    {
+      "index": 32,
+      "tag": "p",
+      "text": "An array is an ordered list. Its positions are numbered from zero, not one, so list[0] is the first item, and list.length is how many there are. Loops and arrays go together so often that the language ships with shortcuts: methods that run a small function once per item and hand you something back."
+    },
+    {
+      "index": 33,
+      "tag": "th",
+      "text": "Method"
+    },
+    {
+      "index": 34,
+      "tag": "th",
+      "text": "What it hands back"
+    },
+    {
+      "index": 35,
+      "tag": "td",
+      "text": "push(x)"
+    },
+    {
+      "index": 36,
+      "tag": "td",
+      "text": "Nothing useful. It adds x to the end of the array itself."
+    },
+    {
+      "index": 37,
+      "tag": "td",
+      "text": "filter(fn)"
+    },
+    {
+      "index": 38,
+      "tag": "td",
+      "text": "A new array holding only the items where your function said true."
+    },
+    {
+      "index": 39,
+      "tag": "td",
+      "text": "map(fn)"
+    },
+    {
+      "index": 40,
+      "tag": "td",
+      "text": "A new array, same length, each item replaced by whatever your function returned."
+    },
+    {
+      "index": 41,
+      "tag": "td",
+      "text": "find(fn)"
+    },
+    {
+      "index": 42,
+      "tag": "td",
+      "text": "The first item where your function said true, or undefined if there is none."
+    },
+    {
+      "index": 43,
+      "tag": "td",
+      "text": "forEach(fn)"
+    },
+    {
+      "index": 44,
+      "tag": "td",
+      "text": "Nothing. It runs your function once per item for the side effect."
+    },
+    {
+      "index": 45,
+      "tag": "p",
+      "text": "The function you hand over is chapter 10's arrow function, and the ones that hand back a new array can be chained. Reading a chain out loud, left to right, is how you decode the dense Memento lines below."
+    },
+    {
+      "index": 46,
+      "tag": "h3",
+      "text": "The object trap"
+    },
+    {
+      "index": 47,
+      "tag": "p",
+      "text": "Now the part that is worth the whole chapter."
+    },
+    {
+      "index": 48,
+      "tag": "p",
+      "text": "Chapter 9 said assignment copies the value and the two names are then independent. True for numbers, text and booleans. For objects and arrays it is a trap, because the value a name points at is not the object. It is a reference : an address of where the object lives in memory. Copying an address gives you a second piece of paper with the same address on it. Both lead to one house."
+    },
+    {
+      "index": 49,
+      "tag": "div",
+      "text": "ANALOGY (TEMPORARY)"
+    },
+    {
+      "index": 50,
+      "tag": "p",
+      "text": "A shared Google Doc. const backup = state is not printing the document. It is sending someone the link. Now two people have their own link, but there is still one document. When the other person deletes a paragraph, your link shows the deletion, because your link was never a copy of anything. {...state} is File, Make a copy: a real second document that now drifts apart from the first."
+    },
+    {
+      "index": 51,
+      "tag": "p",
+      "text": "Two names for one object is called aliasing , and it is not a flaw. It is why Memento's 38 files can all say state and all mean the same live object. It becomes a bug only when a human believed they had made a copy and had not."
+    },
+    {
+      "index": 52,
+      "tag": "p",
+      "text": "The cheap fix is the spread : const copy = {...original} builds a genuinely new object and copies each key across. For arrays it is [...list] . One catch, and it has a name: this is a shallow copy . The top level is new, but a nested object inside is still copied as an address, so both still share everything one level down."
+    },
+    {
+      "index": 53,
+      "tag": "p",
+      "text": "And the third misconception, the one chapter 9 planted deliberately: const does not freeze contents. It only refuses to let the name be re-pointed. const list = [] then list.push(\"a\") is legal all day long, because the array is the same array. It just has something in it now."
+    },
+    {
+      "index": 54,
+      "tag": "h3",
+      "text": "try / catch: if this line explodes, do this instead"
+    },
+    {
+      "index": 55,
+      "tag": "p",
+      "text": "Some lines fail for reasons that have nothing to do with your code being right. The disk is full. A private window blocked storage. The text handed to you is not valid JSON. When a line fails like that it throws , and by default the throw kills everything up the call stack until the app stops."
+    },
+    {
+      "index": 56,
+      "tag": "p",
+      "text": "try / catch puts a net under a block. Run these lines. If any throws, abandon the rest of the block, run the catch block instead, then carry on. It is a human deciding in advance what \"keep going anyway\" looks like at that exact spot."
+    },
+    {
+      "index": 57,
+      "tag": "h2",
+      "text": "See it"
+    },
+    {
+      "index": 58,
+      "tag": "p",
+      "text": "Seven boxes. Same rule as always, and it is the only rule in this book that matters: predict what prints, write it down, then run."
+    },
+    {
+      "index": 59,
+      "tag": "p",
+      "text": "Box 4 is the whole chapter in five lines. Nobody typed state.streak and yet it is 99, because backup was never a backup. Box 5 is the half-fix: copy.streak left the original alone, copy.clarity.theme did not. Box 6 shows a const array is a perfectly editable array. Box 7 shows a program surviving a line that blew up, which is what Memento does every time it saves."
+    },
+    {
+      "index": 60,
+      "tag": "h2",
+      "text": "Now in Memento"
+    },
+    {
+      "index": 61,
+      "tag": "div",
+      "text": "ANY APP: saving without dying"
+    },
+    {
+      "index": 62,
+      "tag": "p",
+      "text": "Writing to the browser's storage box can fail for reasons no developer controls: the box is full, or a private window refused it. If a failed save crashes the app, the user loses the thing they were typing plus everything else. So each risky step gets its own net, and a failure in one does not cancel the others."
+    },
+    {
+      "index": 63,
+      "tag": "p",
+      "text": "Then, occasionally, keep a copy of the previous save under a second name. If the newest save is ever written half-broken, yesterday's copy is still sitting there."
+    },
+    {
+      "index": 64,
+      "tag": "div",
+      "text": "MEMENTO: writeStateToStorage()"
+    },
+    {
+      "index": 65,
+      "tag": "p",
+      "text": "Read it as control flow and it decodes in about thirty seconds."
+    },
+    {
+      "index": 66,
+      "tag": "p",
+      "text": "The first try is the backup. if (now - _lastBackupAt > 30000) means \"has it been thirty seconds\", so the block skips itself almost every time. if (prev) is a truthiness check: only copy the previous save if there was one. The catch (e) {} is an empty net on purpose, because a failed backup must never stop a real save."
+    },
+    {
+      "index": 67,
+      "tag": "p",
+      "text": "The second try is the real save, and its catch is not empty. It asks what kind of failure this was: e.name === 'QuotaExceededError' || e.code === 22 means \"storage is full\", written two ways because different browsers report it differently. Then if (quota && !_quotaWarned) shows the warning once and only once, because a toast on every keystroke would be worse than the bug. Two conditions, two truthiness checks, one flag flipped so the second pass takes the other path."
+    },
+    {
+      "index": 68,
+      "tag": "div",
+      "text": "ANY APP: reading a list of events"
+    },
+    {
+      "index": 69,
+      "tag": "p",
+      "text": "Apps keep a log of what happened: a flat list of small objects with a type and a date. Questions about the user get answered by narrowing that list, then pulling out the one field you care about. Narrow first, then transform. That is filter, then map."
+    },
+    {
+      "index": 70,
+      "tag": "div",
+      "text": "MEMENTO: did this user activate?"
+    },
+    {
+      "index": 71,
+      "tag": "p",
+      "text": "Left to right: take every event, keep the ones that exist and are an action_done , replace each with just its day, then put the days in a Set , which throws away duplicates. Three days of work on one day counts once. The answer is a number of distinct days."
+    },
+    {
+      "index": 72,
+      "tag": "div",
+      "text": "THE ALTERNATIVE, AND WHY MEMENTO CHOSE THIS"
+    },
+    {
+      "index": 73,
+      "tag": "p",
+      "text": "The alternative to wrapping each step in its own try is one big try around the whole function. Shorter, and wrong here: a failed backup would abandon the real save, so a rare thirty-second housekeeping job could silently cost a user their actual data. Separate nets mean the important line still runs. The cost is that empty catch (e) {} blocks hide failures completely, and a genuine bug inside one of them is invisible forever. Memento accepts that on the backup and refuses it on the save, which is why only the second catch inspects what went wrong. Chapter 23 comes back to swallowed errors as a debugging problem."
+    },
+    {
+      "index": 74,
+      "tag": "h2",
+      "text": "Do it"
+    },
+    {
+      "index": 75,
+      "tag": "div",
+      "text": "Exercise phone or Mac"
+    },
+    {
+      "index": 76,
+      "tag": "li",
+      "text": "Read box 1 without running it. Write down what you think the three printed lines say."
+    },
+    {
+      "index": 77,
+      "tag": "li",
+      "text": "Run it. The restore does nothing, because the safety copy and the live object are one object. Say out loud, in one sentence, which line was the lie."
+    },
+    {
+      "index": 78,
+      "tag": "li",
+      "text": "Fix it. Change one line so saved is a real copy, then run again and watch the restore work. There are two ways to spell the fix and one of them is shorter."
+    },
+    {
+      "index": 79,
+      "tag": "li",
+      "text": "Box 2 is the nested trap. Fix it the same way and watch it still fail. Then say why, in one sentence, before reading the last paragraph of the chapter."
+    },
+    {
+      "index": 80,
+      "tag": "p",
+      "text": "Box 2's answer: spread copied the top level, so streak survived. It copied clarity as an address, so both objects still point at one clarity . A copy that goes all the way down is called a deep copy, and the plain way to get one is JSON.parse(JSON.stringify(obj)) , which is exactly Memento's save path used as a photocopier."
+    },
+    {
+      "index": 81,
+      "tag": "div",
+      "text": "ASK THE AGENT WHY (paste this into Codex or Fable)"
+    },
+    {
+      "index": 82,
+      "tag": "div",
+      "text": "WORDS YOU NOW OWN"
+    },
+    {
+      "index": 83,
+      "tag": "dt",
+      "text": "Control flow"
+    },
+    {
+      "index": 84,
+      "tag": "dd",
+      "text": "Which line the machine is on and where it goes next. Three moves only: next line, skip lines, go back."
+    },
+    {
+      "index": 85,
+      "tag": "dt",
+      "text": "if / else"
+    },
+    {
+      "index": 86,
+      "tag": "dd",
+      "text": "Take one path or the other, never both, then rejoin."
+    },
+    {
+      "index": 87,
+      "tag": "dt",
+      "text": "Truthy / falsy"
+    },
+    {
+      "index": 88,
+      "tag": "dd",
+      "text": "What a non-boolean counts as in a yes-or-no question. Six things are falsy: false , 0 , \"\" , null , undefined , NaN . Empty arrays and empty objects are truthy."
+    },
+    {
+      "index": 89,
+      "tag": "dt",
+      "text": "Loop"
+    },
+    {
+      "index": 90,
+      "tag": "dd",
+      "text": "Run a block, finish it, run it again. Passes in order, never all at once."
+    },
+    {
+      "index": 91,
+      "tag": "dt",
+      "text": "for / for...of / while"
+    },
+    {
+      "index": 92,
+      "tag": "dd",
+      "text": "Counted passes / one pass per item in a list / keep going while something stays true."
+    },
+    {
+      "index": 93,
+      "tag": "dt",
+      "text": "filter / map / find / forEach / push"
+    },
+    {
+      "index": 94,
+      "tag": "dd",
+      "text": "Keep some / change each / get the first match / do something per item / add to the end. The first three hand back something new; the last two do not."
+    },
+    {
+      "index": 95,
+      "tag": "dt",
+      "text": "Reference"
+    },
+    {
+      "index": 96,
+      "tag": "dd",
+      "text": "What a name actually holds when the value is an object: an address, not the object. Assignment copies the address."
+    },
+    {
+      "index": 97,
+      "tag": "dt",
+      "text": "Aliasing"
+    },
+    {
+      "index": 98,
+      "tag": "dd",
+      "text": "Two names for one object. Deliberate almost everywhere in Memento, a bug the moment somebody thought it was a copy."
+    },
+    {
+      "index": 99,
+      "tag": "dt",
+      "text": "Spread"
+    },
+    {
+      "index": 100,
+      "tag": "dd",
+      "text": "{...obj} or [...list] . Builds a genuinely new top level."
+    },
+    {
+      "index": 101,
+      "tag": "dt",
+      "text": "Shallow copy"
+    },
+    {
+      "index": 102,
+      "tag": "dd",
+      "text": "A copy whose nested objects are still shared with the original. What spread gives you."
+    },
+    {
+      "index": 103,
+      "tag": "dt",
+      "text": "throw"
+    },
+    {
+      "index": 104,
+      "tag": "dd",
+      "text": "A line giving up and killing everything above it on the stack until something catches it."
+    },
+    {
+      "index": 105,
+      "tag": "dt",
+      "text": "try / catch"
+    },
+    {
+      "index": 106,
+      "tag": "dd",
+      "text": "A net under a block. If anything in try throws, abandon the rest of the block and run catch instead."
+    },
+    {
+      "index": 107,
+      "tag": "div",
+      "text": "WHERE TODAY'S ANALOGY BREAKS"
+    },
+    {
+      "index": 108,
+      "tag": "p",
+      "text": "Breaks when: you ask who is allowed to edit the shared document. Google Docs has permissions, a history, and a name next to every change. Memory has none of that. Any code holding the reference can change the object instantly, with no record of who did it and no way to ask afterwards. That is why the \"which line wrote this\" bug is so expensive, and why chapter 14 puts every write behind one path. Real model: a variable holding an object holds a number, and that number is an address. Two variables holding the same number are indistinguishable: no original, no copy, no owner, no audit trail. A second, smaller break: the finger does not always stay on one line for long. Chapter 12 shows it walking away from a half-finished function and coming back later."
+    },
+    {
+      "index": 109,
+      "tag": "summary",
+      "text": "RABBIT HOLE: what JSON.stringify silently drops"
+    },
+    {
+      "index": 110,
+      "tag": "p",
+      "text": "JSON.stringify(state) walks the whole object turning it into one long piece of text, because storage only holds text. Two things get quietly lost. Functions vanish: a key whose value is a function is dropped entirely, no error. And undefined vanishes while null survives, which is one practical reason chapter 9 found paidAt: null rather than undefined . A key set to undefined is there in memory and gone after a save and reload, a bug that only appears to users who close the app."
+    }
+  ],
+  "segments": [
+    {
+      "blocks": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15
+      ],
+      "text": "JavaScript 3: control flow, loops, objects, references\n\nOne finger, one line at a time. That finger can skip, it can go round in circles, and it can be handed the same object under two different names. The last one is where \"but I never touched that\" bugs are born.\n\nLAST TIME\n\nA function is a recipe: writing it does nothing, calling it runs it. return hands a value back and stops the function on the spot, which is what makes guard clauses work. The call stack is a pile of index cards, one per function in progress, and only the top card is running.\n\nQuick check\n\nA function does its job but printing its result gives undefined . What is wrong?\n\nconst goal = { days: 30 }; then goal.days = 60; . Legal or not?\n\nWhy does Memento's CLAUDE.md ban git add -A ?\n\nThe idea\n\nChapter 1 gave you an intern reading a to-do list top to bottom. Everything in this chapter is a way of moving that intern's finger somewhere other than the next line down.\n\nThere are only three moves, and every program ever written is made of them. Go to the next line. Skip some lines. Go back and do some lines again. That is it. Control flow is the name for which line the finger is on and where it goes next.\n\nif / else: skip some lines\n\nAn if statement asks a yes-or-no question and runs its block only when the answer is yes. An else block is what runs when it is no. The finger takes one path or the other, never both, and then both paths rejoin at the line after.\n\nThe question inside the brackets does not have to be a true or false. JavaScript will accept any value and decide for itself. A value that counts as yes is called truthy ; one that counts as no is falsy . There are exactly six falsy values worth memorising: false , 0 , \"\" (empty text), null , undefined , and NaN . Everything else is truthy, including the empty array [] and the empty object {} , which trips up nearly everyone the first time.\n\nThat is why chapter 10's guard clause read if (!text || aiChatLoading) return; instead of comparing anything. !text means \"text is falsy\", which covers empty, never-set, and deliberately-empty in one character.\n\nLoops: go back and do it again"
+    },
+    {
+      "blocks": [
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47
+      ],
+      "text": "A loop repeats a block. The single most important thing to hold in your head is this: a loop does not run all at once. It runs its block, finishes it completely, then starts the block again from the top. One pass of the finger, then another. Ten items means ten separate passes, in order, one after the other. Nothing in a loop is simultaneous.\n\nThree spellings cover everything you will read in Memento.\n\nSpelling\n\nReads as\n\nUse when\n\nfor (let i = 0; i < 5; i++)\n\n\"start at 0, keep going while under 5, add one each pass\"\n\nYou need the position number.\n\nfor (const item of list)\n\n\"for each thing in this list, one at a time\"\n\nYou just want the items. The common case.\n\nwhile (condition)\n\n\"keep going as long as this stays true\"\n\nYou do not know how many passes there will be.\n\nThe classic for has three parts separated by semicolons: where to start, when to keep going, what to change each pass. Chapter 1's sandbox 5 forgot the third part, so the condition never changed and the finger went round forever. That is the ordinary failure, not an exotic one.\n\nArrays and the five methods you will actually read\n\nAn array is an ordered list. Its positions are numbered from zero, not one, so list[0] is the first item, and list.length is how many there are. Loops and arrays go together so often that the language ships with shortcuts: methods that run a small function once per item and hand you something back.\n\nMethod\n\nWhat it hands back\n\npush(x)\n\nNothing useful. It adds x to the end of the array itself.\n\nfilter(fn)\n\nA new array holding only the items where your function said true.\n\nmap(fn)\n\nA new array, same length, each item replaced by whatever your function returned.\n\nfind(fn)\n\nThe first item where your function said true, or undefined if there is none.\n\nforEach(fn)\n\nNothing. It runs your function once per item for the side effect.\n\nThe function you hand over is chapter 10's arrow function, and the ones that hand back a new array can be chained. Reading a chain out loud, left to right, is how you decode the dense Memento lines below.\n\nThe object trap\n\nNow the part that is worth the whole chapter."
+    },
+    {
+      "blocks": [
+        48,
+        49,
+        50,
+        51,
+        52,
+        53,
+        54,
+        55,
+        56,
+        57,
+        58
+      ],
+      "text": "Chapter 9 said assignment copies the value and the two names are then independent. True for numbers, text and booleans. For objects and arrays it is a trap, because the value a name points at is not the object. It is a reference : an address of where the object lives in memory. Copying an address gives you a second piece of paper with the same address on it. Both lead to one house.\n\nANALOGY (TEMPORARY)\n\nA shared Google Doc. const backup = state is not printing the document. It is sending someone the link. Now two people have their own link, but there is still one document. When the other person deletes a paragraph, your link shows the deletion, because your link was never a copy of anything. {...state} is File, Make a copy: a real second document that now drifts apart from the first.\n\nTwo names for one object is called aliasing , and it is not a flaw. It is why Memento's 38 files can all say state and all mean the same live object. It becomes a bug only when a human believed they had made a copy and had not.\n\nThe cheap fix is the spread : const copy = {...original} builds a genuinely new object and copies each key across. For arrays it is [...list] . One catch, and it has a name: this is a shallow copy . The top level is new, but a nested object inside is still copied as an address, so both still share everything one level down.\n\nAnd the third misconception, the one chapter 9 planted deliberately: const does not freeze contents. It only refuses to let the name be re-pointed. const list = [] then list.push(\"a\") is legal all day long, because the array is the same array. It just has something in it now.\n\ntry / catch: if this line explodes, do this instead\n\nSome lines fail for reasons that have nothing to do with your code being right. The disk is full. A private window blocked storage. The text handed to you is not valid JSON. When a line fails like that it throws , and by default the throw kills everything up the call stack until the app stops.\n\ntry / catch puts a net under a block. Run these lines. If any throws, abandon the rest of the block, run the catch block instead, then carry on. It is a human deciding in advance what \"keep going anyway\" looks like at that exact spot.\n\nSee it\n\nSeven boxes. Same rule as always, and it is the only rule in this book that matters: predict what prints, write it down, then run."
+    },
+    {
+      "blocks": [
+        59,
+        60,
+        61,
+        62,
+        63,
+        64,
+        65,
+        66,
+        67,
+        68,
+        69,
+        70,
+        71
+      ],
+      "text": "Box 4 is the whole chapter in five lines. Nobody typed state.streak and yet it is 99, because backup was never a backup. Box 5 is the half-fix: copy.streak left the original alone, copy.clarity.theme did not. Box 6 shows a const array is a perfectly editable array. Box 7 shows a program surviving a line that blew up, which is what Memento does every time it saves.\n\nNow in Memento\n\nANY APP: saving without dying\n\nWriting to the browser's storage box can fail for reasons no developer controls: the box is full, or a private window refused it. If a failed save crashes the app, the user loses the thing they were typing plus everything else. So each risky step gets its own net, and a failure in one does not cancel the others.\n\nThen, occasionally, keep a copy of the previous save under a second name. If the newest save is ever written half-broken, yesterday's copy is still sitting there.\n\nMEMENTO: writeStateToStorage()\n\nRead it as control flow and it decodes in about thirty seconds.\n\nThe first try is the backup. if (now - _lastBackupAt > 30000) means \"has it been thirty seconds\", so the block skips itself almost every time. if (prev) is a truthiness check: only copy the previous save if there was one. The catch (e) {} is an empty net on purpose, because a failed backup must never stop a real save.\n\nThe second try is the real save, and its catch is not empty. It asks what kind of failure this was: e.name === 'QuotaExceededError' || e.code === 22 means \"storage is full\", written two ways because different browsers report it differently. Then if (quota && !_quotaWarned) shows the warning once and only once, because a toast on every keystroke would be worse than the bug. Two conditions, two truthiness checks, one flag flipped so the second pass takes the other path.\n\nANY APP: reading a list of events\n\nApps keep a log of what happened: a flat list of small objects with a type and a date. Questions about the user get answered by narrowing that list, then pulling out the one field you care about. Narrow first, then transform. That is filter, then map.\n\nMEMENTO: did this user activate?\n\nLeft to right: take every event, keep the ones that exist and are an action_done , replace each with just its day, then put the days in a Set , which throws away duplicates. Three days of work on one day counts once. The answer is a number of distinct days."
+    },
+    {
+      "blocks": [
+        72,
+        73,
+        74,
+        75,
+        76,
+        77,
+        78,
+        79,
+        80,
+        81,
+        82,
+        83,
+        84,
+        85,
+        86,
+        87,
+        88,
+        89,
+        90,
+        91,
+        92,
+        93,
+        94,
+        95
+      ],
+      "text": "THE ALTERNATIVE, AND WHY MEMENTO CHOSE THIS\n\nThe alternative to wrapping each step in its own try is one big try around the whole function. Shorter, and wrong here: a failed backup would abandon the real save, so a rare thirty-second housekeeping job could silently cost a user their actual data. Separate nets mean the important line still runs. The cost is that empty catch (e) {} blocks hide failures completely, and a genuine bug inside one of them is invisible forever. Memento accepts that on the backup and refuses it on the save, which is why only the second catch inspects what went wrong. Chapter 23 comes back to swallowed errors as a debugging problem.\n\nDo it\n\nExercise phone or Mac\n\nRead box 1 without running it. Write down what you think the three printed lines say.\n\nRun it. The restore does nothing, because the safety copy and the live object are one object. Say out loud, in one sentence, which line was the lie.\n\nFix it. Change one line so saved is a real copy, then run again and watch the restore work. There are two ways to spell the fix and one of them is shorter.\n\nBox 2 is the nested trap. Fix it the same way and watch it still fail. Then say why, in one sentence, before reading the last paragraph of the chapter.\n\nBox 2's answer: spread copied the top level, so streak survived. It copied clarity as an address, so both objects still point at one clarity . A copy that goes all the way down is called a deep copy, and the plain way to get one is JSON.parse(JSON.stringify(obj)) , which is exactly Memento's save path used as a photocopier.\n\nASK THE AGENT WHY (paste this into Codex or Fable)\n\nWORDS YOU NOW OWN\n\nControl flow\n\nWhich line the machine is on and where it goes next. Three moves only: next line, skip lines, go back.\n\nif / else\n\nTake one path or the other, never both, then rejoin.\n\nTruthy / falsy\n\nWhat a non-boolean counts as in a yes-or-no question. Six things are falsy: false , 0 , \"\" , null , undefined , NaN . Empty arrays and empty objects are truthy.\n\nLoop\n\nRun a block, finish it, run it again. Passes in order, never all at once.\n\nfor / for...of / while\n\nCounted passes / one pass per item in a list / keep going while something stays true.\n\nfilter / map / find / forEach / push\n\nKeep some / change each / get the first match / do something per item / add to the end. The first three hand back something new; the last two do not.\n\nReference"
+    },
+    {
+      "blocks": [
+        96,
+        97,
+        98,
+        99,
+        100,
+        101,
+        102,
+        103,
+        104,
+        105,
+        106,
+        107,
+        108,
+        109,
+        110
+      ],
+      "text": "What a name actually holds when the value is an object: an address, not the object. Assignment copies the address.\n\nAliasing\n\nTwo names for one object. Deliberate almost everywhere in Memento, a bug the moment somebody thought it was a copy.\n\nSpread\n\n{...obj} or [...list] . Builds a genuinely new top level.\n\nShallow copy\n\nA copy whose nested objects are still shared with the original. What spread gives you.\n\nthrow\n\nA line giving up and killing everything above it on the stack until something catches it.\n\ntry / catch\n\nA net under a block. If anything in try throws, abandon the rest of the block and run catch instead.\n\nWHERE TODAY'S ANALOGY BREAKS\n\nBreaks when: you ask who is allowed to edit the shared document. Google Docs has permissions, a history, and a name next to every change. Memory has none of that. Any code holding the reference can change the object instantly, with no record of who did it and no way to ask afterwards. That is why the \"which line wrote this\" bug is so expensive, and why chapter 14 puts every write behind one path. Real model: a variable holding an object holds a number, and that number is an address. Two variables holding the same number are indistinguishable: no original, no copy, no owner, no audit trail. A second, smaller break: the finger does not always stay on one line for long. Chapter 12 shows it walking away from a half-finished function and coming back later.\n\nRABBIT HOLE: what JSON.stringify silently drops\n\nJSON.stringify(state) walks the whole object turning it into one long piece of text, because storage only holds text. Two things get quietly lost. Functions vanish: a key whose value is a function is dropped entirely, no error. And undefined vanishes while null survives, which is one practical reason chapter 9 found paidAt: null rather than undefined . A key set to undefined is there in memory and gone after a save and reload, a bug that only appears to users who close the app."
+    }
+  ],
+  "wordCount": 2410
+}

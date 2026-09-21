@@ -1,0 +1,521 @@
+{
+  "chapter": 12,
+  "slug": "js-4-async",
+  "title": "JavaScript 4: async, promises, the event loop",
+  "source": "chapters/12-js-4-async.html",
+  "blocks": [
+    {
+      "index": 0,
+      "tag": "h1",
+      "text": "JavaScript 4: async, promises, the event loop"
+    },
+    {
+      "index": 1,
+      "tag": "p",
+      "text": "Memento waits about two seconds for the AI and the screen never freezes. That is not speed. It is one cook who refuses to stand and watch the oven, and once you can see the timer board on the wall, out-of-order log lines stop being spooky."
+    },
+    {
+      "index": 2,
+      "tag": "div",
+      "text": "LAST TIME"
+    },
+    {
+      "index": 3,
+      "tag": "p",
+      "text": "Control flow is where the finger goes next: down, skip, or back. A loop is separate passes in order, never all at once. Two names can hold the same object because a name holds an address, which is why const backup = state backs up nothing and try / catch is a net under a block that might explode."
+    },
+    {
+      "index": 4,
+      "tag": "h2",
+      "text": "Quick check"
+    },
+    {
+      "index": 5,
+      "tag": "summary",
+      "text": "const copy = {...state} then copy.clarity.theme = \"ember\" . Did the original change?"
+    },
+    {
+      "index": 6,
+      "tag": "summary",
+      "text": "Which of these are falsy: 0 , [] , \"\" , {} , null ?"
+    },
+    {
+      "index": 7,
+      "tag": "summary",
+      "text": "What does return do, both halves?"
+    },
+    {
+      "index": 8,
+      "tag": "h2",
+      "text": "The idea"
+    },
+    {
+      "index": 9,
+      "tag": "p",
+      "text": "Chapter 10's pile of index cards had a hole in it. If a program is one finger walking one line at a time, and a line says \"ask a server in another country for an answer\", the finger stands there for two seconds. No scrolling, no typing, no animation, no redraw. The app looks dead."
+    },
+    {
+      "index": 10,
+      "tag": "p",
+      "text": "That is exactly what would happen, and it is why the language has the machinery this chapter is about."
+    },
+    {
+      "index": 11,
+      "tag": "h3",
+      "text": "One thread, a queue, and a waiting list"
+    },
+    {
+      "index": 12,
+      "tag": "p",
+      "text": "JavaScript runs your code on one main thread . One finger. There is no second finger running your functions beside the first, ever."
+    },
+    {
+      "index": 13,
+      "tag": "p",
+      "text": "Next to it sit two more things. A queue : a line of jobs waiting their turn on the thread, first in, first out. And a waiting list: work handed off to something that is not JavaScript and is not ready yet. A timer counting down. A network request in flight. Your thread does not run those. The browser does, in the background."
+    },
+    {
+      "index": 14,
+      "tag": "p",
+      "text": "The event loop is one rule, repeated forever: when the thread is empty, take the next job from the queue and run it to completion. When something on the waiting list finishes, it does not barge in. It gets put on the end of the queue and waits its turn like everything else."
+    },
+    {
+      "index": 15,
+      "tag": "div",
+      "text": "ANALOGY (TEMPORARY)"
+    },
+    {
+      "index": 16,
+      "tag": "p",
+      "text": "A restaurant kitchen with one cook. The cook does one thing at a time, start to finish, and never stops halfway. On the wall is a timer board: the oven, the sous-vide, the driver who is out fetching the fish. None of those are the cook. The cook puts the tray in, sets the timer, and starts the next order. When a timer dings, the ding does not interrupt the cook mid-plate. The order joins the end of the ticket rail. Every \"why did that print in the wrong order\" question is answered by the ticket rail."
+    },
+    {
+      "index": 17,
+      "tag": "h3",
+      "text": "Callbacks, the thing chapter 10 promised"
+    },
+    {
+      "index": 18,
+      "tag": "p",
+      "text": "A callback is a function you hand to something else so that it can run it later. You do not call it. You give it away. setTimeout(() => { save(); }, 150) hands an arrow function to the browser's timer, and the browser calls it back when the time is up. addEventListener('click', fn) hands a function to the browser, which calls it whenever a finger lands. You read both in chapter 10 without having the word. That is the whole idea, and everything below is built on it."
+    },
+    {
+      "index": 19,
+      "tag": "h3",
+      "text": "A promise is a receipt"
+    },
+    {
+      "index": 20,
+      "tag": "p",
+      "text": "Callbacks alone get ugly fast: a reply that needs another request that needs another one becomes functions nested inside functions five deep. So the language added an object for \"a value that is not here yet\"."
+    },
+    {
+      "index": 21,
+      "tag": "p",
+      "text": "A promise is a receipt. You hand over your order and get a slip of paper back immediately. The slip is not the food. It is a claim ticket that ends up as exactly one of two things: resolved , the value is ready, or rejected , it went wrong and here is why. Never both. fetch hands you a receipt on the spot and the reply lands on it later."
+    },
+    {
+      "index": 22,
+      "tag": "h3",
+      "text": "async / await: pause this function, not the app"
+    },
+    {
+      "index": 23,
+      "tag": "p",
+      "text": "Working with receipts by hand is still fiddly, so there is a spelling that makes it read like ordinary top-to-bottom code. Mark a function async and you may use await inside it."
+    },
+    {
+      "index": 24,
+      "tag": "p",
+      "text": "await means one precise thing, and getting it exactly right is the point of this chapter: take this function's card off the pile, put it aside with a note saying which line it was on, and let the thread go do everything else. When the receipt is paid, put the card back on the queue and carry on from that line."
+    },
+    {
+      "index": 25,
+      "tag": "p",
+      "text": "Read that again against chapter 10's picture. The card leaves the stack. It does not sit on top blocking. The thread is free the instant await is reached, which is why the screen keeps redrawing, the scroll keeps scrolling, and the spinner keeps spinning while Memento waits on the AI. Nothing is frozen because nothing is being held."
+    },
+    {
+      "index": 26,
+      "tag": "p",
+      "text": "Two consequences. An async function always hands back a promise, even if you wrote return 5 : the caller gets a receipt, not a 5. And calling one without await ing it, fire and forget , starts the work and moves straight on, which is sometimes what you want and sometimes the bug."
+    },
+    {
+      "index": 27,
+      "tag": "p",
+      "text": "Errors are the easy part. If the awaited thing rejects, the await line throws , exactly like chapter 11's bad JSON. So the net is the same net: wrap it in try / catch . A network failure and a syntax explosion land in the same place, handled by the same four lines."
+    },
+    {
+      "index": 28,
+      "tag": "p",
+      "text": "One thing await does not do: make your own code interruptible. A million-pass loop has no await in it, so nothing else runs and the page genuinely freezes. That is blocking , and chapter 1's sandbox 5 was its purest form."
+    },
+    {
+      "index": 29,
+      "tag": "h2",
+      "text": "See it"
+    },
+    {
+      "index": 30,
+      "tag": "p",
+      "text": "Six boxes, and the first four are pure ordering puzzles. Write down the order of the lines before you press Run. Being wrong here is normal and useful; this is the topic where every engineer was once confidently wrong."
+    },
+    {
+      "index": 31,
+      "tag": "p",
+      "text": "Box 1's answer is first, third, second, and it is the whole model in three lines. 0 does not mean now. It means \"put this on the waiting list with no delay\", and the waiting list cannot run until the thread has finished the current job, which includes the rest of your file. Box 2 adds a wrinkle: D beats C because settled promises get a faster lane than timers. Box 3 is the important one. It prints 1, 2, 3, 4, 5, so run() got halfway, handed the thread back at the await , let line 3 run, and only then finished itself."
+    },
+    {
+      "index": 32,
+      "tag": "h2",
+      "text": "Now in Memento"
+    },
+    {
+      "index": 33,
+      "tag": "div",
+      "text": "ANY APP: show the wait before you wait"
+    },
+    {
+      "index": 34,
+      "tag": "p",
+      "text": "The order of the first four lines of any request-sending function is a user-experience decision, not a technical one. Mark the app busy. Clear the last error so a stale red message does not sit under a fresh spinner. Repaint. Only then reach for the network. Repaint before the await and the spinner appears instantly. Repaint after and the user sees nothing for two seconds and taps again."
+    },
+    {
+      "index": 35,
+      "tag": "div",
+      "text": "MEMENTO: autoStartAiChat()"
+    },
+    {
+      "index": 36,
+      "tag": "p",
+      "text": "Chapter 10's guard, chapter 11's try , and today's async , in nine lines. The guard is the double-submit stop from chapter 10, and it matters far more here: without it, an await parks the card and a second tap would sail straight past into a second paid API call."
+    },
+    {
+      "index": 37,
+      "tag": "div",
+      "text": "ANY APP: the await, and the net under it"
+    },
+    {
+      "index": 38,
+      "tag": "p",
+      "text": "The one line that actually crosses the network is small. What surrounds it is the interesting part: a deadline, so a request that never answers does not hang forever, and a catch that turns any failure into a value the rest of the app can handle instead of a crash."
+    },
+    {
+      "index": 39,
+      "tag": "div",
+      "text": "MEMENTO NATIVE: transport.ts"
+    },
+    {
+      "index": 40,
+      "tag": "p",
+      "text": "wait() is worth a sentence. Line 71 defines it as const wait=<T>(p:Promise<T>)=>Promise.race([p,cancel]); . Two receipts go in and Promise.race hands back whichever settles first: the network, or a timer that rejects. So the await finishes when the reply lands or when the deadline passes, and a dead server can never park that card forever."
+    },
+    {
+      "index": 41,
+      "tag": "p",
+      "text": "The catch is the second half. Any throw from that block, a timeout, a torn stream, a reply too big to trust, arrives here and is not re-thrown. It becomes {status:'failure', code:...} , an ordinary value. safe is an allowlist: only those seven messages get out, anything else becomes one generic code, so a raw error can never leak server detail into the app. finally runs on both paths and clears the timers."
+    },
+    {
+      "index": 42,
+      "tag": "div",
+      "text": "ANY APP: await, then decide"
+    },
+    {
+      "index": 43,
+      "tag": "p",
+      "text": "Sending data to a database is a request like any other, and the answer matters. You await it, then read what came back and branch: accepted, rejected, or something broke. The awaited call is one line. The decision after it is the feature."
+    },
+    {
+      "index": 44,
+      "tag": "div",
+      "text": "MEMENTO: pushNow()"
+    },
+    {
+      "index": 45,
+      "tag": "p",
+      "text": "Three guards, then the await. The third one, if (pushing) , exists purely because of this chapter: while the card is parked at the await , the thread is free, so another push can start. That flag plus pushQueued is how one upload at a time is enforced when the thread is genuinely available in between."
+    },
+    {
+      "index": 46,
+      "tag": "div",
+      "text": "THE ALTERNATIVE, AND WHY MEMENTO CHOSE THIS"
+    },
+    {
+      "index": 47,
+      "tag": "p",
+      "text": "The alternative to await is .then() chains, the older spelling of the same machinery: fetch(url).then(r => r.json()).then(data => ...).catch(...) . It works identically and you will meet it in older code. Memento uses await because a function like pushNow() is a sequence of decisions, and decisions written as straight lines with ordinary if statements are readable by a human at 1am. The cost is that await makes concurrent work look sequential: await a(); await b(); takes as long as both added together when the two were independent. That is the standard performance trap, and chapter 25 shows the fix."
+    },
+    {
+      "index": 48,
+      "tag": "h2",
+      "text": "Do it"
+    },
+    {
+      "index": 49,
+      "tag": "div",
+      "text": "Exercise phone or Mac"
+    },
+    {
+      "index": 50,
+      "tag": "li",
+      "text": "Read box 1. Write down the order of all five numbered lines. Do not skim it, actually write the five labels down in order."
+    },
+    {
+      "index": 51,
+      "tag": "li",
+      "text": "Run it. If you were wrong, find the exact await that broke your prediction and say what happened to the thread at that line."
+    },
+    {
+      "index": 52,
+      "tag": "li",
+      "text": "Change one thing. In box 2, the same program has the await moved. Predict the new order before running. Then run."
+    },
+    {
+      "index": 53,
+      "tag": "li",
+      "text": "Last move, and this is the one that proves you have it: in box 2, delete the word await on the line that has it. Predict. Run. Explain the result to yourself out loud in one sentence."
+    },
+    {
+      "index": 54,
+      "tag": "div",
+      "text": "ASK THE AGENT WHY (paste this into Codex or Fable)"
+    },
+    {
+      "index": 55,
+      "tag": "div",
+      "text": "WORDS YOU NOW OWN"
+    },
+    {
+      "index": 56,
+      "tag": "dt",
+      "text": "Main thread"
+    },
+    {
+      "index": 57,
+      "tag": "dd",
+      "text": "The one finger that runs your JavaScript. There is no second one running your functions."
+    },
+    {
+      "index": 58,
+      "tag": "dt",
+      "text": "Queue"
+    },
+    {
+      "index": 59,
+      "tag": "dd",
+      "text": "The line of jobs waiting for the thread. First in, first out. Nothing jumps it."
+    },
+    {
+      "index": 60,
+      "tag": "dt",
+      "text": "Event loop"
+    },
+    {
+      "index": 61,
+      "tag": "dd",
+      "text": "One rule: when the thread is empty, take the next job from the queue and run it to completion."
+    },
+    {
+      "index": 62,
+      "tag": "dt",
+      "text": "Callback"
+    },
+    {
+      "index": 63,
+      "tag": "dd",
+      "text": "A function you hand to something else so it can run it later. Every timer and every event listener is one."
+    },
+    {
+      "index": 64,
+      "tag": "dt",
+      "text": "Promise"
+    },
+    {
+      "index": 65,
+      "tag": "dd",
+      "text": "A receipt for a value that arrives later. It ends up resolved (here it is) or rejected (here is why not). Never both."
+    },
+    {
+      "index": 66,
+      "tag": "dt",
+      "text": "async"
+    },
+    {
+      "index": 67,
+      "tag": "dd",
+      "text": "A mark on a function that allows await inside it. An async function always hands back a promise."
+    },
+    {
+      "index": 68,
+      "tag": "dt",
+      "text": "await"
+    },
+    {
+      "index": 69,
+      "tag": "dd",
+      "text": "Park this function, give the thread back, resume from this line when the receipt is paid. It pauses one function, not the app."
+    },
+    {
+      "index": 70,
+      "tag": "dt",
+      "text": "fetch"
+    },
+    {
+      "index": 71,
+      "tag": "dd",
+      "text": "Send a request over the network. Hands you a receipt immediately, the reply lands on it later."
+    },
+    {
+      "index": 72,
+      "tag": "dt",
+      "text": "Blocking"
+    },
+    {
+      "index": 73,
+      "tag": "dd",
+      "text": "Holding the thread so nothing else can run. A long loop blocks. An await does not."
+    },
+    {
+      "index": 74,
+      "tag": "dt",
+      "text": "Fire and forget"
+    },
+    {
+      "index": 75,
+      "tag": "dd",
+      "text": "Calling an async function without awaiting it. The work starts, you move on, and nobody is watching whether it failed."
+    },
+    {
+      "index": 76,
+      "tag": "div",
+      "text": "WHERE TODAY'S ANALOGY BREAKS"
+    },
+    {
+      "index": 77,
+      "tag": "p",
+      "text": "Breaks when: you say the computer only has one cook. It does not. The browser runs many threads, and this book's own sandbox proves it: every Run button sends your code to a Web Worker, a separate thread, which is why a loop that never ends can be killed without taking the page down. The native side is worse for the analogy, because React Native runs its own JavaScript thread alongside a separate native UI thread and the two pass messages. Real model: \"one thread\" means one JavaScript main thread per page or per app. Your code is never interrupted mid-function and two of your functions never run at the same instant, but plenty is happening beside you. And the thread is genuinely blockable: chapter 1's sandbox 5 froze solid until the timeout killed it, because await buys you nothing against your own slow code. A second, smaller break: the ticket rail is really two rails. See the rabbit hole."
+    },
+    {
+      "index": 78,
+      "tag": "summary",
+      "text": "RABBIT HOLE: why the promise printed before the timer"
+    },
+    {
+      "index": 79,
+      "tag": "p",
+      "text": "In sandbox 2, D printed before C even though the timer said 0. There are two queues. Settled promises go on the microtask queue; timers, clicks and network callbacks go on the task queue. After every single task, the thread drains the entire microtask queue before touching the next task. So promises always beat timers, and a promise that schedules another promise that schedules another can starve the timers completely and freeze the page while technically never blocking."
+    }
+  ],
+  "segments": [
+    {
+      "blocks": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15
+      ],
+      "text": "JavaScript 4: async, promises, the event loop\n\nMemento waits about two seconds for the AI and the screen never freezes. That is not speed. It is one cook who refuses to stand and watch the oven, and once you can see the timer board on the wall, out-of-order log lines stop being spooky.\n\nLAST TIME\n\nControl flow is where the finger goes next: down, skip, or back. A loop is separate passes in order, never all at once. Two names can hold the same object because a name holds an address, which is why const backup = state backs up nothing and try / catch is a net under a block that might explode.\n\nQuick check\n\nconst copy = {...state} then copy.clarity.theme = \"ember\" . Did the original change?\n\nWhich of these are falsy: 0 , [] , \"\" , {} , null ?\n\nWhat does return do, both halves?\n\nThe idea\n\nChapter 10's pile of index cards had a hole in it. If a program is one finger walking one line at a time, and a line says \"ask a server in another country for an answer\", the finger stands there for two seconds. No scrolling, no typing, no animation, no redraw. The app looks dead.\n\nThat is exactly what would happen, and it is why the language has the machinery this chapter is about.\n\nOne thread, a queue, and a waiting list\n\nJavaScript runs your code on one main thread . One finger. There is no second finger running your functions beside the first, ever.\n\nNext to it sit two more things. A queue : a line of jobs waiting their turn on the thread, first in, first out. And a waiting list: work handed off to something that is not JavaScript and is not ready yet. A timer counting down. A network request in flight. Your thread does not run those. The browser does, in the background.\n\nThe event loop is one rule, repeated forever: when the thread is empty, take the next job from the queue and run it to completion. When something on the waiting list finishes, it does not barge in. It gets put on the end of the queue and waits its turn like everything else.\n\nANALOGY (TEMPORARY)"
+    },
+    {
+      "blocks": [
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24
+      ],
+      "text": "A restaurant kitchen with one cook. The cook does one thing at a time, start to finish, and never stops halfway. On the wall is a timer board: the oven, the sous-vide, the driver who is out fetching the fish. None of those are the cook. The cook puts the tray in, sets the timer, and starts the next order. When a timer dings, the ding does not interrupt the cook mid-plate. The order joins the end of the ticket rail. Every \"why did that print in the wrong order\" question is answered by the ticket rail.\n\nCallbacks, the thing chapter 10 promised\n\nA callback is a function you hand to something else so that it can run it later. You do not call it. You give it away. setTimeout(() => { save(); }, 150) hands an arrow function to the browser's timer, and the browser calls it back when the time is up. addEventListener('click', fn) hands a function to the browser, which calls it whenever a finger lands. You read both in chapter 10 without having the word. That is the whole idea, and everything below is built on it.\n\nA promise is a receipt\n\nCallbacks alone get ugly fast: a reply that needs another request that needs another one becomes functions nested inside functions five deep. So the language added an object for \"a value that is not here yet\".\n\nA promise is a receipt. You hand over your order and get a slip of paper back immediately. The slip is not the food. It is a claim ticket that ends up as exactly one of two things: resolved , the value is ready, or rejected , it went wrong and here is why. Never both. fetch hands you a receipt on the spot and the reply lands on it later.\n\nasync / await: pause this function, not the app\n\nWorking with receipts by hand is still fiddly, so there is a spelling that makes it read like ordinary top-to-bottom code. Mark a function async and you may use await inside it.\n\nawait means one precise thing, and getting it exactly right is the point of this chapter: take this function's card off the pile, put it aside with a note saying which line it was on, and let the thread go do everything else. When the receipt is paid, put the card back on the queue and carry on from that line."
+    },
+    {
+      "blocks": [
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35
+      ],
+      "text": "Read that again against chapter 10's picture. The card leaves the stack. It does not sit on top blocking. The thread is free the instant await is reached, which is why the screen keeps redrawing, the scroll keeps scrolling, and the spinner keeps spinning while Memento waits on the AI. Nothing is frozen because nothing is being held.\n\nTwo consequences. An async function always hands back a promise, even if you wrote return 5 : the caller gets a receipt, not a 5. And calling one without await ing it, fire and forget , starts the work and moves straight on, which is sometimes what you want and sometimes the bug.\n\nErrors are the easy part. If the awaited thing rejects, the await line throws , exactly like chapter 11's bad JSON. So the net is the same net: wrap it in try / catch . A network failure and a syntax explosion land in the same place, handled by the same four lines.\n\nOne thing await does not do: make your own code interruptible. A million-pass loop has no await in it, so nothing else runs and the page genuinely freezes. That is blocking , and chapter 1's sandbox 5 was its purest form.\n\nSee it\n\nSix boxes, and the first four are pure ordering puzzles. Write down the order of the lines before you press Run. Being wrong here is normal and useful; this is the topic where every engineer was once confidently wrong.\n\nBox 1's answer is first, third, second, and it is the whole model in three lines. 0 does not mean now. It means \"put this on the waiting list with no delay\", and the waiting list cannot run until the thread has finished the current job, which includes the rest of your file. Box 2 adds a wrinkle: D beats C because settled promises get a faster lane than timers. Box 3 is the important one. It prints 1, 2, 3, 4, 5, so run() got halfway, handed the thread back at the await , let line 3 run, and only then finished itself.\n\nNow in Memento\n\nANY APP: show the wait before you wait\n\nThe order of the first four lines of any request-sending function is a user-experience decision, not a technical one. Mark the app busy. Clear the last error so a stale red message does not sit under a fresh spinner. Repaint. Only then reach for the network. Repaint before the await and the spinner appears instantly. Repaint after and the user sees nothing for two seconds and taps again.\n\nMEMENTO: autoStartAiChat()"
+    },
+    {
+      "blocks": [
+        36,
+        37,
+        38,
+        39,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46
+      ],
+      "text": "Chapter 10's guard, chapter 11's try , and today's async , in nine lines. The guard is the double-submit stop from chapter 10, and it matters far more here: without it, an await parks the card and a second tap would sail straight past into a second paid API call.\n\nANY APP: the await, and the net under it\n\nThe one line that actually crosses the network is small. What surrounds it is the interesting part: a deadline, so a request that never answers does not hang forever, and a catch that turns any failure into a value the rest of the app can handle instead of a crash.\n\nMEMENTO NATIVE: transport.ts\n\nwait() is worth a sentence. Line 71 defines it as const wait=<T>(p:Promise<T>)=>Promise.race([p,cancel]); . Two receipts go in and Promise.race hands back whichever settles first: the network, or a timer that rejects. So the await finishes when the reply lands or when the deadline passes, and a dead server can never park that card forever.\n\nThe catch is the second half. Any throw from that block, a timeout, a torn stream, a reply too big to trust, arrives here and is not re-thrown. It becomes {status:'failure', code:...} , an ordinary value. safe is an allowlist: only those seven messages get out, anything else becomes one generic code, so a raw error can never leak server detail into the app. finally runs on both paths and clears the timers.\n\nANY APP: await, then decide\n\nSending data to a database is a request like any other, and the answer matters. You await it, then read what came back and branch: accepted, rejected, or something broke. The awaited call is one line. The decision after it is the feature.\n\nMEMENTO: pushNow()\n\nThree guards, then the await. The third one, if (pushing) , exists purely because of this chapter: while the card is parked at the await , the thread is free, so another push can start. That flag plus pushQueued is how one upload at a time is enforced when the thread is genuinely available in between.\n\nTHE ALTERNATIVE, AND WHY MEMENTO CHOSE THIS"
+    },
+    {
+      "blocks": [
+        47,
+        48,
+        49,
+        50,
+        51,
+        52,
+        53,
+        54,
+        55,
+        56,
+        57,
+        58,
+        59,
+        60,
+        61,
+        62,
+        63,
+        64,
+        65,
+        66,
+        67,
+        68,
+        69,
+        70,
+        71,
+        72,
+        73,
+        74,
+        75
+      ],
+      "text": "The alternative to await is .then() chains, the older spelling of the same machinery: fetch(url).then(r => r.json()).then(data => ...).catch(...) . It works identically and you will meet it in older code. Memento uses await because a function like pushNow() is a sequence of decisions, and decisions written as straight lines with ordinary if statements are readable by a human at 1am. The cost is that await makes concurrent work look sequential: await a(); await b(); takes as long as both added together when the two were independent. That is the standard performance trap, and chapter 25 shows the fix.\n\nDo it\n\nExercise phone or Mac\n\nRead box 1. Write down the order of all five numbered lines. Do not skim it, actually write the five labels down in order.\n\nRun it. If you were wrong, find the exact await that broke your prediction and say what happened to the thread at that line.\n\nChange one thing. In box 2, the same program has the await moved. Predict the new order before running. Then run.\n\nLast move, and this is the one that proves you have it: in box 2, delete the word await on the line that has it. Predict. Run. Explain the result to yourself out loud in one sentence.\n\nASK THE AGENT WHY (paste this into Codex or Fable)\n\nWORDS YOU NOW OWN\n\nMain thread\n\nThe one finger that runs your JavaScript. There is no second one running your functions.\n\nQueue\n\nThe line of jobs waiting for the thread. First in, first out. Nothing jumps it.\n\nEvent loop\n\nOne rule: when the thread is empty, take the next job from the queue and run it to completion.\n\nCallback\n\nA function you hand to something else so it can run it later. Every timer and every event listener is one.\n\nPromise\n\nA receipt for a value that arrives later. It ends up resolved (here it is) or rejected (here is why not). Never both.\n\nasync\n\nA mark on a function that allows await inside it. An async function always hands back a promise.\n\nawait\n\nPark this function, give the thread back, resume from this line when the receipt is paid. It pauses one function, not the app.\n\nfetch\n\nSend a request over the network. Hands you a receipt immediately, the reply lands on it later.\n\nBlocking\n\nHolding the thread so nothing else can run. A long loop blocks. An await does not.\n\nFire and forget\n\nCalling an async function without awaiting it. The work starts, you move on, and nobody is watching whether it failed."
+    },
+    {
+      "blocks": [
+        76,
+        77,
+        78,
+        79
+      ],
+      "text": "WHERE TODAY'S ANALOGY BREAKS\n\nBreaks when: you say the computer only has one cook. It does not. The browser runs many threads, and this book's own sandbox proves it: every Run button sends your code to a Web Worker, a separate thread, which is why a loop that never ends can be killed without taking the page down. The native side is worse for the analogy, because React Native runs its own JavaScript thread alongside a separate native UI thread and the two pass messages. Real model: \"one thread\" means one JavaScript main thread per page or per app. Your code is never interrupted mid-function and two of your functions never run at the same instant, but plenty is happening beside you. And the thread is genuinely blockable: chapter 1's sandbox 5 froze solid until the timeout killed it, because await buys you nothing against your own slow code. A second, smaller break: the ticket rail is really two rails. See the rabbit hole.\n\nRABBIT HOLE: why the promise printed before the timer\n\nIn sandbox 2, D printed before C even though the timer said 0. There are two queues. Settled promises go on the microtask queue; timers, clicks and network callbacks go on the task queue. After every single task, the thread drains the entire microtask queue before touching the next task. So promises always beat timers, and a promise that schedules another promise that schedules another can starve the timers completely and freeze the page while technically never blocking."
+    }
+  ],
+  "wordCount": 2223
+}
