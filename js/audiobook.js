@@ -133,7 +133,8 @@
     var candidates = Array.prototype.slice.call(document.querySelectorAll(selector));
     return candidates.filter(function (node) {
       var nested = candidates.some(function (other) { return other !== node && other.contains(node); });
-      return !nested && !node.closest('pre, script, style, svg, textarea, button, nav, .sb, .src, .audio-player, .audio-library, .audio-immersive');
+      var text = (node.textContent || '').replace(/\s+/g, ' ').trim();
+      return text.length >= 2 && !nested && !node.closest('pre, script, style, svg, textarea, button, nav, .sb, .src, .audio-player, .audio-library, .audio-immersive');
     });
   }
   function chapterEntry(number) {
