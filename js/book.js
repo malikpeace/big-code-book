@@ -67,11 +67,15 @@
       localStorage.setItem(key, JSON.stringify(val));
     } catch (e) { return null; }
   }
+  // The book's root as an absolute URL, taken from this script's own address. Pages are swapped in
+  // place (see section 13), so every link and asset path is built from this, never from the page.
   var root = (function () {
-    // Chapter pages live in chapters/, so links need a prefix to get back to the root.
-    return /\/chapters\//.test(location.pathname) ? '../' : './';
+    var s = document.currentScript && document.currentScript.src;
+    if (!s) { var tags = document.getElementsByTagName('script'); s = tags[tags.length - 1].src; }
+    return s.replace(/js\/book\.js.*$/, '');
   })();
   var chapterNo = parseInt(document.body.getAttribute('data-chapter') || '0', 10);
+  var topLabel = null;
   var isPhone = function () { return window.innerWidth < 900; };
 
   /* ---------- 3. Progress (local to this device) ---------- */
@@ -166,7 +170,7 @@
     var col = el('div', { style: 'min-width:0' });
     var top = el('div', { class: 'topbar' }, [
       el('button', { class: 'icon-btn', 'aria-label': 'Open contents', html: ICON_MENU, onclick: function () { side.classList.add('open'); document.body.classList.add('drawer-open'); } }),
-      el('span', { class: 't' }, [chapterNo ? 'Chapter ' + chapterNo : 'BIG CODE BOOK']),
+      (topLabel = el('span', { class: 't' }, [chapterNo ? 'Chapter ' + chapterNo : 'BIG CODE BOOK'])),
       el('div', { class: 'btns' }, [
         el('button', { class: 'icon-btn aa', 'aria-label': 'Text size', title: 'Text size', onclick: toggleSizebar }, [ICON_AA]),
         el('button', { class: 'icon-btn', 'aria-label': 'Focus mode', title: 'Focus: only the words', html: ICON_FOCUS, onclick: toggleFocus }),
@@ -307,8 +311,11 @@
         if (matchMedia('(hover: hover)').matches) { d.addEventListener('mouseenter', show); d.addEventListener('mouseleave', hide); }
         d.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); show(); } if (e.key === 'Escape') hide(); });
       });
-      document.addEventListener('click', function () { if (pop) { pop.remove(); pop = null; } });
-      window.addEventListener('scroll', function () { if (pop) { pop.remove(); pop = null; } }, { passive: true });
+      if (!chips.bound) {
+        chips.bound = true;
+        document.addEventListener('click', function () { if (pop) { pop.remove(); pop = null; } });
+        window.addEventListener('scroll', function () { if (pop) { pop.remove(); pop = null; } }, { passive: true });
+      }
     });
   }
 
@@ -421,42 +428,85 @@
   }
 
   /* ---------- 11b. Audiobook ---------- */
-  function audiobook() {
-    window.BIG_CODE_BOOK_AUDIO = { root: root, chapter: chapterNo, chapters: CHAPTERS };
-    var style = document.createElement('link');
-    style.rel = 'stylesheet'; style.href = root + 'css/audiobook.css';
-    document.head.appendChild(style);
-    var script = document.createElement('script');
-    script.src = root + 'js/audiobook.js?v=20260921-2';
-    document.body.appendChild(script);
-  }
 
-  /* ---------- 12. Boot ---------- */
-  applyTheme();
-  applyFocus();
-  applySize();
-  function boot() {
-    mountChrome();
+  /* ---------- 12. Per-page init (runs again after every soft navigation) ---------- */
+  function initPage() {
     chapterFurniture();
     gateMacOnly();
     chips();
     glossaryPage();
     sandboxes();
-    audiobook();
     // Figures scroll sideways on a phone instead of shrinking to unreadable.
     $$('figure > svg').forEach(function (s) { var w = el('div', { class: 'figscroll' }); s.parentNode.insertBefore(w, s); w.appendChild(s); });
     var cov = $('#cover-weeks');
-    if (cov) {
+    if (cov && !cov.children.length) {
       var p = progress();
       WEEKS.forEach(function (w, wi) {
         var box = el('div', { class: 'w' }, [el('div', { class: 'h' }, [w])]);
         CHAPTERS.slice(wi * 5, wi * 5 + 5).forEach(function (c) {
           var pad = c[0] < 10 ? '0' + c[0] : '' + c[0];
-          box.appendChild(el('a', { class: p.done[c[0]] ? 'is-done' : '', href: 'chapters/' + pad + '-' + c[1] + '.html' }, [el('span', { class: 'n' }, [String(c[0])]), c[2]]));
+          box.appendChild(el('a', { class: p.done[c[0]] ? 'is-done' : '', href: root + 'chapters/' + pad + '-' + c[1] + '.html' }, [el('span', { class: 'n' }, [String(c[0])]), c[2]]));
         });
         cov.appendChild(box);
       });
     }
+    if (topLabel) topLabel.textContent = chapterNo ? 'Chapter ' + chapterNo : 'BIG CODE BOOK';
+    renderSide();
+    window.dispatchEvent(new CustomEvent('bcb:page', { detail: { chapter: chapterNo } }));
+  }
+
+  /* ---------- 13. Soft navigation: swap the page text in place, keep the audio alive ---------- */
+  function isBookPage(url) {
+    return url.origin === location.origin && url.href.indexOf(root) === 0 && /\.html$/.test(url.pathname) && !/\/(sandbox|interactives|audio|lab|git-lab)\//.test(url.pathname);
+  }
+  function go(href, push) {
+    var url = new URL(href, location.href);
+    return fetch(url.href).then(function (r) { if (!r.ok) throw new Error(r.status); return r.text(); }).then(function (html) {
+      var doc = new DOMParser().parseFromString(html, 'text/html');
+      var next = doc.querySelector('main');
+      if (!next) throw new Error('no main');
+      var cur = $('main');
+      cur.replaceWith(document.adoptNode(next));
+      document.title = doc.title;
+      var n = parseInt(doc.body.getAttribute('data-chapter') || '0', 10);
+      if (n) document.body.setAttribute('data-chapter', String(n)); else document.body.removeAttribute('data-chapter');
+      chapterNo = n;
+      if (push !== false) history.pushState({ bcb: url.href }, '', url.href);
+      if (side) { side.classList.remove('open'); document.body.classList.remove('drawer-open'); }
+      window.scrollTo(0, 0);
+      initPage();
+    }).catch(function () { location.href = url.href; });
+  }
+  document.addEventListener('click', function (e) {
+    var a = e.target.closest && e.target.closest('a[href]');
+    if (!a || e.defaultPrevented || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || a.target === '_blank') return;
+    var url; try { url = new URL(a.getAttribute('href'), location.href); } catch (x) { return; }
+    if (!isBookPage(url) || url.hash && url.pathname === location.pathname) return;
+    e.preventDefault();
+    go(url.href, true);
+  });
+  window.addEventListener('popstate', function () { go(location.href, false); });
+  window.BCB = { go: go, root: root, chapters: CHAPTERS, current: function () { return chapterNo; } };
+
+  /* ---------- 14. Boot ---------- */
+  applyTheme();
+  applyFocus();
+  applySize();
+  function boot() {
+    mountChrome();
+    history.replaceState({ bcb: location.href }, '', location.href);
+    initPage();
+    audiobook();
+  }
+  function audiobook() {
+    window.BIG_CODE_BOOK_AUDIO = { root: root, chapter: chapterNo, chapters: CHAPTERS };
+    var style = document.createElement('link');
+    style.rel = 'stylesheet'; style.href = root + 'css/audiobook.css?v=20260922';
+    document.head.appendChild(style);
+    var script = document.createElement('script');
+    script.src = root + 'js/audiobook.js?v=20260922';
+    script.defer = true;
+    document.body.appendChild(script);
   }
   document.addEventListener('DOMContentLoaded', function () { gate(boot); });
 })();

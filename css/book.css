@@ -46,7 +46,12 @@
 
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 button, a, summary { touch-action: manipulation; }
-html { -webkit-text-size-adjust: 100%; }
+html { -webkit-text-size-adjust: 100%; overflow-x: hidden; overscroll-behavior-x: none; }
+/* No sideways page swipe on a phone. Only things that scroll on purpose may pan sideways. */
+body { touch-action: pan-y pinch-zoom; }
+.figscroll, pre, .audio-chapters, .side, .sb .out, table { touch-action: auto; }
+main { overflow-x: clip; }
+@media (max-width: 599px) { table { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; } }
 body {
   margin: 0; background: var(--bg); color: var(--text-hi);
   font-family: var(--font); font-size: 17px; line-height: 1.6;
@@ -95,7 +100,7 @@ th { color: var(--text-lo); font-weight: 600; font-size: 13px; text-transform: n
 .side .prog { margin: 6px 8px 0; height: 3px; background: var(--panel-2); border-radius: 999px; overflow: hidden; }
 .side .prog i { display: block; height: 100%; background: var(--accent); width: 0; transition: width 300ms ease-out; }
 .side .prog-t { color: var(--text-lo); font-size: 12px; margin: 6px 8px 0; }
-main { padding: calc(28px + var(--safe-t)) var(--gutter) calc(80px + var(--safe-b)); max-width: 760px; margin: 0 auto; width: 100%; min-width: 0; }
+main { padding: calc(28px + var(--safe-t)) var(--gutter) calc(80px + var(--safe-b)); max-width: 760px; margin: 0 auto; width: 100%; min-width: 0; max-width: min(760px, 100vw); }
 @media (min-width: 1100px) { main { padding-left: 56px; padding-right: 56px; } }
 .topbar { display: none; }
 .icon-btn { background: var(--panel); border: 1px solid var(--hair); color: var(--text-hi); border-radius: var(--r-s); width: 40px; height: 40px; display: grid; place-items: center; cursor: pointer; }
@@ -268,3 +273,8 @@ html.focus .box.analogy, html.focus .box.expiry, html.focus .box.memento { borde
 html.focus .lane.mem { border-left: 3px solid var(--hair-2); padding-left: 14px; }
 .focus-exit { display: none; position: fixed; top: calc(10px + var(--safe-t)); right: 14px; z-index: 80; font-size: 13px; padding: 7px 12px; border-radius: 999px; opacity: 0.85; }
 html.focus .focus-exit { display: inline-block; }
+
+/* Tap a paragraph to play from there (chapters with audio). */
+[data-audio-block] { cursor: pointer; }
+.audio-jumped { animation: bcb-jump 500ms ease-out; }
+@keyframes bcb-jump { from { background: color-mix(in srgb, var(--accent) 22%, transparent); } to { background: transparent; } }

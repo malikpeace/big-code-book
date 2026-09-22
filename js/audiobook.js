@@ -5,10 +5,15 @@
   var config = window.BIG_CODE_BOOK_AUDIO;
   if (!config) return;
   var root = config.root;
-  var pageChapter = config.chapter;
+  var pageChapter = config.chapter; // the chapter whose TEXT is on screen; audio may be elsewhere
   var chapters = config.chapters;
-  var audio = new Audio();
+  var audio = document.createElement('audio');
   audio.preload = 'metadata';
+  audio.setAttribute('playsinline', '');
+  audio.style.display = 'none';
+  document.body.appendChild(audio);
+  var userScrolledAt = 0; // auto-scroll backs off while the reader is scrolling by hand
+  ['touchmove', 'wheel'].forEach(function (evt) { window.addEventListener(evt, function () { userScrolledAt = Date.now(); }, { passive: true }); });
   var manifest = null;
   var track = null;
   var blocks = [];
@@ -153,12 +158,6 @@
     ui.immersiveLibrary.setAttribute('aria-hidden', String(!yes));
   }
   function setImmersive(yes) {
-    if (yes && !pageChapter) {
-      state.immersive = true;
-      saveState(true);
-      navigate(state.chapter || 1, false, state.time || 0);
-      return;
-    }
     var wasImmersive = state.immersive;
     state.immersive = !!yes;
     if (state.immersive && !wasImmersive) returnScrollY = window.scrollY || 0;
@@ -177,20 +176,16 @@
     }
     saveState(true);
   }
-  function navigate(number, autoplay, at) {
+  function navigate(number, autoplay, at, followPage) {
     if (number < 1 || number > chapters.length) return;
-    state.chapter = number;
-    state.time = Number(at) || 0;
-    state.pendingPlay = !!autoplay;
-    saveState(true);
-    location.href = chapterHref(number);
+    var wasFollowing = (pageChapter === state.chapter);
+    loadTrack(number, autoplay, at);
+    // If the reader was following along in the text, bring the text with the audio.
+    if ((followPage || wasFollowing) && pageChapter !== number && window.BCB) window.BCB.go(chapterHref(number), true);
   }
+  function goToText() { if (window.BCB && pageChapter !== state.chapter) window.BCB.go(chapterHref(state.chapter), true); }
   function playPause() {
-    if (!pageChapter) {
-      navigate(state.chapter || 1, true, state.time || 0);
-      return;
-    }
-    if (!track) return;
+    if (!track) { loadTrack(state.chapter || 1, true, state.time || 0); return; }
     if (audio.paused) {
       var promise = audio.play();
       if (promise && promise.catch) promise.catch(showPlayError);
@@ -228,8 +223,12 @@
     var node = blocks[index];
     return node ? (node.innerText || node.textContent || '').replace(/\s+/g, ' ').trim() : '';
   }
+  function clearHighlight() {
+    if (activeBlock !== null && blocks[activeBlock]) blocks[activeBlock].classList.remove('audio-reading');
+    activeBlock = null;
+  }
   function paintHighlight(time) {
-    if (!pageChapter || !track) return;
+    if (!pageChapter || !track || pageChapter !== state.chapter) return;
     var cue = track.cues[currentCueIndex(time)];
     var index = cue ? cue.block : 0;
     if (index === activeBlock) return;
@@ -238,7 +237,7 @@
     var node = blocks[index];
     if (!node) return;
     node.classList.add('audio-reading');
-    if (!audio.paused && !state.immersive) {
+    if (!audio.paused && !state.immersive && Date.now() - userScrolledAt > 4000) {
       var rect = node.getBoundingClientRect();
       if (rect.top < 90 || rect.bottom > window.innerHeight - 150) {
         node.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'center' });
@@ -246,7 +245,7 @@
     }
   }
   function updateImmersiveTranscript(time, force) {
-    if (!state.immersive || !pageChapter || !track || !blocks.length) return;
+    if (!state.immersive || !track || !blocks.length || pageChapter !== state.chapter) return;
     var cueIndex = currentCueIndex(time);
     if (cueIndex < 0) return;
     var cue = track.cues[cueIndex];
@@ -263,7 +262,7 @@
   }
   function updateBookmarkButton() {
     if (!ui.bookmark) return;
-    var number = pageChapter || state.chapter;
+    var number = state.chapter;
     var saved = bookmarks[String(number)];
     ui.bookmark.classList.toggle('active', !!saved);
     ui.bookmark.setAttribute('aria-pressed', String(!!saved));
@@ -271,8 +270,8 @@
     ui.bookmark.title = saved ? 'Remove bookmark saved at ' + formatTime(saved.time) : 'Bookmark this moment';
   }
   function toggleBookmark() {
-    if (!pageChapter || !track) return;
-    var key = String(pageChapter);
+    if (!track) return;
+    var key = String(state.chapter);
     if (bookmarks[key]) delete bookmarks[key];
     else bookmarks[key] = { time: audio.currentTime || 0, title: track.title, savedAt: Date.now() };
     saveBookmarks();
@@ -281,7 +280,7 @@
   }
   function updateSegments() {
     if (!ui.segments) return;
-    var number = pageChapter || state.chapter || 1;
+    var number = state.chapter || 1;
     Array.prototype.forEach.call(ui.segments.children, function (segment, index) {
       segment.classList.toggle('past', index + 1 < number);
       segment.classList.toggle('current', index + 1 === number);
@@ -298,8 +297,8 @@
     ui.remaining.textContent = '-' + formatTime(Math.max(0, duration - audio.currentTime));
     ui.immersiveElapsed.textContent = formatTime(audio.currentTime);
     ui.immersiveRemaining.textContent = '-' + formatTime(Math.max(0, duration - audio.currentTime));
-    state.chapter = pageChapter || state.chapter;
     state.time = audio.currentTime || 0;
+    positionState();
     paintHighlight(state.time);
     updateImmersiveTranscript(state.time, false);
     saveState(!!forceSave);
@@ -313,6 +312,13 @@
     setVisualIcon(ui.immersivePlay, playing ? 'pause' : 'play');
     ui.immersivePlay.setAttribute('aria-label', playing ? 'Pause audiobook' : 'Play audiobook');
     ui.immersive.classList.toggle('playing', playing);
+  }
+  function positionState() {
+    if (!('mediaSession' in navigator) || !track || !navigator.mediaSession.setPositionState) return;
+    try {
+      var d = track.duration || audio.duration || 0;
+      if (d > 0) navigator.mediaSession.setPositionState({ duration: d, playbackRate: audio.playbackRate || 1, position: Math.min(d, audio.currentTime || 0) });
+    } catch (e) {}
   }
   function mediaSession() {
     if (!('mediaSession' in navigator) || !track) return;
@@ -331,8 +337,8 @@
       navigator.mediaSession.setActionHandler('seekbackward', function (detail) { skip(-(detail.seekOffset || 15)); });
       navigator.mediaSession.setActionHandler('seekforward', function (detail) { skip(detail.seekOffset || 15); });
       navigator.mediaSession.setActionHandler('seekto', function (detail) { seekTo(detail.seekTime || 0); });
-      navigator.mediaSession.setActionHandler('previoustrack', function () { navigate(pageChapter - 1, true, 0); });
-      navigator.mediaSession.setActionHandler('nexttrack', function () { navigate(pageChapter + 1, true, 0); });
+      navigator.mediaSession.setActionHandler('previoustrack', function () { navigate(state.chapter - 1, true, 0); });
+      navigator.mediaSession.setActionHandler('nexttrack', function () { navigate(state.chapter + 1, true, 0); });
     } catch (e) {}
   }
   function chapterButton(chapter) {
@@ -340,7 +346,7 @@
     var saved = bookmarks[String(chapter[0])];
     var button = document.createElement('button');
     button.type = 'button';
-    button.className = 'audio-chapter' + (chapter[0] === pageChapter ? ' current' : '');
+    button.className = 'audio-chapter' + (chapter[0] === state.chapter ? ' current' : '');
     button.innerHTML = '<span class="audio-chapter-number">' + pad(chapter[0]) + '</span><span class="audio-chapter-copy"><span class="audio-chapter-title"></span><small class="audio-chapter-bookmark"></small></span><span class="audio-chapter-time">' + (item ? formatTime(item.duration) : '') + '</span>';
     button.querySelector('.audio-chapter-title').textContent = chapter[2];
     button.querySelector('.audio-chapter-bookmark').textContent = saved ? 'Bookmark · ' + formatTime(saved.time) : '';
@@ -354,49 +360,67 @@
       chapters.forEach(function (chapter) { list.appendChild(chapterButton(chapter)); });
     });
   }
-  function loadPageTrack() {
-    var number = pageChapter || state.chapter || 1;
-    track = chapterEntry(number);
-    if (!track) {
-      ui.status.textContent = 'Audio is still being prepared.';
-      ui.play.disabled = true;
-      return;
+  function syncBlocks() {
+    // Match the narration's paragraph map against the text on screen (only when they are the same chapter).
+    clearHighlight();
+    blocks = [];
+    if (!pageChapter || !track || pageChapter !== state.chapter) { updateGoToText(); return; }
+    blocks = narratableBlocks();
+    if (track.blocks && blocks.length !== track.blocks) {
+      ui.status.textContent = 'Audio and text are out of step on this page.';
+      blocks = [];
     }
+    blocks.forEach(function (node, index) { node.setAttribute('data-audio-block', String(index)); });
+    paintHighlight(audio.currentTime || 0);
+    updateImmersiveTranscript(audio.currentTime || 0, true);
+    updateGoToText();
+  }
+  function updateGoToText() {
+    if (!ui.goText) return;
+    var show = !!track && pageChapter !== state.chapter;
+    ui.goText.style.display = show ? '' : 'none';
+    ui.goText.textContent = show ? 'Show chapter ' + pad(state.chapter) + ' text' : '';
+  }
+  function setPage(number) {
+    pageChapter = number || 0;
+    syncBlocks();
+  }
+  function loadTrack(number, autoplay, at) {
+    var entry = chapterEntry(number);
+    if (!entry) { ui.status.textContent = 'Audio is still being prepared.'; ui.play.disabled = true; return; }
+    var same = track && state.chapter === number && audio.src;
+    track = entry;
+    state.chapter = number;
+    state.time = Number(at) || 0;
+    saveState(true);
     ui.play.disabled = false;
     ui.title.textContent = pad(number) + '. ' + track.title;
     ui.immersiveChapter.textContent = 'CHAPTER ' + pad(number);
     ui.immersiveTitle.textContent = track.title;
+    ui.immersive.querySelector('.audio-meta-number').textContent = number;
     ui.range.max = String(track.duration || 0);
     ui.immersiveRange.max = String(track.duration || 0);
     ui.remaining.textContent = '-' + formatTime(track.duration || 0);
     ui.immersiveRemaining.textContent = '-' + formatTime(track.duration || 0);
     updateSegments();
     updateBookmarkButton();
-    if (!pageChapter) return;
-    blocks = narratableBlocks();
-    if (track.blocks && blocks.length !== track.blocks) {
-      ui.status.textContent = 'Audio needs to be regenerated for this revision.';
-      ui.play.disabled = true;
-      return;
+    renderLibrary();
+    mediaSession();
+    var startAt = state.time;
+    function afterMeta() {
+      if (startAt > 0 && startAt < (track.duration - 2)) audio.currentTime = startAt;
+      audio.playbackRate = state.rate;
+      syncBlocks();
+      updateTime(true);
+      if (autoplay) { var p = audio.play(); if (p && p.catch) p.catch(showPlayError); }
     }
-    blocks.forEach(function (node, index) { node.setAttribute('data-audio-block', String(index)); });
+    if (same) { afterMeta(); return; }
     audio.src = root + track.src;
     audio.playbackRate = state.rate;
     ui.rate.value = String(state.rate);
     ui.immersiveRate.value = String(state.rate);
-    audio.addEventListener('loadedmetadata', function () {
-      if (state.chapter === pageChapter && state.time > 0 && state.time < (track.duration - 2)) audio.currentTime = state.time;
-      paintHighlight(audio.currentTime || 0);
-      updateImmersiveTranscript(audio.currentTime || 0, true);
-      if (state.immersive) setImmersive(true);
-      if (state.pendingPlay) {
-        state.pendingPlay = false;
-        saveState(true);
-        var promise = audio.play();
-        if (promise && promise.catch) promise.catch(showPlayError);
-      }
-    }, { once: true });
-    mediaSession();
+    audio.addEventListener('loadedmetadata', afterMeta, { once: true });
+    audio.load();
   }
   function buildImmersive() {
     var immersive = document.createElement('section');
@@ -472,12 +496,12 @@
     });
     ui.immersiveRange.addEventListener('change', function () { seekTo(Number(ui.immersiveRange.value)); });
     var controls = immersive.querySelector('.audio-immersive-controls');
-    controls.appendChild(visualButton('Previous chapter', 'skip-back', function () { navigate((pageChapter || state.chapter) - 1, true, 0); }, 'immersive-chapter-control', '', 'Prev chapter'));
+    controls.appendChild(visualButton('Previous chapter', 'skip-back', function () { navigate(state.chapter - 1, true, 0); }, 'immersive-chapter-control', '', 'Prev chapter'));
     controls.appendChild(visualButton('Go back 15 seconds', 'arrow-counter-clockwise', function () { skip(-15); }, 'immersive-time-control', '15'));
     ui.immersivePlay = visualButton('Play audiobook', 'play', playPause, 'immersive-play');
     controls.appendChild(ui.immersivePlay);
     controls.appendChild(visualButton('Go forward 15 seconds', 'arrow-clockwise', function () { skip(15); }, 'immersive-time-control', '15'));
-    controls.appendChild(visualButton('Next chapter', 'skip-forward', function () { navigate((pageChapter || state.chapter) + 1, true, 0); }, 'immersive-chapter-control', '', 'Next chapter'));
+    controls.appendChild(visualButton('Next chapter', 'skip-forward', function () { navigate(state.chapter + 1, true, 0); }, 'immersive-chapter-control', '', 'Next chapter'));
   }
   function buildUI() {
     var shell = document.createElement('section');
@@ -494,6 +518,7 @@
       '  <button class="audio-now" type="button" aria-label="Open full-screen audiobook player"><small class="audio-status">Ready</small><strong class="audio-title">BIG CODE BOOK</strong></button>',
       '  <div class="audio-controls"></div>',
       '  <button class="audio-expand" type="button" aria-expanded="false">Chapters</button>',
+      '  <button class="audio-gotext" type="button" style="display:none"></button>',
       '</div>'
     ].join('');
     document.body.appendChild(shell);
@@ -506,15 +531,17 @@
     ui.title = shell.querySelector('.audio-title');
     ui.status = shell.querySelector('.audio-status');
     ui.expand = shell.querySelector('.audio-expand');
+    ui.goText = shell.querySelector('.audio-gotext');
+    ui.goText.addEventListener('click', goToText);
     ui.openImmersiveButtons = Array.prototype.slice.call(shell.querySelectorAll('.audio-cover, .audio-now'));
     buildImmersive();
     var controls = shell.querySelector('.audio-controls');
-    controls.appendChild(iconButton('Previous chapter', '‹', function () { navigate((pageChapter || state.chapter) - 1, true, 0); }, 'chapter-skip'));
+    controls.appendChild(iconButton('Previous chapter', '‹', function () { navigate(state.chapter - 1, true, 0); }, 'chapter-skip'));
     controls.appendChild(iconButton('Go back 15 seconds', '−15', function () { skip(-15); }, 'time-skip'));
     ui.play = iconButton('Play audiobook', '▶', playPause, 'audio-play');
     controls.appendChild(ui.play);
     controls.appendChild(iconButton('Go forward 15 seconds', '+15', function () { skip(15); }, 'time-skip'));
-    controls.appendChild(iconButton('Next chapter', '›', function () { navigate((pageChapter || state.chapter) + 1, true, 0); }, 'chapter-skip'));
+    controls.appendChild(iconButton('Next chapter', '›', function () { navigate(state.chapter + 1, true, 0); }, 'chapter-skip'));
     ui.rate = rateSelect('audio-rate');
     controls.appendChild(ui.rate);
     ui.expand.addEventListener('click', function () { setExpanded(!state.expanded); });
@@ -534,8 +561,34 @@
     audio.addEventListener('ratechange', function () { audio.playbackRate = state.rate; });
     audio.addEventListener('ended', function () {
       state.time = 0;
-      if (pageChapter < chapters.length) navigate(pageChapter + 1, true, 0);
-      else { state.pendingPlay = false; saveState(true); updatePlayButton(); }
+      if (state.chapter < chapters.length) navigate(state.chapter + 1, true, 0);
+      else { saveState(true); updatePlayButton(); }
+    });
+    audio.addEventListener('play', function () { if ('mediaSession' in navigator) try { navigator.mediaSession.playbackState = 'playing'; } catch (e) {} });
+    audio.addEventListener('pause', function () { if ('mediaSession' in navigator) try { navigator.mediaSession.playbackState = 'paused'; } catch (e) {} });
+    audio.addEventListener('ratechange', positionState);
+    window.addEventListener('bcb:page', function (e) { setPage(e.detail.chapter); });
+    // Tap any narrated paragraph to play the audio from its start.
+    document.addEventListener('click', function (event) {
+      if (!pageChapter || !manifest) return;
+      if (event.target.closest('a, button, dfn, .term, summary, input, select, textarea, code, pre, .sb, .pop, .audio-player, .audio-immersive, svg, label')) return;
+      var sel = window.getSelection && window.getSelection();
+      if (sel && String(sel).length) return; // the reader is selecting text, not tapping
+      var node = event.target.closest('main p, main li, main dd, main dt, main td, main th, main h1, main h2, main h3, main figcaption, main .h, main .check > .a');
+      if (!node || !node.closest('main')) return;
+      var entry = chapterEntry(pageChapter);
+      if (!entry || !entry.cues) return;
+      var list = (pageChapter === state.chapter && blocks.length) ? blocks : narratableBlocks();
+      var index = list.indexOf(node);
+      if (index < 0) { var outer = list.filter(function (b) { return b.contains(node); })[0]; index = outer ? list.indexOf(outer) : -1; }
+      if (index < 0) return;
+      var cue = null;
+      for (var i = 0; i < entry.cues.length; i += 1) if (entry.cues[i].block === index) { cue = entry.cues[i]; break; }
+      if (!cue) return;
+      node.classList.remove('audio-jumped'); void node.offsetWidth; node.classList.add('audio-jumped');
+      if (pageChapter !== state.chapter) { loadTrack(pageChapter, true, cue.at); return; }
+      seekTo(cue.at);
+      if (audio.paused) { var p = audio.play(); if (p && p.catch) p.catch(showPlayError); }
     });
     window.addEventListener('pagehide', function () { updateTime(true); });
     document.addEventListener('keydown', function (event) {
@@ -559,6 +612,12 @@
   bindAudio();
   fetch(root + 'audio/manifest.json', { cache: 'no-cache' })
     .then(function (response) { if (!response.ok) throw new Error('manifest'); return response.json(); })
-    .then(function (data) { manifest = data; renderLibrary(); loadPageTrack(); })
+    .then(function (data) {
+      manifest = data; renderLibrary();
+      var start = pageChapter && (!state.chapter || state.chapter === pageChapter || !state.time) ? pageChapter : state.chapter;
+      var at = (start === state.chapter) ? state.time : 0;
+      loadTrack(start || 1, false, at);
+      if (state.immersive) setImmersive(true);
+    })
     .catch(showFailure);
 })();
