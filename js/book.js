@@ -427,7 +427,7 @@
     style.rel = 'stylesheet'; style.href = root + 'css/audiobook.css';
     document.head.appendChild(style);
     var script = document.createElement('script');
-    script.src = root + 'js/audiobook.js';
+    script.src = root + 'js/audiobook.js?v=20260921-2';
     document.body.appendChild(script);
   }
 

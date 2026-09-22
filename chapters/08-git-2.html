@@ -224,6 +224,6 @@ for their package and nobody has approved a later snapshot. Do not change anythi
 
   <details class="hole"><summary>RABBIT HOLE: why merge conflicts are a people problem</summary><p>Git's conflict detection is dumb on purpose: it compares text line by line and has no idea what the code means. So it catches same-line edits and misses the dangerous kind, where one agent renames a function and the other adds a call to the old name in a different file, both merge cleanly, and the app breaks at runtime. That is a semantic conflict. No version control system catches it; only tests and review do. It is the deeper reason the plan insists on one owner at a time for state, auth and the router.</p></details>
 </main>
-<script src="../js/book.js"></script>
+<script src="../js/book.js?v=20260921-2"></script>
 </body>
 </html>

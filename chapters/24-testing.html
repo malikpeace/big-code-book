@@ -305,6 +305,6 @@ console.log("ran 3 checks. Nothing above this line means all three passed.");</c
 
   <details class="hole"><summary>RABBIT HOLE: mocks, and how a test lies to the code under test</summary><p>Look again at the native tests and you will see <code>jest.mock('react-native-mmkv', ...)</code> and hand built <code>ports</code> objects with a fake <code>http.post</code>. Those are <strong>mocks</strong>: stand ins handed to the code so it never touches the real storage or the real network. Two reasons. Speed, because a real request is a thousand times slower than a fake one. And control, because you can make the fake fail with a 429 on demand and check what the app does, which is impossible to arrange with a real server. The catch is that a mock is your belief about how the real thing behaves, written down. When that belief is wrong, the test passes and the app breaks, and it is the most confusing failure in testing. It is also why the integration layer exists: something, somewhere, has to touch the real thing.</p></details>
 </main>
-<script src="../js/book.js"></script>
+<script src="../js/book.js?v=20260921-2"></script>
 </body>
 </html>

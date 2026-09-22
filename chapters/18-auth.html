@@ -273,6 +273,6 @@ node server.js</code></pre>
 
   <details class="hole"><summary>RABBIT HOLE: what is actually inside a token</summary><p>Most of these are JWTs, JSON Web Tokens: three chunks separated by dots. The first two are plain JSON, encoded but not encrypted, holding the algorithm and the claims, which include the subject (your user id), an issuer, an audience, and <code>exp</code>, the expiry. Anyone can read them. The third is a signature over the first two, made with a key only the issuer has. So the contents are not hidden; holding it is what proves you were given it. That is why the database can call <code>auth.uid()</code> with no lookup, and why the native app keeps tokens in the keychain. To see one, sign in on the web and look at the <code>sb-</code> entry in localStorage. Paste it nowhere.</p></details>
 </main>
-<script src="../js/book.js"></script>
+<script src="../js/book.js?v=20260921-2"></script>
 </body>
 </html>

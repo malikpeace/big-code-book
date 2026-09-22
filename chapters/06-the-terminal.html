@@ -184,6 +184,6 @@ fi</code></pre>
 
   <details class="hole"><summary>RABBIT HOLE: why a script needs the ./</summary><p>Running a script in the folder you are standing in takes <code>./launch.sh</code>, not <code>launch.sh</code>, and the reason is security. The current folder is deliberately not on the PATH. If it were, downloading a folder containing a file called <code>ls</code> and then typing <code>ls</code> would run a stranger's program instead of the real one. Making you write <code>./</code> forces you to say out loud that you mean this file, here. The same instinct is why chapter 5 told you never to run an unknown command in a folder you are only visiting.</p></details>
 </main>
-<script src="../js/book.js"></script>
+<script src="../js/book.js?v=20260921-2"></script>
 </body>
 </html>

@@ -239,6 +239,6 @@ cat MIGRATION/FREEZE-LOG.md</code></pre>
 
   <details class="hole"><summary>RABBIT HOLE: why "just rewrite it" is usually wrong, and when it is not</summary><p>The standard warning is that a rewrite throws away years of accumulated fixes, most of which look like ugly lines that are actually a bug someone hit at 2am. The counter-case is when the constraints themselves changed, so the old code is not wrong so much as pointed at a different target. Memento's rebuild is the second kind: the web app was built for a browser and the goal is now an App Store binary on two platforms, which is not a refactor, it is a different machine. Notice the two things that make it survivable. The old app is frozen rather than abandoned, so it keeps serving users while the new one grows. And <code>__tests__/ai-transport.test.ts</code> runs the original code and compares outputs against the TypeScript version, which makes the old app the <strong>oracle</strong> for the new one. That is how you rewrite without re-losing every fix.</p></details>
 </main>
-<script src="../js/book.js"></script>
+<script src="../js/book.js?v=20260921-2"></script>
 </body>
 </html>

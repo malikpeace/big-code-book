@@ -298,6 +298,6 @@ console.log("4. the thread is free, so this runs");
 
   <details class="hole"><summary>RABBIT HOLE: why the promise printed before the timer</summary><p>In sandbox 2, D printed before C even though the timer said 0. There are two queues. Settled promises go on the <strong>microtask queue</strong>; timers, clicks and network callbacks go on the task queue. After every single task, the thread drains the <em>entire</em> microtask queue before touching the next task. So promises always beat timers, and a promise that schedules another promise that schedules another can starve the timers completely and freeze the page while technically never blocking.</p></details>
 </main>
-<script src="../js/book.js"></script>
+<script src="../js/book.js?v=20260921-2"></script>
 </body>
 </html>
