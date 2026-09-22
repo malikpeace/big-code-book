@@ -184,6 +184,23 @@
     document.addEventListener('click', function (e) {
       if (side.classList.contains('open') && !side.contains(e.target) && !top.contains(e.target)) { side.classList.remove('open'); document.body.classList.remove('drawer-open'); }
     });
+    // Swipe left or right across the text: next or previous chapter. Must be fast and clearly sideways.
+    (function () {
+      var x0 = 0, y0 = 0, t0 = 0;
+      document.addEventListener('touchstart', function (e) {
+        var t = e.touches[0];
+        if (t.clientX < 24 || e.target.closest('.audio-player, .audio-immersive, .side, .sb, pre, .figscroll, table, input, textarea')) { t0 = 0; return; }
+        x0 = t.clientX; y0 = t.clientY; t0 = Date.now();
+      }, { passive: true });
+      document.addEventListener('touchend', function (e) {
+        if (!t0) return; var t = e.changedTouches[0], dx = t.clientX - x0, dy = t.clientY - y0, dt = Date.now() - t0; t0 = 0;
+        if (dt > 500 || Math.abs(dx) < 90 || Math.abs(dx) < Math.abs(dy) * 2.5 || !chapterNo) return;
+        var n = chapterNo + (dx < 0 ? 1 : -1);
+        if (n < 1 || n > CHAPTERS.length) return;
+        var c = CHAPTERS[n - 1], pad = n < 10 ? '0' + n : '' + n;
+        go(root + 'chapters/' + pad + '-' + c[1] + '.html', true);
+      }, { passive: true });
+    })();
     // Swipe in from the left edge opens the contents, like a native drawer.
     var sx = null, sy = null;
     document.addEventListener('touchstart', function (e) { var t = e.touches[0]; sx = t.clientX < 24 ? t.clientX : null; sy = t.clientY; }, { passive: true });
@@ -442,6 +459,22 @@
     $$('figure > svg').forEach(function (s) { var w = el('div', { class: 'figscroll' }); s.parentNode.insertBefore(w, s); w.appendChild(s); });
     var cov = $('#cover-weeks');
     if (cov && !cov.children.length) {
+      // Continue card: where you left off, reading or listening, one tap.
+      var p0 = progress(), doneList = Object.keys(p0.done).map(Number);
+      var lastRead = store('bcb_last') || 0;
+      var au = store('bcb_audio_state') || {};
+      var target = au.chapter && au.time > 20 ? au.chapter : (lastRead || (doneList.length ? Math.max.apply(null, doneList) + 1 : 0));
+      if (target && target <= CHAPTERS.length) {
+        var c = CHAPTERS[target - 1], pad = c[0] < 10 ? '0' + c[0] : '' + c[0];
+        var mins = au.chapter === target && au.time > 20 ? Math.round(au.time / 60) : 0;
+        var card = el('a', { class: 'continue', href: root + 'chapters/' + pad + '-' + c[1] + '.html' }, [
+          el('span', { class: 'k' }, [mins ? 'CONTINUE LISTENING' : 'CONTINUE READING']),
+          el('span', { class: 't' }, [c[0] + '. ' + c[2]]),
+          el('span', { class: 's' }, [mins ? mins + ' min in. Tap to pick up where the narrator stopped.' : (doneList.length + ' of 30 done. Tap to keep going.')])
+        ]);
+        if (mins) card.addEventListener('click', function () { store('bcb_resume_play', true); });
+        var lede = $('main.cover .sub'); (lede || cov).parentNode.insertBefore(card, lede ? lede.nextSibling : cov);
+      }
       var p = progress();
       WEEKS.forEach(function (w, wi) {
         var box = el('div', { class: 'w' }, [el('div', { class: 'h' }, [w])]);
@@ -453,6 +486,14 @@
       });
     }
     if (topLabel) topLabel.textContent = chapterNo ? 'Chapter ' + chapterNo : 'BIG CODE BOOK';
+    if (chapterNo) store('bcb_last', chapterNo);
+    if (chapterNo && store('bcb_resume_play')) {
+      store('bcb_resume_play', false);
+      var tries = 0, t = setInterval(function () {
+        if (window.BCB_AUDIO) { clearInterval(t); var r = window.BCB_AUDIO.resume(); window.BCB_AUDIO.play(r.chapter || chapterNo, r.time || 0); setTimeout(window.BCB_AUDIO.goToText, 400); }
+        else if (++tries > 40) clearInterval(t);
+      }, 100);
+    }
     renderSide();
     window.dispatchEvent(new CustomEvent('bcb:page', { detail: { chapter: chapterNo } }));
   }

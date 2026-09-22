@@ -183,7 +183,25 @@
     // If the reader was following along in the text, bring the text with the audio.
     if ((followPage || wasFollowing) && pageChapter !== number && window.BCB) window.BCB.go(chapterHref(number), true);
   }
-  function goToText() { if (window.BCB && pageChapter !== state.chapter) window.BCB.go(chapterHref(state.chapter), true); }
+  function goToText() {
+    // Take the reader to the exact paragraph the narrator is on. Different chapter: swap the page first.
+    if (state.immersive) setImmersive(false);
+    if (pageChapter !== state.chapter) {
+      if (!window.BCB) return;
+      window.addEventListener('bcb:page', function once() { window.removeEventListener('bcb:page', once); setTimeout(scrollToReading, 60); });
+      window.BCB.go(chapterHref(state.chapter), true);
+      return;
+    }
+    scrollToReading();
+  }
+  function scrollToReading() {
+    var cue = track && track.cues[currentCueIndex(audio.currentTime || 0)];
+    var node = cue && blocks[cue.block];
+    if (!node) return;
+    userScrolledAt = 0;
+    node.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'center' });
+    node.classList.remove('audio-jumped'); void node.offsetWidth; node.classList.add('audio-jumped');
+  }
   function playPause() {
     if (!track) { loadTrack(state.chapter || 1, true, state.time || 0); return; }
     if (audio.paused) {
@@ -260,6 +278,30 @@
       ui.transcript.classList.toggle('is-very-long', current.length > 300);
     }
   }
+  /* Sleep timer: off, 15, 30, 45 min, or end of chapter. Pauses, does not stop the session. */
+  var sleep = { mode: 0, until: 0, tick: null };
+  var SLEEP_MODES = [null, 15, 30, 45, 'chapter'];
+  function cycleSleep() { setSleep((sleep.mode + 1) % SLEEP_MODES.length); }
+  function setSleep(mode) {
+    sleep.mode = mode;
+    clearInterval(sleep.tick); sleep.tick = null;
+    var m = SLEEP_MODES[mode];
+    sleep.until = typeof m === 'number' ? Date.now() + m * 60000 : 0;
+    if (typeof m === 'number') sleep.tick = setInterval(function () {
+      if (Date.now() >= sleep.until) { audio.pause(); setSleep(0); ui.status.textContent = 'Sleep timer paused the book.'; }
+      else paintSleep();
+    }, 1000);
+    paintSleep();
+  }
+  function paintSleep() {
+    if (!ui.sleep) return;
+    var m = SLEEP_MODES[sleep.mode], label = 'Sleep';
+    if (typeof m === 'number') { var left = Math.max(0, Math.ceil((sleep.until - Date.now()) / 60000)); label = left + ' min'; }
+    else if (m === 'chapter') label = 'End of chapter';
+    ui.sleep.querySelector('.audio-sleep-label').textContent = label;
+    ui.sleep.classList.toggle('active', !!m);
+    ui.sleep.setAttribute('aria-pressed', String(!!m));
+  }
   function updateBookmarkButton() {
     if (!ui.bookmark) return;
     var number = state.chapter;
@@ -328,7 +370,7 @@
         artist: 'BIG CODE BOOK · Marin',
         album: 'BIG CODE BOOK',
         artwork: [
-          { src: new URL(root + 'img/icon-192.png', location.href).href, sizes: '192x192', type: 'image/png' },
+          { src: new URL(root + 'img/artwork-1024.png', location.href).href, sizes: '1024x1024', type: 'image/png' },
           { src: new URL(root + 'img/icon-512.png', location.href).href, sizes: '512x512', type: 'image/png' }
         ]
       });
@@ -376,10 +418,13 @@
     updateGoToText();
   }
   function updateGoToText() {
-    if (!ui.goText) return;
-    var show = !!track && pageChapter !== state.chapter;
-    ui.goText.style.display = show ? '' : 'none';
-    ui.goText.textContent = show ? 'Show chapter ' + pad(state.chapter) + ' text' : '';
+    var away = !!track && pageChapter !== state.chapter;
+    [ui.locate, ui.immersiveLocate].forEach(function (b) {
+      if (!b) return;
+      b.classList.toggle('away', away);
+      b.title = away ? 'Go to chapter ' + pad(state.chapter) + ', where the narrator is' : 'Go to the paragraph being read';
+      b.setAttribute('aria-label', b.title);
+    });
   }
   function setPage(number) {
     pageChapter = number || 0;
@@ -447,6 +492,8 @@
       '    <div class="audio-immersive-utilities">',
       '      <label class="audio-immersive-rate"><select aria-label="Playback speed"></select><span>Speed</span></label>',
       '      <button class="audio-bookmark" type="button" aria-pressed="false"><img alt="" aria-hidden="true"><span class="audio-bookmark-label">Bookmark</span></button>',
+      '      <button class="audio-immersive-locate" type="button"><img alt="" aria-hidden="true"><span>Go to text</span></button>',
+      '      <button class="audio-sleep" type="button" aria-pressed="false"><img alt="" aria-hidden="true"><span class="audio-sleep-label">Sleep</span></button>',
       '    </div>',
       '    <p class="audio-memory-note">Progress saved automatically on this device.</p>',
       '  </footer>',
@@ -483,9 +530,30 @@
     immersive.querySelector('.audio-immersive-close img').src = iconSrc('caret-down');
     immersive.querySelector('.audio-immersive-chapters img').src = iconSrc('list');
     ui.bookmark.querySelector('img').src = iconSrc('bookmark-simple');
+    ui.immersiveLocate = immersive.querySelector('.audio-immersive-locate');
+    ui.immersiveLocate.querySelector('img').src = iconSrc('crosshair');
+    ui.immersiveLocate.addEventListener('click', goToText);
+    ui.sleep = immersive.querySelector('.audio-sleep');
+    ui.sleep.querySelector('img').src = iconSrc('moon');
+    ui.sleep.addEventListener('click', cycleSleep);
     for (var i = 0; i < chapters.length; i += 1) ui.segments.appendChild(document.createElement('i'));
     immersive.querySelector('.audio-meta-number').textContent = pageChapter || state.chapter || 1;
     immersive.querySelector('.audio-immersive-close').addEventListener('click', function () { setImmersive(false); });
+    (function () {
+      var sx = 0, sy = 0, t0 = 0, frame = immersive.querySelector('.audio-immersive-frame');
+      frame.addEventListener('touchstart', function (e) { if (e.target.closest('input, select, .audio-immersive-library')) return; var t = e.touches[0]; sx = t.clientX; sy = t.clientY; t0 = Date.now(); }, { passive: true });
+      frame.addEventListener('touchmove', function (e) {
+        if (!t0) return; var t = e.touches[0], dy = t.clientY - sy, dx = t.clientX - sx;
+        if (dy > 0 && Math.abs(dy) > Math.abs(dx)) { frame.style.transform = 'translateY(' + Math.min(dy, 160) * 0.6 + 'px)'; frame.style.transition = 'none'; }
+      }, { passive: true });
+      frame.addEventListener('touchend', function (e) {
+        if (!t0) return; var t = e.changedTouches[0], dy = t.clientY - sy, dx = t.clientX - sx, dt = Date.now() - t0;
+        frame.style.transition = 'transform 200ms ease-out'; frame.style.transform = '';
+        if (dy > 90 && Math.abs(dy) > Math.abs(dx)) setImmersive(false);
+        else if (Math.abs(dx) > 80 && Math.abs(dx) > Math.abs(dy) * 1.5 && dt < 600) navigate(state.chapter + (dx < 0 ? 1 : -1), !audio.paused, 0);
+        t0 = 0;
+      }, { passive: true });
+    })();
     ui.immersiveChapters.addEventListener('click', function () { setImmersiveLibrary(!immersive.classList.contains('library-open')); });
     immersive.querySelector('.audio-immersive-library-head button').addEventListener('click', function () { setImmersiveLibrary(false); });
     ui.immersiveRate.addEventListener('change', function () { setRate(ui.immersiveRate.value); });
@@ -518,7 +586,6 @@
       '  <button class="audio-now" type="button" aria-label="Open full-screen audiobook player"><small class="audio-status">Ready</small><strong class="audio-title">BIG CODE BOOK</strong></button>',
       '  <div class="audio-controls"></div>',
       '  <button class="audio-expand" type="button" aria-expanded="false">Chapters</button>',
-      '  <button class="audio-gotext" type="button" style="display:none"></button>',
       '</div>'
     ].join('');
     document.body.appendChild(shell);
@@ -531,8 +598,6 @@
     ui.title = shell.querySelector('.audio-title');
     ui.status = shell.querySelector('.audio-status');
     ui.expand = shell.querySelector('.audio-expand');
-    ui.goText = shell.querySelector('.audio-gotext');
-    ui.goText.addEventListener('click', goToText);
     ui.openImmersiveButtons = Array.prototype.slice.call(shell.querySelectorAll('.audio-cover, .audio-now'));
     buildImmersive();
     var controls = shell.querySelector('.audio-controls');
@@ -542,11 +607,19 @@
     controls.appendChild(ui.play);
     controls.appendChild(iconButton('Go forward 15 seconds', '+15', function () { skip(15); }, 'time-skip'));
     controls.appendChild(iconButton('Next chapter', '›', function () { navigate(state.chapter + 1, true, 0); }, 'chapter-skip'));
-    ui.rate = rateSelect('audio-rate');
-    controls.appendChild(ui.rate);
+    ui.rate = rateSelect('audio-rate'); // kept for state sync; only shown in the full-screen player
+    ui.rate.style.display = 'none';
+    ui.locate = iconButton('Go to the paragraph being read', '', goToText, 'audio-locate');
+    ui.locate.innerHTML = '<img alt="" aria-hidden="true" src="' + iconSrc('crosshair') + '">';
+    controls.appendChild(ui.locate);
     ui.expand.addEventListener('click', function () { setExpanded(!state.expanded); });
     shell.querySelector('.audio-cover').addEventListener('click', function () { setImmersive(true); });
     shell.querySelector('.audio-now').addEventListener('click', function () { setImmersive(true); });
+    (function () {
+      var sy = 0;
+      shell.addEventListener('touchstart', function (e) { if (e.target.closest('input')) { sy = 0; return; } sy = e.touches[0].clientY; }, { passive: true });
+      shell.addEventListener('touchend', function (e) { if (sy && sy - e.changedTouches[0].clientY > 50) setImmersive(true); sy = 0; }, { passive: true });
+    })();
     ui.range.addEventListener('input', function () {
       ui.elapsed.textContent = formatTime(Number(ui.range.value));
       ui.remaining.textContent = '-' + formatTime(Math.max(0, Number(ui.range.max) - Number(ui.range.value)));
@@ -561,6 +634,7 @@
     audio.addEventListener('ratechange', function () { audio.playbackRate = state.rate; });
     audio.addEventListener('ended', function () {
       state.time = 0;
+      if (SLEEP_MODES[sleep.mode] === 'chapter') { setSleep(0); saveState(true); updatePlayButton(); ui.status.textContent = 'Stopped at the end of the chapter.'; return; }
       if (state.chapter < chapters.length) navigate(state.chapter + 1, true, 0);
       else { saveState(true); updatePlayButton(); }
     });
@@ -608,6 +682,11 @@
     ui.play.disabled = true;
   }
 
+  window.BCB_AUDIO = {
+    resume: function () { return { chapter: state.chapter, time: state.time, title: (chapters[state.chapter - 1] || [])[2] }; },
+    play: function (chapter, at) { loadTrack(chapter, true, at); },
+    goToText: goToText
+  };
   buildUI();
   bindAudio();
   fetch(root + 'audio/manifest.json', { cache: 'no-cache' })

@@ -171,5 +171,12 @@ body.audio-immersive-open { overflow: hidden; }
 }
 
 /* Added 2026-09-22: the audio can be a chapter ahead of the text. */
-.audio-gotext { grid-column: 1 / -1; justify-self: start; margin: -4px 0 4px 2px; font: 600 12px/1 var(--font); color: var(--accent); background: transparent; border: 0; padding: 6px 0; cursor: pointer; }
-.audio-gotext:hover { text-decoration: underline; }
+.audio-locate { width: 36px; padding: 0; }
+.audio-locate img { width: 20px; height: 20px; display: block; margin: 0 auto; opacity: .75; }
+.audio-locate.away img { opacity: 1; filter: drop-shadow(0 0 6px var(--accent)); }
+.audio-locate.away { background: color-mix(in srgb, var(--accent) 18%, transparent); }
+.audio-immersive-locate, .audio-sleep { display: inline-flex; align-items: center; gap: 6px; font: 600 12px/1 var(--font); color: var(--audio-white, var(--text-hi)); background: transparent; border: 1px solid var(--audio-hair, var(--hair-2)); border-radius: 999px; padding: 8px 12px; cursor: pointer; }
+.audio-immersive-locate img, .audio-sleep img { width: 16px; height: 16px; }
+.audio-immersive-locate.away { border-color: var(--accent); color: var(--accent); }
+.audio-sleep.active { border-color: var(--accent); color: var(--accent); }
+.audio-immersive-frame { will-change: transform; }
