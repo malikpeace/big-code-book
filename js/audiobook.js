@@ -540,19 +540,37 @@
     immersive.querySelector('.audio-meta-number').textContent = pageChapter || state.chapter || 1;
     immersive.querySelector('.audio-immersive-close').addEventListener('click', function () { setImmersive(false); });
     (function () {
-      var sx = 0, sy = 0, t0 = 0, frame = immersive.querySelector('.audio-immersive-frame');
-      frame.addEventListener('touchstart', function (e) { if (e.target.closest('input, select, .audio-immersive-library')) return; var t = e.touches[0]; sx = t.clientX; sy = t.clientY; t0 = Date.now(); }, { passive: true });
-      frame.addEventListener('touchmove', function (e) {
-        if (!t0) return; var t = e.touches[0], dy = t.clientY - sy, dx = t.clientX - sx;
-        if (dy > 0 && Math.abs(dy) > Math.abs(dx)) { frame.style.transform = 'translateY(' + Math.min(dy, 160) * 0.6 + 'px)'; frame.style.transition = 'none'; }
-      }, { passive: true });
-      frame.addEventListener('touchend', function (e) {
-        if (!t0) return; var t = e.changedTouches[0], dy = t.clientY - sy, dx = t.clientX - sx, dt = Date.now() - t0;
-        frame.style.transition = 'transform 200ms ease-out'; frame.style.transform = '';
-        if (dy > 90 && Math.abs(dy) > Math.abs(dx)) setImmersive(false);
-        else if (Math.abs(dx) > 80 && Math.abs(dx) > Math.abs(dy) * 1.5 && dt < 600) navigate(state.chapter + (dx < 0 ? 1 : -1), !audio.paused, 0);
-        t0 = 0;
-      }, { passive: true });
+      // Native-feeling sheet: the whole player follows the finger down, then snaps open or closed
+      // based on distance and speed. Sideways flicks change chapter.
+      var sx = 0, sy = 0, t0 = 0, lastY = 0, lastT = 0, vy = 0, dragging = false, axis = null;
+      immersive.insertBefore(Object.assign(document.createElement('div'), { className: 'audio-immersive-grip' }), immersive.firstChild);
+      function start(e) {
+        if (e.target.closest('input[type="range"], select, .audio-immersive-library')) { t0 = 0; return; }
+        var t = e.touches[0]; sx = lastY = t.clientX; sy = lastY = t.clientY; lastT = t0 = Date.now(); vy = 0; axis = null; dragging = false;
+      }
+      function move(e) {
+        if (!t0) return;
+        var t = e.touches[0], dx = t.clientX - sx, dy = t.clientY - sy;
+        if (!axis && (Math.abs(dx) > 8 || Math.abs(dy) > 8)) axis = Math.abs(dy) >= Math.abs(dx) ? 'y' : 'x';
+        if (axis !== 'y' || dy < 0) return;
+        if (!dragging) { dragging = true; immersive.classList.add('dragging'); }
+        var now = Date.now(); vy = (t.clientY - lastY) / Math.max(1, now - lastT); lastY = t.clientY; lastT = now;
+        immersive.style.transform = 'translate3d(0,' + dy + 'px,0)';
+        if (e.cancelable) e.preventDefault();
+      }
+      function end(e) {
+        if (!t0) return;
+        var t = e.changedTouches[0], dx = t.clientX - sx, dy = t.clientY - sy, dt = Date.now() - t0;
+        immersive.classList.remove('dragging');
+        immersive.style.transform = '';
+        if (axis === 'y' && (dy > innerHeight * 0.28 || (vy > 0.6 && dy > 40))) setImmersive(false);
+        else if (axis === 'x' && Math.abs(dx) > 70 && dt < 500) navigate(state.chapter + (dx < 0 ? 1 : -1), !audio.paused, 0);
+        t0 = 0; dragging = false; axis = null;
+      }
+      immersive.addEventListener('touchstart', start, { passive: true });
+      immersive.addEventListener('touchmove', move, { passive: false });
+      immersive.addEventListener('touchend', end, { passive: true });
+      immersive.addEventListener('touchcancel', end, { passive: true });
     })();
     ui.immersiveChapters.addEventListener('click', function () { setImmersiveLibrary(!immersive.classList.contains('library-open')); });
     immersive.querySelector('.audio-immersive-library-head button').addEventListener('click', function () { setImmersiveLibrary(false); });

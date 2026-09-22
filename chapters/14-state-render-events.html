@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>14. State, render, events. BIG CODE BOOK</title>
-<link rel="stylesheet" href="../css/book.css">
+<link rel="stylesheet" href="../css/book.css?v=20260922b">
 <meta name="theme-color" content="#0b0b0d">
 <link rel="manifest" href="../manifest.json">
 <link rel="apple-touch-icon" href="../img/icon-180.png">
@@ -264,6 +264,6 @@ let saveTimer = null;</code></pre>
 
   <details class="hole"><summary>RABBIT HOLE: why the native reducer never edits state in place</summary><p><code>{ ...s, chunk: ... }</code> builds a new object rather than changing the old one. That is <strong>immutability</strong>, and it exists for two reasons. Comparing is cheap: React can check whether the object is a different object, which is one comparison instead of walking every field. And chapter 11's aliasing bug becomes impossible, because nothing holds a reference to something that can change underneath it. The cost is a new object per event, thousands of them, which the engine throws away almost for free. This is the trade every modern frontend makes: spend a little memory to delete a whole category of bug.</p></details>
 </main>
-<script src="../js/book.js?v=20260921-2"></script>
+<script src="../js/book.js?v=20260922b"></script>
 </body>
 </html>

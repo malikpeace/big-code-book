@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>11. JavaScript 3: control flow, loops, objects, references. BIG CODE BOOK</title>
-<link rel="stylesheet" href="../css/book.css">
+<link rel="stylesheet" href="../css/book.css?v=20260922b">
 <meta name="theme-color" content="#0b0b0d">
 <link rel="manifest" href="../manifest.json">
 <link rel="apple-touch-icon" href="../img/icon-180.png">
@@ -283,6 +283,6 @@ console.log("same nested object?", state.clarity === saved.clarity);
 
   <details class="hole"><summary>RABBIT HOLE: what JSON.stringify silently drops</summary><p><code>JSON.stringify(state)</code> walks the whole object turning it into one long piece of text, because storage only holds text. Two things get quietly lost. Functions vanish: a key whose value is a function is dropped entirely, no error. And <code>undefined</code> vanishes while <code>null</code> survives, which is one practical reason chapter 9 found <code>paidAt: null</code> rather than <code>undefined</code>. A key set to <code>undefined</code> is there in memory and gone after a save and reload, a bug that only appears to users who close the app.</p></details>
 </main>
-<script src="../js/book.js?v=20260921-2"></script>
+<script src="../js/book.js?v=20260922b"></script>
 </body>
 </html>

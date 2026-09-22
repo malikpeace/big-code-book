@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>2. What happens when you tap a button. BIG CODE BOOK</title>
-<link rel="stylesheet" href="../css/book.css">
+<link rel="stylesheet" href="../css/book.css?v=20260922b">
 <meta name="theme-color" content="#0b0b0d">
 <link rel="manifest" href="../manifest.json">
 <link rel="apple-touch-icon" href="../img/icon-180.png">
@@ -203,6 +203,6 @@ if (!apiKey) {
 
   <details class="hole"><summary>RABBIT HOLE: how a tap becomes an event</summary><p>The touchscreen reports a grid of capacitance changes to a tiny controller chip, which works out a point, which the operating system turns into a touch with coordinates, which it delivers to the frontmost app, which (for a web app) the browser matches against the element under that point and dispatches as a "click" event to any listeners registered on it and its ancestors. That last part is why Memento's code calls <code>e.stopPropagation()</code>: without it, the tap would keep travelling up to parent elements that also have listeners. Chapter 13 shows the tree the event travels through.</p></details>
 </main>
-<script src="../js/book.js?v=20260921-2"></script>
+<script src="../js/book.js?v=20260922b"></script>
 </body>
 </html>

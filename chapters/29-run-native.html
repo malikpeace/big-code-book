@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>29. Run Memento's native app yourself. BIG CODE BOOK</title>
-<link rel="stylesheet" href="../css/book.css">
+<link rel="stylesheet" href="../css/book.css?v=20260922b">
 <meta name="theme-color" content="#0b0b0d">
 <link rel="manifest" href="../manifest.json">
 <link rel="apple-touch-icon" href="../img/icon-180.png">
@@ -223,6 +223,6 @@ Do not change anything.</code></pre></div>
 
   <details class="hole"><summary>RABBIT HOLE: what expo prebuild actually generated</summary><p>The repo has no <code>ios/</code> folder. <code>npx expo run:ios</code> makes one from <code>app.json</code>: the bundle identifier <code>co.mementoapp.foundation</code>, the scheme <code>memento-dev</code>, the splash screen, the fonts, the plugin list. The Xcode project is an output, not a source, so it can be deleted and regenerated and never argued over in a diff. The cost: hand-editing it is pointless, the next prebuild overwrites you, so anything you need must be expressible as a config plugin. Those development identifiers are deliberately separate from production, and the README says not to register them as the store identity.</p></details>
 </main>
-<script src="../js/book.js?v=20260921-2"></script>
+<script src="../js/book.js?v=20260922b"></script>
 </body>
 </html>

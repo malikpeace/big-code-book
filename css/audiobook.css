@@ -75,10 +75,16 @@ body.audio-immersive-open { overflow: hidden; }
   --audio-low: rgba(247,248,247,.25);
   --audio-hair: rgba(247,248,247,.13);
   position: fixed; z-index: 120; inset: 0; color: var(--audio-white); background: var(--audio-bg);
-  font-family: var(--font); opacity: 0; visibility: hidden; pointer-events: none;
-  transition: opacity 220ms ease-out, visibility 0s linear 220ms;
+  font-family: var(--font); visibility: hidden; pointer-events: none;
+  transform: translate3d(0, 100%, 0); will-change: transform;
+  transition: transform 320ms cubic-bezier(.32,.72,0,1), visibility 0s linear 320ms;
+  touch-action: none; overscroll-behavior: contain;
 }
-.audio-immersive.open { opacity: 1; visibility: visible; pointer-events: auto; transition-delay: 0s; }
+.audio-immersive.open { visibility: visible; pointer-events: auto; transform: translate3d(0, 0, 0); transition-delay: 0s; }
+.audio-immersive.dragging { transition: none; }
+.audio-immersive .audio-immersive-library, .audio-immersive .audio-immersive-list { touch-action: pan-y; }
+.audio-immersive-grip { position: absolute; top: calc(8px + var(--safe-t)); left: 50%; width: 36px; height: 5px; margin-left: -18px; border-radius: 999px; background: rgba(247,248,247,.28); }
+.audio-immersive-frame { border-radius: 22px 22px 0 0; }
 .audio-immersive-frame {
   width: min(100%, 820px); height: 100vh; height: 100dvh; margin: 0 auto;
   padding: calc(18px + var(--safe-t)) clamp(18px, 4vw, 38px) calc(14px + var(--safe-b));
@@ -179,4 +185,4 @@ body.audio-immersive-open { overflow: hidden; }
 .audio-immersive-locate img, .audio-sleep img { width: 16px; height: 16px; }
 .audio-immersive-locate.away { border-color: var(--accent); color: var(--accent); }
 .audio-sleep.active { border-color: var(--accent); color: var(--accent); }
-.audio-immersive-frame { will-change: transform; }
+

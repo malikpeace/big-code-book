@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>23. Errors, logs, stack traces, debugging. BIG CODE BOOK</title>
-<link rel="stylesheet" href="../css/book.css">
+<link rel="stylesheet" href="../css/book.css?v=20260922b">
 <meta name="theme-color" content="#0b0b0d">
 <link rel="manifest" href="../manifest.json">
 <link rel="apple-touch-icon" href="../img/icon-180.png">
@@ -277,6 +277,6 @@ build({ name: " Malik ", streak: 4, profile: null });
 
   <details class="hole"><summary>RABBIT HOLE: why a trace from a real user is often useless</summary><p>Code that ships to a browser is usually squashed by a bundler: whitespace gone, names shortened to single letters, forty files glued into one. A trace from that file says <code>at t (main.4f8a.js:1:20481)</code>, which names nothing. The fix is a <strong>source map</strong>, a separate file saying "character 20481 of the squashed file was line 63 of transport.ts", which error reporting tools use to rebuild a readable trace. Memento's web app ships unbundled on purpose, a real cost in other ways with this one genuine benefit: every trace from a real phone names the actual file and line. The native app, bundled by Expo, needs the source map.</p></details>
 </main>
-<script src="../js/book.js?v=20260921-2"></script>
+<script src="../js/book.js?v=20260922b"></script>
 </body>
 </html>

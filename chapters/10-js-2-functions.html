@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>10. JavaScript 2: functions and the call stack. BIG CODE BOOK</title>
-<link rel="stylesheet" href="../css/book.css">
+<link rel="stylesheet" href="../css/book.css?v=20260922b">
 <meta name="theme-color" content="#0b0b0d">
 <link rel="manifest" href="../manifest.json">
 <link rel="apple-touch-icon" href="../img/icon-180.png">
@@ -261,6 +261,6 @@ console.log(typeof summarise("Malik", 30));
 
   <details class="hole"><summary>RABBIT HOLE: what a stack overflow actually is</summary><p>The pile has a size limit, a few thousand cards deep in most browsers. If a function calls itself with no way out, cards pile up until the limit, and the machine gives up with "Maximum call stack size exceeded". That message means one specific thing: <em>something called something called something forever.</em> It is the one error where the top of the stack trace is almost never the useful part, because the trace is the same three lines repeated a thousand times.</p></details>
 </main>
-<script src="../js/book.js?v=20260921-2"></script>
+<script src="../js/book.js?v=20260922b"></script>
 </body>
 </html>

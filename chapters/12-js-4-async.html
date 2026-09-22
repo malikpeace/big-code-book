@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>12. JavaScript 4: async, promises, the event loop. BIG CODE BOOK</title>
-<link rel="stylesheet" href="../css/book.css">
+<link rel="stylesheet" href="../css/book.css?v=20260922b">
 <meta name="theme-color" content="#0b0b0d">
 <link rel="manifest" href="../manifest.json">
 <link rel="apple-touch-icon" href="../img/icon-180.png">
@@ -298,6 +298,6 @@ console.log("4. the thread is free, so this runs");
 
   <details class="hole"><summary>RABBIT HOLE: why the promise printed before the timer</summary><p>In sandbox 2, D printed before C even though the timer said 0. There are two queues. Settled promises go on the <strong>microtask queue</strong>; timers, clicks and network callbacks go on the task queue. After every single task, the thread drains the <em>entire</em> microtask queue before touching the next task. So promises always beat timers, and a promise that schedules another promise that schedules another can starve the timers completely and freeze the page while technically never blocking.</p></details>
 </main>
-<script src="../js/book.js?v=20260921-2"></script>
+<script src="../js/book.js?v=20260922b"></script>
 </body>
 </html>

@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>9. JavaScript 1: values, variables, types. BIG CODE BOOK</title>
-<link rel="stylesheet" href="../css/book.css">
+<link rel="stylesheet" href="../css/book.css?v=20260922b">
 <meta name="theme-color" content="#0b0b0d">
 <link rel="manifest" href="../manifest.json">
 <link rel="apple-touch-icon" href="../img/icon-180.png">
@@ -234,6 +234,6 @@ console.log(typeof northStar, typeof horizon, typeof paid);
 
   <details class="hole"><summary>RABBIT HOLE: why typeof null says "object"</summary><p>Run <code>console.log(typeof null)</code> and it prints <code>"object"</code>, which is wrong and everybody knows it is wrong. It is a bug from the first version of JavaScript in 1995, when types were stored as a small tag on each value and the tag for null happened to be all zeroes, the same as the tag for objects. It has never been fixed because fixing it would break an unknown number of pages on the live web. Keep it as a souvenir: production software carries its history forever, and "we cannot fix it because people depend on the broken behaviour" is a sentence you will meet again in your own product.</p></details>
 </main>
-<script src="../js/book.js?v=20260921-2"></script>
+<script src="../js/book.js?v=20260922b"></script>
 </body>
 </html>

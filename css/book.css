@@ -49,6 +49,9 @@ button, a, summary { touch-action: manipulation; }
 html { -webkit-text-size-adjust: 100%; overflow-x: hidden; overscroll-behavior-x: none; }
 /* No sideways page swipe on a phone. Only things that scroll on purpose may pan sideways. */
 body { touch-action: pan-y pinch-zoom; }
+.audio-immersive, .audio-immersive * { touch-action: none; }
+.audio-immersive input[type="range"] { touch-action: pan-x; }
+.audio-immersive-list, .audio-immersive-library { touch-action: pan-y; }
 .figscroll, pre, .audio-chapters, .side, .sb .out, table { touch-action: auto; }
 main { overflow-x: clip; }
 @media (max-width: 599px) { table { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; } }
@@ -109,7 +112,8 @@ main { padding: calc(28px + var(--safe-t)) var(--gutter) calc(80px + var(--safe-
 
 @media (max-width: 899px) {
   .wrap { grid-template-columns: 1fr; }
-  .side { position: fixed; top: 0; bottom: 0; left: 0; height: auto; width: min(320px, 86vw); transform: translateX(-100%); transition: transform 220ms ease-out; z-index: 60; box-shadow: 0 0 0 100vw rgba(0,0,0,0); }
+  .side { position: fixed; top: 0; bottom: 0; left: 0; height: auto; width: min(320px, 86vw); transform: translateX(-100%); transition: transform 300ms cubic-bezier(.32,.72,0,1), box-shadow 300ms; z-index: 60; box-shadow: 0 0 0 100vw rgba(0,0,0,0); will-change: transform; touch-action: pan-y; }
+  .side.dragging { transition: none; }
   .side .ch { padding: 10px 8px; min-height: 44px; }
   body.drawer-open { overflow: hidden; }
   .side.open { transform: none; box-shadow: 0 0 0 100vw rgba(0,0,0,0.5); }

@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>3. Seventy years of coding in one hour. BIG CODE BOOK</title>
-<link rel="stylesheet" href="../css/book.css">
+<link rel="stylesheet" href="../css/book.css?v=20260922b">
 <meta name="theme-color" content="#0b0b0d">
 <link rel="manifest" href="../manifest.json">
 <link rel="apple-touch-icon" href="../img/icon-180.png">
@@ -220,6 +220,6 @@ console.log("level 2:", slots.reduce((a, b) => a + b, 0));
 
   <details class="hole"><summary>RABBIT HOLE: what a compiler actually does</summary><p>It reads your text into words, works out the grammar into a tree, checks the tree makes sense, then walks it producing instructions. JavaScript does not do this ahead of time. The engine in your browser reads the text, starts interpreting it immediately, and compiles the hot parts to machine code while the program is already running. That is why a JavaScript file needs no build step to work and why the same file runs on an iPhone and a Mac despite different chips: the engine on each does the translating. TypeScript, meanwhile, compiles to JavaScript and then throws all the type information away, because the browser never sees it. Chapter 21.</p></details>
 </main>
-<script src="../js/book.js?v=20260921-2"></script>
+<script src="../js/book.js?v=20260922b"></script>
 </body>
 </html>

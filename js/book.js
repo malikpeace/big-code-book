@@ -164,6 +164,7 @@
     side.appendChild(el('a', { class: 'ch', href: root + 'glossary.html' }, [el('span', { class: 'n' }, ['']), el('span', {}, ['Glossary'])]));
   }
   function mountChrome() {
+    if ($('.wrap')) return; // never mount twice (a stale cached script once did)
     var wrap = el('div', { class: 'wrap' });
     side = el('nav', { class: 'side', 'aria-label': 'Contents' });
     var main = $('main') || el('main');
@@ -201,13 +202,33 @@
         go(root + 'chapters/' + pad + '-' + c[1] + '.html', true);
       }, { passive: true });
     })();
-    // Swipe in from the left edge opens the contents, like a native drawer.
-    var sx = null, sy = null;
-    document.addEventListener('touchstart', function (e) { var t = e.touches[0]; sx = t.clientX < 24 ? t.clientX : null; sy = t.clientY; }, { passive: true });
-    document.addEventListener('touchmove', function (e) {
-      if (sx === null) return; var t = e.touches[0];
-      if (t.clientX - sx > 50 && Math.abs(t.clientY - sy) < 40) { side.classList.add('open'); document.body.classList.add('drawer-open'); sx = null; }
-    }, { passive: true });
+    // Contents drawer: follows the finger in from the left edge and back out, then snaps.
+    (function () {
+      var x0 = 0, y0 = 0, t0 = 0, mode = null, w = 0;
+      function pos(px) { side.style.transform = 'translateX(' + Math.min(0, px) + 'px)'; }
+      document.addEventListener('touchstart', function (e) {
+        var t = e.touches[0]; w = side.offsetWidth; mode = null;
+        if (side.classList.contains('open')) { if (side.contains(e.target) && t.clientX > w - 24 && false) return; mode = 'close'; }
+        else if (t.clientX < 22) mode = 'open'; else return;
+        x0 = t.clientX; y0 = t.clientY; t0 = Date.now();
+      }, { passive: true });
+      document.addEventListener('touchmove', function (e) {
+        if (!mode) return; var t = e.touches[0], dx = t.clientX - x0, dy = t.clientY - y0;
+        if (Math.abs(dy) > Math.abs(dx) && Math.abs(dy) > 10 && !side.classList.contains('dragging')) { mode = null; return; }
+        side.classList.add('dragging');
+        pos(mode === 'open' ? -w + Math.max(0, dx) : Math.min(0, dx));
+        if (e.cancelable) e.preventDefault();
+      }, { passive: false });
+      function done(e) {
+        if (!mode) return; var t = e.changedTouches[0], dx = t.clientX - x0, dt = Date.now() - t0, fast = Math.abs(dx) / Math.max(1, dt) > 0.5;
+        side.classList.remove('dragging'); side.style.transform = '';
+        var open = mode === 'open' ? (dx > w * 0.35 || (fast && dx > 30)) : !(dx < -w * 0.35 || (fast && dx < -30));
+        side.classList.toggle('open', open); document.body.classList.toggle('drawer-open', open);
+        mode = null;
+      }
+      document.addEventListener('touchend', done, { passive: true });
+      document.addEventListener('touchcancel', done, { passive: true });
+    })();
   }
 
   /* ---------- 7. Chapter furniture: prev/next, done button, tags ---------- */
@@ -544,10 +565,10 @@
   function audiobook() {
     window.BIG_CODE_BOOK_AUDIO = { root: root, chapter: chapterNo, chapters: CHAPTERS };
     var style = document.createElement('link');
-    style.rel = 'stylesheet'; style.href = root + 'css/audiobook.css?v=20260922';
+    style.rel = 'stylesheet'; style.href = root + 'css/audiobook.css?v=20260922b';
     document.head.appendChild(style);
     var script = document.createElement('script');
-    script.src = root + 'js/audiobook.js?v=20260922';
+    script.src = root + 'js/audiobook.js?v=20260922b';
     script.defer = true;
     document.body.appendChild(script);
   }
