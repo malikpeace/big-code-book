@@ -215,17 +215,19 @@
 
   /* ---------- 8. Device gating ---------- */
   function gateMacOnly() {
+    // The exercise stays in the page (hidden) so the audio's paragraph map still lines up.
     $$('[data-device="mac"]').forEach(function (ex) {
-      if (!isPhone()) return;
+      if (!isPhone() || ex.previousElementSibling && ex.previousElementSibling.classList.contains('macgate')) return;
       var p = progress();
       var panel = el('div', { class: 'macgate' }, [
         el('div', {}, [el('strong', {}, ['Mac only.']), ' This part needs Terminal, and a phone does not have one. Skip it for now, or continue on your Mac.']),
         el('div', { class: 'btns' }, [
           el('button', { class: 'btn', onclick: function () { p.skipped[chapterNo] = true; saveProgress(p); panel.querySelector('.btns').textContent = 'Skipped. It is waiting for you on the Mac.'; } }, ['Skip for now']),
-          el('button', { class: 'btn primary', onclick: function () { panel.replaceWith(ex); } }, ['Show it anyway'])
+          el('button', { class: 'btn primary', onclick: function () { panel.remove(); ex.style.display = ''; } }, ['Show it anyway'])
         ])
       ]);
-      ex.replaceWith(panel);
+      ex.parentNode.insertBefore(panel, ex);
+      ex.style.display = 'none';
     });
   }
 
