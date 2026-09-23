@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>17. Databases, SQL, migrations, and the trust-boundary bug. BIG CODE BOOK</title>
-<link rel="stylesheet" href="../css/book.css?v=20260922b">
+<link rel="stylesheet" href="../css/book.css?v=20260923">
 <meta name="theme-color" content="#0b0b0d">
 <link rel="manifest" href="../manifest.json">
 <link rel="apple-touch-icon" href="../img/icon-180.png">
@@ -287,6 +287,6 @@ begin
 
   <details class="hole"><summary>RABBIT HOLE: what "security definer" means, and why it is a loaded gun</summary><p><code>sync_user_state</code> is declared <code>security definer</code>: it runs with its creator's permissions, usually an admin, not the caller's. That is how it writes to a table the caller may not touch directly, which is the design, since direct writes are dropped and this function is the only door. It is also how you build a hole, because anyone can call it. Two guards, both in the quoted lines: it raises <code>'Authentication required'</code> when <code>auth.uid()</code> is empty, and it sets <code>search_path</code> to nothing, so an attacker cannot plant a same-named table the database would find first.</p></details>
 </main>
-<script src="../js/book.js?v=20260922b"></script>
+<script src="../js/book.js?v=20260923"></script>
 </body>
 </html>

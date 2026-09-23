@@ -190,7 +190,7 @@
       var x0 = 0, y0 = 0, t0 = 0;
       document.addEventListener('touchstart', function (e) {
         var t = e.touches[0];
-        if (t.clientX < 24 || e.target.closest('.audio-player, .audio-immersive, .side, .sb, pre, .figscroll, table, input, textarea')) { t0 = 0; return; }
+        if (t.clientX < 24 || e.target.closest('.audio-player, .audio-immersive, .side, .sb, pre, .figscroll, table, input, textarea, .bcb-extra, iframe')) { t0 = 0; return; }
         x0 = t.clientX; y0 = t.clientY; t0 = Date.now();
       }, { passive: true });
       document.addEventListener('touchend', function (e) {
@@ -565,12 +565,15 @@
   function audiobook() {
     window.BIG_CODE_BOOK_AUDIO = { root: root, chapter: chapterNo, chapters: CHAPTERS };
     var style = document.createElement('link');
-    style.rel = 'stylesheet'; style.href = root + 'css/audiobook.css?v=20260922b';
+    style.rel = 'stylesheet'; style.href = root + 'css/audiobook.css?v=20260923';
     document.head.appendChild(style);
     var script = document.createElement('script');
-    script.src = root + 'js/audiobook.js?v=20260922b';
+    script.src = root + 'js/audiobook.js?v=20260923';
     script.defer = true;
     document.body.appendChild(script);
+    var extras = document.createElement('script');
+    extras.src = root + 'js/extras.js?v=20260923';
+    document.body.appendChild(extras);
   }
   document.addEventListener('DOMContentLoaded', function () { gate(boot); });
 })();

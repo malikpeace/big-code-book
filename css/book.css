@@ -289,3 +289,35 @@ html.focus .focus-exit { display: inline-block; }
 .continue .t { display: block; font-size: 20px; font-weight: 700; letter-spacing: -0.01em; }
 .continue .s { display: block; color: var(--text-mid); font-size: 14px; margin-top: 4px; }
 .continue:active { transform: translateY(1px); }
+
+/* Journey strip: where this chapter sits on the chapter 2 map. */
+.jstrip { margin: -8px 0 28px; display: grid; gap: 6px; }
+.jrow { display: flex; flex-wrap: wrap; gap: 5px; align-items: center; }
+.jside { width: 52px; flex: none; font-size: 11px; font-weight: 700; color: var(--text-lo); }
+.jstop { font-size: 12px; line-height: 1; padding: 6px 8px; border-radius: 7px; background: var(--panel); color: var(--text-lo); }
+.jstop.lit { background: color-mix(in srgb, var(--accent) 16%, transparent); color: var(--text-hi); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 55%, transparent); }
+.jcap { font-size: 13px; color: var(--text-mid); margin-top: 2px; }
+html.focus .jstrip { display: none; }
+
+/* Try it: Codex's interactives and break-it labs, placed in their chapters. */
+.bcb-try h2 { margin-top: 36px; }
+.bcb-card { background: var(--panel); border-radius: var(--r-m); padding: 16px 18px; margin: 0 0 16px; box-shadow: inset 0 1px 0 rgba(255,255,255,0.05); }
+.bcb-card-h { display: flex; gap: 8px; align-items: center; margin-bottom: 6px; }
+.bcb-kind { font-size: 11px; font-weight: 700; color: var(--accent); }
+.bcb-mac { font-size: 11px; font-weight: 700; color: var(--text-lo); padding: 2px 6px; border-radius: 5px; background: var(--panel-2); }
+.bcb-card-t { font-size: 18px; font-weight: 700; margin-bottom: 6px; letter-spacing: -0.01em; }
+.bcb-card p { margin: 0 0 12px; text-indent: 0; font-size: 0.94em; }
+.bcb-card .bcb-dim { color: var(--text-mid); font-size: 0.86em; }
+.bcb-hints { font-size: 0.94em; }
+.bcb-cmd { font-size: 13px; margin: 0 0 12px; }
+.bcb-hints { margin: 0 0 12px; padding-left: 20px; }
+.bcb-hints li { margin-bottom: 6px; }
+.bcb-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+.bcb-fix { margin-top: 12px; white-space: pre-wrap; font: 13px/1.55 var(--mono); background: var(--code-bg); border-radius: var(--r-s); padding: 12px 14px; }
+.bcb-frame { width: 100%; height: 360px; border: 0; border-radius: var(--r-s); background: var(--bg-2); }
+/* Codex's widgets, recoloured to the book. */
+.bcb-widget .bcb-i { --i-bg: var(--bg-2); --i-ink: var(--text-hi); --i-dim: var(--text-mid); --i-line: var(--hair-2); --i-accent: var(--accent); border: 0; border-radius: var(--r-s); margin: 4px 0 0; font-family: var(--font); }
+.bcb-widget .bcb-i h3 { display: none; }
+.bcb-widget .bcb-i button, .bcb-widget .bcb-i select, .bcb-widget .bcb-i input, .bcb-widget .bcb-i textarea { border-radius: 8px; }
+.bcb-widget .bcb-i pre { white-space: pre-wrap; }
+@media (max-width: 599px) { .bcb-widget .bcb-i .i-grid-3 { grid-template-columns: 1fr; } }

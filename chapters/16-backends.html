@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>16. Backends: servers, routes, handlers, edge functions. BIG CODE BOOK</title>
-<link rel="stylesheet" href="../css/book.css?v=20260922b">
+<link rel="stylesheet" href="../css/book.css?v=20260923">
 <meta name="theme-color" content="#0b0b0d">
 <link rel="manifest" href="../manifest.json">
 <link rel="apple-touch-icon" href="../img/icon-180.png">
@@ -261,6 +261,6 @@ Content-Type: application/json
   <div class="box expiry"><div class="h">WHERE TODAY'S ANALOGY BREAKS</div><p><strong>Breaks when:</strong> you picture one receptionist, at one desk, remembering the morning. An edge function has no desk. Dozens of copies of it can be running at once in different cities, any of them can be shut down the moment it stops being called, and the next request may be answered by a copy that has never run before and remembers nothing. That is why the rate limit counts in a shared database instead of a variable in the file: a variable would be counting one copy's morning, which is worth nothing. It is also why the first call after a quiet spell is slower, a cold start. <strong>Real model:</strong> a handler is a pure-ish function that receives a request and returns a response, run on a machine that may not exist five seconds later. Every piece of memory that has to outlive one request belongs in a database. Chapter 17 is that database.</p></div>
   <details class="hole"><summary>CAMEO: Deno vs Node, and why Memento uses both</summary><p>Both run JavaScript outside a browser, which for most of the language's life was a niche curiosity and since Node in 2009 is ordinary. <dfn data-term="node">Node</dfn> came first and brought npm with it; Memento Jr is Node, which is why its first lines say <code>require("http")</code>. <dfn data-term="deno">Deno</dfn> is the newer one, built by the same person, and it runs TypeScript directly with no build step and reads its environment through <code>Deno.env</code>. Supabase's edge functions run on Deno, so Memento's backend is Deno and its practice server is Node. The language is the same. The standard library and the import style differ, which is exactly the kind of difference that makes an AI agent write confidently wrong code if you do not tell it which runtime it is in.</p></details>
 </main>
-<script src="../js/book.js?v=20260922b"></script>
+<script src="../js/book.js?v=20260923"></script>
 </body>
 </html>

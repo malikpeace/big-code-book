@@ -139,7 +139,7 @@
     return candidates.filter(function (node) {
       var nested = candidates.some(function (other) { return other !== node && other.contains(node); });
       var text = (node.textContent || '').replace(/\s+/g, ' ').trim();
-      return text.length >= 2 && !nested && !node.closest('pre, script, style, svg, textarea, button, nav, .sb, .src, .audio-player, .audio-library, .audio-immersive');
+      return text.length >= 2 && !nested && !node.closest('pre, script, style, svg, textarea, button, nav, .sb, .src, .audio-player, .audio-library, .audio-immersive, .bcb-extra');
     });
   }
   function chapterEntry(number) {
@@ -663,7 +663,7 @@
     // Tap any narrated paragraph to play the audio from its start.
     document.addEventListener('click', function (event) {
       if (!pageChapter || !manifest) return;
-      if (event.target.closest('a, button, dfn, .term, summary, input, select, textarea, code, pre, .sb, .pop, .audio-player, .audio-immersive, svg, label')) return;
+      if (event.target.closest('a, button, dfn, .term, summary, input, select, textarea, code, pre, .sb, .pop, .audio-player, .audio-immersive, svg, label, .bcb-extra')) return;
       var sel = window.getSelection && window.getSelection();
       if (sel && String(sel).length) return; // the reader is selecting text, not tapping
       var node = event.target.closest('main p, main li, main dd, main dt, main td, main th, main h1, main h2, main h3, main figcaption, main .h, main .check > .a');

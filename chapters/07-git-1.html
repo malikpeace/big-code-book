@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>7. Git 1: snapshots and history. BIG CODE BOOK</title>
-<link rel="stylesheet" href="../css/book.css?v=20260922b">
+<link rel="stylesheet" href="../css/book.css?v=20260923">
 <meta name="theme-color" content="#0b0b0d">
 <link rel="manifest" href="../manifest.json">
 <link rel="apple-touch-icon" href="../img/icon-180.png">
@@ -238,6 +238,6 @@ of the staging area. Do not change anything.</code></pre></div>
   <details class="hole"><summary>RABBIT HOLE: what is actually inside .git</summary><p>Four kinds of object, all stored by fingerprint. A <em>blob</em> is one file's contents with no name. A <em>tree</em> is a folder listing: names plus the fingerprints they point at, including other trees. A <em>commit</em> names one tree, its parents, an author, a time and a message. A <em>tag</em> names a commit with a human label. On top of that sits a small folder of <em>refs</em>, which are plain text files each containing one hash, and those are branches. That is the entire design. Everything else in git, every command and every flag, is manipulation of those four object types and those one-line ref files. Linus Torvalds wrote the first working version in about ten days in 2005, which chapter 3 put on the timeline.</p></details>
 
 </main>
-<script src="../js/book.js?v=20260922b"></script>
+<script src="../js/book.js?v=20260923"></script>
 </body>
 </html>

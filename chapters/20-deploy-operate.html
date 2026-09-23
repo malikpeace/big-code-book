@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>20. Deploy and operate. BIG CODE BOOK</title>
-<link rel="stylesheet" href="../css/book.css?v=20260922b">
+<link rel="stylesheet" href="../css/book.css?v=20260923">
 <meta name="theme-color" content="#0b0b0d">
 <link rel="manifest" href="../manifest.json">
 <link rel="apple-touch-icon" href="../img/icon-180.png">
@@ -301,6 +301,6 @@ window.MEMENTO_JS_BUILD = 'v1378';</code></pre>
 
   <details class="hole"><summary>RABBIT HOLE: why a DNS change "takes time"</summary><p>Nobody asks the authoritative server every time. Answers are cached, all the way down the chain: your phone, your router, your internet provider, and the resolvers in between. Every answer comes with a TTL, a time to live, which says how long it may be reused. So when you point a name at a new machine, the old answer keeps being handed out until the TTLs expire, and different people switch over at different times. That is the whole reason for the advice to lower the TTL a day before a move: you are asking the world to stop holding the old answer for so long. It is the same mechanism as the <code>?v=</code> tags, one layer down, and it fails the same way.</p></details>
 </main>
-<script src="../js/book.js?v=20260922b"></script>
+<script src="../js/book.js?v=20260923"></script>
 </body>
 </html>

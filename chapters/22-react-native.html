@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>22. React and React Native: components, props, state, hooks. BIG CODE BOOK</title>
-<link rel="stylesheet" href="../css/book.css?v=20260922b">
+<link rel="stylesheet" href="../css/book.css?v=20260923">
 <meta name="theme-color" content="#0b0b0d">
 <link rel="manifest" href="../manifest.json">
 <link rel="apple-touch-icon" href="../img/icon-180.png">
@@ -372,6 +372,6 @@ const styles = StyleSheet.create({
 
   <details class="hole"><summary>RABBIT HOLE: why hooks may not go inside an if</summary><p>React does not know your hooks' names. It matches them by call order: first, second, third. A hook inside an <code>if</code> changes the count between renders, so React hands your second hook the memory belonging to your third. Hence the rule, hooks at the top level always, enforced by a lint rule in every React project alive. One strange rule, in exchange for components that stay simple functions instead of classes.</p></details>
 </main>
-<script src="../js/book.js?v=20260922b"></script>
+<script src="../js/book.js?v=20260923"></script>
 </body>
 </html>
